@@ -15,6 +15,10 @@
 set -uo pipefail
 export PATH="$HOME/.local/bin:$PATH"
 
+# Un solo dotsync a la vez (timer + manual podían chocar al hacer push).
+exec 9>"${XDG_RUNTIME_DIR:-/tmp}/dotsync.lock"
+flock -w 120 9 || { echo "dotsync: ya hay otro corriendo"; exit 0; }
+
 SRC=$(chezmoi source-path 2>/dev/null) || { echo "chezmoi no está inicializado"; exit 1; }
 EQ=$(chezmoi execute-template '{{ .equipo }}')
 LISTA="$SRC/.hosts-lista"
