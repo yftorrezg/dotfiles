@@ -4,6 +4,7 @@ CLAUDE.md
 docs/
 laptop/
 pc/
+windows/
 
 # Solo laptop: lógica de monitores dinámica (la PC tiene 2 monitores fijos)
 {{ if ne .equipo "laptop" }}

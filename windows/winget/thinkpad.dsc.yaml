@@ -1,0 +1,206 @@
+# winget configure --file thinkpad.dsc.yaml
+# Programas de la ThinkPad E14 Gen4 (Windows 11). Ya venían instalados: Brave, VS Code, Python 3.12, Node, Git, gh, Google Drive, Claude Code.
+# yaml-language-server: $schema=https://aka.ms/configuration-dsc-schema/0.2
+properties:
+  configurationVersion: 0.2.0
+  resources:
+    - resource: Microsoft.WinGet.DSC/WinGetPackage
+      id: Microsoft_WindowsTerminal
+      directives:
+        description: Terminal
+        securityContext: current
+      settings:
+        id: Microsoft.WindowsTerminal
+        source: winget
+    - resource: Microsoft.WinGet.DSC/WinGetPackage
+      id: Microsoft_PowerShell
+      directives:
+        description: PowerShell 7
+        securityContext: current
+      settings:
+        id: Microsoft.PowerShell
+        source: winget
+    - resource: Microsoft.WinGet.DSC/WinGetPackage
+      id: Starship_Starship
+      directives:
+        description: Prompt (como en fish)
+        securityContext: current
+      settings:
+        id: Starship.Starship
+        source: winget
+    - resource: Microsoft.WinGet.DSC/WinGetPackage
+      id: ajeetdsouza_zoxide
+      directives:
+        description: z para saltar de carpeta
+        securityContext: current
+      settings:
+        id: ajeetdsouza.zoxide
+        source: winget
+    - resource: Microsoft.WinGet.DSC/WinGetPackage
+      id: junegunn_fzf
+      directives:
+        description: Buscador difuso
+        securityContext: current
+      settings:
+        id: junegunn.fzf
+        source: winget
+    - resource: Microsoft.WinGet.DSC/WinGetPackage
+      id: eza_community_eza
+      directives:
+        description: ls moderno
+        securityContext: current
+      settings:
+        id: eza-community.eza
+        source: winget
+    - resource: Microsoft.WinGet.DSC/WinGetPackage
+      id: sharkdp_bat
+      directives:
+        description: cat con colores
+        securityContext: current
+      settings:
+        id: sharkdp.bat
+        source: winget
+    - resource: Microsoft.WinGet.DSC/WinGetPackage
+      id: BurntSushi_ripgrep_MSVC
+      directives:
+        description: rg
+        securityContext: current
+      settings:
+        id: BurntSushi.ripgrep.MSVC
+        source: winget
+    - resource: Microsoft.WinGet.DSC/WinGetPackage
+      id: sharkdp_fd
+      directives:
+        description: fd
+        securityContext: current
+      settings:
+        id: sharkdp.fd
+        source: winget
+    - resource: Microsoft.WinGet.DSC/WinGetPackage
+      id: DEVCOM_JetBrainsMonoNerdFont
+      directives:
+        description: Fuente de la terminal
+        securityContext: current
+      settings:
+        id: DEVCOM.JetBrainsMonoNerdFont
+        source: winget
+    - resource: Microsoft.WinGet.DSC/WinGetPackage
+      id: Microsoft_PowerToys
+      directives:
+        description: Command Palette, FancyZones, Text Extractor, Workspaces
+        securityContext: current
+      settings:
+        id: Microsoft.PowerToys
+        source: winget
+    - resource: Microsoft.WinGet.DSC/WinGetPackage
+      id: AutoHotkey_AutoHotkey
+      directives:
+        description: Atajos (yafer.ahk)
+        securityContext: current
+      settings:
+        id: AutoHotkey.AutoHotkey
+        source: winget
+    - resource: Microsoft.WinGet.DSC/WinGetPackage
+      id: Obsidian_Obsidian
+      directives:
+        description: Apuntes
+        securityContext: current
+      settings:
+        id: Obsidian.Obsidian
+        source: winget
+    - resource: Microsoft.WinGet.DSC/WinGetPackage
+      id: ShareX_ShareX
+      directives:
+        description: Capturas avanzadas
+        securityContext: current
+      settings:
+        id: ShareX.ShareX
+        source: winget
+    - resource: Microsoft.WinGet.DSC/WinGetPackage
+      id: cjpais_Handy
+      directives:
+        description: Dictado local
+        securityContext: current
+      settings:
+        id: cjpais.Handy
+        source: winget
+    - resource: Microsoft.WinGet.DSC/WinGetPackage
+      id: shinchiro_mpv
+      directives:
+        description: Reproductor de estudio
+        securityContext: current
+      settings:
+        id: shinchiro.mpv
+        source: winget
+    - resource: Microsoft.WinGet.DSC/WinGetPackage
+      id: DuongDieuPhap_ImageGlass
+      directives:
+        description: Visor de imágenes
+        securityContext: current
+      settings:
+        id: DuongDieuPhap.ImageGlass
+        source: winget
+    - resource: Microsoft.WinGet.DSC/WinGetPackage
+      id: KeePassXCTeam_KeePassXC
+      directives:
+        description: Contraseñas
+        securityContext: current
+      settings:
+        id: KeePassXCTeam.KeePassXC
+        source: winget
+    - resource: Microsoft.WinGet.DSC/WinGetPackage
+      id: LocalSend_LocalSend
+      directives:
+        description: Pasar archivos al celular
+        securityContext: current
+      settings:
+        id: LocalSend.LocalSend
+        source: winget
+    - resource: Microsoft.WinGet.DSC/WinGetPackage
+      id: yt_dlp_yt_dlp
+      directives:
+        description: descargar
+        securityContext: current
+      settings:
+        id: yt-dlp.yt-dlp
+        source: winget
+    - resource: Microsoft.WinGet.DSC/WinGetPackage
+      id: Gyan_FFmpeg
+      directives:
+        description: ffmpeg y ffplay
+        securityContext: current
+      settings:
+        id: Gyan.FFmpeg
+        source: winget
+    - resource: Microsoft.WinGet.DSC/WinGetPackage
+      id: Anthropic_Claude
+      directives:
+        description: Claude Desktop
+        securityContext: current
+      settings:
+        id: Anthropic.Claude
+        source: winget
+    - resource: Microsoft.WinGet.DSC/WinGetPackage
+      id: Elgato_StreamDeck
+      directives:
+        description: Stream Deck XL
+        securityContext: current
+      settings:
+        id: Elgato.StreamDeck
+        source: winget
+    - resource: Microsoft.WinGet.DSC/WinGetPackage
+      id: Logitech_OptionsPlus
+      directives:
+        description: MX Master 4
+        securityContext: current
+      settings:
+        id: Logitech.OptionsPlus
+        source: winget
+    - resource: Microsoft.WinGet.DSC/WinGetPackage
+      id: 9WZDNCRFJ4MV
+      directives:
+        description: Lenovo Vantage
+        securityContext: current
+      settings:
+        id: 9WZDNCRFJ4MV
+        source: msstore

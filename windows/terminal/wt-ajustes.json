@@ -1,0 +1,35 @@
+{
+  "globales": {
+    "copyOnSelect": true,
+    "copyFormatting": "none",
+    "firstWindowPreference": "persistedWindowLayout",
+    "launchMode": "default",
+    "theme": "dark",
+    "tabWidthMode": "compact",
+    "confirmCloseAllTabs": false,
+    "minimizeToNotificationArea": false
+  },
+  "defaults": {
+    "font": { "face": "JetBrainsMono Nerd Font", "size": 11 },
+    "colorScheme": "One Half Dark",
+    "opacity": 95,
+    "useAcrylic": false,
+    "padding": "6",
+    "cursorShape": "bar",
+    "historySize": 20000,
+    "bellStyle": "none",
+    "antialiasingMode": "cleartype"
+  },
+  "actions": [
+    { "id": "User.yafer.tabNueva",   "command": { "action": "newTab" } },
+    { "id": "User.yafer.dividir",    "command": { "action": "splitPane", "split": "auto", "splitMode": "duplicate" } },
+    { "id": "User.yafer.cerrarPane", "command": { "action": "closePane" } },
+    { "id": "User.yafer.quake",      "command": { "action": "globalSummon", "name": "_quake", "dropdownDuration": 120 } }
+  ],
+  "keybindings": [
+    { "id": "User.yafer.tabNueva",   "keys": "ctrl+shift+t" },
+    { "id": "User.yafer.dividir",    "keys": "ctrl+shift+enter" },
+    { "id": "User.yafer.cerrarPane", "keys": "ctrl+shift+w" },
+    { "id": "User.yafer.quake",      "keys": "win+`" }
+  ]
+}

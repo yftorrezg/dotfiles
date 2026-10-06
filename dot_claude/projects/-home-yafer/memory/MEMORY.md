@@ -8,3 +8,4 @@
 - [Ahorro de cuota](ahorro-cuota.md) — qué gasta la cuota (sesiones largas con Opus), caveman no conviene
 - [Sync PC↔laptop](dotfiles-sync.md) — chezmoi + dotsync, repo yftorrezg/dotfiles; leer CLAUDE.md del repo antes de tocar config.
 - [Llave Google de rclone](rclone-llave-google.md) — client_id propio en ~/.config/rclone/LEEME-llave-google-drive.txt; úsala tú, el usuario no la gestiona.
+- [Windows de la laptop](windows-thinkpad-setup.md) — W11 con AHK + PowerToys + WT/pwsh en `windows/` del repo; mismos atajos que binds.lua.

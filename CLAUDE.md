@@ -28,6 +28,10 @@ shell noctalia, fish). Se sincroniza por GitHub privado `yftorrezg/dotfiles` con
   (escritorios virtuales, mover entre pantallas, SUPER+Tab, teclas Fn) está en `config/binds_equipo.lua` (por equipo),
   que `binds.lua` carga con `require("config.binds_equipo")`.
 - **Solo laptop** (`.chezmoiignore`): `config/escritorios.lua` (tabla global `VD`: monitores dinámicos, tapa) y `mpv/scripts/bateria.lua`.
+- **Windows 11 de la laptop** (`windows/`, ignorado por chezmoi): AutoHotkey v2 (`ahk/yafer.ahk` = los mismos atajos de `binds.lua`),
+  pwsh 7 + Windows Terminal, mpv (unión `%APPDATA%\mpv` → `windows/mpv`), SUPER+R con edge-tts (usa el `limpiar-texto.py` común),
+  `winget/thinkpad.dsc.yaml`, `bootstrap.ps1`. Si cambias un atajo común en `binds.lua`, refléjalo en `yafer.ahk` y `ATAJOS-WINDOWS.md`.
+  Lo pesado (doblar, auto-captura, cuadernillos, `estudiar.py`) queda solo en CachyOS.
 - **Nunca se sincroniza**: `/etc`, secretos (rclone.conf, pass de restic, tokens gh), paquetes, datos, `.local/state/mpv`, plugins de OpenDeck, iconos.
 - `docs/migracion/` = documentación completa de la PC (docs 01-08, GAPS, LIMPIEZA, paquetes). `laptop/` = scripts usados
   para migrar la laptop + `auditoria.sh`. `docs/base-pc-29-09/` = versión de la PC al 29-09 de los archivos comunes que la
