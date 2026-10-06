@@ -136,12 +136,11 @@ hl.bind(mainMod .. " + ALT + S", hl.dsp.exec_cmd(launchPrefix .. "bash " .. os.g
 hl.bind(mainMod .. " + ALT + Y", hl.dsp.exec_cmd(launchPrefix .. "bash " .. os.getenv("HOME") .. "/.config/hypr/scripts/youtube-capturas.sh"))
 -- SUPER+ALT+A: elegir la carpeta de un curso y sacar capturas + apuntes de todas las clases (segundo plano)
 hl.bind(mainMod .. " + ALT + A", hl.dsp.exec_cmd(launchPrefix .. "bash " .. os.getenv("HOME") .. "/.config/hypr/scripts/curso-apuntes-elegir.sh"))
--- (29/09/2026) Centro de estudio: SUPER+ALT+B abre la próxima clase (pre-test, apuntes, práctica, tests)
-hl.bind(mainMod .. " + ALT + B", hl.dsp.exec_cmd(launchPrefix .. "python3 " .. os.getenv("HOME") .. "/.config/hypr/scripts/estudiar.py"))
+-- (29/09/2026) Centro de estudio: SUPER+I abre la próxima clase (pre-test, apuntes, práctica, tests)
+hl.bind(mainMod .. " + I", hl.dsp.exec_cmd(launchPrefix .. "python3 " .. os.getenv("HOME") .. "/.config/hypr/scripts/estudiar.py"))
 -- SUPER+ALT+V: verificar (correr) los tests de la práctica de la clase actual → notificación ✅/❌
 hl.bind(mainMod .. " + ALT + V", hl.dsp.exec_cmd(launchPrefix .. "python3 " .. os.getenv("HOME") .. "/.config/hypr/scripts/estudiar.py --tests"))
--- SUPER+ALT+P: pomodoro (antes solo en el Stream Deck)
-hl.bind(mainMod .. " + ALT + P", hl.dsp.exec_cmd(launchPrefix .. "bash " .. os.getenv("HOME") .. "/.config/hypr/scripts/pomodoro-toggle.sh"))
+-- (06/10/2026) Pomodoro sin atajo de teclado (el usuario no lo usa); sigue en el Stream Deck (scripts/pomodoro-toggle.sh).
 
 -- (24/09/2026) Quitado SUPER+SHIFT+W (fondos de pantalla): sin uso, sigue en el Stream Deck.
 

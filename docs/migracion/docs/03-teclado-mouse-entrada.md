@@ -254,4 +254,21 @@ systemctl --user enable --now xremap    # config vacía; solo si lo pide
 | ydotool / wtype | 1.0.4 / 0.4 | repo |
 | hyprland | 0.56.2 | repo CachyOS |
 
-No instalados: keyd, interception-tools, iptsd, linux-surface, libwacom-surface, hyprgrass, touchegg/fusuma/libinput-gestures. No existe `~/.claude/keybindings.json`.
+`keyd` **sí está instalado en la PC** (mouse Scimitar, doc 03 §9; no hace falta en la laptop). No instalados: interception-tools, iptsd, linux-surface, libwacom-surface, hyprgrass, touchegg/fusuma/libinput-gestures. No existe `~/.claude/keybindings.json`.
+
+
+## 9. Mouse Corsair Scimitar RGB Elite + keyd (solo PC; añadido 05-10)
+
+**No se replica en la ThinkPad** (es hardware de la PC). Se documenta porque es parte del flujo de la PC y por si se enchufa el mouse en otra máquina.
+
+- **Idea:** la memoria interna del mouse (programada desde Windows) manda atajos; **keyd** (servicio de sistema) los convierte en `F14..F24` solo para ese mouse y Hyprland les da la acción. Botones físicos en cuadrícula: `1 2 3 / 4 5 6 / 7 8 9 / 10 11 12`.
+- **Archivos:** `/etc/keyd/default.conf` (copia en `~/.config/hypr/keyd-scimitar.conf`; en el paquete: `solo-esta-pc/system/etc/keyd/default.conf`), `~/.config/hypr/scripts/mouse-accion.sh`, `mouse-lib.sh`, `mouse-modo.sh`, y el bloque de binds `code:192`–`202` al final de `binds.lua`.
+- **Siempre iguales:** 1/4 adelante/atrás · 2/3/5/6 → escritorios 2/3/4/5 · 10/11/12 cambian de modo M1/M2/M3 · rueda (clic) = captura · botón de velocidad = DPI nativo.
+- **Cambian por modo (7, 8, 9):** M1 Estudio = leer (SUPER+R) / captura guardada (CTRL+SHIFT+S) / modo estudiar (SUPER+I) · M2 Programación = CTRL+S / CTRL+P / CTRL+` · M3 Redes = YouTube / Telegram / Instagram. Se cambian editando `mouse-accion.sh` (líneas `M:botón`).
+- **Notas técnicas:** Hyprland no resuelve los nombres F13–F24 con layout `us`, por eso se bindea por keycode (F14=192 … F24=202). keyd no admite comentarios en la misma línea que una regla. **ckb-next** (en la PC, autostart) no entiende los botones laterales de este modelo; su config está en `solo-esta-pc/`.
+- **Instalar en otra máquina (solo si hace falta):** `sudo pacman -S keyd && sudo cp default.conf /etc/keyd/ && sudo systemctl enable --now keyd`; ajustar el vendor:product del mouse en `default.conf` (`keyd monitor`).
+- Guía del usuario: `guias-usuario/atajos-y-mouse.md`.
+- **xremap** sigue corriendo con reglas vacías (§4); su `config.yml` y `xremap.service` ahora están en `dotfiles/`.
+
+### 9.1 Gwenview (visor de imágenes) — añadido al paquete el 06-10
+`~/.config/gwenviewrc` (`ColorScheme=noctalia`) y `~/.local/share/kxmlgui5/gwenview/gwenviewui.rc` (atajos A/D/Q/E/C/X/F/W/T/I/S) **ya viajan en `dotfiles/`**; antes faltaban. Requiere `kimageformats` y `qt6-imageformats` (formatos webp/avif/heif). `qt5ct/colors` también está.

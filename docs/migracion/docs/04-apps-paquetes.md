@@ -27,7 +27,7 @@ Archivos relacionados en `~/migracion-cachyos/`:
 | PDF | **Brave** (ventana nueva) | `brave-new-window.desktop` |
 | Capturas | noctalia (Impr / SUPER+Impr) → **satty** para editar; scripts `captura-guardar.sh` (CTRL+SHIFT+S) y `captura-portapapeles.sh` (SUPER+SHIFT+S) con grim+slurp; auto-captura de cursos `auto-captura-toggle.sh` (SUPER+ALT+S) y `video-a-capturas.sh` | auto-captura necesita `python-numpy`, `python-pillow`, `yt-dlp`, `ffmpeg` |
 | Notas | **Obsidian** | SUPER+N |
-| Código | **VS Code** (`visual-studio-code-bin`, AUR) | SUPER+G (enfoca/abre en escritorio 4). Los `.md` fuera de una bóveda de Obsidian se abren en VS Code (desde el 28-09 vía `abrir-markdown.desktop`, ver doc 06 §3.4) |
+| Código | **VS Code** (`visual-studio-code-bin`, AUR) | SUPER+G (enfoca o abre VS Code; ya no se fija al escritorio 4). Los `.md` fuera de una bóveda de Obsidian se abren en VS Code (desde el 28-09 vía `abrir-markdown.desktop`, ver doc 06 §3.4) |
 | Texto plano | gnome-text-editor | viene con noctalia |
 | Calculadora | gnome-calculator | tecla XF86Calculator |
 | Ofimática | LibreOffice (Writer, Impress) | CTRL+ALT+Escape mata LibreOffice colgado |
@@ -81,9 +81,17 @@ for m in image/png image/jpeg video/mp4 application/pdf text/html inode/director
 ## 3. Shell: fish
 
 - Shell por defecto: `/bin/fish`. `~/.config/fish/config.fish` solo hace `source /usr/share/cachyos-fish-config/cachyos-config.fish` (paquete `cachyos-fish-config`, viene con CachyOS).
+- **Añadido 2026-10-03 a `config.fish`** (después del `source` de cachyos): `zoxide init fish | source` (comando `z`/`zi`, saltar a carpetas por frecuencia; paquete `zoxide`) y `fzf --fish | source` (atajos `Ctrl+R` historial, `Ctrl+T` archivos, `Alt+C` carpetas con fzf; fzf ya viene como dependencia). Sin estas dos líneas `Ctrl+R` usa el buscador básico de fish y `Ctrl+T`/`Alt+C` no existen. `eza`, `bat`, `rg`, `fd` ya están instalados.
 - **No hay abbr ni funciones propias.** Todas las funciones (`ll`, `la`, `lt`, `update`, `mirror`, `cleanup`, `fixpacman`, `jctl`, `tarnow`, `untar`, `psmem`, `rip`, `backup`, `copy`, `grubup`...) vienen de cachyos-fish-config.
 - `fish_variables` (universales) contiene: `fish_user_paths = ~/.local/bin` (importante: ahí están `claude`, `backup-home.sh`, `edge-tts`), colores del prompt `pure`, y `__done_min_cmd_duration 10000` (notificación si un comando dura >10 s). Se copió `fish_variables`; no contiene secretos.
 - Terminal kitty: `kitty.conf` mínimo (opacidad 1.0, `cursor_trail 1`, `window_padding_width 25`, `include themes/noctalia.conf` — el tema lo genera noctalia).
+
+---
+
+### Dolphin: «Crear nuevo» y «Abrir con» (añadido 2026-10-03)
+- **Plantilla Markdown** en el menú «Crear nuevo»: `~/.local/share/templates/Archivo Markdown.desktop` (+ `Archivo Markdown.md`, que contiene `# `). Copiada en `dotfiles/.local/share/templates/`.
+- **Menú de servicio** «Abrir con Visual Studio Code» / «Abrir con Obsidian» (clic derecho sobre archivo o carpeta): `~/.local/share/kio/servicemenus/abrir-con-editores.desktop` (debe ser **ejecutable**: `chmod +x`). Obsidian se abre con `obsidian://open?path=%f`, solo funciona con rutas dentro de una bóveda ya registrada. Tras copiar: `kbuildsycoca6` y reiniciar Dolphin (`dolphin --quit`).
+- **Snapper** ya hace snapshots pre/post en cada `pacman` (hooks de `snap-pac`; visto en la instalación de zoxide, snapshots 145/146).
 
 ---
 
@@ -129,7 +137,7 @@ sudo pacman -S --needed intel-media-driver vulkan-intel libva-utils
 
 # 2) Apps que usa (repos oficiales + cachyos)
 sudo pacman -S --needed \
-  brave-bin kitty dolphin ark gwenview mpv satty obsidian claude-desktop \
+  brave-bin kitty dolphin ark gwenview mpv satty obsidian claude-desktop zoxide fzf \
   libreoffice-fresh libreoffice-fresh-es keepassxc localsend obs-studio \
   wtype ydotool zenity inotify-tools jq restic rclone \
   python-numpy python-pillow yt-dlp \
@@ -168,3 +176,13 @@ Revisado con `grep -iE 'token|password|secret|key'`: sin secretos (la única "ap
 NO copiados a propósito (contienen tokens/credenciales o son perfiles): perfiles de Brave/Firefox, kwallet/gnome-keyring, `~/.config/gh/hosts.yml`, `~/.config/rclone/rclone.conf`, `~/.config/restic/home-backup.pass`, resto de `~/.config/Code/`. Rehacer en la laptop: `gh auth login`, `rclone config`, login en Brave (sync), Claude.
 
 Restaurar: `cp -a ~/migracion-cachyos/dotfiles/. ~/` (revisar antes `brave-flags.conf`), luego `systemctl --user daemon-reload`.
+
+
+## 7. Paquetes y herramientas nuevas (actualizado 06-10)
+
+- Repo: añadidos `keyd` (solo PC), `ckb-next` (solo PC), `fuse2`, `kimageformats`, `qt6-imageformats` (estos tres sí van a la laptop). Lista completa regenerada en `paquetes/pacman-repo.txt` (227) y `paquetes/aur.txt` (11).
+- **pipx** (`paquetes/pipx.txt`): `pipx install edge-tts gallery-dl` (edge-tts es la voz de respaldo de SUPER+R y `doblar`).
+- `arduino-cli`: no es paquete, se baja del sitio oficial a `~/.local/bin/` si se usa Arduino.
+- Extensiones de VS Code: `paquetes/vscode-extensions.txt` (93); se restauran con Settings Sync.
+- **Limpieza hecha el 06-10 en la PC** (no replicar): caché de uv/pip/npm/paru, worktrees viejos de agentes. Programas **duplicados o sin uso** detectados y que NO conviene instalar en la laptop: alacritty, geeqie, gimp, docker(+compose), qemu/edk2-aarch64, cachyos-hello, firefox (usa Brave). Dudosos: libreoffice, meld, rustdesk, mosquitto, stack libimobiledevice.
+- Servicios que se pueden deshabilitar en la laptop (arranque más rápido): `NetworkManager-wait-online`, `avahi-daemon` (si no hay impresoras de red ni localsend).

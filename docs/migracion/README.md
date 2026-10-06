@@ -2,6 +2,8 @@
 
 **Origen:** PC de escritorio "yf" (laboratorio de pruebas del usuario `yafer`): CachyOS, Hyprland 0.56 con **config en Lua**, shell **Noctalia**, Intel i7-6700K + **NVIDIA GTX 980**, 2 monitores (DP-3 principal, HDMI-A-1 vertical).
 **Fecha del relevamiento:** 2026-09-26 (auditoría completa el mismo día: docs 06, 07, GAPS, LIMPIEZA). **Actualizado 2026-09-28:** sistema de capturas + apuntes automáticos de cursos (doc 06 §3), bóveda Obsidian `~/Vídeos`, doc 08 (Windows 11).
+**Actualizado 2026-10-06:** auditoría y sincronización con la PC (mouse Scimitar + keyd, xremap, Gwenview, ckb-next, paquetes nuevos): ver sección «Cambios recientes (06-10-2026)» al final.
+**Actualizado 2026-10-03:** productividad de shell y Dolphin (zoxide, fzf, plantilla Markdown, «Abrir con VS Code/Obsidian»): doc 04 §3.
 **Destinos:**
 
 | Equipo | CPU / GPU | Pantalla | Notas |
@@ -44,7 +46,11 @@ Ambas: 16 GB RAM, SSD 512 GB, **sin NVIDIA**. Uso normal: **solo la pantalla int
 | `dotfiles/` | Configs de `$HOME`, misma ruta relativa (`dotfiles/.config/hypr/...` → `~/.config/hypr/...`; `dotfiles/Vídeos/.obsidian/` → `~/Vídeos/.obsidian/`, config de la bóveda de apuntes) |
 | `system/etc/` | Configs de `/etc` (logid.cfg, greetd, udev, bluetooth, modprobe...) |
 | `solo-esta-pc/` | Cosas **exclusivas de la PC** que NO van a la laptop (diagnóstico de "teclas fantasma" que ignora el botón de encendido, servicio sin uso). Solo referencia |
-| `claude-memoria/` | Memorias de Claude de la PC |
+| `claude-memoria/` | Memorias de Claude de la PC (y `proyectos/` con las de StreamDeck y Ciego) |
+| `apuntes/` | **Todos los `.md` de apuntes** (1.092 de `~/Vídeos` + Vault de Obsidian), sin las capturas WebP (31 GB, ver `docs/09 §1`) |
+| `claude-planes/` | Planes de Claude (`~/.claude/plans/*.md`) |
+| `proyectos-md/` | `CLAUDE.md`, planes y docs `.md` de los proyectos (amazon, ortodoncia, mundo-animal, Ciego…) |
+| `docs/09-sincronizar-y-mantener.md` | **Dónde restaurar cada cosa, cómo crear el client_id propio de rclone (se retira en 2026) y cómo evitar el desfase PC↔laptop** |
 
 **Secretos NO incluidos** (a propósito): `rclone.conf` (token de Drive → `rclone config`, el usuario usa su propio client_id/secret), contraseña de restic (`~/.config/restic/home-backup.pass`), `gh` (`gh auth login`), perfiles de navegador, llaveros. Pedírselos al usuario.
 
@@ -81,7 +87,7 @@ Ambas: 16 GB RAM, SSD 512 GB, **sin NVIDIA**. Uso normal: **solo la pantalla int
 
 ## Problemas conocidos en la PC (no replicar)
 
-- **DATOS EN RIESGO:** `~/Proyectos/Ciego` (tesis) es un git **sin remoto**. Antes de reinstalar nada, confirmar que el usuario la subió a GitHub (repo privado). Detalle en `docs/GAPS.md`.
+- ~~DATOS EN RIESGO: Ciego sin remoto~~ **resuelto 06-10:** `~/Proyectos/Ciego` está en un repo privado `github.com/yftorrezg/Ciego` (solo código; datasets, modelos `.tflite` y `.venv` NO están en git, los cubre restic).
 - `carpeta-capturas.conf` apunta a un disco externo; en la laptop poner ruta local.
 - `doblar` borra el video original por defecto (`BORRAR_ORIGINAL=1`).
 
@@ -101,3 +107,18 @@ Ambas: 16 GB RAM, SSD 512 GB, **sin NVIDIA**. Uso normal: **solo la pantalla int
 - `.md` por defecto → `abrir-markdown.desktop` (Obsidian si está en una bóveda, si no VS Code). `~/Vídeos` es bóveda de Obsidian: copiar `dotfiles/Vídeos/.obsidian/` y `dotfiles/.config/obsidian/obsidian.json` con Obsidian cerrado.
 - `doblar.py` actualizado (caché por nombre+tamaño, alcance ×1,45, no corta la carpeta ante un error). `voz.conf`: lectura SUPER+R a ×1.2.
 - Noctalia: plantilla Qt oscura propia (`noctalia/templates/qtct-oscuro.conf`, reemplaza a la `qt` integrada en `config.toml`); `dolphinrc` con vista previa compacta.
+
+## Cambios recientes (06-10-2026)
+
+Sincronizado el paquete con el estado real de la PC (los dotfiles estaban del 26-29/09). Lo nuevo:
+
+- **Mouse Scimitar + keyd** (solo PC, hardware específico): `solo-esta-pc/system/etc/keyd/default.conf` (requiere `sudo cp` a `/etc/keyd/` + `systemctl enable --now keyd`), `solo-esta-pc/dotfiles/.config/hypr/{keyd-scimitar.conf,scripts/mouse-*.sh}`. El bloque de binds del mouse (`code:192`–`202`, F14–F24) ya está dentro de `binds.lua`; sin keyd/mouse esos binds no se disparan nunca, así que es inofensivo en la laptop. Guía: `guias-usuario/atajos-y-mouse.md`.
+- **xremap** (`dotfiles/.config/xremap/config.yml` + `xremap.service`): corre con reglas vacías; instalar `xremap-hypr-bin` (AUR) solo si se quiere.
+- **ckb-next** (teclado Corsair): solo PC, en `solo-esta-pc/`.
+- **Gwenview oscuro y atajos:** `gwenviewrc` y `kxmlgui5/gwenview/gwenviewui.rc` ahora sí están en `dotfiles/`. `qt5ct/colors` también.
+- **Paquetes nuevos** (ya en `paquetes/pacman-repo.txt`): `keyd`, `ckb-next` (solo PC), `fuse2`, `kimageformats`, `qt6-imageformats`. **pipx** (`paquetes/pipx.txt`): `edge-tts`, `gallery-dl` → `pipx install edge-tts gallery-dl`. `arduino-cli` se baja aparte (no es paquete).
+- **Ajustes cambiados:** lectura SUPER+R a ×1.4 (`voz.conf`); VS Code ya **no** se fija al escritorio 4 (`windowrules.lua`); fuente de terminal de VS Code 13; Dolphin en vista detalles; `opencode.jsonc` y perfiles de opendeck actualizados; `kdeglobals` lo regenera Noctalia (no editar a mano).
+- **Atajo CTRL+SHIFT+D** = solo «elegir carpeta de capturas» (el dictado usa SUPER+ALT+Z/X).
+- `doblar`: `~/.local/share/doblar` (modelos whisper/nllb, ~3,6 GB) NO va en el paquete; se vuelven a descargar al usarlo. `doblar-estado` está en `dotfiles/.local/bin/`.
+- Sigue sin incluir (a propósito): `rclone.conf`, contraseña de restic, perfiles de navegador.
+- Idea pendiente: pasar todo a un repo de dotfiles con GNU stow (capas `common/` + `machine/<host>/`) para sincronizar PC ↔ laptops con `git pull && stow` sin desfase.

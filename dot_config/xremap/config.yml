@@ -1,0 +1,28 @@
+# xremap - capa de remapeo por aplicacion (Hyprland)
+#
+# Ahora mismo todos los botones del M720 (gesto, central, tilts) se
+# configuran directo en /etc/logid.cfg con atajos fijos, sin necesidad
+# de logica por app, asi que este archivo no tiene reglas activas.
+#
+# Dejalo asi si no lo necesitas; el servicio xremap.service sigue
+# corriendo por si mas adelante quieres que algun boton haga cosas
+# distintas segun la aplicacion activa (ej. distinto en Brave que en
+# el resto). Ejemplo de como se veria:
+#
+# keymap:
+#   - name: "Ejemplo: tecla X solo en Brave"
+#     application:
+#       only: ["brave-browser"]
+#     remap:
+#       F13: "C-w"
+#   - name: "Ejemplo: tecla X en cualquier otra app"
+#     remap:
+#       F13:
+#         launch: ["hyprctl", "dispatch", "killactive"]
+#
+# IMPORTANTE si usas `launch:`: el servicio debe correr con
+# --allow-launch true (ya esta puesto en xremap.service), si no,
+# los comandos launch se ignoran silenciosamente.
+
+modmap: []
+keymap: []

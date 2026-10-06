@@ -39,7 +39,7 @@ shell noctalia, fish). Se sincroniza por GitHub privado `yftorrezg/dotfiles` con
    crea las dos variantes en `.hosts/pc/` y `.hosts/laptop/` y reemplaza la fuente por el `.tmpl` de `include` (copia uno existente).
 3. Antes de aplicar Lua: `luac -p`. Tras aplicar: `hyprctl reload` y `hyprctl configerrors` vacío.
    `hyprctl dispatch` usa sintaxis Lua: `hyprctl dispatch 'hl.dsp.focus({ workspace = "name:estudio" })'`.
-   En Lua `code:NN` NO funciona en binds → usa keysyms.
+   `code:NN` en binds Lua: en la laptop falló; en la PC funciona (mouse Scimitar, `code:192–202`). Para atajos comunes usa keysyms.
 4. Nunca subas secretos (`gitleaks`-style: chezmoi avisa; la clave de OpenSubtitles en uosc/main.lua es pública, OK).
 5. Commits en español, cortos. `dotsync` hace commit/push solo.
 
@@ -50,10 +50,14 @@ rebase sin tocar nada y notifica. Para resolver: `cd ~/.local/share/chezmoi && g
 arreglar los archivos marcados, `git add`, `git rebase --continue`, `chezmoi apply`, `git push`.
 Se niega a correr si falta `.hosts/<equipo>/.fusion-inicial-hecha` (protege a la PC hasta la fusión inicial).
 
-## Estado (06-10-2026)
-- Laptop: migrada, auditada (`laptop/auditoria.sh`), `.fusion-inicial-hecha` creada, timer activo.
-- **PC: FALTA la fusión inicial.** Las variantes `.hosts/pc/*` son del paquete del **29-09** y la PC real tiene avances
-  posteriores. NO hagas `chezmoi apply` en la PC antes de la fusión.
+## Estado (06-10-2026, tarde)
+- Laptop: migrada, auditada (`laptop/auditoria.sh`), timer activo. **Pendiente: seguir `laptop/ACTUALIZAR-2026-10-06.md`** (paquetes nuevos, apuntes .md del paquete de Drive, timer de aviso de rclone).
+- **PC: fusión inicial HECHA el 06-10** (PC = base + arreglos de la laptop). Decisiones del usuario: estudiar.py = **SUPER+I** en ambos
+  (SUPER+ALT+B eliminado), pomodoro **sin atajo**. Mouse Corsair Scimitar (keyd, binds `code:192–202`) = solo PC, en
+  `.hosts/pc/.config/hypr/config/binds_equipo.lua`; sus scripts y ckb-next se ignoran en la laptop (`.chezmoiignore`).
+  En la PC `code:NN` SÍ funciona en binds Lua (probado con `hyprctl binds`).
+- La PC es donde se hacen las mejoras continuas; la laptop se usa fuera de casa (facultad).
+- `docs/migracion/` = paquete del 06-10 (incluye doc 09: sync, apuntes, client_id de rclone). Apuntes/planes no van en git: paquete de Drive.
 
 ## Fusión inicial en la PC (hacer UNA vez, con el usuario)
 Precondición: el usuario corrió `pc/fusion-inicial.sh` (respaldo en `~/respaldo-antes-dotsync-*.tar`, repo clonado sin aplicar,
@@ -64,7 +68,7 @@ La **PC es la verdad** para sus avances; la laptop aporta arreglos. Para cada ar
    - `binds.lua` de la PC está ENTERO (sin separar). Sepáralo igual que en la laptop: lo que depende de monitores
      (bloque "WORKSPACES & MONITORS" hasta "-- Workspaces con nombre", SUPER+SHIFT+1/2, SUPER+Tab) va a
      `.hosts/pc/.config/hypr/config/binds_equipo.lua` (ya hay una versión del 29-09 de referencia); el resto se fusiona con
-     el `binds.lua` común (que ya trae: estudiar.py en **SUPER+ALT+B** porque SUPER+ALT+Z es el dictado, pomodoro SUPER+ALT+P).
+     el `binds.lua` común.
      Atajos nuevos de la PC posteriores al 29-09 → al común, salvo que dependan de monitores.
    - Si la PC agregó atajos/funciones que también sirven en la laptop dentro de un archivo por equipo, pórtalos a
      `.hosts/laptop/` y avisa al usuario.
@@ -76,7 +80,7 @@ La **PC es la verdad** para sus avances; la laptop aporta arreglos. Para cada ar
 4. **Archivos nuevos en la PC** que no estén en el repo (scripts nuevos en `~/.config/hypr/scripts/`, configs nuevas): revisa
    que no tengan secretos y `chezmoi add`. Si dependen del hardware, trátalos como "por equipo".
 5. Verifica: `chezmoi diff` en la PC debe quedar vacío (o solo con los arreglos de la laptop que el usuario aceptó).
-   `chezmoi apply`, `hyprctl reload`, `hyprctl configerrors` vacío, prueba SUPER+1..5, SUPER+R, dictado (SUPER+ALT+Z), SUPER+ALT+B.
+   `chezmoi apply`, `hyprctl reload`, `hyprctl configerrors` vacío, prueba SUPER+1..5, SUPER+R, dictado (SUPER+ALT+Z), SUPER+I.
 6. `touch .hosts/pc/.fusion-inicial-hecha`, `git add -A && git commit -m "pc: fusión inicial" && git push`, `dotsync activar`.
 7. Actualiza la sección "Estado" de este archivo y la memoria `migracion-laptops.md`.
 

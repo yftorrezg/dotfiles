@@ -14,7 +14,7 @@ LISTA=$(sed -nE 's/.*[?&]list=([A-Za-z0-9_-]+).*/\1/p' <<<"$URL")
 [ -z "$LISTA" ] && { echo "El link no tiene list=: no es una playlist"; exit 1; }
 URL="https://www.youtube.com/playlist?list=$LISTA"
 BASE="${BASE_CAPTURAS:-$(xdg-user-dir VIDEOS 2>/dev/null || echo "$HOME/Vídeos")/Capturas de YouTube}"
-limpiar() { sed 's#[/\\:*?"<>|]#-#g; s/^[ .-]*//; s/[ .]*$//'; }  # igual que video-a-capturas.sh
+limpiar() { sed 's@[]/\\:*?"<>|#[^]@-@g; s/^[ .-]*//; s/[ .]*$//'; }  # igual que video-a-capturas.sh
 avisar() { notify-send -a "Auto-captura" "$@" 2>/dev/null || true; }
 
 # Una sola playlist a la vez (la cola de cola-capturas.sh ya lo asegura; esto cubre la terminal)

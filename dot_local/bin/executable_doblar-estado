@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+# doblar-estado [carpeta] — qué videos ya están doblados. En vivo: watch -n 10 doblar-estado
+exec "$HOME/.local/share/doblar/venv/bin/python" "$HOME/.local/share/doblar/estado.py" "$@"

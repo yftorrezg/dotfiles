@@ -16,7 +16,7 @@ Prioridad para migrar: **alta** = sin esto la laptop pierde algo que usa o hay r
 
 | Qué | Dónde vive | Prioridad | Nota |
 |---|---|---|---|
-| **Tesis Lazarillo sin remoto git** | `~/Proyectos/Ciego` (git local, último commit 11-09) | **alta** | Solo existe aquí y en restic, que está roto (doc 04). Crear un repo privado y hacer `git push` **antes** de migrar. La rama `worktree-agent-aaff555bbd087c837` tiene trabajo sin verificar |
+| ~~**Tesis Lazarillo sin remoto git**~~ (**RESUELTO 06-10:** repo privado `yftorrezg/Ciego`) | `~/Proyectos/Ciego` (git local, último commit 11-09) | **alta** | Solo existe aquí y en restic, que está roto (doc 04). Crear un repo privado y hacer `git push` **antes** de migrar. La rama `worktree-agent-aaff555bbd087c837` tiene trabajo sin verificar |
 | Guías markdown del usuario (varias pensadas "para la laptop") | `~/Documentos/{aprender,StreamDeck,maono,mouse_M720TriathlonLogitech,movil,lectura,claude_curso}` | **alta** | No están en Drive ni en git. Copiarlas como datos (o subirlas a Drive). Incluyen `atajosTeclado.md`, `StreamDeck/docs/portabilidad-laptops.md`, `maono/CLAUDE.md` |
 | Proyectos sin git | `~/Proyectos/anghy21` (+ `mundoanimal`, vacío) | media | Copiar como datos |
 | Datos del parcial de Robótica | `~/.local/share/parcial1/` (SQLite + mosquitto_data, 460 KB) | baja | Solo si se retoma |

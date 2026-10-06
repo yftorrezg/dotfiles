@@ -40,6 +40,7 @@ cachyos-wallpapers
 cachyos-zsh-config
 cantarell-fonts
 chwd
+ckb-next
 claude-desktop
 cpupower
 cryptsetup
@@ -65,6 +66,7 @@ ffmpegthumbnailer
 firefox
 fprintd
 fsarchiver
+fuse2
 geeqie
 ggml-vulkan
 gimp
@@ -89,6 +91,8 @@ iwd
 jfsutils
 kdenlive
 keepassxc
+keyd
+kimageformats
 kitty
 less
 lib32-nvidia-580xx-utils
@@ -167,6 +171,8 @@ python-curl_cffi
 python-defusedxml
 python-packaging
 python-pipx
+python-secretstorage
+qt6-imageformats
 rclone
 realtime-privileges
 rebuild-detector
@@ -218,4 +224,4 @@ xournalpp
 ydotool
 yt-dlp
 zenity
-python-secretstorage
+zoxide

@@ -104,3 +104,21 @@ hl.bind(mainMod .. " + CONTROL + Left",        function() switchVirtualDesktopRe
 hl.bind(mainMod .. " + mouse_down",           function() switchVirtualDesktopRelative(-1) end)
 hl.bind(mainMod .. " + mouse_up",             function() switchVirtualDesktopRelative(1) end)
 
+-- reemplazado por SUPER+CONTROL+N.
+
+-- (05/10/2026) Mouse Corsair Scimitar. keyd (/etc/keyd/default.conf, copia en ~/.config/hypr/keyd-scimitar.conf)
+-- convierte los atajos que manda su memoria en F14..F24 solo para ese mouse; aqui se les da la accion.
+-- Se bindea por keycode porque xkb no resuelve los nombres F13-F24: F14=192 ... F24=202.
+-- Botones 1/4 = adelante/atras (nativos). Escritorios fijos: 2->ws2, 3->ws3, 5->ws4, 6->ws5.
+-- Botones 7/8/9 cambian segun la capa M1/M2/M3 (scripts/mouse-accion.sh). Botones 10/11/12 = capa M1/M2/M3.
+local scripts = os.getenv("HOME") .. "/.config/hypr/scripts/"
+hl.bind("code:192", function() switchVirtualDesktop(2) end)                         -- boton 2
+hl.bind("code:193", function() switchVirtualDesktop(3) end)                         -- boton 3
+hl.bind("code:195", function() switchVirtualDesktop(4) end)                         -- boton 5
+hl.bind("code:196", function() switchVirtualDesktop(5) end)                         -- boton 6
+hl.bind("code:197", hl.dsp.exec_cmd("bash " .. scripts .. "mouse-accion.sh 7"))    -- boton 7
+hl.bind("code:198", hl.dsp.exec_cmd("bash " .. scripts .. "mouse-accion.sh 8"))    -- boton 8
+hl.bind("code:199", hl.dsp.exec_cmd("bash " .. scripts .. "mouse-accion.sh 9"))    -- boton 9
+hl.bind("code:200", hl.dsp.exec_cmd("bash " .. scripts .. "mouse-modo.sh 1"))      -- boton 10 = M1
+hl.bind("code:201", hl.dsp.exec_cmd("bash " .. scripts .. "mouse-modo.sh 2"))      -- boton 11 = M2
+hl.bind("code:202", hl.dsp.exec_cmd("bash " .. scripts .. "mouse-modo.sh 3"))      -- boton 12 = M3

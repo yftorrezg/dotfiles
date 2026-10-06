@@ -1,0 +1,10 @@
+[Desktop Entry]
+Name=OpenCode
+Comment=AI coding agent
+Icon=applications-development
+Exec=/home/yafer/Applications/OpenCode.AppImage %U
+TryExec=/home/yafer/Applications/OpenCode.AppImage
+Terminal=false
+Type=Application
+Categories=Development;IDE;
+StartupNotify=true

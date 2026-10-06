@@ -1,0 +1,6 @@
+[Unit]
+Description=Aviso: rclone usa el client_id compartido de Google
+
+[Service]
+Type=oneshot
+ExecStart=%h/.local/bin/rclone-aviso-clientid

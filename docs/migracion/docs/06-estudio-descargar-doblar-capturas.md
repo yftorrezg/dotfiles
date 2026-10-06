@@ -23,7 +23,7 @@ Archivos copiados en `dotfiles/` (rutas relativas a `$HOME`). Criterio del paque
 | `.local/share/doblar/tarea-karpathy.sh` | Tarea de **una sola vez** de esta PC. **No se instala**: queda solo como ejemplo de `doblar --seguir` + `systemd-run` |
 | `.config/hypr/scripts/` — 18 scripts de capturas/apuntes + 7 de pruebas | Sistema de capturas y apuntes (lista completa en §3.8) |
 | `.config/hypr/config/binds.lua` | **Actualizado 28/09**: SUPER+ALT+S, **SUPER+ALT+Y** y **SUPER+ALT+A** |
-| `.config/hypr/scripts/voz.conf` | Actualizado (velocidad de lectura SUPER+R `SPEED_MULT=1.2`, cambio del 27/09) |
+| `.config/hypr/scripts/voz.conf` | Actualizado (velocidad de lectura SUPER+R `SPEED_MULT=1.4` desde el 05-10; era 1.2 el 27/09) |
 | `.local/share/applications/abrir-markdown.desktop` | App por defecto de `.md`: Obsidian si está en una bóveda, si no VS Code |
 | `.config/mimeapps.list` | **Actualizado**: `text/markdown` y `text/x-markdown` → `abrir-markdown.desktop` (antes `vscode-markdown-preview.desktop`) |
 | `.config/obsidian/obsidian.json` | Lista de bóvedas de Obsidian (`~/Documentos/Obsidian Vault` y **`~/Vídeos`**). Rutas con `/home/yafer` |
@@ -425,7 +425,7 @@ Más el venv de `doblar` (sección 2), el modelo NLLB (2,4 GB) y **Claude Code c
 - [ ] mpv: Alt+c arma el curso; `#` cambia de audio en un `.es.mp4`.
 
 ## 3.11 Actualización 29-09: Centro de estudio, práctica con tests y subtítulos del idioma original
-- **`estudiar.py`** (SUPER+ALT+Z, ventana GTK4 `estudiar.centro`, regla flotante en `windowrules.lua`): pre-test de 3 preguntas (3/3 → "ya la sé" `[s]` en `Mis cursos.md`), idea + mapa, ver clase / resumen / apuntes, **práctica** y **tests**, Ctrl+Enter = terminé. CLI `--tests` (SUPER+ALT+V), `--terminar`, `--repasar`, `--estado`, `--siguiente`. Pruebas: `estudiar-tests.py`.
+- **`estudiar.py`** (SUPER+I —antes SUPER+ALT+Z, chocaba con el dictado—, ventana GTK4 `estudiar.centro`, regla flotante en `windowrules.lua`): pre-test de 3 preguntas (3/3 → "ya la sé" `[s]` en `Mis cursos.md`), idea + mapa, ver clase / resumen / apuntes, **práctica** y **tests**, Ctrl+Enter = terminé. CLI `--tests` (SUPER+ALT+V), `--terminar`, `--repasar`, `--estado`, `--siguiente`. Pruebas: `estudiar-tests.py`.
 - **`practica.py`**: 3-5 ejercicios (JS con `node:test` / Python con `unittest`), con los tests **verificados** (la solución pasa y el arranque falla). 1 llamada a Claude por clase, solo al pedirla. Pruebas: `practica-tests.py`. En la laptop hace falta `node` ≥ 18.
 - **Stream Deck** (Mirabox HSV293S, perfil "Cursos y Dev", teclas 6-9): Estudiar / Tests / Terminé / Repasar (`custom-icons/estudio-*.png`).
 - **Subtítulos**: `video-a-capturas.sh` anota el idioma original (`.idioma`) y pide solo esos subtítulos; `cuadernillo.subs_para_claude` le pasa a Claude el idioma original y ya no la traducción automática.

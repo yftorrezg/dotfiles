@@ -11,6 +11,16 @@ pc/
 .config/mpv/scripts/bateria.lua
 {{ end }}
 
+# Solo PC: mouse Corsair Scimitar (keyd) y teclado Corsair (ckb-next)
+{{ if ne .equipo "pc" }}
+.config/hypr/scripts/mouse-accion.sh
+.config/hypr/scripts/mouse-lib.sh
+.config/hypr/scripts/mouse-modo.sh
+.config/hypr/keyd-scimitar.conf
+.config/ckb-next/
+.config/autostart/ckb-next.autostart.desktop
+{{ end }}
+
 # Nunca sincronizar (datos/estado propio de cada equipo)
 .local/state/mpv/
 .config/opendeck/plugins/

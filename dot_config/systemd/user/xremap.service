@@ -1,0 +1,11 @@
+[Unit]
+Description=xremap - remapeo de teclado/raton por aplicacion (Hyprland)
+After=graphical-session.target
+
+[Service]
+ExecStart=/usr/bin/xremap --allow-launch true %h/.config/xremap/config.yml
+Restart=on-failure
+RestartSec=2
+
+[Install]
+WantedBy=graphical-session.target

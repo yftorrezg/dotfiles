@@ -1,5 +1,15 @@
+[General]
+BackgroundColorMode=DocumentView::Dark
+
 [ImageView]
 MouseWheelBehavior=MouseWheelBehavior::Browse
+BackgroundColorMode=Dark
+
+[MainWindow]
+MenuBar=Disabled
+
+[ThumbnailView]
+ThumbnailSize=108
 
 [UiSettings]
 ColorScheme=noctalia

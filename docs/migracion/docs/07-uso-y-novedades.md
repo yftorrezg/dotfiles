@@ -145,6 +145,11 @@ Lo que falta en los docs 01-05 está en **[[GAPS]]** (`docs/GAPS.md`).
 | 28-09 | Qt oscuro: plantilla propia de Noctalia `templates/qtct-oscuro.conf` (bordes oscuros en Fusion) en vez de la `qt` integrada; Dolphin con vista previa compacta | `noctalia/config.toml`, `qt6ct/colors/`, `dolphinrc` | Copiado al paquete; no documentado en 01/04 |
 | 28-09 noche | En marcha: playlist "Curso JavaScript" de **166 videos** con `playlist-a-apuntes.sh` (YouTube ya respondió 429 una vez) | `~/Vídeos/Capturas de YouTube/` | Datos, no config |
 | 28-09 | Paquete de migración actualizado (scripts, bóveda Obsidian, docs 06/07, guía de auto-captura) | `~/migracion-cachyos/` | — |
+| 01-10 | VS Code deja de fijarse al escritorio 4 | `hypr/config/windowrules.lua` | Sí (01) |
+| 03-10 | Productividad de shell y Dolphin (zoxide, fzf, plantilla Markdown, «Abrir con VS Code/Obsidian») | `fish/config.fish`, `dolphinrc` | Sí (04) |
+| 05-10 | **Mouse Scimitar con keyd** (modos Estudio/Programación/Redes), `mouse-*.sh`, guía `atajos-y-mouse.md`; lectura SUPER+R a ×1.4; ckb-next desactivado para botones laterales | `/etc/keyd/default.conf`, `hypr/scripts/mouse-*.sh`, `voz.conf` | Solo PC (03 §9) salvo `voz.conf` |
+| 05-10 | Gwenview oscuro + atajos propios incluidos en el paquete; plantilla Qt de Noctalia regenera `kdeglobals` | `gwenviewrc`, `gwenviewui.rc` | Sí (03 §9.1) |
+| 06-10 | **Auditoría completa** (atajos 98/98 OK, paquetes, espacio) y limpieza: ~28 GB (cachés, worktrees); `~/Proyectos/Ciego` a GitHub privado; paquete de migración sincronizado; doc 09 | todo | Sí (09) |
 
 ---
 

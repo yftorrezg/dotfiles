@@ -1,0 +1,12 @@
+#!/bin/bash
+# Avisa mientras algún remoto de rclone (tipo drive) siga usando el client_id compartido,
+# que rclone retira durante 2026. Se apaga solo cuando todos tienen client_id propio.
+pendientes=()
+for r in $(rclone listremotes 2>/dev/null | tr -d ':'); do
+  [ "$(rclone config show "$r" 2>/dev/null | sed -n 's/^type = //p')" = drive ] || continue
+  id=$(rclone config show "$r" 2>/dev/null | sed -n 's/^client_id = *//p')
+  [ -z "$id" ] && pendientes+=("$r")
+done
+[ ${#pendientes[@]} -eq 0 ] && exit 0
+notify-send -u critical -a rclone "Google Drive: crea tu propio client_id" \
+"El remoto (${pendientes[*]}) usa la clave compartida de rclone, que deja de funcionar en 2026. Pasos: ~/migracion-cachyos/docs/09-sincronizar-y-mantener.md (sección 2)."

@@ -224,7 +224,7 @@ Tú solo instalas CachyOS y abres Claude Code; del resto se encarga Claude leyen
 | --- | --- | --- |
 | SUPER+C (curso) | El script usa un comando viejo; probablemente no te lleva al escritorio de estudio | Actualizar una línea del script |
 | Conexión a Drive (rclone) | Usa una clave compartida que rclone retira durante 2026 | Crear tu propia clave de Google |
-| **Tesis `~/Proyectos/Ciego`** | Git **sin copia remota**: solo existe en esta PC (y el backup está roto) | **Urgente:** subirla a un repo privado de GitHub antes de migrar |
+| ~~Tesis `~/Proyectos/Ciego`~~ | **Resuelto 06-10:** ya está en GitHub (repo privado `yftorrezg/Ciego`) | Los datasets y modelos no están en git (los cubre restic) |
 | Carpeta de capturas | Apunta al disco externo SuperYafer; sin el disco, CTRL+SHIFT+S falla sin avisar | Ruta local o respaldo automático a `~/Imágenes/Capturas` |
 | Claude Code duplicado | Hay uno viejo en `/usr/bin/claude` (npm) tapado por el nuevo en `~/.local/bin` | `sudo npm rm -g @anthropic-ai/claude-code` |
 
@@ -236,3 +236,12 @@ Todo el paquete sirve también como bóveda de Obsidian: son notas markdown con 
 2. Empieza por **`INICIO.md`**: ahí están enlazadas todas las funcionalidades, atajos y docs.
 3. Las carpetas técnicas (`dotfiles/`, `system/`, `solo-esta-pc/`) están ocultas en la búsqueda para no ensuciar.
 4. Cuando cambies algo en esta PC, pídele a Claude que actualice la nota y vuelva a subir a Drive.
+
+
+## 8. Novedades del 06-10 (lee esto primero en la laptop)
+
+- **Estado:** la ThinkPad E14 Gen4 (i7 12ª, 16 GB; Windows 11 + CachyOS, 500 GB cada uno) es el destino principal. Esta carpeta ya está sincronizada con todo lo hecho en la PC hasta el 06-10.
+- **Nuevo y práctico:** mouse Scimitar con keyd (solo PC), Gwenview oscuro con atajos, lectura a ×1.4, VS Code libre de escritorio, productividad de shell (zoxide + fzf).
+- **Apuntes de cursos:** todos los `.md` (1.092 de `~/Vídeos` + el Vault de Obsidian + guías + planes de Claude) viajan en `apuntes/` y `guias-usuario/`. Las capturas WebP (31 GB) NO van en el paquete: ver `docs/09`.
+- **Aviso importante:** rclone retira su clave compartida de Google durante 2026 → crear la propia (pasos en `docs/09 §2`). Hay un recordatorio automático en la PC.
+- Cómo mantener PC y laptop al día sin desfases: `docs/09`.

@@ -43,7 +43,10 @@ chezmoi init --apply https://github.com/yftorrezg/dotfiles.git
 # luego los scripts de laptop/ (01 → 05) para paquetes y /etc, y laptop/auditoria.sh
 ```
 
-## ⏳ PC — PENDIENTE (hacer una vez, en casa)
+## ✅ PC — fusión inicial hecha (06-10-2026)
+Lo de abajo queda como referencia por si se reinstala la PC.
+
+### Procedimiento original
 La PC tiene avances más nuevos que este repo, así que primero hay que **fusionar** (no copiar encima).
 
 1. En la PC, en una terminal:
@@ -59,15 +62,17 @@ La PC tiene avances más nuevos que este repo, así que primero hay que **fusion
    En ≤30 min la laptop recibe tus avances.
 
 ## Atajos que cambiaron (para los dos equipos)
-- **SUPER+ALT+B** → centro de estudio (`estudiar.py`). Antes era SUPER+ALT+Z, que **chocaba con el dictado**.
+- **SUPER+I** → centro de estudio (`estudiar.py`); SUPER+ALT+V = tests. Antes era SUPER+ALT+Z, que **chocaba con el dictado**.
 - **SUPER+ALT+Z / X** → dictado español / inglés.
-- **SUPER+ALT+P** → pomodoro.
+- Pomodoro: sin atajo (solo Stream Deck).
 
 Solo laptop: **SUPER+`** (tecla bajo Esc) o 3 dedos ↑↓ = voltear a los escritorios 6-10 · tildes con **AltGr+vocal**,
 ñ = AltGr+# luego n · F7 = pantallas (Arzopa).
 
 ## Pendientes
-- [ ] Fusión inicial en la PC (arriba).
+- [x] Fusión inicial en la PC (06-10).
+- [ ] Laptop: seguir `laptop/ACTUALIZAR-2026-10-06.md` (apuntes .md, paquetes nuevos, aviso rclone).
+- [ ] Crear client_id propio de rclone (`docs/migracion/docs/09-sincronizar-y-mantener.md` §2).
 - [ ] Fondos de pantalla de Luffy → copiarlos a `~/Imágenes/Wallpapers` en la laptop.
 - [ ] Laptop: `rclone config` (Drive) y contraseña de restic (backup) → ver `laptop/04-voz-servicios.sh drive|backup`.
 - [ ] Laptop: `fprintd-enroll` (huella).

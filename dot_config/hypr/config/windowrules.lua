@@ -63,7 +63,7 @@ local escritoriosFijos = {
     { clase = "^brave-www\\.(facebook|instagram|tiktok)\\.com__.*$", ws = "1" }, -- 1 principal: redes
     { clase = "^brave-web\\.(whatsapp\\.com|telegram\\.org)__.*$",   ws = "6" }, -- 1 secundaria: chats
     { clase = "^brave-drive\\.google\\.com__.*$",                    ws = "8" }, -- 3 secundaria: apuntes
-    { clase = "^(code|Code|code-oss)$",                              ws = "4" }, -- 4 principal: práctica
+    -- (01/10/2026) Quitado VSCode: lo usa mucho, limitarlo al escritorio 4 no era práctico.
 }
 for _, r in ipairs(escritoriosFijos) do hl.window_rule({ match = { class = r.clase }, workspace = r.ws }) end
 

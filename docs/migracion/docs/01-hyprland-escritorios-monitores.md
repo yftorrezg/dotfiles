@@ -115,7 +115,7 @@ Base: paquete `cachyos-hypr-noctalia` (instala la plantilla en `/etc/skel/.confi
 | SUPER+W | brave |
 | SUPER+N ("N" letra) | obsidian |
 | XF86Calculator | gnome-calculator |
-| SUPER+G | VS Code (enfocar-o-abrir, ws 4) — `app-web.sh code` |
+| SUPER+G | VS Code (enfocar-o-abrir) — `app-web.sh code`. Desde el 01-10 VS Code **ya no está fijado al ws 4** (se quitó la regla de `windowrules.lua`) |
 | SUPER+T | TikTok (ws 1) — `app-web.sh tiktok` |
 | SUPER+ALT+Q | YouTube (escritorio actual) — `app-web.sh youtube` |
 | SUPER+ALT+W | WhatsApp Web (ws 6) |
@@ -156,7 +156,8 @@ Base: paquete `cachyos-hypr-noctalia` (instala la plantilla en `/etc/skel/.confi
 | SUPER+Print | Captura pantalla completa (Noctalia → satty) |
 | SUPER+SHIFT+S | `captura-portapapeles.sh` (región → solo portapapeles) |
 | CTRL+SHIFT+S | `captura-guardar.sh` (región → archivo en carpeta configurada + portapapeles) |
-| CTRL+SHIFT+D | `elegir-carpeta-capturas.sh` (zenity) |
+| CTRL+SHIFT+D | `elegir-carpeta-capturas.sh` (zenity). Ya no lo comparte hyprwhspr (el dictado usa SUPER+ALT+Z/X) |
+| Botones F14–F24 (`code:192`–`202`) | **Mouse Corsair Scimitar vía keyd** (solo PC): botones 2/3/5/6 cambian de escritorio, 7/8/9 → `mouse-accion.sh`, 10/11/12 → `mouse-modo.sh` (modos Estudio/Programación/Redes). Sin keyd no se disparan: inofensivo en la laptop. Detalle en doc 03 §9 |
 | SUPER+ALT+S | `auto-captura-toggle.sh` (activa/desactiva la auto-captura del monitor con foco; agregado 26-09-2026 por la tarde) |
 | SUPER+R | `leer-seleccion.sh` (lee en voz alta la selección; repetir = cortar) |
 | SUPER+ALT+R | `actualizar-voz.sh` → `elegir-voz.py` (GTK4: motor/voz/velocidad) |

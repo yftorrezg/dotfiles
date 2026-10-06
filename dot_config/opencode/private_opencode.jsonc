@@ -1,0 +1,33 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "mcp": {
+    "playwright": { "type": "local", "command": ["npx", "-y", "@playwright/mcp@latest"] },
+    "context7": {
+      "type": "local",
+      "command": [
+        "npx",
+        "-y",
+        "@upstash/context7-mcp"
+      ]
+    },
+    "servers": {
+      "github": {
+        "type": "remote",
+        "url": "https://api.githubcopilot.com/mcp/"
+      },
+      "vercel": {
+        "type": "remote",
+        "url": "https://mcp.vercel.com"
+      }
+    }
+  },
+  "plugins": [
+    {
+      "package": "opencode-dcp@2.0.0-beta.13",
+      "options": {
+        "debug": false,
+        "maxContextLimit": "70%"
+      }
+    }
+  ]
+}
