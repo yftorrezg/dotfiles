@@ -55,6 +55,11 @@ for t in cola-capturas-tests.sh playlist-a-apuntes-tests.sh; do
   (cd "$T" && timeout 300 bash "$S/$t" >"$T/$t.log" 2>&1) && bien "$t" || falla "$t (log: $T/$t.log)"
 done
 
+sec "Sincronización PC ↔ laptop (dotsync)"
+check "timer dotsync activo" systemctl --user is-active dotsync.timer
+check "repo sin conflictos ni cambios colgados" bash -c '[[ -z $(git -C ~/.local/share/chezmoi status --porcelain) ]]'
+check "\$HOME igual al repo (chezmoi diff vacío)" bash -c '[[ -z $(chezmoi diff 2>/dev/null) ]]'
+
 sec "Sistema"
 f=$(systemctl --failed --no-legend | wc -l); [[ $f == 0 ]] && bien "sin servicios de sistema fallidos" || falla "$f servicios fallidos: $(systemctl --failed --no-legend | awk '{print $2}' | xargs)"
 f=$(systemctl --user --failed --no-legend | wc -l); [[ $f == 0 ]] && bien "sin servicios de usuario fallidos" || falla "$f servicios de usuario fallidos: $(systemctl --user --failed --no-legend | awk '{print $2}' | xargs)"
