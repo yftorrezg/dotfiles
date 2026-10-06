@@ -11,6 +11,9 @@ Paso 'Punto de restauración'
 Enable-ComputerRestore -Drive 'C:\'
 Checkpoint-Computer -Description 'Antes de yafer bootstrap' -RestorePointType MODIFY_SETTINGS
 
+# 1b. Habilitar `winget configure` (lo usa bootstrap.ps1 para instalar desde thinkpad.dsc.yaml)
+winget configure --enable
+
 # 2. Dev Drive: se crea con el asistente (no requiere Hyper-V):
 #    Configuración → Sistema → Almacenamiento → Discos y volúmenes → Crear unidad de desarrollo
 #    → Nuevo VHD, 60 GB, dinámico, letra D:, etiqueta "Proyectos". Windows lo vuelve a montar solo.
