@@ -104,3 +104,4 @@ hl.bind(mainMod .. " + CONTROL + Left",        function() switchVirtualDesktopRe
 hl.bind(mainMod .. " + mouse_down",           function() switchVirtualDesktopRelative(-1) end)
 hl.bind(mainMod .. " + mouse_up",             function() switchVirtualDesktopRelative(1) end)
 
+-- PRUEBA-DOTSYNC solo PC
