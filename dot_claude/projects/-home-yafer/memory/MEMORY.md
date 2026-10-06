@@ -7,3 +7,4 @@
 - [Gwenview oscuro y atajos](gwenview-tema-atajos.md) — fix esquema noctalia, plantilla qt Noctalia, atajos A/D/Q/E/C/X/F/W/T/I/S.
 - [Ahorro de cuota](ahorro-cuota.md) — qué gasta la cuota (sesiones largas con Opus), caveman no conviene
 - [Sync PC↔laptop](dotfiles-sync.md) — chezmoi + dotsync, repo yftorrezg/dotfiles; leer CLAUDE.md del repo antes de tocar config.
+- [Llave Google de rclone](rclone-llave-google.md) — client_id propio en ~/.config/rclone/LEEME-llave-google-drive.txt; úsala tú, el usuario no la gestiona.

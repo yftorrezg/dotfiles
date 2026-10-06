@@ -20,7 +20,7 @@ lo que NO va en git (apuntes, planes, paquetes) se trae del paquete de Drive.
      en `.hosts/pc/.../binds_equipo.lua`), ckb-next.
    - Memorias de Claude fusionadas (incluye `ahorro-cuota.md`).
 4. **rclone con client_id propio (hecho en la PC el 06-10):** proyecto Google Cloud `rclone-yafer`, app OAuth «En producción» (página en
-   `https://yftorrezg.github.io`). En la laptop: pedir al usuario el client_id/secret (están en su KeePassXC; NUNCA en git) y
+   `https://yftorrezg.github.io`). En la laptop: copiar `~/.config/rclone/LEEME-llave-google-drive.txt` de la PC (USB o `rsync` por LAN; NUNCA por git/Drive) y leer de ahí el client_id/secret (memoria `rclone-llave-google`). El usuario no gestiona la llave: hazlo tú. Luego
    `rclone config update gdrive client_id <ID> client_secret <SECRETO> --non-interactive && rclone config reconnect gdrive: --auto-confirm`
    (el usuario acepta en el navegador: «Configuración avanzada» → «Ir a rclone»), luego `systemctl --user restart rclone-gdrive`.
 5. Activar el aviso de rclone: `systemctl --user daemon-reload && systemctl --user enable --now rclone-aviso-clientid.timer`.
