@@ -15,7 +15,7 @@ Destino principal: **ThinkPad E14 Gen4** (i7 12ª gen, 16 GB RAM, Windows 11 500
 | `system/etc/` | `/etc/` con `sudo` | Solo lo indicado en los docs |
 | `paquetes/` | `pacman -S --needed - < pacman-repo.txt` (filtrar nvidia/solo-PC), `paru -S - < aur.txt`, `pipx install edge-tts gallery-dl`, extensiones VS Code | Quitar `nvidia*`, `lib32-nvidia*`, `keyd`, `ckb-next` |
 | `apuntes/Videos/` | `~/Vídeos/` | 1.092 `.md` + `.tsv` de apuntes, resúmenes, tarjetas y paneles. **Sin las capturas** |
-| `apuntes/Vault/` | `~/Documentos/Obsidian Vault/` | Apuntes de «Neural Networks: Zero to Hero» y React |
+| `apuntes/Vault/` | **obsoleto (06-10 noche)** | La PC unificó las bóvedas: Karpathy está ahora en `~/Vídeos/Capturas de YouTube/Neural Networks： Zero to Hero/` (WebP). Una sola bóveda: `~/Vídeos`. Copiar desde la PC por red (`laptop/ACTUALIZAR-2026-10-06.md` §3) |
 | `guias-usuario/` | `~/Documentos/` | Incluye `atajos-y-mouse.md` y `Guia-Auto-captura-de-cursos.md` |
 | `claude-memoria/` | `~/.claude/projects/-home-<usuario>/memory/` | Las de `proyectos/` van a la carpeta de memoria de cada proyecto |
 | `claude-planes/` | `~/.claude/plans/` | 9 planes (arquitectura de la tesis, etc.) |
@@ -23,7 +23,7 @@ Destino principal: **ThinkPad E14 Gen4** (i7 12ª gen, 16 GB RAM, Windows 11 500
 
 ### Capturas de los cursos (31 GB): NO van en el paquete
 Los `apuntes.md` enlazan imágenes WebP relativas (`0001.webp`). Sin ellas la nota se ve, pero con imágenes rotas. Opciones:
-1. **Copiar por red local** (recomendado, 31 GB, ~10 min en Wi-Fi 5): en la ThinkPad `rsync -avP yafer@<ip-pc>:"~/Vídeos/Capturas\ de\ YouTube/" ~/Vídeos/"Capturas de YouTube"/` (y lo mismo con `~/Documentos/Obsidian Vault/capturas`).
+1. **Copiar por red local** (recomendado, ~30 GB): pasos exactos con SSH temporal y firewall en `laptop/ACTUALIZAR-2026-10-06.md` §3 del repo dotfiles.
 2. Copiar solo los cursos que vayas a repasar.
 3. **Regenerarlas**: `SUPER+ALT+Y` con el link del curso (~10,5 min por hora de video, gasta cuota de Claude para los apuntes).
 Con 500 GB en CachyOS, el espacio no es problema.

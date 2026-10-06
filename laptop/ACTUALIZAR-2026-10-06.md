@@ -32,27 +32,35 @@ pipx install edge-tts gallery-dl      # si no están (pipx list)
 ```
 No instalar: `keyd`, `ckb-next`, `firefox`, `alacritty` (la PC los quitó/son solo PC), nada `nvidia*`.
 
-## 3. Lo que no va en git: apuntes, planes, guías (del paquete de Drive)
-Paquete: Drive `LaptopPcOptimizaciones/migracion-cachyos-hyprland/migracion-cachyos-2026-10-06.tar.zst` (53 MB).
-```
-mkdir -p ~/migracion-2026-10-06 && cd ~/migracion-2026-10-06
-rclone copy "gdrive:LaptopPcOptimizaciones/migracion-cachyos-hyprland/migracion-cachyos-2026-10-06.tar.zst" .   # o bajarlo desde Drive web
-tar --zstd -xf migracion-cachyos-2026-10-06.tar.zst
-P=~/migracion-2026-10-06/migracion-cachyos
-```
-Restaurar **sin pisar lo que la laptop tenga más nuevo** (`-u` = solo si el del paquete es más reciente):
-```
-rsync -au "$P/apuntes/Videos/" ~/Vídeos/                        # 1.092 apuntes/resúmenes/tarjetas .md + .tsv
-rsync -au "$P/apuntes/Vault/" ~/"Documentos/Obsidian Vault"/
-rsync -au "$P/guias-usuario/" ~/Documentos/                     # incluye atajos-y-mouse.md y la guía de auto-captura
-mkdir -p ~/.claude/plans && rsync -au "$P/claude-planes/" ~/.claude/plans/
-```
-`$P/proyectos-md/<proyecto>/` = `CLAUDE.md` y docs de cada proyecto: copiarlos solo dentro de los proyectos que el usuario
-tenga clonados en la laptop (preguntar cuáles; la tesis se clona con `gh repo clone yftorrezg/Ciego ~/Proyectos/Ciego`).
-**No** copiar `dotfiles/` ni `system/` del paquete: la config ya la gestiona chezmoi (sería pisar la variante de laptop).
+## 3. Apuntes, capturas, planes y llave de rclone: copiar DIRECTO desde la PC por la red de casa
+**Cambio 06-10 noche:** la PC unificó las bóvedas de Obsidian. Ya **no existe** `~/Documentos/Obsidian Vault`: todo está en la bóveda
+`~/Vídeos` (Karpathy pasó a `~/Vídeos/Capturas de YouTube/Neural Networks： Zero to Hero/`, en WebP como los demás cursos; el React
+viejo en PNG quedó archivado en la PC). Por eso NO uses `apuntes/` del tar de Drive (es la versión vieja): copia desde la PC.
 
-**Capturas WebP de los cursos (31 GB)** no vienen: los apuntes se ven con imágenes rotas. Cuando la laptop y la PC estén en la
-misma red: `rsync -avP yafer@<ip-PC>:"Vídeos/Capturas de YouTube/" ~/"Vídeos/Capturas de YouTube"/` (preguntar antes; necesita sshd en la PC).
+**En la PC (lo corre el usuario, abre SSH solo para la red de casa y solo mientras dure la copia):**
+```
+sudo ufw allow from 192.168.100.0/24 to any port 22 proto tcp && sudo systemctl start sshd
+```
+IP de la PC al 06-10: `192.168.100.63` (Wi-Fi; si cambió: `ip -4 addr` en la PC).
+
+**En la laptop** (primero una prueba en seco con `-n`, enseñar el resumen al usuario y luego sin `-n`). `-u` = no pisa lo que la laptop
+tenga más nuevo; sin `--delete`, nunca borra nada de la laptop:
+```
+PC=yafer@192.168.100.63
+rsync -avhu --info=stats1 -n "$PC:Vídeos/Capturas de YouTube/" ~/"Vídeos/Capturas de YouTube"/   # ~30 GB, capturas + apuntes
+rsync -avhu "$PC:Vídeos/Mis cursos.md" ~/Vídeos/
+rsync -avhu "$PC:Documentos/" ~/Documentos/ --include='*/' --include='*.md' --exclude='*' --prune-empty-dirs   # guías
+rsync -avhu "$PC:.claude/plans/" ~/.claude/plans/
+umask 077; mkdir -p ~/.config/rclone && rsync -avh "$PC:.config/rclone/LEEME-llave-google-drive.txt" ~/.config/rclone/
+```
+Si la laptop tiene un `~/Documentos/Obsidian Vault` viejo de la migración: comparar con lo copiado y, si no tiene nada propio,
+quitarlo de `~/.config/obsidian/obsidian.json` (con Obsidian cerrado) para que quede una sola bóveda, igual que en la PC.
+
+**Al terminar, en la PC (cerrar SSH otra vez):**
+```
+sudo systemctl stop sshd && sudo ufw delete allow from 192.168.100.0/24 to any port 22 proto tcp
+```
+`$P/proyectos-md/` del tar de Drive: `CLAUDE.md`/docs de proyectos; copiar solo dentro de los proyectos clonados en la laptop.
 
 ## 4. Verificar
 - `bash ~/.local/share/chezmoi/laptop/auditoria.sh` → todo ✔.
