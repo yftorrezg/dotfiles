@@ -19,7 +19,11 @@ lo que NO va en git (apuntes, planes, paquetes) se trae del paquete de Drive.
    - Solo PC (la laptop los ignora por `.chezmoiignore`): mouse Scimitar (`mouse-*.sh`, `keyd-scimitar.conf`, binds `code:192–202`
      en `.hosts/pc/.../binds_equipo.lua`), ckb-next.
    - Memorias de Claude fusionadas (incluye `ahorro-cuota.md`).
-4. Activar el aviso de rclone: `systemctl --user daemon-reload && systemctl --user enable --now rclone-aviso-clientid.timer`.
+4. **rclone con client_id propio (hecho en la PC el 06-10):** proyecto Google Cloud `rclone-yafer`, app OAuth «En producción» (página en
+   `https://yftorrezg.github.io`). En la laptop: pedir al usuario el client_id/secret (están en su KeePassXC; NUNCA en git) y
+   `rclone config update gdrive client_id <ID> client_secret <SECRETO> --non-interactive && rclone config reconnect gdrive: --auto-confirm`
+   (el usuario acepta en el navegador: «Configuración avanzada» → «Ir a rclone»), luego `systemctl --user restart rclone-gdrive`.
+5. Activar el aviso de rclone: `systemctl --user daemon-reload && systemctl --user enable --now rclone-aviso-clientid.timer`.
 
 ## 2. Paquetes nuevos
 ```
