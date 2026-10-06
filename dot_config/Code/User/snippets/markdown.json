@@ -1,0 +1,179 @@
+{
+  "Tabla Simple": {
+		"prefix": "md-table",
+		"body": [
+			"| ${1:Encabezado 1} | ${2:Encabezado 2} | ${3:Encabezado 3} |",
+			"| :--- | :---: | ---: |",
+			"| ${4:Dato 1}     | ${5:Dato 2}     | ${6:Dato 3}     |",
+			"$0"
+		],
+		"description": "Inserta una tabla simple con tres columnas"
+	},
+
+	"Lista Ordenada": {
+		"prefix": "md-olist",
+		"body": [
+			"1. ${1:Primer ítem}",
+			"2. ${2:Segundo ítem}",
+			"3. ${3:Tercer ítem}",
+			"$0"
+		],
+		"description": "Inserta una lista ordenada con tres ítems"
+	},
+	"Lista Desordenada": {
+		"prefix": "md-ulist",
+		"body": [
+			"- ${1:Primer ítem}",
+			"- ${2:Segundo ítem}",
+			"- ${3:Tercer ítem}",
+			"$0"
+		],
+		"description": "Inserta una lista desordenada con tres ítems"
+	},
+	"Bloque de Cita": {
+		"prefix": "md-quote",
+		"body": [
+			"> ${1:Tu cita aquí}",
+			"$0"
+		],
+		"description": "Inserta un bloque de cita"
+	},
+	"Imagen": {
+		"prefix": "md-image",
+		"body": [
+			"![${1:Texto alternativo}](${2:URL de la imagen})",
+			"$0"
+		],
+		"description": "Inserta una imagen con texto alternativo y URL"
+	},
+	"Alerta Estilo GitHub": {
+    "prefix": "md-alert",
+    "body": [
+      "> [!${1|NOTE,TIP,IMPORTANT,WARNING,CAUTION|}]",
+      "> ${2:Escribe el mensaje de la alerta...}",
+      "$0"
+    ],
+    "description": "Alertas visuales compatibles con GitHub"
+  },
+	"Desplegable (Details)": {
+    "prefix": "md-details",
+    "body": [
+      "<details>",
+      "<summary><b>${1:Haga clic para expandir}</b></summary>",
+      "",
+      "${2:Contenido oculto (puede ser código o texto)}",
+      "",
+      "</details>",
+      "$0"
+    ],
+    "description": "Crea un bloque colapsable de HTML"
+  },
+	"Imagen con Enlace": {
+    "prefix": "md-img-link",
+    "body": [
+      "[![${1:Texto Alt}](${2:URL_Imagen})](${3:URL_Destino})",
+      "$0"
+    ],
+    "description": "Inserta una imagen que al hacer clic lleva a un enlace"
+  },
+	"Enlace": {
+		"prefix": "md-link",
+		"body": [
+			"[${1:Texto del enlace}](${2:URL del enlace})"
+		],
+		"description": "Inserta un enlace con texto y URL"
+	},
+	 "codigo en linea": {
+		"prefix": "md-inlinecode",
+		"body": [
+			"`$1`",
+			"$0"
+		],
+		"description": "Inserta código en línea"
+	},
+	"Separador Horizontal": {
+		"prefix": "md-hr",
+		"body": [
+			"---",
+			"$0"
+		],
+		"description": "Inserta un separador horizontal"
+	},
+	"Bloque de Código": {
+    "prefix": "md-code",
+    "body": [
+      "```${1|javascript,python,css,html,json,bash,java,typescript,jsx,php,cpp,csharp,yaml|}",
+      "${2:// tu código aquí}",
+      "```",
+			"$0"
+    ],
+    "description": "Inserta un bloque de código con lenguaje a elegir"
+  },
+	"Tabla de Contenidos": {
+		"prefix": "md-toc",
+		"body": [
+			"- [Introducción](#introducción)",
+			"- [Instalación](#instalación)",
+			"- [Uso](#uso)",
+			"- [Contribuciones](#contribuciones)",
+			"- [Licencia](#licencia)"
+		],
+		"description": "Inserta una tabla de contenidos básica"
+		},
+	"Encabezado con ID": {
+		"prefix": "md-header-id",
+		"body": [
+			"### ${1:Encabezado} {#${2:id}}"
+		],
+		"description": "Inserta un encabezado con un ID personalizado"
+		},
+		"Nota al pie": {
+    "prefix": "md-footnote",
+    "body": [
+      "[^${1:1}]",
+      "",
+      "[^${1:1}]: ${2:Descripción de la nota al pie}",
+      "$0"
+    ],
+    "description": "Inserta una nota al pie y su definición"
+  },
+	"Resumen de Tutorial YouTube": {
+    "prefix": "md-study",
+    "body": [
+      "# 📺 Tutorial: ${1:Título del Video}",
+      "> **Canal:** ${2:Nombre del Canal} | **Link:** [Ver Video](${3:URL})",
+      "",
+      "---",
+      "",
+      "## ⏳ Roadmap / Marcas de Tiempo",
+      "| Tiempo | Tema | Notas Rápidas |",
+      "| :--- | :--- | :--- |",
+      "| ${4:00:00} | ${5:Introducción} | ${6:Conceptos básicos} |",
+      "| ${7:00:00} | ${8:Tema 2} | ${9:Instalación y setup} |",
+      "",
+      "## 🧠 Conceptos Clave",
+      "> [!IMPORTANT]",
+      "> **${10:Concepto Principal}:** ${11:Definición corta o por qué es importante.}",
+      "",
+      "## 💻 Código del Tutorial",
+      "```${12|javascript,python,css,html|}",
+      "${13:// Pega aquí el fragmento de código más importante}",
+      "```",
+      "",
+      "## 📝 Notas y Errores Comunes",
+      "- ❌ **Error:** ${14:Lo que no hay que hacer.}",
+      "- ✅ **Solución:** ${15:La mejor práctica según el instructor.}",
+      "",
+      "<details>",
+      "<summary><b>Ver Ejercicio de Práctica</b></summary>",
+      "",
+      "${16:Escribe aquí un pequeño reto para ti mismo basado en el video.}",
+      "",
+      "</details>",
+      "",
+      "---",
+      "$0"
+    ],
+    "description": "Plantilla profesional para estudiar con videos de programación"
+  }
+}

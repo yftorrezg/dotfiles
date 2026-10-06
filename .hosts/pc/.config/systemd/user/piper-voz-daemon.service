@@ -1,0 +1,12 @@
+[Unit]
+Description=Daemon de Piper para lectura en voz alta (SUPER+R) - mantiene el modelo cargado en memoria
+After=graphical-session.target
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/python3 %h/.config/hypr/scripts/piper-daemon.py
+Restart=on-failure
+RestartSec=2
+
+[Install]
+WantedBy=graphical-session.target

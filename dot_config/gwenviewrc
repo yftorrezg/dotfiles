@@ -1,0 +1,5 @@
+[ImageView]
+MouseWheelBehavior=MouseWheelBehavior::Browse
+
+[UiSettings]
+ColorScheme=noctalia

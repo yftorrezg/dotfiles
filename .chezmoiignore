@@ -1,0 +1,21 @@
+# Archivos del repo que NO van a $HOME
+README.md
+CLAUDE.md
+docs/
+laptop/
+pc/
+
+# Solo laptop: lógica de monitores dinámica (la PC tiene 2 monitores fijos)
+{{ if ne .equipo "laptop" }}
+.config/hypr/config/escritorios.lua
+.config/mpv/scripts/bateria.lua
+{{ end }}
+
+# Nunca sincronizar (datos/estado propio de cada equipo)
+.local/state/mpv/
+.config/opendeck/plugins/
+.local/share/icons/
+
+# Binarios de uosc para otros sistemas
+.config/mpv/scripts/uosc/bin/ziggy-windows.exe
+.config/mpv/scripts/uosc/bin/ziggy-darwin

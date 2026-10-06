@@ -1,0 +1,8 @@
+[Unit]
+Description=dotsync: sincroniza la config PC <-> laptop (chezmoi + GitHub)
+After=graphical-session.target
+
+[Service]
+Type=oneshot
+ExecStart=%h/.local/bin/dotsync auto
+Nice=10

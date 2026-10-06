@@ -1,0 +1,10 @@
+[Unit]
+Description=dotsync cada 30 min y 2 min después de iniciar sesión
+
+[Timer]
+OnStartupSec=2min
+OnUnitActiveSec=30min
+Persistent=false
+
+[Install]
+WantedBy=timers.target

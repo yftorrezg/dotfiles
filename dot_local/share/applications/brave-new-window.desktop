@@ -1,0 +1,9 @@
+[Desktop Entry]
+Name=Brave (ventana nueva)
+Comment=Abre PDFs y links en una ventana nueva de Brave, en el escritorio actual
+Exec=sh -c 'brave --new-window "$1"' _ %f
+Icon=brave
+Type=Application
+NoDisplay=true
+Categories=Network;WebBrowser;
+MimeType=application/pdf;application/x-gdoc-link;

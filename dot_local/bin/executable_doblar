@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+# doblar <video|carpeta> ... — dobla videos del inglés al español (ver ~/.local/share/doblar/doblar.py)
+exec "$HOME/.local/share/doblar/venv/bin/python" -u "$HOME/.local/share/doblar/doblar.py" "$@"

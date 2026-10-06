@@ -1,0 +1,9 @@
+[Desktop Entry]
+Name=Markdown (Obsidian o VS Code)
+Comment=Abre en Obsidian si el archivo está en una bóveda (apuntes de cursos); si no, en VS Code
+Exec=/home/yafer/.config/hypr/scripts/abrir-markdown.py %u
+Icon=obsidian
+Type=Application
+NoDisplay=true
+Categories=Utility;TextEditor;
+MimeType=text/markdown;text/x-markdown;

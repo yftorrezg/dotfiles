@@ -1,0 +1,11 @@
+android-studio
+antigravity-cli
+hyprwhspr
+idevicerestore-git
+logiops
+opendeck-bin
+piper-voices-es-ar
+piper-voices-es-mx
+rustdesk-bin
+visual-studio-code-bin
+xremap-hypr-bin

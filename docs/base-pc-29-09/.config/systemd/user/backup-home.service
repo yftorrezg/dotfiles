@@ -1,0 +1,7 @@
+[Unit]
+Description=Backup de /home a disco externo (restic)
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=%h/.local/bin/backup-home.sh

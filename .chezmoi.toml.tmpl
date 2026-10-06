@@ -1,0 +1,8 @@
+{{- /* Detecta el equipo por hostname. PC = "yf", laptop ThinkPad = "yafer". Otro = pregunta. */ -}}
+{{- $equipo := "" -}}
+{{- if eq .chezmoi.hostname "yf" -}}{{- $equipo = "pc" -}}
+{{- else if eq .chezmoi.hostname "yafer" -}}{{- $equipo = "laptop" -}}
+{{- else -}}{{- $equipo = promptStringOnce . "equipo" "¿Qué equipo es este? (pc / laptop)" -}}
+{{- end -}}
+[data]
+    equipo = {{ $equipo | quote }}

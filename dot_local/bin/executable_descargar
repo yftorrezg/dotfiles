@@ -1,0 +1,52 @@
+#!/usr/bin/env bash
+# descargar <url> [más urls...] — baja videos, playlists o cursos completos con yt-dlp.
+#   descargar --mp3 "url"            solo audio en mp3 (va a ~/Música/Descargas)
+# Variables opcionales:
+#   NAVEGADOR=brave|firefox|chrome   de dónde tomar la sesión (por defecto brave)
+#   DESTINO=/ruta                    carpeta de salida (por defecto ~/Vídeos/Descargas)
+#   SIN_COOKIES=1                    no usar la sesión del navegador
+set -euo pipefail
+
+if [ $# -eq 0 ]; then
+    echo "Uso: descargar <url> [url2 ...]   |   descargar --mp3 <url>"
+    exit 1
+fi
+
+# Solo audio si se pide con --mp3 o con -x/--extract-audio de yt-dlp.
+AUDIO=0
+extra=()
+for a in "$@"; do
+    case "$a" in
+        --mp3) AUDIO=1 ;;
+        -x|--extract-audio) AUDIO=1; extra+=("$a") ;;
+        *) extra+=("$a") ;;
+    esac
+done
+
+# Carpetas del sistema (en español son ~/Vídeos y ~/Música, con tilde).
+if [ "$AUDIO" = 1 ]; then
+    DESTINO="${DESTINO:-$(xdg-user-dir MUSIC 2>/dev/null || echo "$HOME/Música")/Descargas}"
+else
+    DESTINO="${DESTINO:-$(xdg-user-dir VIDEOS 2>/dev/null || echo "$HOME/Vídeos")/Descargas}"
+fi
+NAVEGADOR="${NAVEGADOR:-brave}"
+mkdir -p "$DESTINO"
+
+args=(
+    -P "$DESTINO"
+    # Playlists/cursos en su carpeta y numerados en orden; videos sueltos directo.
+    -o "%(playlist_title|.)s/%(playlist_index&{:03d} - |)s%(title)s.%(ext)s"
+    --embed-metadata --embed-thumbnail
+    --download-archive "$DESTINO/.descargados.txt"
+    --ignore-errors --no-overwrites --continue
+)
+if [ "$AUDIO" = 1 ]; then
+    args+=(-f "ba/b" -x --audio-format mp3 --audio-quality 0)
+else
+    args+=(-f "bv*+ba/b" --merge-output-format mp4 --write-subs --sub-langs "es.*,en.*" --embed-subs)
+fi
+
+[ -z "${SIN_COOKIES:-}" ] && args+=(--cookies-from-browser "$NAVEGADOR")
+command -v aria2c >/dev/null && args+=(--downloader aria2c --downloader-args "aria2c:-x 8 -s 8 -k 1M")
+
+exec yt-dlp "${args[@]}" "${extra[@]}"

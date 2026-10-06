@@ -1,0 +1,8 @@
+# Reinicia logid cuando el M720 Triathlon (046D:B015) se conecta/reconecta,
+# porque logid no reintenta si el mouse estaba dormido al arrancar.
+# 0005 = bus Bluetooth (así está emparejado el M720; vale igual en la laptop,
+# hay que volver a emparejarlo con su Bluetooth).
+ACTION=="add", SUBSYSTEM=="hidraw", KERNELS=="0005:046D:B015.*", RUN+="/usr/bin/systemctl --no-block restart logid.service"
+# Si en la laptop se usa el receptor USB Unifying (046D:C52B) en vez de Bluetooth,
+# descomentar esta línea (reinicia logid al enchufar el receptor):
+#ACTION=="add", SUBSYSTEM=="hidraw", KERNELS=="0003:046D:C52B.*", RUN+="/usr/bin/systemctl --no-block restart logid.service"

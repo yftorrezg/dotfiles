@@ -1,0 +1,260 @@
+{
+    "liveServer.settings.donotShowInfoMsg": true,
+    "[html]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "[css]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "diffEditor.renderSideBySide": false,
+    "diffEditor.wordWrap": "on",
+    "editor.wordWrap": "on",
+    "workbench.iconTheme": "vscode-icons",
+    "workbench.editor.enablePreview": false,
+    "[javascript]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "security.workspace.trust.untrustedFiles": "open",
+    "powermode.enabled": true,
+    "powermode.presets": "flames",
+    "powermode.shake.intensity": 1,
+    "powermode.combo.location": "statusbar",
+    "editor.fontFamily": "'Fira Code', Consolas, 'Courier New', monospace",
+    "editor.fontSize": 15,
+    "bracket-pair-colorizer-2.depreciation-notice": true,
+    "editor.bracketPairColorization.enabled": true,
+    "terminal.integrated.defaultProfile.windows": "Git Bash",
+    "editor.guides.bracketPairs": true,
+    "better-comments.tags": [
+        {
+            "tag": "!",
+            "color": "#FF2D00",
+            "strikethrough": false,
+            "underline": false,
+            "backgroundColor": "transparent",
+            "bold": false,
+            "italic": false
+        },
+        {
+            "tag": "?",
+            "color": "#6429DB",
+            "strikethrough": false,
+            "underline": false,
+            "backgroundColor": "transparent",
+            "bold": false,
+            "italic": false
+        },
+        {
+            "tag": "0",
+            "color": "#ffff02",
+            "strikethrough": false,
+            "underline": false,
+            "backgroundColor": "transparent",
+            "bold": false,
+            "italic": false
+        },
+        {
+            "tag": "'",
+            "color": "#ffff00",
+            "strikethrough": false,
+            "underline": false,
+            "backgroundColor": "transparent",
+            "bold": false,
+            "italic": false
+        },
+        {
+            "tag": "-",
+            "color": "#015199",
+            "strikethrough": false,
+            "underline": false,
+            "backgroundColor": "transparent",
+            "bold": true,
+            "italic": true
+        },
+        {
+            "tag": "*",
+            "color": "#08C379",
+            "strikethrough": false,
+            "underline": false,
+            "backgroundColor": "transparent",
+            "bold": false,
+            "italic": true
+        },
+        {
+            "tag": "+",
+            "color": "#928",
+            "strikethrough": false,
+            "underline": false,
+            "backgroundColor": "transparent",
+            "bold": false,
+            "italic": true
+        }
+    ],
+    "better-comments.highlightPlainText": true,
+    "bracket-pair-colorizer-2.activeScopeCSS": [
+
+
+        "borderStyle : solid",
+        "borderWidth : 2px",
+        "borderColor : {color}",
+        "opacity: 0.5"
+    ],
+    "bracket-pair-colorizer-2.colors": [
+        "#fff",
+        "#7cfc00",
+        "#FF0000",
+        "#00fa9a",
+        "#00FFFF",
+        "#FF00FF"
+    ],
+    "tabnine.experimentalAutoImports": true,
+    "settingsSync.ignoredExtensions": [
+
+        "coenraads.bracket-pair-colorizer-2",
+        "oderwat.indent-rainbow"
+    ],
+    "editor.formatOnSaveMode": "modifications",
+    "explorer.confirmDelete": false,
+    "editor.renderWhitespace": "none",
+    "editor.cursorSmoothCaretAnimation": "on",
+    "workbench.colorTheme": "Abyss",
+    "editor.language.colorizedBracketPairs": [
+        
+
+    
+    ],
+    "indenticator.inner.showIndentGuide": true,
+    "indenticator.color.dark": "#f00",
+    "indenticator.color.light": "#f00",
+    "indenticator.inner.color.light": "#3fb711",
+    "indenticator.languageSpecific": {
+
+    
+    },
+    "editor.inlineSuggest.enabled": true,
+    "editor.linkedEditing": true,
+    "javascript.updateImportsOnFileMove.enabled": "always",
+    "typescript.updateImportsOnFileMove.enabled": "always",
+    "workbench.colorCustomizations": {
+    
+    },
+    "editor.minimap.enabled": false,
+    "rainbowTags.denylistTags": [
+        "!DOCTYPE",
+        "html",
+        "head",
+        "meta",
+        "body",
+        "title",
+        "link",
+        "script",
+        "base",
+        "style",
+        "area",
+        "br",
+        "col",
+        "embed",
+        "hr",
+        "img",
+        "input",
+        "param",
+        "source",
+        "track",
+        "wbr",
+        "li",
+        "ul",
+        "ol",
+        "p",
+        "a",
+        "h1",
+        "h2",
+        "footer"
+    ],
+    "editor.bracketPairColorization.independentColorPoolPerBracketType": true,
+    "editor.cursorBlinking": "expand",
+    "editor.mouseWheelZoom": true,
+    "editor.tabSize": 2,
+    "editor.codeActionsOnSave": {
+    
+    },
+    "json.schemas": [
+    
+
+    
+    ],
+    
+    "terminal.integrated.profiles.windows": {
+
+        "PowerShell": {
+            "source": "PowerShell",
+            "icon": "terminal-powershell"
+        },
+        "Command Prompt": {
+            "path": [
+                "${env:windir}\\Sysnative\\cmd.exe",
+                "${env:windir}\\System32\\cmd.exe"
+            ],
+            "args": [],
+            "icon": "terminal-cmd"
+        },
+        "Git Bash": {
+            "source": "Git Bash"
+        }
+    },
+    "editor.autoClosingBrackets": "always",
+    "editor.language.brackets": [
+    
+    ],
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.formatOnPaste": true,
+    "editor.formatOnSave": true,
+    "emmet.showSuggestionsAsSnippets": true,
+    "html-css-class-completion.enableEmmetSupport": true,
+    "emmet.includeLanguages": {
+        "javascript": "html",
+        "php": "html"
+    },
+    "indenticator.hover.peekBlockPlaceholder": "..",
+    "indenticator.inner.color.dark": "FF0",
+    "indenticator.inner.hover.peekBlockPlaceholder": "..",
+    "indenticator.inner.showHover": false,
+    "editor.tokenColorCustomizations": {
+    "comments": "#15ca91"
+    },
+    "files.autoSave": "afterDelay",
+    "color-highlight.markRuler": false,
+    "colorize.decoration_type": "underline",
+    "editor.fontWeight": "300",
+    "terminal.integrated.fontFamily": "'Fira Code', Consolas, 'Courier New', monospace",
+    "editor.inlayHints.fontFamily": "'Fira Code', Consolas, 'Courier New', monospace",
+    "[python]": {
+        "editor.defaultFormatter": "ms-python.python",
+        "editor.formatOnType": true
+    },
+    "github.copilot.enable": {
+        "*": true,
+        "yaml": false,
+        "plaintext": true,
+        "markdown": true,
+        "java": true
+    },
+    "vsicons.dontShowNewVersionMessage": true,
+    "git.autofetch": true,
+    "git.enableSmartCommit": true,
+    "git.confirmSync": false,
+    "notebook.output.fontFamily": "'Fira Code', Consolas, 'Courier New', monospace",
+    "workbench.panel.defaultLocation": "left",
+    "cSpell.enabled": false,
+    "terminal.integrated.mouseWheelZoom": true,
+    "window.restoreWindows": "none",
+    "terminal.integrated.enableMultiLinePasteWarning": "never",
+    "excalidraw.theme": "dark",
+    "terminal.integrated.initialHint": false,
+    "editor.lineNumbers": "off",
+    "workbench.sideBar.location": "right",
+    "explorer.confirmDragAndDrop": false,
+    "terminal.integrated.fontSize": 10,
+    "security.promptForLocalFileProtocolHandling": false,
+    
+
+}

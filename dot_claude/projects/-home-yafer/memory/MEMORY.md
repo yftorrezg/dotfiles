@@ -1,0 +1,8 @@
+- [SUPER+R lectura en VSCode: fix y falsa alarma](super-r-lectura-vscode-fix.md) — ydotool en vez de wtype para webviews; "no lee" suele ser mouse fuera de la selección.
+- [Escritorios y atajos Hyprland](hyprland-escritorios-atajos.md) — layout de escritorios, atajos apps web, script restauración ventanas.
+- [Responder en español](idioma-espanol.md) — el usuario siempre quiere respuestas en español.
+- [Migración a laptops](migracion-laptops.md) — ThinkPad migrada 05-10 (~/migracion-laptop, auditoria.sh); escala 1, gb extd, pendiente chezmoi.
+- [Quiere aprender, no solo soluciones](quiere-aprender-no-solo-soluciones.md) — perfil CS/IA, explicar el porqué; "modo profesor" = pistas.
+- [Auto-captura y apuntes de cursos](auto-captura-cursos.md) — SUPER+ALT+S/Y/A, cuadernillo con Claude+OCR, pruebas, guía en Documentos/Drive.
+- [Gwenview oscuro y atajos](gwenview-tema-atajos.md) — fix esquema noctalia, plantilla qt Noctalia, atajos A/D/Q/E/C/X/F/W/T/I/S.
+- [Sync PC↔laptop](dotfiles-sync.md) — chezmoi + dotsync, repo yftorrezg/dotfiles; leer CLAUDE.md del repo antes de tocar config.

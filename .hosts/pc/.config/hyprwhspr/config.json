@@ -1,0 +1,14 @@
+{
+  "$schema": "https://raw.githubusercontent.com/goodroot/hyprwhspr/main/share/config.schema.json",
+  "audio_device_name": "Maono",
+  "model": "small",
+  "language": "es",
+  "primary_shortcut": "SUPER+ALT+Z",
+  "secondary_shortcut": "SUPER+ALT+X",
+  "secondary_language": "en",
+  "recording_mode": "toggle",
+  "filter_filler_words": true,
+  "filler_words": ["uh", "um", "er", "ah", "eh", "ehh", "mmm"],
+  "symbol_replacements": true,
+  "pywhispercpp_use_vad": true
+}

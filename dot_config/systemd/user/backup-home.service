@@ -1,0 +1,14 @@
+[Unit]
+Description=Backup de /home a disco externo (restic)
+# Laptop: no correr con batería (el timer es Persistent=true, así que corre
+# apenas se enchufe el cargador si se perdió la corrida del día).
+ConditionACPower=true
+
+[Service]
+Type=oneshot
+ExecStart=%h/.local/bin/backup-home.sh
+# Que no moleste mientras se usa la laptop.
+Nice=19
+IOSchedulingClass=idle
+# Tope por si restic se cuelga (en la PC quedaba "activating" horas y dejaba locks).
+TimeoutStartSec=4h

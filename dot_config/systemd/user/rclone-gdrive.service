@@ -1,0 +1,26 @@
+[Unit]
+Description=RClone mount for Google Drive
+# Laptop: necesita ~/.config/rclone/rclone.conf con el remote "gdrive" (rclone config) y ~/GoogleDrive creado.
+ConditionPathExists=%h/.config/rclone/rclone.conf
+AssertPathIsDirectory=%h/GoogleDrive
+After=network-online.target
+
+[Service]
+Type=notify
+TimeoutStartSec=90
+ExecStart=/usr/bin/rclone mount gdrive: %h/GoogleDrive \
+  --vfs-cache-mode full \
+  --vfs-cache-max-size 10G \
+  --vfs-cache-max-age 72h \
+  --dir-cache-time 1h \
+  --poll-interval 1m \
+  --vfs-read-chunk-size 32M \
+  --vfs-read-chunk-size-limit 512M \
+  --low-level-retries 20 \
+  --log-level INFO
+ExecStop=/usr/bin/fusermount3 -u %h/GoogleDrive
+Restart=on-failure
+RestartSec=10
+
+[Install]
+WantedBy=default.target

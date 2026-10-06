@@ -1,0 +1,10 @@
+[Unit]
+Description=Corre backup-home.service todos los días
+
+[Timer]
+OnCalendar=daily
+Persistent=true
+RandomizedDelaySec=30m
+
+[Install]
+WantedBy=timers.target

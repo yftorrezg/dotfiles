@@ -1,0 +1,2 @@
+- [Perfil de estudio de yafer](user_estudios_organizacion.md) — estudiante disperso en Drive/Obsidian/web, usa mucho Gemini, quiere prompts de estudio y ordenar su flujo; meta futura: TikToks de IA/computer vision con OBS.
+- [Carpeta Drive universidad](drive_carpeta_universidad.md) — parent id confirmado de Base3/Robotica2/Taller1/Taller2/Etica; hay duplicados en otro árbol, no confundir.

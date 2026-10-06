@@ -1,0 +1,2 @@
+- [Lazarillo project status](lazarillo_project_status.md) — thesis Android app, models trained, foreground-service pending device verification
+- [Kaggle markdown-cell trap](kaggle_markdown_cell_trap.md) — a Code cell silently turned Markdown makes "Save & Run All" report false success

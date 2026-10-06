@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=Displays Settings
+Comment=nwg-shell tool to configure outputs
+Exec=nwg-displays -m /home/yafer/.config/hypr/config/nwg-monitors.conf -w /home/yafer/.config/hypr/config/nwg-workspaces.conf
+Icon=nwg-displays
+Terminal=false
+Categories=Settings;DesktopSettings;

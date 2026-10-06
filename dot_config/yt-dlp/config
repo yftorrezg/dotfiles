@@ -1,0 +1,5 @@
+# Usar la sesión de YouTube de Brave (perfil Default): con sesión iniciada YouTube casi no
+# bloquea por "no sos un robot" / 429 en descargas largas (playlists). Afecta a todo yt-dlp.
+# +gnomekeyring: Brave guarda la clave de sus cookies en el llavero de GNOME ("Brave Safe
+# Storage"); en Hyprland yt-dlp no lo detecta solo. Necesita python-secretstorage.
+--cookies-from-browser brave+gnomekeyring

@@ -1,0 +1,15 @@
+{
+  "autolaunch": true,
+  "background": true,
+  "brightness": 100,
+  "developer": true,
+  "disableelgato": false,
+  "language": "es",
+  "rotation": 0,
+  "separatewine": false,
+  "sleep_timeout_minutes": 3,
+  "sleep_when_computer_locked": false,
+  "statistics": true,
+  "updatecheck": true,
+  "version": "2.14.0"
+}

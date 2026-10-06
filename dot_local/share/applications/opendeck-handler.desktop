@@ -1,0 +1,7 @@
+[Desktop Entry]
+Type=Application
+Name=opendeck
+Terminal=false
+NoDisplay=true
+MimeType=x-scheme-handler/streamdeck;x-scheme-handler/openaction;x-scheme-handler/opendeck
+Exec="/usr/bin/opendeck" %u

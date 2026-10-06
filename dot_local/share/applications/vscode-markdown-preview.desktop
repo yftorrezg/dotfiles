@@ -1,0 +1,9 @@
+[Desktop Entry]
+Name=VS Code (Markdown Preview)
+Comment=Abre archivos Markdown en VS Code en modo Preview (lectura)
+Exec=sh -c 'code --open-url "vscode://file$1"' _ %f
+Icon=vscode
+Type=Application
+NoDisplay=true
+Categories=Utility;TextEditor;Development;
+MimeType=text/markdown;text/x-markdown;
