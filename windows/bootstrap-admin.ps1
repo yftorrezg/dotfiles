@@ -14,6 +14,11 @@ Checkpoint-Computer -Description 'Antes de yafer bootstrap' -RestorePointType MO
 # 1b. Habilitar `winget configure` (lo usa bootstrap.ps1 para instalar desde thinkpad.dsc.yaml)
 winget configure --enable
 
+# 1c. Registrar mpv en Windows (si no, no aparece para elegirlo como reproductor predeterminado).
+#     Solo registra; la elección final se hace en Configuración → Aplicaciones predeterminadas.
+$mpvInst = 'C:\Program Files\MPV Player\installer\mpv-install.bat'
+if (Test-Path $mpvInst) { & cmd.exe /c "`"$mpvInst`" /u" }
+
 # 2. Dev Drive: se crea con el asistente (no requiere Hyper-V):
 #    Configuración → Sistema → Almacenamiento → Discos y volúmenes → Crear unidad de desarrollo
 #    → Nuevo VHD, 60 GB, dinámico, letra D:, etiqueta "Proyectos". Windows lo vuelve a montar solo.
