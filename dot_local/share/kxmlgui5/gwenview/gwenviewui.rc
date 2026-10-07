@@ -105,22 +105,19 @@
     <Action name="fullscreen" />
     <Action name="hamburger_menu"/>
 </ToolBar>
-<!-- Atajos de una tecla (reconstruidos en la migración a la laptop desde la memoria
-     gwenview-tema-atajos; base = gwenviewui.rc versión 71 de gwenview 26.08).
-     Si Gwenview sube la versión del .rc, conserva estos atajos pero revisar. -->
 <ActionProperties scheme="Default">
     <Action priority="0" name="fullscreen" shortcut="F; F11"/>
-    <Action name="go_previous" shortcut="A; Backspace"/>
-    <Action name="go_next" shortcut="D; Space"/>
-    <Action name="rotate_left" shortcut="Q; Ctrl+L"/>
-    <Action name="rotate_right" shortcut="E; Ctrl+R"/>
-    <Action name="crop" shortcut="C"/>
-    <Action name="resize" shortcut="R; Shift+R"/>
-    <Action name="file_trash" shortcut="X; Del"/>
+    <Action name="go_next" shortcut="Space; D"/>
+    <Action name="go_previous" shortcut="Backspace; A"/>
+    <Action name="rotate_left" shortcut="Ctrl+L; Q"/>
+    <Action name="rotate_right" shortcut="Ctrl+R; E"/>
+    <Action name="crop" shortcut="Shift+C; C"/>
+    <Action name="resize" shortcut="Shift+R; R"/>
+    <Action name="file_trash" shortcut="Del; X"/>
     <Action name="view_zoom_to_fit" shortcut="W"/>
     <Action name="view_zoom_to_fill" shortcut="Shift+W"/>
-    <Action name="toggle_thumbnailbar" shortcut="T"/>
-    <Action name="toggle_sidebar" shortcut="I; F4"/>
+    <Action name="toggle_thumbnailbar" shortcut="Ctrl+B; T"/>
+    <Action name="toggle_sidebar" shortcut="F4; I"/>
     <Action name="view_toggle_spotlightmode" shortcut="S"/>
 </ActionProperties>
 </gui>

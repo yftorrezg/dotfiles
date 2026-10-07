@@ -253,7 +253,7 @@
     "editor.lineNumbers": "off",
     "workbench.sideBar.location": "right",
     "explorer.confirmDragAndDrop": false,
-    "terminal.integrated.fontSize": 10,
+    "terminal.integrated.fontSize": 13,
     "security.promptForLocalFileProtocolHandling": false,
     
 
