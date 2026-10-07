@@ -41,7 +41,7 @@ if [[ "$1" =~ ^https?:// ]]; then
     # Link: capturas en ~/Vídeos/Capturas de YouTube/<título>/ (+ subtítulos para repasar)
     BASE="$(xdg-user-dir VIDEOS 2>/dev/null || echo "$HOME/Vídeos")/Capturas de YouTube"
     NOMBRE=${TITULO:-$(yt-dlp --no-playlist --print "%(title).80B" "$1" || true)}  # (set -e)
-    NOMBRE=$(sed 's@[]/\\:*?"<>|#[^]@-@g; s/^[ .-]*//; s/[ .]*$//' <<<"$NOMBRE")
+    NOMBRE=$(sed 's#[/\\:*?"<>|]#-#g; s/^[ .-]*//; s/[ .]*$//' <<<"$NOMBRE")
     [ -z "$NOMBRE" ] && { echo "No se pudo leer el título del video"; exit 1; }
     [ "$PROPIA" = 1 ] && setsid python3 "$SCRIPTS/progreso.py" seguir "$PROGRESO_ARCHIVO" "$NOMBRE" >/dev/null 2>&1 &
     DIR="${DESTINO:-$BASE/$NOMBRE}"

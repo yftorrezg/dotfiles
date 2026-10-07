@@ -19,5 +19,3 @@ Atajos: SUPER+ALT+Q YouTube (libre, escritorio actual), +W WhatsApp, +T Telegram
 **How to apply:** al agregar atajos, verificar conflictos en `binds.lua` y proponer primero; reusar app-web.sh para nuevas apps web.
 
 Dictado (hyprwhspr, `~/.config/hyprwhspr/config.json`): desde el 26/09 SUPER+ALT+Z español y SUPER+ALT+X inglés (antes D/I, que chocaban con Drive/Instagram de binds.lua; hyprwhspr no roba la tecla, así que se disparaban ambos). CTRL+SHIFT+D se queda: el usuario no usa ese atajo en VS Code/Brave.
-
-Actualización 06/10/2026: mouse Corsair Scimitar vía keyd (`/etc/keyd/default.conf` → F14–F24 = `code:192`–`202` en binds.lua; modos M1 Estudio/M2 Programación/M3 Redes en `scripts/mouse-accion.sh`; solo PC, guía `~/Documentos/atajos-y-mouse.md`). VS Code ya NO se fija al escritorio 4 (quitado 01/10). SUPER+R a ×1.4. Auditoría: 98/98 binds OK.

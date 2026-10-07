@@ -1,6 +1,6 @@
 ---
 name: migracion-laptops
-description: Migración PC→ThinkPad E14 G4 (migrada 05-10, destino principal); paquete en Drive del 06-10, fusión chezmoi de la PC, rclone client_id pendiente
+description: Migración de la config de la PC (CachyOS+Hyprland) a laptops; ThinkPad E14 G4 ya migrada el 05-10-2026, estado y pendientes
 metadata:
   type: project
 ---
@@ -11,13 +11,4 @@ El 26/09/2026 se armó `~/migracion-cachyos/` (README + docs 01-05 + dotfiles + 
 
 Actualización 26/09 tarde: auditoría completa → docs 06 (descargar/doblar/auto-captura), 07 (uso y cronología), GAPS, LIMPIEZA, `guias-usuario/`, `INICIO.md` + `.obsidian/` (la carpeta es también bóveda de Obsidian). Paquete actual en Drive: `migracion-cachyos-2026-09-26-v3.tar.zst` (se reemplaza con cada actualización). Al actualizar: editar nota del tema, regenerar tar (probar extracción con diff) y subir con rclone usando filtros `--include "/docs/**"` con barra inicial (sin barra agarra carpetas anidadas). El usuario NO quiso borrar el doc de claude.ai del resumen. Riesgo urgente: `~/Proyectos/Ciego` (tesis) sin remoto git.
 
-Actualización 03/10/2026: añadidos zoxide + fzf (`config.fish`), plantilla Markdown en Dolphin y menú «Abrir con VS Code/Obsidian» (doc 04 §3, dotfiles/.local/share/{templates,kio/servicemenus}); PC.md sincronizado en guias-usuario/aprender. Falta regenerar el tar y subirlo a Drive (pendiente de confirmación del usuario).
-
-Actualización 06/10/2026: **la ThinkPad E14 G4 (i7-12ª, 16 GB, Win11 500 GB + CachyOS 500 GB) es el destino principal y ya tiene CachyOS.** Auditoría con subagentes + sync completa del paquete (dotfiles al día, keyd/Scimitar en `solo-esta-pc/`, xremap, gwenview, pipx, `apuntes/` con los 1.092 .md de ~/Vídeos + Vault, `claude-planes/`, `proyectos-md/`, nuevo `docs/09-sincronizar-y-mantener.md`). Subido a Drive `LaptopPcOptimizaciones/migracion-cachyos-hyprland/migracion-cachyos-2026-10-06.tar.zst` (el del 09-29 queda de respaldo). Ciego ya está en GitHub privado `yftorrezg/Ciego`. Las capturas WebP (31 GB) NO van en el tar: copiar por rsync LAN. Idea siguiente: repo `~/dotfiles` con stow (common + machine/<host>) para evitar desfase; base `~/.config/hypr` (git local).
-
-**Pendiente del usuario:** crear su propio client_id de Google para rclone (el compartido se retira en 2026); hay timer `rclone-aviso-clientid.timer` que avisa semanalmente hasta que lo haga. Ver [[ahorro-cuota]].
 **ThinkPad E14 G4 migrada el 05/10/2026** (hostname `yafer`, la PC es `yf`). Trabajo en `~/migracion-laptop/`: `staging/` (git con un commit por área = diff exacto PC→laptop), scripts 01-05 ya ejecutados, `auditoria.sh` (re-ejecutable, sin sudo), respaldo de la config previa en `respaldo-laptop-*/`. Decisiones del usuario: escala interna **1** (probó 1.25 y no le gustó), teclado físico UK → `gb` + variante `extd` (AltGr+vocal = tilde), batería tope 80%, extras gimp/kdenlive/meld/opencode/docker/opendeck, sin firefox/alacritty. Cambios clave: piper vía pipx + voces en `~/.local/share/piper-voices` (AUR piper-tts no compila), thermald quitado (ThinkPad usa DYTC), `/etc/pam.d/noctalia` creado (sin él el lockscreen deniega), estudiar.py movido a SUPER+ALT+B (chocaba con dictado SUPER+ALT+Z), pomodoro SUPER+ALT+P, monitores dinámicos en `hypr/config/escritorios.lua` (SUPER+` voltea a ws N+5 sin Arzopa). Pendiente: sync PC↔laptop con chezmoi (plantillas por hostname), fondos de pantalla, rclone config, pass de restic.
-
-Actualización 06/10/2026 (tarde): **fusión inicial de la PC en el repo chezmoi `yftorrezg/dotfiles` hecha desde la PC.** Decisiones: estudiar.py = SUPER+I en ambos equipos (no SUPER+ALT+B); pomodoro sin atajo (solo Stream Deck); mouse Scimitar (`code:192–202`) en `.hosts/pc/.../binds_equipo.lua` y sus scripts/keyd solo PC. Ver [[dotfiles-sync]].
-
-Actualización 06/10/2026 (noche): **rclone con client_id propio en la PC, hecho.** Proyecto Google Cloud `rclone-yafer`, cliente OAuth «App de escritorio» `rclone-pc-y-laptop`, app «En producción» (marca con página pública `https://yftorrezg.github.io`, repo público yftorrezg/yftorrezg.github.io creado por el usuario). Secreto en `~/.config/rclone/client-id-propio.txt` (600) hasta que el usuario lo pase a KeePassXC. Respaldo `rclone.conf.bak-antes-clientid-20261006`. Falta repetir en la laptop (pasos en `laptop/ACTUALIZAR-2026-10-06.md` del repo).

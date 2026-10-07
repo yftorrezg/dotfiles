@@ -1,5 +1,4 @@
 {
-  "model": "opus",
   "hooks": {
     "Stop": [
       {
@@ -12,22 +11,6 @@
         ]
       }
     ]
-  },
-  "enabledPlugins": {
-    "supabase@claude-plugins-official": true
-  },
-  "extraKnownMarketplaces": {
-    "claude-plugins-official": {
-      "source": {
-        "source": "github",
-        "repo": "anthropics/claude-plugins-official"
-      }
-    }
-  },
-  "modelSettings": {
-    "claude-sonnet-5": {
-      "effortLevel": "high"
-    }
   },
   "tui": "fullscreen",
   "theme": "dark",
@@ -58,5 +41,10 @@
       "**Trusted repo**: The directory `/home/yafer` — it has no git remotes configured and no tracked files, so there is no remote source-control trust boundary to scope to; treat as a local working directory only",
       "**Org-specific CLIs**: None configured — observed tools (hyprctl, pacman, paru, systemctl, rclone, noctalia, etc.) are ordinary Arch Linux desktop/system tools, not org-specific"
     ]
+  },
+  "modelSettings": {
+    "claude-sonnet-5": {
+      "effortLevel": "high"
+    }
   }
 }
