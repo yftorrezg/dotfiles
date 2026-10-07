@@ -71,9 +71,9 @@ Solo laptop: **SUPER+`** (tecla bajo Esc) o 3 dedos ↑↓ = voltear a los escri
 
 ## Pendientes
 - [x] Fusión inicial en la PC (06-10).
-- [ ] Laptop: seguir `laptop/ACTUALIZAR-2026-10-06.md` (apuntes .md, paquetes nuevos, aviso rclone).
+- [x] Laptop al día con la PC (07-10): config, paquetes, apuntes, rclone.
 - [ ] Crear client_id propio de rclone (`docs/migracion/docs/09-sincronizar-y-mantener.md` §2).
-- [ ] Fondos de pantalla de Luffy → copiarlos a `~/Imágenes/Wallpapers` en la laptop.
-- [ ] Laptop: `rclone config` (Drive) y contraseña de restic (backup) → ver `laptop/04-voz-servicios.sh drive|backup`.
-- [ ] Laptop: `fprintd-enroll` (huella).
+- [ ] (sin prisa) Fondos de Luffy → `~/Imágenes/Wallpapers` en la laptop; con el mismo fondo los colores de noctalia salen iguales.
+- [x] Laptop: Drive con rclone (06-10). Backup restic: **decidido NO activar por ahora** (07-10); si se quiere: `laptop/04-voz-servicios.sh backup` con contraseña nueva.
+- [ ] (más adelante) Laptop: `fprintd-enroll` (huella).
 - [ ] ⚠️ PC: subir `~/Proyectos/Ciego` (tesis) a GitHub privado — hoy no tiene copia remota.
