@@ -71,7 +71,14 @@ commit_local() {
 }
 
 traer() {
-    git -C "$SRC" fetch -q origin || { msg "sin internet, lo intento luego"; return 4; }
+    if ! git -C "$SRC" fetch -q origin 2>/dev/null; then
+        if ! gh auth status >/dev/null 2>&1; then
+            avisa "dotsync: sesión de GitHub caducada" "Abre una terminal y ejecuta: gh auth login" critical
+        else
+            msg "sin internet, lo intento luego"
+        fi
+        return 4
+    fi
     if ! git -C "$SRC" rebase -q origin/main 2>/dev/null; then
         git -C "$SRC" rebase --abort 2>/dev/null
         avisa "dotsync: CONFLICTO" "Editaste lo mismo en la PC y en la laptop. No se sobrescribió nada. Abre Claude y dile: 'resuelve el conflicto de dotsync'." critical
@@ -94,7 +101,7 @@ aplicar() {
 subir() { capturar; commit_local; traer || return $?; git -C "$SRC" push -q origin HEAD:main && msg "subido ✔"; }
 
 case "${1:-auto}" in
-    auto)   exigir_fusion; subir || exit $?; aplicar ;;
+    auto)   exigir_fusion; subir; r=$?; [[ $r == 4 ]] && exit 0; [[ $r == 0 ]] || exit $r; aplicar ;;
     subir)  exigir_fusion; subir ;;
     bajar)  exigir_fusion; capturar; commit_local; traer || exit $?; aplicar; git -C "$SRC" push -q origin HEAD:main ;;
     estado) echo "Equipo: $EQ   Repo: $SRC"; capturar >/dev/null 2>&1; git -C "$SRC" status --short | sed 's/^/  sin subir: /'
