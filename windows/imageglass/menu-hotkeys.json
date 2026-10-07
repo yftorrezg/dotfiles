@@ -1,0 +1,12 @@
+{
+  "Menu_MnuViewPrevious": [ "A", "Left", "PageUp" ],
+  "Menu_MnuViewNext": [ "D", "Right", "PageDown" ],
+  "Menu_MnuRotateLeft": [ "Q" ],
+  "Menu_MnuRotateRight": [ "E" ],
+  "Menu_MnuCropTool": [ "C" ],
+  "Menu_MnuMoveToRecycleBin": [ "X", "Delete" ],
+  "Menu_MnuFullScreen": [ "F", "F11" ],
+  "Menu_MnuScaleToFit": [ "W" ],
+  "Menu_MnuScaleToFill": [ "Shift+W" ],
+  "Menu_MnuToggleGallery": [ "T" ]
+}

@@ -64,6 +64,37 @@ if (-not (Test-Path $ziggy)) {
     } finally { $z.Dispose() }
 }
 
+# 5b. ImageGlass: instalar el MSI oficial (la MSIX de winget no se registra como visor), registrarlo y cargar los atajos
+Paso 'ImageGlass'
+$igExe = "$env:LOCALAPPDATA\Programs\ImageGlass\ImageGlass.exe"
+if (-not (Test-Path $igExe)) {
+    $ver = '10.0.6.906'
+    $msi = Join-Path $env:TEMP "ImageGlass_${ver}_win-x64.msi"
+    Invoke-WebRequest "https://github.com/d2phap/ImageGlass/releases/download/$ver/ImageGlass_${ver}_win-x64.msi" -OutFile $msi
+    $firma = Get-AuthenticodeSignature $msi
+    if ($firma.Status -eq 'Valid' -and $firma.SignerCertificate.Subject -match 'Duong Dieu Phap') {
+        Start-Process msiexec.exe -ArgumentList "/i `"$msi`" /passive /norestart" -Wait
+    } else { Write-Warning "Firma del MSI no válida ($($firma.Status)): no se instala." }
+}
+if (Test-Path $igExe) {
+    $app = 'HKCU:\Software\Classes\Applications\ImageGlass.exe'
+    New-Item -Force "$app\shell\open\command", "$app\SupportedTypes" | Out-Null
+    Set-ItemProperty $app -Name FriendlyAppName -Value 'ImageGlass'
+    Set-ItemProperty "$app\shell\open\command" -Name '(default)' -Value "`"$igExe`" `"%1`""
+    foreach ($e in '.png','.jpg','.jpeg','.webp','.gif','.bmp','.avif','.heic','.tif','.tiff','.ico','.svg') {
+        Set-ItemProperty "$app\SupportedTypes" -Name $e -Value ''
+        New-Item -Force "HKCU:\Software\Classes\$e\OpenWithList\ImageGlass.exe" | Out-Null
+    }
+    $cfg = "$env:LOCALAPPDATA\ImageGlass\igconfig.json"
+    if ((Test-Path $cfg) -and -not (Get-Process ImageGlass -ErrorAction SilentlyContinue)) {
+        $t = [IO.File]::ReadAllText($cfg)
+        if ($t.Contains('"MenuHotkeys": {},')) {
+            $bloque = (Get-Content "$AQUI\imageglass\menu-hotkeys.json" -Raw).TrimEnd()
+            [IO.File]::WriteAllText($cfg, $t.Replace('"MenuHotkeys": {},', '"MenuHotkeys": ' + $bloque + ','), (New-Object Text.UTF8Encoding($false)))
+        }
+    } else { Write-Warning 'Abre ImageGlass una vez (y ciérralo) y vuelve a correr este script para cargar los atajos.' }
+} else { Write-Warning 'ImageGlass (MSI) no está instalado: ver imageglass/README.md' }
+
 # 6. AutoHotkey al iniciar sesión
 Paso 'AutoHotkey (inicio)'
 $lnk = Join-Path ([Environment]::GetFolderPath('Startup')) 'yafer.ahk.lnk'

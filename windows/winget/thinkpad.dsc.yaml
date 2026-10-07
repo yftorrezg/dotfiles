@@ -133,14 +133,6 @@ properties:
         id: shinchiro.mpv
         source: winget
     - resource: Microsoft.WinGet.DSC/WinGetPackage
-      id: DuongDieuPhap_ImageGlass
-      directives:
-        description: Visor de imágenes
-        securityContext: current
-      settings:
-        id: DuongDieuPhap.ImageGlass
-        source: winget
-    - resource: Microsoft.WinGet.DSC/WinGetPackage
       id: KeePassXCTeam_KeePassXC
       directives:
         description: Contraseñas

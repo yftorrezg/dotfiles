@@ -1,25 +1,21 @@
 # ImageGlass con los atajos de Gwenview
 
-ImageGlass 10 (MSIX) guarda su configuración en
-`%LOCALAPPDATA%\Packages\DuongDieuPhap.ImageGlass_dhvarhd5k2r8t\LocalCache\Local\ImageGlass\igconfig.json`,
-pero solo la escribe cuando cambias algo desde la app. Por eso se configura a mano, una sola vez:
-**Configuración (Ctrl+,) → Teclado → editar el atajo de cada acción.** Después de hacerlo, copia
-`igconfig.json` a esta carpeta para tenerlo versionado.
+Se instala la versión **MSI** oficial (la MSIX de winget no se registra como visor de imágenes ni
+guarda su configuración en un archivo). Configuración: `%LOCALAPPDATA%\ImageGlass\igconfig.json`.
 
-| Tecla (como en Gwenview) | Acción de ImageGlass |
+`menu-hotkeys.json` es el bloque `MenuHotkeys` con los atajos de Gwenview; `bootstrap.ps1` lo aplica
+si `igconfig.json` todavía tiene `"MenuHotkeys": {}`.
+
+| Tecla | Acción |
 |---|---|
-| A / D | Ver anterior / Ver siguiente (dejar también ← / →) |
-| Q / E | Girar a la izquierda / Girar a la derecha |
+| A / D | Imagen anterior / siguiente (también ← → y RePág/AvPág) |
+| Q / E | Girar a la izquierda / derecha |
 | C | Herramienta Recortar |
-| X | Mover a la papelera de reciclaje (dejar también Supr) |
-| F | Pantalla completa |
-| W | Escalar para ajustar |
-| Shift+W | Escalar para rellenar |
-| T | Mostrar u ocultar la galería (miniaturas) |
+| X | Mover a la papelera (también Supr) |
+| F | Pantalla completa (también F11) |
+| W / Shift+W | Escalar para ajustar / para rellenar |
+| T | Mostrar u ocultar la galería |
 
-Otros ajustes:
-- **Ratón → Rueda:** navegar entre imágenes; Ctrl+rueda = zoom (como `MouseWheelBehavior::Browse`).
-- **Apariencia:** tema oscuro.
-- **Predeterminada:** Configuración de Windows → Aplicaciones → Aplicaciones predeterminadas → ImageGlass, o desde ImageGlass → Configuración → Asociaciones de archivos (incluye webp/avif).
-
-Gwenview tenía además I (barra lateral) y S (modo foco). En ImageGlass equivalen a "información de la imagen" y "sin marco"; asígnalos si los usas.
+No portados: R (redimensionar), I (barra lateral) y S (modo foco), sin acción equivalente.
+Rueda del ratón = navegar: configurar en Configuración → Ratón.
+Tras instalar: Configuración de Windows → Aplicaciones predeterminadas → ImageGlass para cada formato.
