@@ -68,6 +68,7 @@ local function nueva()
         if r.status == 0 then
             mp.osd_message(string.format("📝 Nota guardada  ⏱ %s  %s", fmt(t), titulo ~= "" and ("— " .. titulo) or ""), 2.5)
         else
+            os.remove(tmp)
             mp.osd_message("No se pudo guardar la nota: " .. (r.stderr or ""), 4)
         end
     end

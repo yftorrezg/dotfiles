@@ -91,7 +91,7 @@ def escribir_md(slug, datos):
 
 
 def crear_nota(video, t, titulo, texto, captura_tmp):
-    video = normalizar(video)
+    video, t = normalizar(video), float(t)  # por la línea de comandos t llega como texto ("14779.27")
     with _candado:
         idx = indice()
         slug = idx.get(video)
