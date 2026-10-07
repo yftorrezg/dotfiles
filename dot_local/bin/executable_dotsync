@@ -34,18 +34,22 @@ exigir_fusion() {
     fi
 }
 
-# Copia al repo lo que cambiaste en $HOME.
+# Copia al repo SOLO lo que cambiaste tú en $HOME desde el último apply.
+# `chezmoi status`: 1ª columna = cambiado en $HOME desde que chezmoi lo escribió (tuyo);
+# 2ª columna = el repo trae otra versión (del otro equipo). Usar solo la 1ª evita que una
+# versión vieja de $HOME "revierta" lo que llegó de la otra máquina y aún no se aplicó.
 capturar() {
-    local f t h
-    while IFS= read -r f; do
-        [[ -z $f || $f == \#* ]] && continue
-        t="$HOME/$f"; h="$SRC/.hosts/$EQ/$f"
-        [[ -f $t ]] || continue
-        if ! cmp -s "$t" "$h"; then
-            mkdir -p "$(dirname "$h")"; cp "$t" "$h"; msg "  [$EQ] $f"
+    local linea c1 ruta h
+    while IFS= read -r linea; do
+        c1=${linea:0:1}; ruta=${linea:3}
+        [[ $c1 == "M" ]] || continue          # " " = no lo tocaste; "D"/"A" = no propagar borrados
+        if grep -qxF "$ruta" "$LISTA"; then
+            h="$SRC/.hosts/$EQ/$ruta"; mkdir -p "$(dirname "$h")"; cp "$HOME/$ruta" "$h"; msg "  [$EQ] $ruta"
+        else
+            chezmoi re-add "$HOME/$ruta" 2>&1 | grep -v 'Detected a Generic API Key' || true
+            msg "  $ruta"
         fi
-    done < "$LISTA"
-    chezmoi re-add 2>&1 | grep -v 'Detected a Generic API Key' || true   # comunes (no toca plantillas)
+    done < <(chezmoi status --include=files 2>/dev/null)
 }
 
 # Revisa que lo que se va a aplicar no rompa Hyprland ni configs JSON/TOML.
@@ -98,10 +102,10 @@ aplicar() {
     fi
 }
 
-subir() { capturar; commit_local; traer || return $?; git -C "$SRC" push -q origin HEAD:main && msg "subido ✔"; }
+subir() { capturar; commit_local; traer || return $?; aplicar || return $?; git -C "$SRC" push -q origin HEAD:main && msg "subido ✔"; }
 
 case "${1:-auto}" in
-    auto)   exigir_fusion; subir; r=$?; [[ $r == 4 ]] && exit 0; [[ $r == 0 ]] || exit $r; aplicar ;;
+    auto)   exigir_fusion; subir; r=$?; [[ $r == 4 ]] && exit 0; exit $r ;;
     subir)  exigir_fusion; subir ;;
     bajar)  exigir_fusion; capturar; commit_local; traer || exit $?; aplicar; git -C "$SRC" push -q origin HEAD:main ;;
     estado) echo "Equipo: $EQ   Repo: $SRC"; capturar >/dev/null 2>&1; git -C "$SRC" status --short | sed 's/^/  sin subir: /'
