@@ -54,6 +54,11 @@ rebase sin tocar nada y notifica. Para resolver: `cd ~/.local/share/chezmoi && g
 arreglar los archivos marcados, `git add`, `git rebase --continue`, `chezmoi apply`, `git push`.
 Se niega a correr si falta `.hosts/<equipo>/.fusion-inicial-hecha` (protege a la PC hasta la fusión inicial).
 
+**Captura = solo la 1ª columna de `chezmoi status`** (cambiado en `$HOME` desde el último apply). La 2ª columna es lo que
+trae el repo. (Bug del 06-10, ya corregido: capturar con `chezmoi re-add` a secas, con el repo adelantado y sin aplicar,
+"revirtió" 44 archivos de la PC; se arregló con `git revert`.) Nunca hagas `chezmoi re-add` global con el repo adelantado:
+primero `chezmoi apply`, o re-add solo de rutas concretas con 1ª columna `M`.
+
 ## Estado (06-10-2026, tarde)
 - Laptop: migrada, auditada (`laptop/auditoria.sh`), timer activo. **Pendiente: seguir `laptop/ACTUALIZAR-2026-10-06.md`** (paquetes nuevos, apuntes .md del paquete de Drive, timer de aviso de rclone).
 - **PC: fusión inicial HECHA el 06-10** (PC = base + arreglos de la laptop). Decisiones del usuario: estudiar.py = **SUPER+I** en ambos
