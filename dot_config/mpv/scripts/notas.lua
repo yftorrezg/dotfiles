@@ -75,7 +75,7 @@ local function nueva()
 
     local titulo_ok = false
     input.get({
-        prompt = string.format("Título ⏱ %s: ", fmt(t)),
+        prompt = string.format("Título ⏱ %s  (? duda · ! clave · p practicar): ", fmt(t)),
         submit = function(titulo)
             titulo_ok = true
             input.terminate()

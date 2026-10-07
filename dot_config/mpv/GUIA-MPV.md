@@ -88,12 +88,18 @@ Las marcas se ven como rayitas en la barra y se guardan en `~/.local/state/mpv/m
 ### Notas con tiempo (panel al lado)
 | Tecla | Acción |
 |---|---|
-| `Ctrl+n` | **Nueva nota** en este instante: pausa, escribes el **título** (`Enter`) y la **anotación** (`Enter`), y el video sigue. Toma una captura sola. `Esc` en el título cancela; `Esc` en la anotación guarda solo con título |
+| `Ctrl+n` | **Nueva nota** en este instante: pausa, escribes el **título** (con `?`, `!` o `p` al inicio si quieres un tipo; `Enter`) y la **anotación** (`Enter`), y el video sigue. Toma una captura sola. `Esc` en el título cancela; `Esc` en la anotación guarda solo con título |
 | `h` | **Ver / ocultar el panel de notas**: mpv queda al 80 % a la izquierda y el panel al 20 % a la derecha (si estabas en pantalla completa, sale de ella) |
 
 En el panel (ventana de Brave): clic en `⏱ 12:34` o en la captura = mpv **salta a ese minuto**; la nota del momento actual se resalta y el panel la sigue solo (casilla *seguir*); `Editar` / `Borrar` en cada nota; buscador; `＋ Nota` crea una nota desde el panel; `Videos` lista **todos los videos con notas** y al pulsar uno lo abre en mpv.
 
-- Cada nota queda ligada a su video: `~/Documentos/Notas-cursos/<nombre del video>/` con `notas.md` (legible, para Obsidian/VSCode/Drive), `notas.json` y `capturas/`. El archivo `indice.json` enlaza la ruta de cada video con su carpeta, así que si abres el mismo video otro día, sus notas aparecen.
+**Tipos de nota**: empieza el título con `?` (duda), `!` (clave) o `p` (practicar), por ejemplo `? por qué className`. Un título que empieza con `¿` cuenta como duda. En el panel cada tipo tiene color e insignia, y los botones ❓ 🔑 🛠️ filtran.
+
+- **Repaso** (botón del panel, con contador): las notas `?` `!` `p` de TODOS tus videos que toca ver hoy. La anotación sale borrosa: intenta recordarla y pulsa para verla; luego **Ya lo sé** (vuelve en 2, 4, 8… hasta 60 días) o **Repetir** (mañana). Clic en el minuto abre el video ahí.
+- **Tarjetas**: tus notas `?` se vuelven `tarjetas.md` (plugin Spaced Repetition de Obsidian, conserva tu progreso).
+- **Cuadernillo**: si el video tiene su carpeta en `Capturas de YouTube/`, se escribe ahí `mis-notas.md` junto a `apuntes.md` (que no se toca).
+
+- Cada nota queda ligada a su video: `~/Vídeos/Notas de videos/<nombre del video>/` con `notas.md` (legible), `notas.json`, `tarjetas.md` y `capturas/`. Está **dentro de tu bóveda de Obsidian** (`~/Vídeos`), así que lo ves y lo repasas allí (`~/Documentos/Notas-cursos` es un acceso directo a la misma carpeta). El archivo `indice.json` enlaza la ruta de cada video con su carpeta, así que si abres el mismo video otro día, sus notas aparecen.
 - Si renombras o mueves el video, sus notas antiguas siguen en su carpeta (se ven en `Videos`), pero el video nuevo empieza sin notas.
 - El panel habla con mpv por un socket (`$XDG_RUNTIME_DIR/mpv-notas.sock`). Con **dos ventanas de mpv**, controla la última que abriste; pulsa `h` en otra ventana para que el panel pase a controlar esa.
 - El servidor del panel (`panel-notas/servidor.py`, puerto 47831) se arranca solo con `h` y se apaga tras 20 min sin uso.

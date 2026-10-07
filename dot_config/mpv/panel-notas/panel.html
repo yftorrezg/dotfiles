@@ -31,6 +31,7 @@ input,textarea{width:100%;font:inherit;color:var(--txt);background:var(--bg);
 input:focus,textarea:focus{outline:none;border-color:var(--acento2)}
 textarea{resize:vertical;min-height:54px}
 #lista{flex:1;overflow-y:auto;padding:10px 12px 40px;display:flex;flex-direction:column;gap:10px}
+.nota,.video{flex:none}
 .nota{background:var(--card);border:1px solid var(--borde);border-radius:10px;overflow:hidden;
   transition:border-color .2s, box-shadow .2s}
 .nota.actual{border-color:var(--acento);box-shadow:0 0 0 1px var(--acento)}
@@ -50,6 +51,14 @@ kbd{background:var(--card2);border:1px solid var(--borde);border-radius:4px;padd
 .video span{color:var(--sub);font-size:12px}
 #nueva{display:none;padding:8px 12px;border-bottom:1px solid var(--borde);background:var(--card);gap:6px;flex-direction:column}
 #nueva.abierta{display:flex}
+.tipo{display:inline-block;font-size:11.5px;font-weight:600;border-radius:5px;padding:1px 7px;margin-left:5px;vertical-align:1px}
+.t-duda{background:#1e3a5f;color:#7cc4ff}.t-clave{background:#4a3a12;color:#fbbf24}.t-practicar{background:#14402f;color:#4ade80}
+.nota.k-duda{border-left:3px solid #38bdf8}.nota.k-clave{border-left:3px solid #fbbf24}.nota.k-practicar{border-left:3px solid #4ade80}
+#chips{display:flex;gap:5px;margin-top:7px}
+.chip{flex:1;font-size:12px;padding:3px 0;text-align:center;color:var(--sub)}
+.chip.on{background:var(--acento);color:#06241c;border-color:var(--acento);font-weight:600}
+select{font:inherit;color:var(--txt);background:var(--bg);border:1px solid var(--borde);border-radius:7px;padding:5px 6px;width:100%}
+.de{color:var(--sub);font-size:11.5px;margin:0 0 5px}
 #toast{position:fixed;left:50%;bottom:14px;transform:translateX(-50%);background:var(--card2);border:1px solid var(--acento);
   border-radius:8px;padding:5px 12px;opacity:0;transition:opacity .2s;pointer-events:none}
 #toast.ver{opacity:1}
@@ -61,13 +70,19 @@ kbd{background:var(--card2);border:1px solid var(--borde);border-radius:4px;padd
     <span class="punto" id="punto"></span>
     <h1 id="titulo">Notas del video</h1>
     <button class="mini" id="btn-todos" title="Ver todos los videos con notas">Videos</button>
+    <button class="mini" id="btn-repaso" title="Notas para repasar hoy">Repaso</button>
     <button class="mini" id="btn-mas" title="Nota en el minuto actual">＋ Nota</button>
   </div>
   <div class="meta"><span id="info"></span><label><input type="checkbox" id="seguir" checked style="width:auto;vertical-align:-2px"> seguir</label></div>
   <input id="buscar" placeholder="Buscar en las notas…" autocomplete="off">
+  <div id="chips">
+    <button class="chip on" data-f="">Todas</button><button class="chip" data-f="?">❓</button>
+    <button class="chip" data-f="!">🔑</button><button class="chip" data-f="p">🛠️</button>
+  </div>
 </header>
 <div id="nueva">
-  <input id="n-tit" placeholder="Título de la nota" autocomplete="off">
+  <input id="n-tit" placeholder="Título (empieza con ? duda · ! clave · p practicar)" autocomplete="off">
+  <select id="n-tipo"><option value="">Sin tipo</option><option value="?">❓ Duda</option><option value="!">🔑 Clave</option><option value="p">🛠️ Practicar</option></select>
   <textarea id="n-txt" placeholder="Anotación (opcional) — Ctrl+Enter guarda"></textarea>
   <div class="fila" style="justify-content:flex-end">
     <button class="mini" id="n-cancel">Cancelar</button><button class="p" id="n-ok">Guardar</button>
@@ -86,6 +101,12 @@ const api = (ruta, cuerpo) => fetch(ruta, cuerpo === undefined ? {} :
 
 let est = {mpv:false}, datos = {video:null, notas:[]}, vista = "video", editando = null, borrando = null;
 let versionVista = null, videoVista = null, actualId = null, tVisto = 0;
+let filtroTipo = "", pendientes = [], ticks = 0;
+const TIPOS = {"?":["duda","❓ duda"], "!":["clave","🔑 clave"], "p":["practicar","🛠️ practicar"]};
+const insignia = n => TIPOS[n.tipo] ? `<span class="tipo t-${TIPOS[n.tipo][0]}">${TIPOS[n.tipo][1]}</span>` : "";
+const claseTipo = n => TIPOS[n.tipo] ? " k-" + TIPOS[n.tipo][0] : "";
+async function cargarPendientes(){ try { pendientes = await api("/api/repaso"); } catch { pendientes = []; }
+  $("#btn-repaso").textContent = pendientes.length ? `Repaso · ${pendientes.length}` : "Repaso"; }
 
 function toast(m){ const t = $("#toast"); t.textContent = m; t.classList.add("ver"); clearTimeout(t._x); t._x = setTimeout(()=>t.classList.remove("ver"), 1500); }
 
@@ -102,8 +123,9 @@ function notaActual(){
 
 function pintarCabecera(){
   $("#punto").classList.toggle("on", est.mpv);
+  $("#btn-todos").textContent = "Videos"; $("#btn-repaso").classList.toggle("on", vista === "repaso");
   if (vista === "todos") { $("#titulo").textContent = "Todos los videos con notas"; $("#info").textContent = ""; $("#btn-todos").textContent = "← Volver"; return; }
-  $("#btn-todos").textContent = "Videos";
+  if (vista === "repaso") { $("#titulo").textContent = "Repaso de hoy"; $("#info").textContent = pendientes.length ? `${pendientes.length} por repasar · ¿te acuerdas sin mirar?` : ""; return; }
   $("#titulo").textContent = est.mpv ? est.nombre : "mpv no está abierto";
   $("#titulo").title = est.video || "";
   $("#info").textContent = est.mpv ? `${datos.notas.length} nota${datos.notas.length===1?"":"s"} · ${fmt(est.t)} / ${fmt(est.dur)}` : "Abre un video o elige uno de la lista";
@@ -120,18 +142,30 @@ async function pintarLista(){
       const v = vs[el.dataset.i]; await api("/api/abrir", {video:v.video, t:0}); vista = "video"; toast("Abriendo…"); versionVista = null; pintarCabecera(); });
     return;
   }
+  if (vista === "repaso") {
+    await cargarPendientes();
+    cont.innerHTML = pendientes.length ? pendientes.map((n,i) => `<div class="nota${claseTipo(n)}" data-i="${i}">
+      ${n.captura ? `<img loading="lazy" src="/img/${encodeURIComponent(n.slug)}/capturas/${encodeURIComponent(n.captura)}" data-a="ver">` : ""}
+      <div class="cuerpo"><div class="de">${esc(n.nombre)}</div><button class="tiempo" data-a="ver">⏱ ${fmt(n.t)}</button>${insignia(n)}
+      <div class="tit">${esc(n.titulo)}</div>${n.texto ? `<div class="txt rev" style="filter:blur(5px);cursor:pointer" title="Clic para ver" data-a="rev">${esc(n.texto)}</div>` : ""}
+      <div class="acciones" style="opacity:1"><button class="mini" data-a="otra">Repetir</button><button class="p" data-a="sabe">Ya lo sé</button></div></div></div>`).join("")
+      : `<div class="vacio">🎉 Nada para repasar hoy.<br>Anota con <kbd>?</kbd> y <kbd>!</kbd> al inicio del título<br>y aquí volverán a su tiempo.</div>`;
+    return;
+  }
   if (!est.mpv) { cont.innerHTML = `<div class="vacio">mpv no está abierto.<br>Pulsa <b>Videos</b> para abrir uno con notas.</div>`; return; }
   const f = $("#buscar").value.trim().toLowerCase();
-  const ns = datos.notas.filter(n => !f || (n.titulo + " " + n.texto).toLowerCase().includes(f));
+  const ns = datos.notas.filter(n => (!f || (n.titulo + " " + n.texto).toLowerCase().includes(f)) && (!filtroTipo || n.tipo === filtroTipo));
   if (!ns.length) { cont.innerHTML = datos.notas.length ? `<div class="vacio">Ninguna nota coincide.</div>` :
     `<div class="vacio">Este video aún no tiene notas.<br>Pulsa <kbd>Ctrl</kbd>+<kbd>N</kbd> en mpv<br>o <b>＋ Nota</b> aquí arriba.</div>`; return; }
   cont.innerHTML = ns.map(n => {
     if (editando === n.id) return `<div class="nota" data-id="${n.id}"><div class="cuerpo">
-      <input id="e-tit" value="${esc(n.titulo)}"><textarea id="e-txt" style="margin-top:6px">${esc(n.texto)}</textarea>
+      <input id="e-tit" value="${esc(n.titulo)}">
+      <select id="e-tipo" style="margin-top:6px">${[["","Sin tipo"],["?","❓ Duda"],["!","🔑 Clave"],["p","🛠️ Practicar"]].map(([v,t]) => `<option value="${v}"${n.tipo===v?" selected":""}>${t}</option>`).join("")}</select>
+      <textarea id="e-txt" style="margin-top:6px">${esc(n.texto)}</textarea>
       <div class="acciones" style="opacity:1"><button class="mini" data-a="cancelar">Cancelar</button><button class="p" data-a="guardar">Guardar</button></div></div></div>`;
-    return `<div class="nota" data-id="${n.id}" data-t="${n.t}">
+    return `<div class="nota${claseTipo(n)}" data-id="${n.id}" data-t="${n.t}">
       ${n.captura ? `<img loading="lazy" src="/img/${encodeURIComponent(datos.slug)}/capturas/${encodeURIComponent(n.captura)}" data-a="ir">` : ""}
-      <div class="cuerpo"><button class="tiempo" data-a="ir">⏱ ${fmt(n.t)}</button>
+      <div class="cuerpo"><button class="tiempo" data-a="ir">⏱ ${fmt(n.t)}</button>${insignia(n)}
       <div class="tit">${esc(n.titulo)}</div>${n.texto ? `<div class="txt">${esc(n.texto)}</div>` : ""}
       <div class="acciones">${borrando === n.id
         ? `<span style="color:var(--peligro);margin-right:auto">¿Borrar?</span><button class="mini peligro" data-a="si-borrar">Sí</button><button class="mini" data-a="no-borrar">No</button>`
@@ -153,25 +187,40 @@ function marcarActual(forzar){
 $("#lista").addEventListener("click", async e => {
   const b = e.target.closest("[data-a]"); if (!b) return;
   const card = b.closest(".nota"); const id = +card.dataset.id; const a = b.dataset.a;
+  if (vista === "repaso") {
+    const n = pendientes[+card.dataset.i];
+    if (a === "rev") { b.style.filter = "none"; }
+    else if (a === "ver") { await api("/api/abrir", {video:n.video, t:Math.max(0, n.t - 1)}); toast("Abriendo en ese minuto…"); }
+    else if (a === "sabe" || a === "otra") {
+      const r = await api("/api/repasado", {video:n.video, id:n.id, sabe:a === "sabe"});
+      toast(a === "sabe" ? `Bien · vuelve en ${r.dias} día${r.dias===1?"":"s"}` : "Mañana lo vemos otra vez");
+      await pintarLista(); pintarCabecera();
+    }
+    return;
+  }
   if (a === "ir") { await api("/api/saltar", {t: Math.max(0, +card.dataset.t - 1)}); }
   else if (a === "editar") { editando = id; borrando = null; await pintarLista(); $("#e-tit").focus(); }
   else if (a === "cancelar") { editando = null; await pintarLista(); }
-  else if (a === "guardar") { await api("/api/editar", {video:est.video, id, titulo:$("#e-tit").value, texto:$("#e-txt").value}); editando = null; toast("Guardado"); versionVista = null; }
+  else if (a === "guardar") { await api("/api/editar", {video:est.video, id, titulo:$("#e-tit").value, texto:$("#e-txt").value, tipo:$("#e-tipo").value}); editando = null; toast("Guardado"); versionVista = null; }
   else if (a === "borrar") { borrando = id; await pintarLista(); }
   else if (a === "no-borrar") { borrando = null; await pintarLista(); }
   else if (a === "si-borrar") { await api("/api/borrar", {video:est.video, id}); borrando = null; toast("Nota borrada"); versionVista = null; }
 });
 $("#lista").addEventListener("keydown", e => { if (e.key === "Enter" && e.ctrlKey && editando) document.querySelector('[data-a="guardar"]')?.click(); if (e.key === "Escape" && editando) { editando = null; pintarLista(); } });
 
-$("#btn-todos").onclick = () => { vista = vista === "todos" ? "video" : "todos"; versionVista = null; pintarCabecera(); pintarLista(); };
+const irVista = v => { vista = vista === v ? "video" : v; versionVista = null; pintarCabecera(); pintarLista(); };
+$("#btn-todos").onclick = () => irVista("todos");
+$("#btn-repaso").onclick = () => irVista("repaso");
+document.querySelectorAll(".chip").forEach(c => c.onclick = () => {
+  filtroTipo = c.dataset.f; document.querySelectorAll(".chip").forEach(x => x.classList.toggle("on", x === c)); if (vista === "video") pintarLista(); });
 $("#buscar").oninput = pintarLista;
 
 const nuevaAbrir = (v) => { $("#nueva").classList.toggle("abierta", v); if (v) $("#n-tit").focus(); };
 $("#btn-mas").onclick = () => { if (!est.mpv) return toast("Abre un video en mpv primero"); nuevaAbrir(!$("#nueva").classList.contains("abierta")); };
 $("#n-cancel").onclick = () => nuevaAbrir(false);
 $("#n-ok").onclick = async () => {
-  const r = await api("/api/nueva", {titulo:$("#n-tit").value, texto:$("#n-txt").value});
-  if (r.ok) { $("#n-tit").value = ""; $("#n-txt").value = ""; nuevaAbrir(false); toast("Nota guardada"); versionVista = null; } else toast("No se pudo guardar");
+  const r = await api("/api/nueva", {titulo:$("#n-tit").value, texto:$("#n-txt").value, tipo:$("#n-tipo").value});
+  if (r.ok) { $("#n-tit").value = ""; $("#n-txt").value = ""; $("#n-tipo").value = ""; nuevaAbrir(false); toast("Nota guardada"); versionVista = null; } else toast("No se pudo guardar");
 };
 $("#nueva").addEventListener("keydown", e => { if (e.key === "Enter" && (e.ctrlKey || e.target.id === "n-tit")) $("#n-ok").click(); if (e.key === "Escape") nuevaAbrir(false); });
 
@@ -182,6 +231,7 @@ async function tick(){
     if (!(editando)) { await cargarNotas(); actualId = null; pintarCabecera(); await pintarLista(); }
   } else if (vista === "video") { pintarCabecera(); marcarActual(false); }
   else pintarCabecera();
+  if (ticks++ % 40 === 0 && vista !== "repaso") cargarPendientes();
   setTimeout(tick, 700);
 }
 tick();

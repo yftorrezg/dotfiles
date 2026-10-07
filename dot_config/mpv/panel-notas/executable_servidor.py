@@ -4,20 +4,29 @@
   servidor.py serve                       arranca el panel en http://127.0.0.1:47831
   servidor.py nota VIDEO T TITULO TEXTO CAPTURA   crea una nota (lo usa notas.lua con Ctrl+n)
 
-Todo vive en ~/Documentos/Notas-cursos/<nombre del video>/ :
-  notas.json   fuente de verdad (el panel lo lee y lo edita)
-  notas.md     resumen legible (Obsidian, VSCode, Drive...), se regenera solo
-  capturas/    una imagen por nota
-y ~/Documentos/Notas-cursos/indice.json enlaza cada ruta de video con su carpeta.
+Todo vive en ~/Vídeos/Notas de videos/<nombre del video>/ (dentro de la bóveda de Obsidian):
+  notas.json     fuente de verdad (el panel lo lee y lo edita)
+  notas.md       resumen legible, se regenera solo
+  tarjetas.md    las notas "?" como tarjetas del plugin Spaced Repetition (conserva tu progreso)
+  capturas/      una imagen por nota
+y indice.json enlaza cada ruta de video con su carpeta. Si el video tiene su cuadernillo en
+~/Vídeos/Capturas de YouTube/, se escribe también ahí un mis-notas.md (apuntes.md no se toca).
+
+Tipos de nota: el título puede empezar con  ?  (duda) ·  !  (clave) ·  p  (practicar).
 El panel habla con mpv por su socket IPC ($XDG_RUNTIME_DIR/mpv-notas.sock).
 """
-import json, os, re, shutil, socket, subprocess, sys, threading, time
+import datetime, importlib.util, json, os, re, shutil, socket, subprocess, sys, threading, time
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from urllib.parse import urlparse, parse_qs, unquote
 
-PUERTO = 47831
+PUERTO = int(os.environ.get("NOTAS_PUERTO", 47831))
 AQUI = os.path.dirname(os.path.abspath(__file__))
-RAIZ = os.path.expanduser("~/Documentos/Notas-cursos")
+RAIZ = os.environ.get("NOTAS_RAIZ") or os.path.expanduser("~/Vídeos/Notas de videos")
+BOVEDA = os.path.dirname(RAIZ)  # raíz de la bóveda de Obsidian (para los enlaces ![[...]])
+CLASES = os.environ.get("NOTAS_CLASES") or os.path.expanduser("~/Vídeos/Capturas de YouTube")
+TARJETAS_PY = os.environ.get("TARJETAS_PY") or os.path.expanduser("~/.config/hypr/scripts/tarjetas.py")
+TIPOS = {"?": ("duda", "❓"), "!": ("clave", "🔑"), "p": ("practicar", "🛠️")}
+MAX_INTERVALO = 60  # días
 SOCK = os.path.join(os.environ.get("XDG_RUNTIME_DIR", "/tmp"), "mpv-notas.sock")
 CERRAR_SIN_USO = 20 * 60  # segundos sin peticiones -> el servidor se apaga solo
 _candado = threading.Lock()
@@ -63,35 +72,181 @@ def hacer_slug(video, usados):
     return slug
 
 
+# ---------- tipos y repaso ----------
+def separar_tipo(titulo):
+    """('?'|'!'|'p'|'', título limpio). '? algo' / '!algo' / 'p algo'; '¿…' cuenta como duda sin recortar."""
+    t = (titulo or "").strip()
+    m = re.match(r"^([?!])\s*(.+)$", t) or re.match(r"^(p)\s+(.+)$", t)
+    if m:
+        return m.group(1), m.group(2).strip()
+    if t.startswith("¿"):
+        return "?", t
+    return "", t
+
+
+def hoy():
+    return datetime.date.today()
+
+
+def sumar_dias(dias):
+    return (hoy() + datetime.timedelta(days=dias)).isoformat()
+
+
+def completar(n):
+    """Rellena los campos de las notas viejas (sin tipo/intervalo/proximo)."""
+    n.setdefault("tipo", "")
+    n.setdefault("intervalo", 1)
+    if not n.get("proximo"):
+        n["proximo"] = sumar_dias(1)
+    return n
+
+
+def siguiente_repaso(n, sabe):
+    """Leitner sencillo: 'Ya lo sé' duplica el intervalo (1,2,4,8… máx. 60 días); 'Repetir' vuelve a 1 día."""
+    n["intervalo"] = min(max(int(n.get("intervalo", 1)) * 2, 2), MAX_INTERVALO) if sabe else 1
+    n["proximo"] = sumar_dias(n["intervalo"])
+    return n
+
+
 # ---------- notas ----------
 def carpeta(slug):
     return os.path.join(RAIZ, slug)
 
 
 def cargar(slug):
-    return leer_json(os.path.join(carpeta(slug), "notas.json"), None)
+    d = leer_json(os.path.join(carpeta(slug), "notas.json"), None)
+    if d:
+        for n in d["notas"]:
+            completar(n)
+    return d
 
 
 def guardar(slug, datos):
     datos["notas"].sort(key=lambda n: n["t"])
     escribir_json(os.path.join(carpeta(slug), "notas.json"), datos)
     escribir_md(slug, datos)
+    for extra in (escribir_tarjetas, escribir_mis_notas):  # nunca deben impedir guardar la nota
+        try:
+            extra(slug, datos)
+        except Exception as e:
+            print("aviso:", extra.__name__, e, file=sys.stderr)
+
+
+def etiqueta(n):
+    return f"{TIPOS[n['tipo']][1]} " if n.get("tipo") in TIPOS else ""
+
+
+def cuerpo_notas(datos, ruta_captura):
+    l = []
+    for n in datos["notas"]:
+        l += [f"## ⏱ {fmt(n['t'])} — {etiqueta(n)}{n['titulo']}", ""]
+        if n.get("texto"):
+            l += [n["texto"], ""]
+        if n.get("captura"):
+            l += [ruta_captura(n["captura"], n["t"]), ""]
+    return l
 
 
 def escribir_md(slug, datos):
     l = [f"# {datos['nombre']}", "", f"Video: `{datos['video']}`", f"Notas: {len(datos['notas'])}", ""]
-    for n in datos["notas"]:
-        l += [f"## ⏱ {fmt(n['t'])} — {n['titulo']}", ""]
-        if n.get("texto"):
-            l += [n["texto"], ""]
-        if n.get("captura"):
-            l += [f"![{fmt(n['t'])}](capturas/{n['captura']})", ""]
+    l += cuerpo_notas(datos, lambda c, t: f"![{fmt(t)}](capturas/{c})")
     with open(os.path.join(carpeta(slug), "notas.md"), "w", encoding="utf-8") as f:
         f.write("\n".join(l))
 
 
-def crear_nota(video, t, titulo, texto, captura_tmp):
+def _tarjetas_mod():
+    if not os.path.isfile(TARJETAS_PY):
+        return None
+    spec = importlib.util.spec_from_file_location("tarjetas_estudio", TARJETAS_PY)
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+    return mod
+
+
+def tarjetas_de(datos):
+    """[(sección, pregunta, respuesta)] con las notas de tipo duda."""
+    res = []
+    for n in datos["notas"]:
+        if n.get("tipo") != "?":
+            continue
+        p = n["titulo"].strip()
+        if not p.endswith("?"):
+            p += "?"
+        if not p.startswith("¿"):
+            p = "¿" + p.lstrip("¿")
+        r = n.get("texto") or f"(sin respuesta escrita: míralo en el video, ⏱ {fmt(n['t'])})"
+        res.append(("❓ Mis dudas", p, r))
+    return res
+
+
+def escribir_tarjetas(slug, datos):
+    """tarjetas.md para el plugin Spaced Repetition; reutiliza tarjetas.py para conservar el progreso."""
+    mod = _tarjetas_mod()
+    if mod is None:
+        return
+    salida = os.path.join(carpeta(slug), "tarjetas.md")
+    tarjetas = tarjetas_de(datos)
+    if not tarjetas and not os.path.exists(salida):
+        return
+    progreso, mias = {}, None
+    if os.path.exists(salida):
+        with open(salida, encoding="utf-8") as f:
+            progreso, mias = mod.progreso_viejo(f.read())
+    tag = "#flashcards/notas/" + mod.slug(datos["nombre"])
+    md, _ = mod.armar_md(datos["nombre"], tag, tarjetas, progreso, mias)
+    md = re.sub(r"^\*Repaso espaciado.*\*$",
+                "*Tarjetas de tus notas «?» de mpv (se regeneran solas al crear, editar o borrar notas). "
+                "Repaso con el plugin Spaced Repetition: Ctrl+P → «Revisar tarjetas en esta nota». "
+                "Se conserva tu progreso y la sección «Mis tarjetas».*", md, count=1, flags=re.M)
+    mod.escribir(salida, md)
+
+
+def _norm(t):
+    t = re.sub(r"^\d+\s*-\s*", "", t)  # playlists: "003 - título"
+    return re.sub(r"[\W_]+", "", t.casefold())
+
+
+def buscar_clase(nombre, profundidad=3):
+    """Carpeta de clase del cuadernillo cuyo nombre coincide con el del video (o None)."""
+    objetivo = _norm(nombre)
+    if not objetivo or not os.path.isdir(CLASES):
+        return None
+    pendientes = [(CLASES, 0)]
+    while pendientes:
+        base, nivel = pendientes.pop(0)
+        try:
+            entradas = sorted(os.scandir(base), key=lambda e: e.name)
+        except OSError:
+            continue
+        for e in entradas:
+            if not e.is_dir(follow_symlinks=False):
+                continue
+            if _norm(e.name) == objetivo:
+                return e.path
+            if nivel + 1 < profundidad:
+                pendientes.append((e.path, nivel + 1))
+    return None
+
+
+def escribir_mis_notas(slug, datos):
+    """mis-notas.md junto al cuadernillo del video, si existe (apuntes.md no se toca)."""
+    clase = buscar_clase(datos["nombre"])
+    if not clase:
+        return
+    def captura(c, t):
+        rel = os.path.relpath(os.path.join(carpeta(slug), "capturas", c), BOVEDA)
+        return f"![[{rel}]]"
+    l = [f"# 📝 Mis notas: {datos['nombre']}", "",
+         "*Las escribes tú en mpv (Ctrl+n); se regeneran solas. [📓 Apuntes](apuntes.md)*", ""]
+    l += cuerpo_notas(datos, captura)
+    with open(os.path.join(clase, "mis-notas.md"), "w", encoding="utf-8") as f:
+        f.write("\n".join(l))
+
+
+def crear_nota(video, t, titulo, texto, captura_tmp, tipo=None):
     video, t = normalizar(video), float(t)  # por la línea de comandos t llega como texto ("14779.27")
+    tipo_t, limpio = separar_tipo(titulo)
+    tipo = tipo_t or (tipo if tipo in TIPOS else "")
     with _candado:
         idx = indice()
         slug = idx.get(video)
@@ -108,28 +263,42 @@ def crear_nota(video, t, titulo, texto, captura_tmp):
             archivo = f"{nid:03d}-{int(t)}.jpg"
             shutil.move(captura_tmp, os.path.join(carpeta(slug), "capturas", archivo))
         datos["notas"].append({
-            "id": nid, "t": round(float(t), 2),
-            "titulo": (titulo or "").strip() or f"Nota {fmt(t)}",
+            "id": nid, "t": round(t, 2), "tipo": tipo,
+            "titulo": limpio or f"Nota {fmt(t)}",
             "texto": (texto or "").strip(), "captura": archivo,
-            "creada": time.strftime("%Y-%m-%d %H:%M"),
+            "creada": time.strftime("%Y-%m-%d %H:%M"), "intervalo": 1, "proximo": sumar_dias(1),
         })
         guardar(slug, datos)
     return slug
 
 
-def editar_nota(video, nid, titulo, texto):
+def _con_nota(video, nid, fn):
+    """Aplica fn(nota) a una nota y guarda; devuelve la nota o None."""
     with _candado:
         slug = indice().get(normalizar(video))
         datos = slug and cargar(slug)
         if not datos:
-            return False
+            return None
         for n in datos["notas"]:
             if n["id"] == nid:
-                n["titulo"] = (titulo or "").strip() or f"Nota {fmt(n['t'])}"
-                n["texto"] = (texto or "").strip()
+                fn(n)
                 guardar(slug, datos)
-                return True
-    return False
+                return n
+    return None
+
+
+def editar_nota(video, nid, titulo, texto, tipo=None):
+    def cambiar(n):
+        tipo_t, limpio = separar_tipo(titulo)
+        n["tipo"] = tipo_t or (tipo if tipo in TIPOS else "" if tipo == "" else n.get("tipo", ""))
+        n["titulo"] = limpio or f"Nota {fmt(n['t'])}"
+        n["texto"] = (texto or "").strip()
+    return _con_nota(video, nid, cambiar) is not None
+
+
+def repasado(video, nid, sabe):
+    n = _con_nota(video, nid, lambda n: siguiente_repaso(n, sabe))
+    return n["intervalo"] if n else None
 
 
 def borrar_nota(video, nid):
@@ -151,6 +320,18 @@ def borrar_nota(video, nid):
         datos["notas"] = quedan
         guardar(slug, datos)
         return True
+
+
+def repaso_pendiente():
+    """Notas con tipo (?, !, p) de todos los videos cuyo próximo repaso es hoy o antes."""
+    limite, res = hoy().isoformat(), []
+    for video, slug in indice().items():
+        d = cargar(slug)
+        for n in (d or {"notas": []})["notas"]:
+            if n.get("tipo") and n["proximo"] <= limite:
+                res.append(dict(n, video=video, slug=d.get("slug", slug), nombre=d["nombre"]))
+    res.sort(key=lambda n: (n["proximo"], n["nombre"], n["t"]))
+    return res
 
 
 def listar_videos():
@@ -265,6 +446,8 @@ class H(BaseHTTPRequestHandler):
             return self._json(estado())
         if u.path == "/api/videos":
             return self._json(listar_videos())
+        if u.path == "/api/repaso":
+            return self._json(repaso_pendiente())
         if u.path == "/api/notas":
             video = normalizar(q.get("video", [""])[0])
             slug = indice().get(video)
@@ -301,7 +484,10 @@ class H(BaseHTTPRequestHandler):
                                  stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, stdin=subprocess.DEVNULL)
             return self._json({"ok": True})
         if p == "/api/editar":
-            return self._json({"ok": editar_nota(d["video"], int(d["id"]), d.get("titulo"), d.get("texto"))})
+            return self._json({"ok": editar_nota(d["video"], int(d["id"]), d.get("titulo"), d.get("texto"), d.get("tipo"))})
+        if p == "/api/repasado":
+            dias = repasado(d["video"], int(d["id"]), bool(d.get("sabe")))
+            return self._json({"ok": dias is not None, "dias": dias})
         if p == "/api/borrar":
             return self._json({"ok": borrar_nota(d["video"], int(d["id"]))})
         if p == "/api/nueva":  # nota creada desde el panel: la captura la saca mpv
@@ -310,7 +496,7 @@ class H(BaseHTTPRequestHandler):
                 return self._json({"ok": False})
             tmp = os.path.join(os.path.dirname(SOCK), f"nota-panel-{os.getpid()}.jpg")
             ipc("screenshot-to-file", tmp, "video")
-            crear_nota(v, t, d.get("titulo"), d.get("texto"), tmp)
+            crear_nota(v, t, d.get("titulo"), d.get("texto"), tmp, d.get("tipo"))
             return self._json({"ok": True})
         self._json({"error": "no existe"}, 404)
 

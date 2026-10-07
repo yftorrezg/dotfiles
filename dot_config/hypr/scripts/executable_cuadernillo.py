@@ -404,7 +404,8 @@ def pedir_a_claude(titulo, duracion, cues, pantallas):
         texto = consultar_ia(prompt)
         try:
             datos = json.loads(texto[texto.index("{"):texto.rindex("}") + 1])
-            if datos.get("secciones"):
+            # los modelos débiles a veces mandan secciones sin título: se reintenta en vez de romper el armado
+            if datos.get("secciones") and all(isinstance(x, dict) and x.get("titulo") for x in datos["secciones"]):
                 return datos
         except (ValueError, TypeError, json.JSONDecodeError):
             pass
@@ -466,13 +467,13 @@ def llamar_opencode(prompt, esperar=time.sleep, max_espera=None):
         for modelo in MODELOS_OPENCODE or [""]:
             cmd = [ruta_opencode(), "run", "--standalone", "--agent", "apuntes"] + (["--model", modelo] if modelo else [])
             try:
-                r = subprocess.run(cmd, input=prompt, capture_output=True, text=True, timeout=900)
+                r = subprocess.run(cmd, input=prompt, capture_output=True, text=True, timeout=360)  # normal: 40-90 s; LongCat a veces se cuelga
             except (OSError, subprocess.TimeoutExpired) as e:
                 print(f"  (opencode {modelo} falló: {e})", file=sys.stderr)
                 continue
             salida = (r.stdout or "") + " " + (r.stderr or "")
-            if r.returncode == 0 and r.stdout.strip():
-                return r.stdout
+            if r.stdout.strip() and (r.returncode == 0 or ("{" in r.stdout and "}" in r.stdout)):
+                return r.stdout  # a veces sale con código ≠ 0 pero con la respuesta completa
             if cuota_agotada(salida) or "insufficient" in salida.lower():
                 agotados += 1
                 print(f"  (opencode {modelo}: cuota agotada, pruebo el siguiente)", file=sys.stderr)

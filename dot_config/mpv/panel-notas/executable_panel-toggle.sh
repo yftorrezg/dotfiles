@@ -2,7 +2,7 @@
 # Muestra / oculta el panel de notas al lado de mpv (Hyprland): mpv ~80 %, panel ~20 % a la derecha.
 # Lo llama notas.lua con la tecla h. Si el panel ya está abierto, lo cierra.
 DIR="$(dirname "$(readlink -f "$0")")"
-URL="http://127.0.0.1:47831/"
+URL="${NOTAS_URL:-http://127.0.0.1:47831/}"
 PORCENTAJE=20
 CLASE='^brave-127\.0\.0\.1__'
 
