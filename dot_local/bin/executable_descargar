@@ -1,52 +1,142 @@
 #!/usr/bin/env bash
-# descargar <url> [más urls...] — baja videos, playlists o cursos completos con yt-dlp.
-#   descargar --mp3 "url"            solo audio en mp3 (va a ~/Música/Descargas)
-# Variables opcionales:
-#   NAVEGADOR=brave|firefox|chrome   de dónde tomar la sesión (por defecto brave)
-#   DESTINO=/ruta                    carpeta de salida (por defecto ~/Vídeos/Descargas)
-#   SIN_COOKIES=1                    no usar la sesión del navegador
-set -euo pipefail
+# descargar [opciones] [link...] — baja videos, música, playlists o cursos con yt-dlp.
+# Sin link usa el que tengas copiado (Ctrl+C). Con SUPER+D sale un menú para elegir.
+#
+#   --mp3        solo audio (mp3)        --720   video más liviano (máx. 720p)
+#   --lista      si el link es de un video dentro de una playlist, baja la lista entera
+#   --aviso      barrita de progreso + aviso al terminar (lo usa el menú SUPER+D)
+#
+# Dónde queda cada cosa (carpeta del sitio, así no se mezcla todo):
+#   ~/Vídeos/Descargas/YouTube|TikTok|Instagram|Facebook|X|Otros/…   (playlists: en su carpeta, numeradas)
+#   ~/Música/<Artista>/<canción>.mp3        ~/Música/Listas/<playlist>/NN - <canción>.mp3
+# Variables opcionales: NAVEGADOR=brave|firefox|chrome (sesión), DESTINO=/ruta (solo videos),
+#   SIN_COOKIES=1 (no usar la sesión del navegador).
+set -uo pipefail
 
-if [ $# -eq 0 ]; then
-    echo "Uso: descargar <url> [url2 ...]   |   descargar --mp3 <url>"
-    exit 1
-fi
-
-# Solo audio si se pide con --mp3 o con -x/--extract-audio de yt-dlp.
-AUDIO=0
-extra=()
+SCRIPTS="$HOME/.config/hypr/scripts"
+AUDIO=0 CALIDAD="" LISTA=0 AVISO=0
+urls=() extra=()
 for a in "$@"; do
     case "$a" in
         --mp3) AUDIO=1 ;;
         -x|--extract-audio) AUDIO=1; extra+=("$a") ;;
+        --720) CALIDAD=720 ;;
+        --lista) LISTA=1 ;;
+        --aviso) AVISO=1 ;;
+        http*://*) urls+=("$a") ;;
         *) extra+=("$a") ;;
     esac
 done
 
-# Carpetas del sistema (en español son ~/Vídeos y ~/Música, con tilde).
-if [ "$AUDIO" = 1 ]; then
-    DESTINO="${DESTINO:-$(xdg-user-dir MUSIC 2>/dev/null || echo "$HOME/Música")/Descargas}"
-else
-    DESTINO="${DESTINO:-$(xdg-user-dir VIDEOS 2>/dev/null || echo "$HOME/Vídeos")/Descargas}"
-fi
-NAVEGADOR="${NAVEGADOR:-brave}"
-mkdir -p "$DESTINO"
-
-args=(
-    -P "$DESTINO"
-    # Playlists/cursos en su carpeta y numerados en orden; videos sueltos directo.
-    -o "%(playlist_title|.)s/%(playlist_index&{:03d} - |)s%(title)s.%(ext)s"
-    --embed-metadata --embed-thumbnail
-    --download-archive "$DESTINO/.descargados.txt"
-    --ignore-errors --no-overwrites --continue
-)
-if [ "$AUDIO" = 1 ]; then
-    args+=(-f "ba/b" -x --audio-format mp3 --audio-quality 0)
-else
-    args+=(-f "bv*+ba/b" --merge-output-format mp4 --write-subs --sub-langs "es.*,en.*" --embed-subs)
+if [ ${#urls[@]} -eq 0 ] && [ ${#extra[@]} -eq 0 ]; then
+    u=$(wl-paste --no-newline 2>/dev/null | tr -d '[:space:]')
+    if [[ "$u" =~ ^https?:// ]]; then urls=("$u"); echo "Link copiado: $u"
+    else echo "Uso: descargar [--mp3] [--720] [--lista] [link]   (sin link toma el copiado)"; exit 1; fi
 fi
 
-[ -z "${SIN_COOKIES:-}" ] && args+=(--cookies-from-browser "$NAVEGADOR")
-command -v aria2c >/dev/null && args+=(--downloader aria2c --downloader-args "aria2c:-x 8 -s 8 -k 1M")
+VIDEOS="$(xdg-user-dir VIDEOS 2>/dev/null || echo "$HOME/Vídeos")"
+MUSICA="${MUSICA:-$(xdg-user-dir MUSIC 2>/dev/null || echo "$HOME/Música")}"
 
-exec yt-dlp "${args[@]}" "${extra[@]}"
+sitio() {  # nombre de la carpeta según el link
+    case "$1" in
+        *youtube.com*|*youtu.be*) echo YouTube ;;
+        *tiktok.com*) echo TikTok ;;
+        *instagram.com*) echo Instagram ;;
+        *facebook.com*|*fb.watch*|*fb.com*) echo Facebook ;;
+        *twitter.com*|*x.com*) echo X ;;
+        *) echo Otros ;;
+    esac
+}
+
+bajar() {  # bajar <url>: arma los argumentos de yt-dlp y lo ejecuta
+    local url="$1" site; site=$(sitio "$1")
+    local args=(--embed-metadata --ignore-errors --no-overwrites --continue
+                --replace-in-metadata "uploader,channel" " - Topic$" "")
+    # La sesión de Brave ya viene de ~/.config/yt-dlp/config (con la llave del llavero).
+    # SIN_COOKIES=1 la desactiva; NAVEGADOR=firefox usa otra.
+    # TikTok bloquea (403) a quien llega con las cookies del navegador; sin ellas baja bien.
+    { [ -n "${SIN_COOKIES:-}" ] || [ "$site" = TikTok ]; } && args+=(--no-cookies-from-browser)
+    [ -n "${NAVEGADOR:-}" ] && args+=(--cookies-from-browser "$NAVEGADOR")
+
+    # Un video suelto dentro de una playlist/mix: solo el video, salvo que pidas --lista.
+    if [ "$LISTA" = 0 ] && [[ "$url" =~ ([?\&]v=|youtu\.be/|/shorts/) ]]; then args+=(--no-playlist); fi
+
+    local base
+    if [ "$AUDIO" = 1 ]; then
+        base="$MUSICA"
+        args+=(-P "$base" -f "ba/b" -x --audio-format mp3 --audio-quality 0
+               --download-archive "$base/.descargados.txt"
+               # Título "Artista - Canción" -> carpeta del artista (si no, queda el canal) y sin
+               # el ruido "(Official Video)", "[lyrics]", "(Letra)" en el nombre del archivo.
+               --parse-metadata "title:(?P<artist>[^-]+?) - (?P<track>.+)"
+               --replace-in-metadata "track,title" "(?i)\s*[(\[][^)\]]*(official|lyric|letra|audio|video|visuali[sz]er|4k|hd)[^)\]]*[)\]]" "")
+        if [ "$site" != YouTube ]; then  # TikTok/Insta/etc.: "sonido original" se repite mil veces
+            args+=(-o "$site/%(uploader&{} - |)s%(track,title).70B [%(id)s].%(ext)s")
+        elif [ "$LISTA" = 1 ] || { [[ "$url" =~ [?\&]list= ]] && ! [[ "$url" =~ ([?\&]v=|youtu\.be/|/shorts/) ]]; }; then
+            args+=(-o "Listas/%(playlist_title|Sin nombre)s/%(playlist_index&{:02d} - |)s%(track,title)s.%(ext)s")
+        else  # canción suelta: en la carpeta de su artista
+            args+=(-o "%(artists.0,artist,creator,channel,uploader|Desconocido)s/%(track,title)s.%(ext)s")
+        fi
+    else
+        base="${DESTINO:-$VIDEOS/Descargas}"
+        local fmt="bv*+ba/b"
+        [ "$CALIDAD" = 720 ] && fmt="bv*[height<=720]+ba/b[height<=720]/b"
+        args+=(-P "$base" -f "$fmt" --merge-output-format mp4 --write-subs --sub-langs "es.*,en.*" --embed-subs --compat-options no-keep-subs
+               --download-archive "$base/.descargados.txt")
+        if [ "$site" = YouTube ]; then
+            args+=(-o "$site/%(playlist_title|.)s/%(playlist_index&{:03d} - |)s%(title).120B.%(ext)s")
+        elif [ "$site" = Otros ]; then  # cualquier otra página: sin usuario (a veces es un correo)
+            args+=(-o "$site/%(playlist_title|.)s/%(title).90B [%(id)s].%(ext)s")
+        else  # TikTok/Instagram/etc.: los títulos son hashtags larguísimos; se pone quién lo subió
+            args+=(-o "$site/%(playlist_title|.)s/%(uploader&{} - |)s%(title).70B [%(id)s].%(ext)s")
+        fi
+    fi
+    # La miniatura solo se incrusta donde se puede (mp3 y mp4); en otros formatos (ogv, webm…) da error.
+    { [ "$AUDIO" = 1 ] || [ "$site" != Otros ]; } && args+=(--embed-thumbnail)
+    mkdir -p "$base"
+
+    if [ "$AVISO" = 0 ]; then  # desde la terminal: la salida normal de yt-dlp
+        yt-dlp "${args[@]}" "${extra[@]}" "$url"; return
+    fi
+
+    # Con --aviso: progreso a la barrita (progreso.py) y resultado en una notificación.
+    local arch="${XDG_RUNTIME_DIR:-/tmp}/descargar-progreso.$$" log="$HOME/.cache/descargar/ultimo.log"
+    mkdir -p "$(dirname "$log")"; : >"$log"
+    export PROGRESO_ARCHIVO="$arch"
+    local poner=(python3 "$SCRIPTS/progreso.py" poner)
+    local que="Video"; [ "$AUDIO" = 1 ] && que="MP3"
+    "${poner[@]}" 0 descarga "preparando" 2>/dev/null
+    setsid python3 "$SCRIPTS/progreso.py" seguir "$arch" "$site · $que" >/dev/null 2>&1 &
+
+    local ult=-1 n=1 idx=0 prev=0 p
+    yt-dlp "${args[@]}" "${extra[@]}" --newline --no-quiet \
+        --print "before_dl:FMT %(format_id)s" \
+        --progress-template "download:PROGRESO %(progress._percent_str)s" "$url" 2>&1 |
+    while IFS= read -r l; do
+        echo "$l" >>"$log"
+        if [[ "$l" == "FMT "*+* ]]; then n=2; idx=0; prev=0
+        elif [[ "$l" == PROGRESO* ]]; then
+            p=${l#PROGRESO }; p=${p%\%}; p=${p// /}
+            if [[ "$p" =~ ^[0-9.]+$ ]]; then
+                [ "${p%.*}" -lt $((prev - 50)) ] && idx=$((idx + 1))  # empezó la otra pista (audio)
+                prev=${p%.*}
+                p=$(awk -v i="$idx" -v p="$p" -v n="$n" 'BEGIN { t = (i * 100 + p) / n; print (t > 99 ? 99 : t) }')
+                [ "${p%.*}" != "$ult" ] && { ult=${p%.*}; "${poner[@]}" "$p" descarga "$que" 2>/dev/null; }
+            fi
+        fi
+    done
+    local codigo=${PIPESTATUS[0]}
+    if grep -q "already been recorded" "$log" && ! grep -q "Destination:\|Merging\|ExtractAudio" "$log"; then
+        "${poner[@]}" 100 fin "Ya estaba descargado" 2>/dev/null; return 0
+    elif [ "$codigo" -eq 0 ]; then
+        "${poner[@]}" 100 fin "Guardado en ${base/#$HOME\//}" 2>/dev/null; return 0
+    else
+        local motivo; motivo=$(grep -m1 '^ERROR' "$log" | sed 's/^ERROR: \(\[[^]]*\] [^:]*: \)\?//' | cut -c1-110)
+        "${poner[@]}" 100 error "${motivo:-No se pudo descargar}" 2>/dev/null; return 1
+    fi
+}
+
+rc=0
+for u in "${urls[@]}"; do bajar "$u" || rc=1; done
+[ ${#urls[@]} -eq 0 ] && { yt-dlp "${extra[@]}"; rc=$?; }  # p.ej. descargar --version
+exit $rc

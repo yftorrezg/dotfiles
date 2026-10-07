@@ -11,7 +11,9 @@ local launchPrefix = "uwsm app -- " -- if you are not using UWSM, make this empt
 -- y sin uso. Para colgados: CTRL+ALT+Escape (LibreOffice) o CTRL+SHIFT+Escape (btop).
 hl.bind(mainMod .. " + Q",          hl.dsp.window.close())
 hl.bind(mainMod .. " + ALT + Space", hl.dsp.window.float({ action = "toggle" }))
-hl.bind(mainMod .. " + D",           hl.dsp.window.fullscreen({ mode = 1 }))
+-- (07/10/2026) SUPER+D era "maximizar" (igual que SUPER+F, que ya cubre eso): ahora abre el menú de descargas
+-- (link copiado -> video/720p/MP3/lista). Ver scripts/descargar-menu.sh y ~/.local/bin/descargar.
+hl.bind(mainMod .. " + D",           hl.dsp.exec_cmd(launchPrefix .. "bash " .. os.getenv("HOME") .. "/.config/hypr/scripts/descargar-menu.sh"))
 hl.bind(mainMod .. " + F",           hl.dsp.window.fullscreen())
 hl.bind(mainMod .. " + J",           hl.dsp.layout("togglesplit"))
 

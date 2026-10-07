@@ -5,34 +5,35 @@ LastUsedVersion=210800
 [ImageView]
 BackgroundColorMode=Dark
 MouseWheelBehavior=MouseWheelBehavior::Browse
+SpotlightMode=true
 
 [MainWindow]
 MenuBar=Disabled
 
 [Recent Files]
-File1[$e]=/run/media/yafer/SuperYafer/CodificandoBits/Deep_learning/1 Intro/capturas/Fundamentos de Deep Learning con Python - Codificando Bits/0011.webp
-File10[$e]=/run/media/yafer/SuperYafer/CodificandoBits/Deep_learning/1 Intro/capturas/Fundamentos de Deep Learning con Python - Codificando Bits/0020.webp
-File2[$e]=/run/media/yafer/SuperYafer/CodificandoBits/Deep_learning/1 Intro/capturas/Fundamentos de Deep Learning con Python - Codificando Bits/0012.webp
-File3[$e]=/run/media/yafer/SuperYafer/CodificandoBits/Deep_learning/1 Intro/capturas/Fundamentos de Deep Learning con Python - Codificando Bits/0013.webp
-File4[$e]=/run/media/yafer/SuperYafer/CodificandoBits/Deep_learning/1 Intro/capturas/Fundamentos de Deep Learning con Python - Codificando Bits/0014.webp
-File5[$e]=/run/media/yafer/SuperYafer/CodificandoBits/Deep_learning/1 Intro/capturas/Fundamentos de Deep Learning con Python - Codificando Bits/0015.webp
-File6[$e]=/run/media/yafer/SuperYafer/CodificandoBits/Deep_learning/1 Intro/capturas/Fundamentos de Deep Learning con Python - Codificando Bits/0016.webp
-File7[$e]=/run/media/yafer/SuperYafer/CodificandoBits/Deep_learning/1 Intro/capturas/Fundamentos de Deep Learning con Python - Codificando Bits/0017.webp
-File8[$e]=/run/media/yafer/SuperYafer/CodificandoBits/Deep_learning/1 Intro/capturas/Fundamentos de Deep Learning con Python - Codificando Bits/0018.webp
-File9[$e]=/run/media/yafer/SuperYafer/CodificandoBits/Deep_learning/1 Intro/capturas/Fundamentos de Deep Learning con Python - Codificando Bits/0019.webp
-Name1[$e]=0011.webp
-Name10[$e]=0020.webp
-Name2[$e]=0012.webp
-Name3[$e]=0013.webp
-Name4[$e]=0014.webp
-Name5[$e]=0015.webp
-Name6[$e]=0016.webp
-Name7[$e]=0017.webp
-Name8[$e]=0018.webp
-Name9[$e]=0019.webp
+File1[$e]=/run/media/yafer/SuperYafer/CodificandoBits/Deep_learning/1 Intro/capturas/Fundamentos de Deep Learning con Python - Codificando Bits/0018.webp
+File10[$e]=$HOME/Descargas/WhatsApp Image 2026-09-24 at 3.04.18 AM.jpeg
+File2[$e]=/run/media/yafer/SuperYafer/CodificandoBits/Deep_learning/1 Intro/capturas/Fundamentos de Deep Learning con Python - Codificando Bits/0019.webp
+File3[$e]=/run/media/yafer/SuperYafer/CodificandoBits/Deep_learning/1 Intro/capturas/Fundamentos de Deep Learning con Python - Codificando Bits/0020.webp
+File4[$e]=$HOME/Descargas/WhatsApp Image 2026-09-24 at 3.01.32 AM.jpeg
+File5[$e]=$HOME/Descargas/WhatsApp Image 2026-09-24 at 3.01.42 AM.jpeg
+File6[$e]=$HOME/Descargas/WhatsApp Image 2026-09-24 at 3.03.09 AM.jpeg
+File7[$e]=$HOME/Descargas/WhatsApp Image 2026-09-24 at 3.03.57 AM.jpeg
+File8[$e]=$HOME/Descargas/WhatsApp Image 2026-09-24 at 3.04.05 AM.jpeg
+File9[$e]=$HOME/Descargas/WhatsApp Image 2026-09-24 at 3.04.12 AM.jpeg
+Name1[$e]=0018.webp
+Name10[$e]=WhatsApp Image 2026-09-24 at 3.04.18 AM.jpeg
+Name2[$e]=0019.webp
+Name3[$e]=0020.webp
+Name4[$e]=WhatsApp Image 2026-09-24 at 3.01.32 AM.jpeg
+Name5[$e]=WhatsApp Image 2026-09-24 at 3.01.42 AM.jpeg
+Name6[$e]=WhatsApp Image 2026-09-24 at 3.03.09 AM.jpeg
+Name7[$e]=WhatsApp Image 2026-09-24 at 3.03.57 AM.jpeg
+Name8[$e]=WhatsApp Image 2026-09-24 at 3.04.05 AM.jpeg
+Name9[$e]=WhatsApp Image 2026-09-24 at 3.04.12 AM.jpeg
 
 [SideBar]
-InformationSplitterSizes=0,0
+InformationSplitterSizes=208,245
 
 [ThumbnailView]
 ThumbnailSize=108

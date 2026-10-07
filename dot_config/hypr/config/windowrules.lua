@@ -117,3 +117,5 @@ hl.window_rule({
 
 -- (29/09/2026) Centro de estudio (scripts/estudiar.py): flotante y centrado
 hl.window_rule({ match = { class = "^(estudiar\\.centro)$" }, float = true, center = true, size = { 760, 760 } })
+
+hl.window_rule({ match = { class = "^(descargar-menu)$" }, float = true, center = true, size = { 540, 330 } })
