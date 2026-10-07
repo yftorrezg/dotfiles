@@ -32,6 +32,9 @@ shell noctalia, fish). Se sincroniza por GitHub privado `yftorrezg/dotfiles` con
   pwsh 7 + Windows Terminal, mpv (unión `%APPDATA%\mpv` → `windows/mpv`), SUPER+R con edge-tts (usa el `limpiar-texto.py` común),
   `winget/thinkpad.dsc.yaml`, `bootstrap.ps1`. Si cambias un atajo común en `binds.lua`, refléjalo en `yafer.ahk` y `ATAJOS-WINDOWS.md`.
   Lo pesado (doblar, auto-captura, cuadernillos, `estudiar.py`) queda solo en CachyOS.
+- **Generados por noctalia** (temas de btop/gtk/kitty/qt/kdeglobals/color-schemes/mic-osd): NO se sincronizan (`.chezmoiignore`).
+  Noctalia los calcula del fondo de pantalla, así que cada equipo genera los suyos; sincronizarlos hacía ping-pong entre PC y laptop.
+  Si algún día se usa el mismo fondo en ambos, salen iguales solos.
 - **Nunca se sincroniza**: `/etc`, secretos (rclone.conf, pass de restic, tokens gh), paquetes, datos, `.local/state/mpv`, plugins de OpenDeck, iconos.
 - `docs/migracion/` = documentación completa de la PC (docs 01-08, GAPS, LIMPIEZA, paquetes). `laptop/` = scripts usados
   para migrar la laptop + `auditoria.sh`. `docs/base-pc-29-09/` = versión de la PC al 29-09 de los archivos comunes que la

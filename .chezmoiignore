@@ -30,3 +30,14 @@ windows/
 # Binarios de uosc para otros sistemas
 .config/mpv/scripts/uosc/bin/ziggy-windows.exe
 .config/mpv/scripts/uosc/bin/ziggy-darwin
+
+# Generados por noctalia a partir del fondo de pantalla (cada equipo genera los suyos; sincronizarlos hacía ping-pong)
+.config/btop/themes/noctalia.theme
+.config/gtk-3.0/noctalia.css
+.config/gtk-4.0/noctalia.css
+.config/hyprwhspr/theme/mic-osd.css
+.config/kdeglobals
+.config/kitty/themes/noctalia.conf
+.config/qt5ct/colors/noctalia.conf
+.config/qt6ct/colors/noctalia.conf
+.local/share/color-schemes/noctalia.colors

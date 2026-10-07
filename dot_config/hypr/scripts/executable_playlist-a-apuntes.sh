@@ -75,6 +75,7 @@ TMP=$(mktemp)
 for i in "${!ENTRADAS[@]}"; do
     IFS=$'\t' read -r POS ID DURACION TITULO <<<"${ENTRADAS[$i]}"
     export PROGRESO_CLASE="$((i + 1))/$TOTAL"
+    TITULO_ORIGINAL="$TITULO"   # sin limpiar: limpiar() cambia [ ] por "-" y ya no se vería "[Private video]"
     TITULO=$(limpiar <<<"$TITULO")
     DIR="${CARPETA_DE[$ID]:-$CURSO/capturas/$(printf '%03d' "$((10#$POS))") - $TITULO}"
     echo "===== [$((i + 1))/$TOTAL] $(basename "$DIR") ($(date +%H:%M)) ====="
@@ -83,7 +84,7 @@ for i in "${!ENTRADAS[@]}"; do
         HECHAS=$((HECHAS + 1)); continue
     fi
     # Videos privados/eliminados: en la lista aparecen como "[Private video]" sin duración
-    if [ "$DURACION" = NA ] && [[ "$TITULO" =~ ^\[.*\]$ ]]; then
+    if [ "$DURACION" = NA ] && [[ "$TITULO_ORIGINAL" =~ ^\[.*\]$ ]]; then
         echo "No disponible ($TITULO): se saltea"
         SALTEADAS=$((SALTEADAS + 1)); continue
     fi
