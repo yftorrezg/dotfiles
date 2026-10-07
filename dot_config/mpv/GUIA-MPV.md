@@ -85,6 +85,19 @@ Rango 0.25x a 4.0x. El audio conserva el tono. mpv recuerda la última velocidad
 
 Las marcas se ven como rayitas en la barra y se guardan en `~/.local/state/mpv/marcadores.json`.
 
+### Notas con tiempo (panel al lado)
+| Tecla | Acción |
+|---|---|
+| `Ctrl+n` | **Nueva nota** en este instante: pausa, escribes el **título** (`Enter`) y la **anotación** (`Enter`), y el video sigue. Toma una captura sola. `Esc` en el título cancela; `Esc` en la anotación guarda solo con título |
+| `h` | **Ver / ocultar el panel de notas**: mpv queda al 80 % a la izquierda y el panel al 20 % a la derecha (si estabas en pantalla completa, sale de ella) |
+
+En el panel (ventana de Brave): clic en `⏱ 12:34` o en la captura = mpv **salta a ese minuto**; la nota del momento actual se resalta y el panel la sigue solo (casilla *seguir*); `Editar` / `Borrar` en cada nota; buscador; `＋ Nota` crea una nota desde el panel; `Videos` lista **todos los videos con notas** y al pulsar uno lo abre en mpv.
+
+- Cada nota queda ligada a su video: `~/Documentos/Notas-cursos/<nombre del video>/` con `notas.md` (legible, para Obsidian/VSCode/Drive), `notas.json` y `capturas/`. El archivo `indice.json` enlaza la ruta de cada video con su carpeta, así que si abres el mismo video otro día, sus notas aparecen.
+- Si renombras o mueves el video, sus notas antiguas siguen en su carpeta (se ven en `Videos`), pero el video nuevo empieza sin notas.
+- El panel habla con mpv por un socket (`$XDG_RUNTIME_DIR/mpv-notas.sock`). Con **dos ventanas de mpv**, controla la última que abriste; pulsa `h` en otra ventana para que el panel pase a controlar esa.
+- El servidor del panel (`panel-notas/servidor.py`, puerto 47831) se arranca solo con `h` y se apaga tras 20 min sin uso.
+
 ### Lista de videos, carpetas y cursos
 | Tecla | Acción |
 |---|---|
@@ -159,12 +172,14 @@ Sal con `Ctrl+q`. La próxima vez que abras ese video, empezará en el minuto do
 ├── input.conf               ← atajos de teclado
 ├── GUIA-MPV.md              ← esta guía
 ├── script-opts/uosc.conf    ← opciones de la interfaz uosc (idioma = español)
+├── panel-notas/             ← servidor.py + panel.html + panel-toggle.sh (panel de notas)
 ├── fonts/                   ← íconos de uosc
 └── scripts/
     ├── uosc/                ← interfaz (descargada de github.com/tomasklaen/uosc)
     ├── velocidad.lua        ← velocidad + visor
     ├── marcadores.lua       ← marcas por video
     ├── capturas.lua         ← carpeta de capturas por video (si dura más de 1 h)
+    ├── notas.lua            ← Ctrl+n nota nueva, h panel de notas
     ├── bucle.lua            ← repetir fragmentos y guardarlos
     ├── curso.lua            ← cargar curso con subcarpetas
     └── bateria.lua          ← laptop: render liviano cuando está desenchufada
