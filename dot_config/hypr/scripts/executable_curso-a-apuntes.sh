@@ -12,7 +12,9 @@ NOMBRE_CURSO=$(basename "$CURSO")
 panel() { [ -f "$SCRIPTS/panel-cursos.py" ] && python3 "$SCRIPTS/panel-cursos.py" >/dev/null 2>&1 || true; }
 
 # Un solo procesamiento a la vez (si ya hay uno, avisar y salir)
-exec 9>"${XDG_RUNTIME_DIR:-/tmp}/curso-a-apuntes.lock"
+# Un procesamiento por cola: las colas paralelas (DIR_COLA=…/cola-N) tienen su propio candado
+SUF=""; [[ "${DIR_COLA:-}" == */cola-* ]] && SUF=".$(basename "$DIR_COLA")"
+exec 9>"${XDG_RUNTIME_DIR:-/tmp}/curso-a-apuntes$SUF.lock"
 if ! flock -n 9; then
     notify-send -t 6000 "Apuntes del curso" "Ya hay un curso procesándose. Esperá a que termine."
     exit 1

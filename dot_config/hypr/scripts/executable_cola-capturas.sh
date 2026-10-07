@@ -16,7 +16,8 @@
 #   lleva las suyas); "-" si no hay (un campo vacío no sirve: "read" con IFS=tab junta dos tabs
 #   seguidos en uno)
 SCRIPTS="${SCRIPTS_COLA:-$HOME/.config/hypr/scripts}"  # SCRIPTS_COLA: para las pruebas
-DIR_COLA="${DIR_COLA:-$HOME/.cache/auto-captura}"   # DIR_COLA: para las pruebas
+DIR_COLA="${DIR_COLA:-$HOME/.cache/auto-captura}"   # DIR_COLA: para las pruebas y para colas en paralelo (…/cola-1, cola-2)
+export DIR_COLA   # curso-a-apuntes.sh lo usa para tener un candado por cola
 COLA="$DIR_COLA/cola.txt"
 ACTUAL="$DIR_COLA/actual.txt"
 OPCIONES="SIN_IA SIN_APUNTES MAX_VIDEOS APUNTES_MOTOR APUNTES_MODELO_OPENCODE"   # variables que viajan con cada pedido
@@ -145,5 +146,9 @@ case "$1" in
         else
             echo "No había nada en proceso"
         fi ;;
+    estado-todo)  # la cola principal y las colas paralelas (…/auto-captura/cola-N)
+        for d in "$HOME/.cache/auto-captura" "$HOME"/.cache/auto-captura/cola-*/; do
+            [ -d "$d" ] || continue; echo "── $(basename "${d%/}")"; DIR_COLA="${d%/}" bash "$0" estado
+        done ;;
     *) sed -n '2,13p' "$0"; exit 1 ;;
 esac

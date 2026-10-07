@@ -66,9 +66,10 @@ bajar() {  # bajar <url>: arma los argumentos de yt-dlp y lo ejecuta
         base="$MUSICA"
         args+=(-P "$base" -f "ba/b" -x --audio-format mp3 --audio-quality 0
                --download-archive "$base/.descargados.txt"
-               # Título "Artista - Canción" -> carpeta del artista (si no, queda el canal) y sin
+               # Título "Artista - Canción" -> carpeta del artista (si no, queda el canal; el nombre del
+               # archivo conserva el título completo, porque a veces viene al revés) y sin
                # el ruido "(Official Video)", "[lyrics]", "(Letra)" en el nombre del archivo.
-               --parse-metadata "title:(?P<artist>[^-]+?) - (?P<track>.+)"
+               --parse-metadata "title:(?P<artist>[^-]+?) - "
                --replace-in-metadata "track,title" "(?i)\s*[(\[][^)\]]*(official|lyric|letra|audio|video|visuali[sz]er|4k|hd)[^)\]]*[)\]]" "")
         if [ "$site" != YouTube ]; then  # TikTok/Insta/etc.: "sonido original" se repite mil veces
             args+=(-o "$site/%(uploader&{} - |)s%(track,title).70B [%(id)s].%(ext)s")
@@ -100,8 +101,9 @@ bajar() {  # bajar <url>: arma los argumentos de yt-dlp y lo ejecuta
     fi
 
     # Con --aviso: progreso a la barrita (progreso.py) y resultado en una notificación.
-    local arch="${XDG_RUNTIME_DIR:-/tmp}/descargar-progreso.$$" log="$HOME/.cache/descargar/ultimo.log"
-    mkdir -p "$(dirname "$log")"; : >"$log"
+    local arch="${XDG_RUNTIME_DIR:-/tmp}/descargar-progreso.$$" log="$HOME/.cache/descargar/$(date +%H%M%S)-$$.log"
+    mkdir -p "$(dirname "$log")"; : >"$log"; ln -sf "$log" "$(dirname "$log")/ultimo.log"
+    ls -t "$(dirname "$log")"/*-*.log 2>/dev/null | tail -n +11 | xargs -r rm -f  # guarda los últimos 10
     export PROGRESO_ARCHIVO="$arch"
     local poner=(python3 "$SCRIPTS/progreso.py" poner)
     local que="Video"; [ "$AUDIO" = 1 ] && que="MP3"
