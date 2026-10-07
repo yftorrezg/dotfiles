@@ -45,14 +45,32 @@ function mkcd($d) { New-Item -ItemType Directory -Force $d | Out-Null; Set-Locat
 function recargar { . $PROFILE }
 
 # --- descargar: videos, playlists y cursos (= ~/.local/bin/descargar de CachyOS) ---
-# descargar "url"              mejor calidad (mp4)
-# descargar -S "res:720" "url"  máximo 720p
+#   descargar "url"                  mejor calidad (mp4) -> Videos\Descargas
+#   descargar --mp3 "url"            solo audio en mp3   -> Music\Descargas
+#   descargar -S "res:720" "url"     máximo 720p (cualquier opción de yt-dlp se pasa tal cual)
+# Variables opcionales: $env:NAVEGADOR = 'brave'|'firefox'|'chrome' (usar su sesión, cierra el
+# navegador antes: Chrome/Brave cifran las cookies en Windows y pueden fallar), $env:DESTINO = carpeta.
 function descargar {
-    $destino = Join-Path $HOME 'Videos\Descargas'
+    if (-not $args) { Write-Host 'Uso: descargar <url> [url2 ...]   |   descargar --mp3 <url>'; return }
+    $audio = $false; $extra = @()
+    foreach ($a in $args) {
+        if ($a -eq '--mp3') { $audio = $true }
+        elseif ($a -in '-x', '--extract-audio') { $audio = $true; $extra += $a }
+        else { $extra += $a }
+    }
+    $base = if ($audio) { [Environment]::GetFolderPath('MyMusic') } else { [Environment]::GetFolderPath('MyVideos') }
+    $destino = if ($env:DESTINO) { $env:DESTINO } else { Join-Path $base 'Descargas' }
     New-Item -ItemType Directory -Force $destino | Out-Null
-    yt-dlp -P $destino `
-        -o '%(playlist_title&{} - |)s%(playlist_index&{:03d} - |)s%(title)s.%(ext)s' `
-        -f 'bv*+ba/b' --merge-output-format mp4 `
-        --embed-subs --sub-langs 'es.*,en.*' --embed-metadata `
-        --no-overwrites --continue @args
+    $opts = @(
+        '-P', $destino,
+        '-o', '%(playlist_title|.)s/%(playlist_index&{:03d} - |)s%(title)s.%(ext)s',
+        '--embed-metadata', '--embed-thumbnail',
+        '--download-archive', (Join-Path $destino '.descargados.txt'),
+        '--ignore-errors', '--no-overwrites', '--continue'
+    )
+    if ($audio) { $opts += '-f', 'ba/b', '-x', '--audio-format', 'mp3', '--audio-quality', '0' }
+    else        { $opts += '-f', 'bv*+ba/b', '--merge-output-format', 'mp4', '--write-subs', '--sub-langs', 'es.*,en.*', '--embed-subs' }
+    if ($env:NAVEGADOR) { $opts += '--cookies-from-browser', $env:NAVEGADOR }
+    if (Get-Command aria2c -ErrorAction SilentlyContinue) { $opts += '--downloader', 'aria2c', '--downloader-args', 'aria2c:-x 8 -s 8 -k 1M' }
+    yt-dlp @opts @extra
 }
