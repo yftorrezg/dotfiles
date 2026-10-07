@@ -40,5 +40,11 @@ case "$K" in
     5) [ "$EN_LISTA" = 1 ] && OPC=(--lista --mp3) || exit 0 ;;
     *) exit 0 ;;
 esac
-notify-send -t 2500 -- "📥 Descargando…" "Aparece una barrita de progreso en unos segundos."
-setsid "$HOME/.local/bin/descargar" --aviso "${OPC[@]}" "$URL" >/dev/null 2>&1 &
+# Primero se lanza la descarga (desprendida de esta ventana, que se cierra al terminar el menú)
+# y se anota en el log del menú; luego se confirma en pantalla un instante.
+mkdir -p "$HOME/.cache/descargar"
+echo "$(date +%T) opción=${K:-Enter} ${OPC[*]} $URL" >>"$HOME/.cache/descargar/menu.log"
+setsid -f "$HOME/.local/bin/descargar" --aviso "${OPC[@]}" "$URL" >/dev/null 2>&1 </dev/null
+notify-send -t 2500 -- "📥 Descargando…" "Aparece una barrita de progreso en unos segundos." &
+printf '\n\n  %s✅ Descargando…%s\n' "$V" "$R"
+sleep 0.8
