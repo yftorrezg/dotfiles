@@ -48,8 +48,25 @@ Recargar el script: **Win+Alt+F5**.
 | Win+C / Win+Alt+C | Abrir el curso (escritorio 3) / configurar sus 4 slots |
 | Win+V · Win+. · Win+L | Portapapeles · emojis · bloquear (nativos) |
 
-## Lo que reemplaza cada atajo de Windows
-Win+Q (Búsqueda → Win+Espacio), Win+S (Búsqueda), Win+W (Widgets), Win+N (Notificaciones → **Win+A**), Win+G (Game Bar, desactivada), Win+C (Copilot), Win+R (Ejecutar → Command Palette), Win+K (Transmitir), Win+D (Mostrar escritorio → **Win+,** para echar un vistazo), Win+1..5 (apps ancladas), Win+Espacio (idioma del teclado).
+## Atajos de Windows que se reemplazaron (decidido el 06-10-2026: gana Hyprland)
+| Atajo | En Windows era | Cómo llegar a lo de Windows |
+|---|---|---|
+| Win+R | Ejecutar | **Win+X → R**, o escribir el comando en Win+Espacio |
+| Win+Q / Win+S | Búsqueda | Win+Espacio, o apretar Win y escribir |
+| Win+Espacio | Cambiar idioma del teclado | **Alt+Shift** |
+| Win+D | Mostrar escritorio | **Win+M** (minimizar todo) · **Win+,** (vistazo mientras se mantiene) |
+| Win+N | Notificaciones y calendario | Clic en el reloj |
+| Win+W | Widgets | — (desactivar Widgets) |
+| Win+G | Game Bar | — (desactivada) |
+| Win+C | Copilot | Ícono de Copilot |
+| Win+K | Transmitir pantalla | Win+A → Transmitir |
+| Win+T | Recorrer la barra de tareas | Tab desde la barra |
+| Win+F | Centro de opiniones | — |
+| Win+1..5 · Win+Ctrl+1..5 | Apps ancladas en la barra | Clic en la barra de tareas |
+| Win+Alt+D | Panel de fecha y hora | Clic en el reloj |
+| Win+Shift+T | Recorrer la barra hacia atrás | — (lo usa PowerToys OCR) |
+
+Dentro de las apps: Ctrl+Shift+S / Ctrl+Shift+D están excluidos solo en Word, Excel, PowerPoint y ER/Studio. En **VS Code** se pierde *Guardar como* (Ctrl+Shift+S) y en **Brave** *Guardar pestañas en marcadores* (Ctrl+Shift+D). Para excluir otra app: agregar un `GroupAdd "Facultad", "ahk_exe <app>.exe"` en `yafer.ahk` y Win+Alt+F5.
 
 ## Lo que queda solo en CachyOS (el otro SSD)
 `doblar`, auto-captura (Win+Alt+S), cuadernillos de cursos (Win+Alt+Y/A) y las capturas grandes. En Windows sí están `descargar` (en pwsh), SUPER+R, el dictado y las capturas.
