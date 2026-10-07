@@ -327,10 +327,13 @@ MODELO = os.environ.get("APUNTES_MODELO", "sonnet")
 # Motor de IA: "claude" (por defecto) u "opencode" (suscripción OpenCode Go, p.ej. Kimi K3).
 # Con opencode el modelo se elige con APUNTES_MODELO_OPENCODE (formato proveedor/modelo).
 MOTOR = os.environ.get("APUNTES_MOTOR", "claude")
-# Lista separada por comas: se usa el primero y, si su cuota se agota, el siguiente, y así.
+# Lista separada por comas: se usa el primero y, si falla, el siguiente. El límite de OpenCode Go es del
+# PLAN (ventana móvil de ~5 h + semanal + mensual), no de cada modelo: cambiar de modelo Go no lo evita,
+# así que por defecto solo va el más barato (kimi-k3 cuesta ~10x más y agotó la ventana en las pruebas).
+# Los "opencode/...-free" (Zen) no sirven desde la CLI ("free tier can only be used from within OpenCode"), pero
+# opencode-go/longcat-2.5-preview-free sí funciona y no gastó la ventana de Go (estaba al 100 %).
 MODELOS_OPENCODE = [m.strip() for m in os.environ.get(
-    "APUNTES_MODELO_OPENCODE",
-    "opencode-go/deepseek-v4-flash,opencode-go/gpt-6-luna,opencode-go/kimi-k3,opencode-go/deepseek-v4-pro",
+    "APUNTES_MODELO_OPENCODE", "opencode-go/longcat-2.5-preview-free,opencode-go/deepseek-v4-flash",
 ).split(",") if m.strip()]
 MODELO_OPENCODE = MODELOS_OPENCODE[0] if MODELOS_OPENCODE else ""
 
@@ -410,7 +413,7 @@ def pedir_a_claude(titulo, duracion, cues, pantallas):
 
 
 ESPERA_CUOTA = 600  # s entre reintentos cuando se agotó la cuota de Claude
-ESPERA_CUOTA_OC = 1200  # s entre reintentos cuando se agotó el límite de OpenCode Go
+ESPERA_CUOTA_OC = 1200  # s entre reintentos cuando se agotó la ventana móvil (~5 h) de OpenCode Go
 ESPERA_CUOTA_MAX = float(os.environ.get("APUNTES_ESPERA_MAX_H", "6")) * 3600  # la cuota se renueva cada ~5 h
 
 
