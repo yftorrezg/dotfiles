@@ -15,7 +15,7 @@ y indice.json enlaza cada ruta de video con su carpeta. Si el video tiene su cua
 Tipos de nota: el título puede empezar con  ?  (duda) ·  !  (clave) ·  p  (practicar).
 El panel habla con mpv por su socket IPC ($XDG_RUNTIME_DIR/mpv-notas.sock).
 """
-import datetime, importlib.util, json, os, re, shutil, socket, subprocess, sys, threading, time
+import datetime, hashlib, importlib.util, json, os, re, shutil, socket, subprocess, sys, threading, time
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from urllib.parse import urlparse, parse_qs, unquote
 
@@ -405,6 +405,45 @@ def estado():
             "pausa": bool(ipc("get_property", "pause")), "version": version}
 
 
+# ---------- lista de reproducción ----------
+CACHE_MINI = os.path.expanduser("~/.cache/mpv-lista")
+_mini_candado = threading.Lock()
+
+
+def lista_reproduccion():
+    """Lista actual de mpv: [{i, nombre, ruta, actual}] con el nombre sin extensión."""
+    pl = ipc("get_property", "playlist") or []
+    if pl is True:
+        pl = []
+    wd = ipc("get_property", "working-directory") or ""
+    out = []
+    for i, e in enumerate(pl):
+        ruta = e.get("filename", "")
+        if not re.match(r"^\w[\w+.-]*://", ruta) and not ruta.startswith("/"):
+            ruta = os.path.join(wd, ruta)
+        nombre = e.get("title") or os.path.splitext(os.path.basename(ruta))[0]
+        out.append({"i": i, "nombre": nombre, "ruta": normalizar(ruta), "actual": bool(e.get("current"))})
+    return out
+
+
+def miniatura(i):
+    """Ruta del JPG de la miniatura del item i de la lista (la crea la primera vez); None si falla."""
+    item = next((x for x in lista_reproduccion() if x["i"] == i), None)  # solo videos de la lista
+    if not item or not os.path.isfile(item["ruta"]):
+        return None
+    st = os.stat(item["ruta"])
+    clave = hashlib.sha1(f"{item['ruta']}|{st.st_size}|{st.st_mtime_ns}".encode()).hexdigest() + ".jpg"
+    destino = os.path.join(CACHE_MINI, clave)
+    with _mini_candado:
+        if not os.path.exists(destino):
+            os.makedirs(CACHE_MINI, exist_ok=True)
+            r = subprocess.run(["ffmpegthumbnailer", "-i", item["ruta"], "-o", destino, "-s", "320", "-t", "10%"],
+                               stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, timeout=30)
+            if r.returncode != 0 or not os.path.exists(destino):
+                return None
+    return destino
+
+
 # ---------- HTTP ----------
 ultimo_uso = time.time()
 
@@ -448,6 +487,16 @@ class H(BaseHTTPRequestHandler):
             return self._json(listar_videos())
         if u.path == "/api/repaso":
             return self._json(repaso_pendiente())
+        if u.path == "/api/lista":
+            return self._json(lista_reproduccion())
+        if u.path == "/mini":
+            try:
+                ruta = miniatura(int(q.get("i", ["-1"])[0]))
+            except (ValueError, subprocess.SubprocessError):
+                ruta = None
+            if not ruta:
+                return self._json({"error": "sin miniatura"}, 404)
+            return self._archivo(ruta, "image/jpeg", "max-age=86400")
         if u.path == "/api/notas":
             video = normalizar(q.get("video", [""])[0])
             slug = indice().get(video)
@@ -473,6 +522,10 @@ class H(BaseHTTPRequestHandler):
         p = urlparse(self.path).path
         if p == "/api/saltar":
             ok = ipc("seek", float(d["t"]), "absolute+exact") is not None
+            enfocar_mpv()
+            return self._json({"ok": ok})
+        if p == "/api/ir":
+            ok = ipc("playlist-play-index", int(d["i"])) is not None
             enfocar_mpv()
             return self._json({"ok": ok})
         if p == "/api/abrir":

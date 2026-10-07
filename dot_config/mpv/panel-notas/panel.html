@@ -59,6 +59,18 @@ kbd{background:var(--card2);border:1px solid var(--borde);border-radius:4px;padd
 .chip.on{background:var(--acento);color:#06241c;border-color:var(--acento);font-weight:600}
 select{font:inherit;color:var(--txt);background:var(--bg);border:1px solid var(--borde);border-radius:7px;padding:5px 6px;width:100%}
 .de{color:var(--sub);font-size:11.5px;margin:0 0 5px}
+#lista .it{display:flex;gap:9px;align-items:center;background:var(--card);border:1px solid var(--borde);border-radius:9px;
+  padding:5px;cursor:pointer;flex:none;transition:border-color .15s}
+#lista .it:hover{border-color:var(--acento2)}
+#lista .it.actual{border-color:var(--acento);box-shadow:0 0 0 1px var(--acento);background:var(--card2)}
+.it .mini{position:relative;flex:none;width:38%;max-width:150px;aspect-ratio:16/9;border-radius:6px;overflow:hidden;background:#000}
+.it .mini img{width:100%;height:100%;object-fit:cover;display:block}
+.it .mini i{position:absolute;left:3px;top:3px;font:600 11px ui-monospace,monospace;font-style:normal;
+  background:rgba(0,0,0,.7);color:#fff;border-radius:4px;padding:0 5px}
+.it.actual .mini i{background:var(--acento);color:#06241c}
+.it .nom{flex:1;min-width:0;font-weight:500;line-height:1.3;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;word-break:break-word}
+.it.actual .nom{color:var(--acento);font-weight:600}
+.it.vista .nom{color:var(--sub)}
 #toast{position:fixed;left:50%;bottom:14px;transform:translateX(-50%);background:var(--card2);border:1px solid var(--acento);
   border-radius:8px;padding:5px 12px;opacity:0;transition:opacity .2s;pointer-events:none}
 #toast.ver{opacity:1}
@@ -69,6 +81,7 @@ select{font:inherit;color:var(--txt);background:var(--bg);border:1px solid var(-
   <div class="fila">
     <span class="punto" id="punto"></span>
     <h1 id="titulo">Notas del video</h1>
+    <button class="mini" id="btn-lista" title="Lista de reproducción (H)">Lista</button>
     <button class="mini" id="btn-todos" title="Ver todos los videos con notas">Videos</button>
     <button class="mini" id="btn-repaso" title="Notas para repasar hoy">Repaso</button>
     <button class="mini" id="btn-mas" title="Nota en el minuto actual">＋ Nota</button>
@@ -99,7 +112,7 @@ const fmt = t => { t = Math.floor(t); const h = Math.floor(t/3600), m = Math.flo
 const api = (ruta, cuerpo) => fetch(ruta, cuerpo === undefined ? {} :
   { method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify(cuerpo) }).then(r => r.json());
 
-let est = {mpv:false}, datos = {video:null, notas:[]}, vista = "video", editando = null, borrando = null;
+let lista = [], listaFirma = "", est = {mpv:false}, datos = {video:null, notas:[]}, vista = "video", editando = null, borrando = null;
 let versionVista = null, videoVista = null, actualId = null, tVisto = 0;
 let filtroTipo = "", pendientes = [], ticks = 0;
 const TIPOS = {"?":["duda","❓ duda"], "!":["clave","🔑 clave"], "p":["practicar","🛠️ practicar"]};
@@ -124,6 +137,9 @@ function notaActual(){
 function pintarCabecera(){
   $("#punto").classList.toggle("on", est.mpv);
   $("#btn-todos").textContent = "Videos"; $("#btn-repaso").classList.toggle("on", vista === "repaso");
+  $("#btn-lista").classList.toggle("on", vista === "lista");
+  if (vista === "lista") { $("#titulo").textContent = "Lista de reproducción"; $("#btn-todos").textContent = "Videos";
+    $("#info").textContent = lista.length ? `${(lista.find(x => x.actual)?.i ?? -1) + 1} de ${lista.length}` : ""; return; }
   if (vista === "todos") { $("#titulo").textContent = "Todos los videos con notas"; $("#info").textContent = ""; $("#btn-todos").textContent = "← Volver"; return; }
   if (vista === "repaso") { $("#titulo").textContent = "Repaso de hoy"; $("#info").textContent = pendientes.length ? `${pendientes.length} por repasar · ¿te acuerdas sin mirar?` : ""; return; }
   $("#titulo").textContent = est.mpv ? est.nombre : "mpv no está abierto";
@@ -131,8 +147,20 @@ function pintarCabecera(){
   $("#info").textContent = est.mpv ? `${datos.notas.length} nota${datos.notas.length===1?"":"s"} · ${fmt(est.t)} / ${fmt(est.dur)}` : "Abre un video o elige uno de la lista";
 }
 
+const limpiar = n => n.replace(/^\s*\d+\s*[.\-)]+\s*/, "").replace(/\s*-\s*copia$/i, "");
 async function pintarLista(){
   const cont = $("#lista");
+  if (vista === "lista") {
+    lista = est.mpv ? await api("/api/lista") : [];
+    const act = lista.findIndex(x => x.actual);
+    cont.innerHTML = lista.length ? lista.map((x, k) => `<div class="it${x.actual ? " actual" : ""}${k < act ? " vista" : ""}" data-i="${x.i}" title="${esc(x.nombre)}">
+      <div class="mini"><img loading="lazy" src="/mini?i=${x.i}" onerror="this.style.display='none'"><i>${k + 1}</i></div>
+      <div class="nom">${esc(limpiar(x.nombre))}</div></div>`).join("")
+      : `<div class="vacio">No hay lista de reproducción.<br>Abre un video o carga un curso con <kbd>Alt</kbd>+<kbd>C</kbd>.</div>`;
+    listaFirma = lista.map(x => x.i + (x.actual ? "*" : "")).join();
+    cont.querySelector(".it.actual")?.scrollIntoView({block:"center"});
+    return;
+  }
   if (vista === "todos") {
     const vs = await api("/api/videos");
     cont.innerHTML = vs.length ? vs.map((v,i) => `<div class="video" data-i="${i}"><b>${esc(v.nombre)}</b>
@@ -185,6 +213,8 @@ function marcarActual(forzar){
 }
 
 $("#lista").addEventListener("click", async e => {
+  const it = e.target.closest(".it");
+  if (it && vista === "lista") { await api("/api/ir", {i: +it.dataset.i}); return; }
   const b = e.target.closest("[data-a]"); if (!b) return;
   const card = b.closest(".nota"); const id = +card.dataset.id; const a = b.dataset.a;
   if (vista === "repaso") {
@@ -211,6 +241,8 @@ $("#lista").addEventListener("keydown", e => { if (e.key === "Enter" && e.ctrlKe
 const irVista = v => { vista = vista === v ? "video" : v; versionVista = null; pintarCabecera(); pintarLista(); };
 $("#btn-todos").onclick = () => irVista("todos");
 $("#btn-repaso").onclick = () => irVista("repaso");
+$("#btn-lista").onclick = () => irVista("lista");
+if (location.hash === "#lista") vista = "lista";
 document.querySelectorAll(".chip").forEach(c => c.onclick = () => {
   filtroTipo = c.dataset.f; document.querySelectorAll(".chip").forEach(x => x.classList.toggle("on", x === c)); if (vista === "video") pintarLista(); });
 $("#buscar").oninput = pintarLista;
@@ -230,7 +262,11 @@ async function tick(){
     videoVista = est.video; versionVista = est.version;
     if (!(editando)) { await cargarNotas(); actualId = null; pintarCabecera(); await pintarLista(); }
   } else if (vista === "video") { pintarCabecera(); marcarActual(false); }
-  else pintarCabecera();
+  else if (vista === "lista") {
+    const firma = est.mpv ? (await api("/api/lista").catch(() => [])).map(x => x.i + (x.actual ? "*" : "")).join() : "";
+    if (firma !== listaFirma) await pintarLista();
+    pintarCabecera();
+  } else pintarCabecera();
   if (ticks++ % 40 === 0 && vista !== "repaso") cargarPendientes();
   setTimeout(tick, 700);
 }

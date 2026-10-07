@@ -101,7 +101,7 @@ local function nueva()
     })
 end
 
-local function panel()
+local function panel(vista)
     abrir_socket()
     local salio = false
     if mp.get_property_bool("fullscreen") then
@@ -109,9 +109,10 @@ local function panel()
         salio = true
     end
     mp.add_timeout(salio and 0.5 or 0, function()
-        mp.command_native_async({ name = "subprocess", playback_only = false, args = { toggle } }, function() end)
+        mp.command_native_async({ name = "subprocess", playback_only = false, args = vista and { toggle, vista } or { toggle } }, function() end)
     end)
 end
 
 mp.add_forced_key_binding("Ctrl+n", "nota-nueva", nueva)
-mp.add_forced_key_binding("h", "nota-panel", panel)
+mp.add_forced_key_binding("h", "nota-panel", function() panel() end)
+mp.add_forced_key_binding("H", "lista-panel", function() panel("lista") end)

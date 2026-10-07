@@ -89,6 +89,7 @@ Las marcas se ven como rayitas en la barra y se guardan en `~/.local/state/mpv/m
 | Tecla | Acción |
 |---|---|
 | `Ctrl+n` | **Nueva nota** en este instante: pausa, escribes el **título** (con `?`, `!` o `p` al inicio si quieres un tipo; `Enter`) y la **anotación** (`Enter`), y el video sigue. Toma una captura sola. `Esc` en el título cancela; `Esc` en la anotación guarda solo con título |
+| `H` (Shift+h) | **Panel con la lista de reproducción** (miniatura + título de cada clase, la actual resaltada y centrada; clic = reproducir). Mismo panel al 20 % a la derecha; también está el botón **Lista** dentro del panel |
 | `h` | **Ver / ocultar el panel de notas**: mpv queda al 80 % a la izquierda y el panel al 20 % a la derecha (si estabas en pantalla completa, sale de ella) |
 
 En el panel (ventana de Brave): clic en `⏱ 12:34` o en la captura = mpv **salta a ese minuto**; la nota del momento actual se resalta y el panel la sigue solo (casilla *seguir*); `Editar` / `Borrar` en cada nota; buscador; `＋ Nota` crea una nota desde el panel; `Videos` lista **todos los videos con notas** y al pulsar uno lo abre en mpv.

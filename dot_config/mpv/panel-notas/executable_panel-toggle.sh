@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Muestra / oculta el panel de notas al lado de mpv (Hyprland): mpv ~80 %, panel ~20 % a la derecha.
-# Lo llama notas.lua con la tecla h. Si el panel ya está abierto, lo cierra.
+# Lo llama notas.lua con la tecla h (o con H y el argumento «lista», que abre en la vista de lista). Si el panel ya está abierto, lo cierra.
 DIR="$(dirname "$(readlink -f "$0")")"
 URL="${NOTAS_URL:-http://127.0.0.1:47831/}"
 PORCENTAJE=20
@@ -24,7 +24,8 @@ if ! curl -fs --max-time 1 "${URL}api/videos" >/dev/null; then
     for _ in $(seq 30); do curl -fs --max-time 1 "${URL}api/videos" >/dev/null && break; sleep 0.1; done
 fi
 
-setsid -f brave --app="$URL" >/dev/null 2>&1 </dev/null
+VISTA=""; [[ ${1:-} == lista ]] && VISTA="#lista"
+setsid -f brave --app="$URL$VISTA" >/dev/null 2>&1 </dev/null
 for _ in $(seq 80); do addr=$(panel_addr); [[ -n $addr ]] && break; sleep 0.1; done
 [[ -z $addr ]] && exit 1
 
