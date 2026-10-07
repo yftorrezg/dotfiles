@@ -327,7 +327,12 @@ MODELO = os.environ.get("APUNTES_MODELO", "sonnet")
 # Motor de IA: "claude" (por defecto) u "opencode" (suscripción OpenCode Go, p.ej. Kimi K3).
 # Con opencode el modelo se elige con APUNTES_MODELO_OPENCODE (formato proveedor/modelo).
 MOTOR = os.environ.get("APUNTES_MOTOR", "claude")
-MODELO_OPENCODE = os.environ.get("APUNTES_MODELO_OPENCODE", "opencode-go/kimi-k3")
+# Lista separada por comas: se usa el primero y, si su cuota se agota, el siguiente, y así.
+MODELOS_OPENCODE = [m.strip() for m in os.environ.get(
+    "APUNTES_MODELO_OPENCODE",
+    "opencode-go/deepseek-v4-flash,opencode-go/gpt-6-luna,opencode-go/kimi-k3,opencode-go/deepseek-v4-pro",
+).split(",") if m.strip()]
+MODELO_OPENCODE = MODELOS_OPENCODE[0] if MODELOS_OPENCODE else ""
 
 
 def nombre_motor():
@@ -405,6 +410,7 @@ def pedir_a_claude(titulo, duracion, cues, pantallas):
 
 
 ESPERA_CUOTA = 600  # s entre reintentos cuando se agotó la cuota de Claude
+ESPERA_CUOTA_OC = 1200  # s entre reintentos cuando se agotó el límite de OpenCode Go
 ESPERA_CUOTA_MAX = float(os.environ.get("APUNTES_ESPERA_MAX_H", "6")) * 3600  # la cuota se renueva cada ~5 h
 
 
@@ -445,24 +451,62 @@ def ruta_opencode():
     return c
 
 
-def llamar_opencode(prompt):
-    """Texto de la respuesta de `opencode run`, o None si falló. A diferencia de Claude, la
-    cuota de OpenCode Go es mensual: esperar no la renueva, así que se sigue sin IA."""
+def llamar_opencode(prompt, esperar=time.sleep, max_espera=None):
+    """Texto de la respuesta de `opencode run`, o None si falló. Prueba los modelos de
+    MODELOS_OPENCODE en orden; si TODOS dicen "usage limit" (el límite de Go es del plan, no del
+    modelo, y se renueva por ventanas) espera y reintenta, como con Claude."""
     # --standalone: servidor propio (el servicio de fondo se cuelga con prompts largos y comparte
     # estado entre llamadas). El prompt va por stdin: como argumento, 5 de 5 llamadas largas se colgaron.
-    cmd = [ruta_opencode(), "run", "--standalone", "--agent", "apuntes"]
-    if MODELO_OPENCODE:
-        cmd += ["--model", MODELO_OPENCODE]
+    esperado = 0
+    while True:
+        agotados = 0
+        for modelo in MODELOS_OPENCODE or [""]:
+            cmd = [ruta_opencode(), "run", "--standalone", "--agent", "apuntes"] + (["--model", modelo] if modelo else [])
+            try:
+                r = subprocess.run(cmd, input=prompt, capture_output=True, text=True, timeout=900)
+            except (OSError, subprocess.TimeoutExpired) as e:
+                print(f"  (opencode {modelo} falló: {e})", file=sys.stderr)
+                continue
+            salida = (r.stdout or "") + " " + (r.stderr or "")
+            if r.returncode == 0 and r.stdout.strip():
+                return r.stdout
+            if cuota_agotada(salida) or "insufficient" in salida.lower():
+                agotados += 1
+                print(f"  (opencode {modelo}: cuota agotada, pruebo el siguiente)", file=sys.stderr)
+                continue
+            detalle = re.sub(r"\x1b\[[0-9;]*m", "", salida).strip().replace("\n", " ")[:120]
+            print(f"  (opencode {modelo} falló: {detalle or 'sin detalle'})", file=sys.stderr)
+        if agotados == len(MODELOS_OPENCODE or [""]):
+            marcar_opencode_agotado()
+        if agotados < len(MODELOS_OPENCODE or [""]) or esperado >= (ESPERA_CUOTA_MAX if max_espera is None else max_espera):
+            return None
+        print(f"  ⏳ Cuota de OpenCode Go agotada; reintento en {ESPERA_CUOTA_OC // 60} min", file=sys.stderr)
+        reportar(75, "apuntes", "⏳ esperando la cuota de OpenCode")
+        esperar(ESPERA_CUOTA_OC)
+        esperado += ESPERA_CUOTA_OC
+
+
+AGOTADO_OC = os.path.expanduser("~/.cache/auto-captura/opencode-agotado")
+ENFRIAR_OC = 1800  # s sin tocar OpenCode después de que todos sus modelos dijeron "usage limit"
+# Si OpenCode no puede (cuota), se usa Claude con un modelo barato. APUNTES_RESPALDO="" lo desactiva
+# (entonces se espera la cuota de OpenCode). APUNTES_RESPALDO_EFFORT=low|medium para bajar el esfuerzo.
+RESPALDO = os.environ.get("APUNTES_RESPALDO", "haiku")
+RESPALDO_EFFORT = os.environ.get("APUNTES_RESPALDO_EFFORT", "")
+
+
+def opencode_enfriando():
     try:
-        r = subprocess.run(cmd, input=prompt, capture_output=True, text=True, timeout=1800)
-    except (OSError, subprocess.TimeoutExpired) as e:
-        print(f"  (opencode falló: {e})", file=sys.stderr)
-        return None
-    if r.returncode != 0:
-        detalle = (r.stderr or "").strip().replace("\n", " ")[:120]
-        print(f"  (opencode falló: {detalle or 'sin detalle'})", file=sys.stderr)
-        return None
-    return r.stdout
+        return time.time() - os.path.getmtime(AGOTADO_OC) < ENFRIAR_OC
+    except OSError:
+        return False
+
+
+def marcar_opencode_agotado():
+    try:
+        os.makedirs(os.path.dirname(AGOTADO_OC), exist_ok=True)
+        open(AGOTADO_OC, "w").close()
+    except OSError:
+        pass
 
 
 def consultar_ia(prompt, modelo=None):
@@ -470,7 +514,18 @@ def consultar_ia(prompt, modelo=None):
     Con claude espera a que se renueve la cuota; el modelo es APUNTES_MODELO salvo que se
     indique otro (practica.py usa PRACTICA_MODELO). Con opencode se usa APUNTES_MODELO_OPENCODE."""
     if MOTOR == "opencode":
-        return llamar_opencode(prompt)
+        if not RESPALDO:
+            return llamar_opencode(prompt)
+        texto = None if opencode_enfriando() else llamar_opencode(prompt, max_espera=0)
+        if texto is not None:
+            return texto
+        print(f"  (OpenCode no disponible: uso Claude {RESPALDO} como respaldo)", file=sys.stderr)
+        modelo = RESPALDO
+        extra = ["--effort", RESPALDO_EFFORT] if RESPALDO_EFFORT else []
+        cmd = [ruta_claude(), "-p", "--output-format", "json", "--tools", "", "--strict-mcp-config",
+               "--no-session-persistence", "--system-prompt",
+               "Eres un asistente que responde exactamente en el formato pedido.", "--model", modelo] + extra
+        return llamar_claude(cmd, prompt)
     cmd = [ruta_claude(), "-p", "--output-format", "json", "--tools", "", "--strict-mcp-config",
            "--no-session-persistence", "--system-prompt",
            "Eres un asistente que responde exactamente en el formato pedido."]
