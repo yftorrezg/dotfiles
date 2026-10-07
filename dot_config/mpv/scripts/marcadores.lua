@@ -4,6 +4,7 @@
 --   Ctrl+1..9    guarda el marcador en ese número (lo reemplaza)
 --   1..9         salta a ese marcador
 --   Alt+1..9     borra ese marcador
+--   n            salta a la marca más cercana (a la que no estés ya encima)
 --   B            lista de marcadores (menú de uosc) para elegir y saltar
 --   Ctrl+B       borra todos los marcadores del video
 --
@@ -152,6 +153,25 @@ for i = 1, 9 do
     mp.add_forced_key_binding("Ctrl+" .. i, "guardar-marca-" .. i, function() set_mark(i) end)
     mp.add_forced_key_binding("Alt+" .. i, "borrar-marca-" .. i, function() delete_mark(i) end)
 end
+local function jump_nearest()
+    local m, now = marks(), mp.get_property_number("time-pos")
+    if not m or not now then return end
+    local best, best_i, best_d
+    for i = 1, 9 do
+        local t = m[tostring(i)]
+        if t and math.abs(t - now) > 1.5 then
+            local d = math.abs(t - now)
+            if not best_d or d < best_d then best, best_i, best_d = t, i, d end
+        end
+    end
+    if not best then
+        mp.osd_message("No hay otra marca cerca (b para crear una)")
+        return
+    end
+    jump_mark(best_i)
+end
+
+mp.add_forced_key_binding("n", "marca-cercana", jump_nearest)
 mp.add_forced_key_binding("b", "agregar-marca", add_mark)
 mp.add_forced_key_binding("B", "menu-marcas", show_menu)
 mp.add_forced_key_binding("Ctrl+b", "borrar-marcas", clear_marks)

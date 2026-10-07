@@ -24,66 +24,75 @@
 
 ## 2. Tabla de atajos (la que más vas a usar)
 
+> Desde el 07-10-2026 las teclas se parecen a tu *Video Speed Controller* de Brave.
+> Copia de los atajos anteriores: `input.conf.bak-2026-10-07-brave`, `GUIA-MPV.md.bak-2026-10-07` y `scripts/*.lua.bak-2026-10-07`.
+
 ### Reproducción
 | Tecla | Acción |
 |---|---|
-| `Espacio` o `k` | Pausar / reanudar |
+| `Espacio`, `k` o `i` | Pausar / reanudar |
 | `f` o doble clic | Pantalla completa |
 | `Esc` | Salir de pantalla completa |
-| `q` | Salir **recordando el minuto** |
-| `Q` (Shift+q) | Salir sin recordar |
+| `Ctrl+q` | Salir **recordando el minuto** |
+| `Ctrl+Shift+q` | Salir sin recordar |
 
 ### Adelantar y retroceder
 | Tecla | Acción |
 |---|---|
-| `→` / `←` | ±5 segundos |
-| `Ctrl+→` / `Ctrl+←` | ±10 segundos |
-| `Alt+→` / `Alt+←` | ±30 segundos |
-| `l` / `j` | ±10 segundos (como en YouTube) |
-| `.` / `,` | Un cuadro adelante o atrás (útil en pausa para leer código) |
+| `z` / `x` | −5 / +5 s |
+| `y` / `u` | −10 / −5 s |
+| `o` / `p` | +5 / +10 s |
+| `[` / `]` | −30 / +30 s |
+| `←` `→` · `Ctrl+←→` · `Alt+←→` | ±5 · ±10 · ±30 s |
+| `j` / `l` | ∓10 / +10 s (como YouTube) |
+| `.` / `,` | Un cuadro adelante o atrás |
 | `Inicio` | Volver al principio |
-| `Ctrl+z` | **Deshacer el último salto** (si adelantaste de más) |
+| `Ctrl+z` | **Deshacer el último salto** |
 
 ### Velocidad
 | Tecla | Acción |
 |---|---|
-| `]` | +0.1 (1.0 → 1.1 → 1.2 …) |
-| `[` | −0.1 |
-| `}` (Shift+]) | +0.5 |
-| `{` (Shift+[) | −0.5 |
-| `Retroceso` (←Borrar) | Volver a 1.0x |
-| `Ctrl+v` | Mostrar u ocultar el visor fijo de velocidad |
+| `d` / `a` | +0.1 / −0.1 |
+| `r` o `Retroceso` | Volver a 1.0x |
+| `q` / `w` / `g` / `e` | Velocidad fija 1.3 / 1.5 / 1.8 / 2.0 |
+| `v` | Mostrar u ocultar el visor fijo `⏩` |
 
-- Rango: **0.25x a 4.0x**.
-- El visor `⏩ 1.30x` aparece arriba a la derecha y desaparece cuando vuelves a 1.0x.
-- El audio **conserva el tono**: a 2x la voz suena rápida, pero no aguda.
-- mpv **recuerda la última velocidad** para el próximo video y para la próxima vez que lo abras.
+Rango 0.25x a 4.0x. El audio conserva el tono. mpv recuerda la última velocidad.
 
-> En teclado latinoamericano o español, `[` `]` `{` `}` pueden requerir **AltGr**. Si te resultan incómodas, dímelo y las cambiamos (por ejemplo a `x`/`c`, como la extensión *Video Speed Controller*).
+### Bucle (repetir un fragmento)
+| Tecla | Acción |
+|---|---|
+| `c` | 1ª vez: marca el **inicio** · 2ª vez: marca el **fin** y empieza a repetir · 3ª vez: quita el bucle |
+| `Ctrl+c` | Repite los **últimos 15 s** al instante (no marcas nada). Otra vez: quita el bucle |
+| `L` (Shift+l) | Lista de **bucles guardados** de este video: eliges uno y se activa |
+
+- Arriba a la izquierda se ve `🔁 A 12:30 → B 13:10` mientras repite, y el trozo se pinta en la barra de tiempo.
+- Cada bucle que cierras se guarda solo, por video, en `~/.local/state/mpv/bucles.json` (máx. 20). Al reabrir el video lo encuentras con `L`.
+- Se puede combinar con la velocidad: pon el bucle y baja con `a` para entender una parte difícil.
 
 ### Marcadores (puntos del video)
 | Tecla | Acción |
 |---|---|
 | `b` | Marca rápida: se guarda en el primer número libre (1 a 9) |
+| `n` | **Saltar a la marca más cercana** (la que no tienes encima) |
+| `1` … `9` | Saltar a esa marca |
 | `Ctrl+1` … `Ctrl+9` | Guardar la marca en ese número (reemplaza la anterior) |
-| `1` … `9` | **Saltar** a esa marca |
 | `Alt+1` … `Alt+9` | Borrar esa marca |
-| `B` (Shift+b) | Menú con todas las marcas: eliges una y salta |
+| `B` (Shift+b) | Menú con todas las marcas |
 | `Ctrl+b` | Borrar **todas** las marcas del video |
-| `RePág` / `AvPág` | Saltar a la marca o capítulo siguiente / anterior |
-| `c` | Menú de capítulos con tus marcas incluidas |
+| `RePág` / `AvPág` | Marca o capítulo siguiente / anterior |
+| `C` (Shift+c) | Menú de capítulos con tus marcas incluidas |
 
-- Las marcas se ven como **rayitas en la barra de tiempo**.
-- Se guardan **por video** en `~/.local/state/mpv/marcadores.json`. Si mueves o renombras el archivo, esas marcas se pierden.
+Las marcas se ven como rayitas en la barra y se guardan en `~/.local/state/mpv/marcadores.json`.
 
 ### Lista de videos, carpetas y cursos
 | Tecla | Acción |
 |---|---|
-| `N` o `Enter` o `>` | Siguiente video |
-| `P` o `<` | Video anterior |
+| `N` (Shift+n) o `Enter` o `>` | Siguiente video |
+| `P` (Shift+p) o `<` | Video anterior |
 | `Tab` | Ver la **lista** y elegir un video |
-| `o` | **Explorador de carpetas**: navega carpetas y subcarpetas y abre cualquier video |
-| `Alt+c` | **Cargar el curso completo** (carpeta padre + todas sus subcarpetas) |
+| `Ctrl+o` | **Explorador de carpetas** |
+| `Alt+c` | **Cargar el curso completo** (carpeta padre + subcarpetas) |
 | `Alt+C` (Alt+Shift+c) | Cargar la carpeta actual + sus subcarpetas |
 | Clic derecho | Menú general de uosc |
 
@@ -92,13 +101,11 @@
 |---|---|
 | `↑` / `↓` o rueda del mouse | Volumen ±5 |
 | `m` | Silenciar |
-| `a` | Bucle A-B: 1ª vez = inicio, 2ª = fin (repite ese trozo), 3ª = quitar |
-| `v` | Mostrar u ocultar subtítulos |
+| `V` (Shift+v) | Mostrar u ocultar subtítulos |
 | `J` (Shift+j) | Cambiar pista de subtítulos |
-| `s` | Captura de pantalla → `~/Imágenes/Capturas-mpv/` |
-| `S` | Captura sin subtítulos |
-| `t` | Muestra el tiempo transcurrido y el total |
-| `i` | Estadísticas técnicas (resolución, códec…) |
+| `s` / `S` | Captura de pantalla / sin subtítulos → `~/Imágenes/Capturas-mpv/` |
+| `t` | Tiempo transcurrido y total |
+| `Ctrl+i` | Estadísticas técnicas |
 
 ---
 
@@ -128,17 +135,17 @@ Tienes tres formas de verlo:
 3. **Pulsar `o`**, entrar a la subcarpeta que quieras y elegir el video.
 
 ### Caso C: retomar mañana
-Sal con `q`. La próxima vez que abras ese video, empezará en el minuto donde lo dejaste, y tus marcas seguirán ahí.
+Sal con `Ctrl+q`. La próxima vez que abras ese video, empezará en el minuto donde lo dejaste, y tus marcas seguirán ahí.
 
 ---
 
 ## 4. Rutina recomendada para estudiar
 
 1. Abre el primer video del módulo (o pulsa `Alt+c` para cargar todo el curso).
-2. Sube la velocidad con `]` hasta que el ritmo te resulte cómodo (1.3x a 1.7x suele ir bien).
-3. En partes difíciles, baja con `[` o vuelve a 1x con `Retroceso`.
-4. Cuando algo sea importante, pulsa **`b`** para marcarlo. Después vuelves con `1`…`9` o `B`.
-5. ¿Una explicación que no entendiste? `j` retrocede 10 s, o usa `a` dos veces para repetir ese trozo en bucle.
+2. Sube la velocidad con `d` (o salta con `w`/`g`/`e`) hasta que el ritmo te resulte cómodo (1.3x a 1.7x suele ir bien).
+3. En partes difíciles, baja con `a` o vuelve a 1x con `r`.
+4. Cuando algo sea importante, pulsa **`b`** para marcarlo. Después vuelves con `n`, `1`…`9` o `B`.
+5. ¿Una explicación que no entendiste? `y` retrocede 10 s, o `Ctrl+c` para repetir los últimos 15 s (o `c` dos veces para elegir tú el trozo).
 6. ¿El profe escribe código rápido? `Espacio` para pausar y `.` / `,` para avanzar cuadro a cuadro.
 7. Captura el código con `s` o con tu atajo del sistema `Ctrl+Shift+S`.
 
@@ -157,11 +164,13 @@ Sal con `q`. La próxima vez que abras ese video, empezará en el minuto donde l
     ├── uosc/                ← interfaz (descargada de github.com/tomasklaen/uosc)
     ├── velocidad.lua        ← velocidad + visor
     ├── marcadores.lua       ← marcas por video
+    ├── bucle.lua            ← repetir fragmentos y guardarlos
     ├── curso.lua            ← cargar curso con subcarpetas
     └── bateria.lua          ← laptop: render liviano cuando está desenchufada
 
 ~/.local/state/mpv/
 ├── marcadores.json          ← tus marcas
+├── bucles.json              ← tus bucles guardados
 ├── ultima-velocidad         ← última velocidad usada
 └── watch_later/             ← minuto donde quedó cada video
 ```

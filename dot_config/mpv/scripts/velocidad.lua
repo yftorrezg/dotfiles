@@ -1,9 +1,10 @@
 -- velocidad.lua — control de velocidad con visor fijo en pantalla.
+-- Teclas parecidas a la extensión Video Speed Controller de Brave:
 --
---   ] / [        +0.1 / -0.1
---   } / {        +0.5 / -0.5
---   Retroceso    volver a 1.0x
---   Ctrl+v       mostrar u ocultar el visor fijo de velocidad
+--   d / a        +0.1 / -0.1
+--   r  (o Retroceso)  volver a 1.0x
+--   q / w / g / e     velocidad fija 1.3 / 1.5 / 1.8 / 2.0
+--   v            mostrar u ocultar el visor fijo de velocidad
 --
 -- El visor queda fijo en la esquina superior derecha mientras la velocidad no
 -- sea 1.0x. La última velocidad usada se recuerda para el próximo video, aunque
@@ -47,12 +48,15 @@ local function change(delta)
     set_speed(mp.get_property_number("speed", 1) + delta)
 end
 
-mp.add_forced_key_binding("]", "vel-mas", function() change(0.1) end, { repeatable = true })
-mp.add_forced_key_binding("[", "vel-menos", function() change(-0.1) end, { repeatable = true })
-mp.add_forced_key_binding("}", "vel-mas-mucho", function() change(0.5) end, { repeatable = true })
-mp.add_forced_key_binding("{", "vel-menos-mucho", function() change(-0.5) end, { repeatable = true })
-mp.add_forced_key_binding("BS", "vel-normal", function() set_speed(1) end)
-mp.add_forced_key_binding("Ctrl+v", "vel-visor", function()
+mp.add_forced_key_binding("d", "vel-mas", function() change(0.1) end, { repeatable = true })
+mp.add_forced_key_binding("a", "vel-menos", function() change(-0.1) end, { repeatable = true })
+mp.add_forced_key_binding("r", "vel-normal", function() set_speed(1) end)
+mp.add_forced_key_binding("BS", "vel-normal-bs", function() set_speed(1) end)
+mp.add_forced_key_binding("q", "vel-1.3", function() set_speed(1.3) end)
+mp.add_forced_key_binding("w", "vel-1.5", function() set_speed(1.5) end)
+mp.add_forced_key_binding("g", "vel-1.8", function() set_speed(1.8) end)
+mp.add_forced_key_binding("e", "vel-2", function() set_speed(2) end)
+mp.add_forced_key_binding("v", "vel-visor", function()
     visor_on = not visor_on
     mp.osd_message(visor_on and "Visor de velocidad: visible" or "Visor de velocidad: oculto")
     draw()
