@@ -21,11 +21,11 @@ fi
 # Videos del curso, una vez por clase: si están "clase.mp4" y "clase.es.mp4" (doblado), se usa
 # el doblado (trae subtítulos adentro). Se ignoran descargas a medias (.part).
 mapfile -t VIDEOS < <(
-    find "$CURSO" -maxdepth 1 -type f \( -iname '*.mp4' -o -iname '*.mkv' -o -iname '*.webm' -o -iname '*.mov' \) \
+    find "$CURSO" -maxdepth 1 -type f \( -iname '*.mp4' -o -iname '*.mkv' -o -iname '*.webm' -o -iname '*.mov' -o -iname '*.ts' \) \
         ! -name '*.part' ! -name '*.temp.*' -printf '%f\n' |
     awk '{ clase=$0; sub(/\.[^.]*$/, "", clase); es = (clase ~ /\.(es|en)$/); sub(/\.(es|en)$/, "", clase);
            if (!(clase in elegido) || es) elegido[clase]=$0 }
-         END { for (c in elegido) print elegido[c] }' | sort)
+         END { for (c in elegido) print elegido[c] }' | sort -V)
 TOTAL=${#VIDEOS[@]}
 [ "$TOTAL" -eq 0 ] && { notify-send "Apuntes del curso" "No hay videos en $CURSO"; exit 1; }
 
