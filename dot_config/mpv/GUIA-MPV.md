@@ -30,7 +30,7 @@
 ### Reproducción
 | Tecla | Acción |
 |---|---|
-| `Espacio`, `k` o `i` | Pausar / reanudar |
+| `Espacio`, `k`, `i` o un clic en el video | Pausar / reanudar |
 | `f` o doble clic | Pantalla completa |
 | `Esc` | Salir de pantalla completa |
 | `Ctrl+q` | Salir **recordando el minuto** |
@@ -103,7 +103,7 @@ Las marcas se ven como rayitas en la barra y se guardan en `~/.local/state/mpv/m
 | `m` | Silenciar |
 | `V` (Shift+v) | Mostrar u ocultar subtítulos |
 | `J` (Shift+j) | Cambiar pista de subtítulos |
-| `s` / `S` | Captura de pantalla / sin subtítulos → `~/Imágenes/Capturas-mpv/` |
+| `s` / `S` | Captura de pantalla / sin subtítulos → `~/Imágenes/Capturas-mpv/`. Si el video dura **más de 1 hora**, va a una subcarpeta con el nombre del video (`capturas.lua`) |
 | `t` | Tiempo transcurrido y total |
 | `Ctrl+i` | Estadísticas técnicas |
 
@@ -164,6 +164,7 @@ Sal con `Ctrl+q`. La próxima vez que abras ese video, empezará en el minuto do
     ├── uosc/                ← interfaz (descargada de github.com/tomasklaen/uosc)
     ├── velocidad.lua        ← velocidad + visor
     ├── marcadores.lua       ← marcas por video
+    ├── capturas.lua         ← carpeta de capturas por video (si dura más de 1 h)
     ├── bucle.lua            ← repetir fragmentos y guardarlos
     ├── curso.lua            ← cargar curso con subcarpetas
     └── bateria.lua          ← laptop: render liviano cuando está desenchufada
