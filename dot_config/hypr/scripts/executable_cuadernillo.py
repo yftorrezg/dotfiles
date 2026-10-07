@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Arma el cuadernillo de apuntes de una clase: capturas importantes + lo que dijo el profe
-+ resumen por temas hecho con Claude.
++ resumen por temas hecho con IA (Claude por defecto; OpenCode con APUNTES_MOTOR=opencode).
 
     cuadernillo.py <carpeta_de_capturas> [--video clase.mp4] [--titulo T] [--sin-ia] [--forzar]
     cuadernillo.py --indice <carpeta capturas/ del curso>     # arma INDICE.md de todas las clases
@@ -324,6 +324,18 @@ Reglas:
 # cuenta y resume muy bien. Para un curso difícil: APUNTES_MODELO=opus (o "" = el de la cuenta).
 MODELO = os.environ.get("APUNTES_MODELO", "sonnet")
 
+# Motor de IA: "claude" (por defecto) u "opencode" (suscripción OpenCode Go, p.ej. Kimi K3).
+# Con opencode el modelo se elige con APUNTES_MODELO_OPENCODE (formato proveedor/modelo).
+MOTOR = os.environ.get("APUNTES_MOTOR", "claude")
+MODELO_OPENCODE = os.environ.get("APUNTES_MODELO_OPENCODE", "opencode-go/kimi-k3")
+
+
+def nombre_motor():
+    """Etiqueta para los mensajes: "Claude (sonnet)" u "OpenCode (opencode-go/kimi-k3)"."""
+    if MOTOR == "opencode":
+        return f"OpenCode ({MODELO_OPENCODE or 'modelo de la cuenta'})"
+    return f"Claude ({MODELO or 'modelo de la cuenta'})"
+
 
 def cargar_resumen_corto():
     """resumen-corto.py (el nombre con guion no se puede importar directo)."""
@@ -380,13 +392,8 @@ def pedir_a_claude(titulo, duracion, cues, pantallas):
                  + "\n\n".join(f"[{hms(t)}]\n{txt}" for t, txt in pantallas) + "\n>>>\n")
     prompt = PROMPT.format(titulo=titulo, duracion=hms(duracion), transcripcion=transcripcion,
                            pantallas=extra)
-    cmd = [ruta_claude(), "-p", "--output-format", "json", "--tools", "", "--strict-mcp-config",
-           "--no-session-persistence", "--system-prompt",
-           "Eres un asistente que responde exactamente en el formato pedido."]
-    if MODELO:
-        cmd += ["--model", MODELO]
     for intento in range(2):
-        texto = llamar_claude(cmd, prompt)
+        texto = consultar_ia(prompt)
         try:
             datos = json.loads(texto[texto.index("{"):texto.rindex("}") + 1])
             if datos.get("secciones"):
@@ -429,6 +436,48 @@ def llamar_claude(cmd, prompt, esperar=time.sleep):
         reportar(75, "apuntes", "⏳ esperando la cuota de Claude")
         esperar(ESPERA_CUOTA)
         esperado += ESPERA_CUOTA
+
+
+def ruta_opencode():
+    c = shutil.which("opencode")
+    if not c:
+        raise FileNotFoundError("no se encontró 'opencode' en el PATH")
+    return c
+
+
+def llamar_opencode(prompt):
+    """Texto de la respuesta de `opencode run`, o None si falló. A diferencia de Claude, la
+    cuota de OpenCode Go es mensual: esperar no la renueva, así que se sigue sin IA."""
+    # --standalone: servidor propio (el servicio de fondo se cuelga con prompts largos y comparte
+    # estado entre llamadas). El prompt va por stdin: como argumento, 5 de 5 llamadas largas se colgaron.
+    cmd = [ruta_opencode(), "run", "--standalone", "--agent", "apuntes"]
+    if MODELO_OPENCODE:
+        cmd += ["--model", MODELO_OPENCODE]
+    try:
+        r = subprocess.run(cmd, input=prompt, capture_output=True, text=True, timeout=1800)
+    except (OSError, subprocess.TimeoutExpired) as e:
+        print(f"  (opencode falló: {e})", file=sys.stderr)
+        return None
+    if r.returncode != 0:
+        detalle = (r.stderr or "").strip().replace("\n", " ")[:120]
+        print(f"  (opencode falló: {detalle or 'sin detalle'})", file=sys.stderr)
+        return None
+    return r.stdout
+
+
+def consultar_ia(prompt, modelo=None):
+    """Texto de la respuesta del motor configurado (APUNTES_MOTOR=claude|opencode), o None.
+    Con claude espera a que se renueve la cuota; el modelo es APUNTES_MODELO salvo que se
+    indique otro (practica.py usa PRACTICA_MODELO). Con opencode se usa APUNTES_MODELO_OPENCODE."""
+    if MOTOR == "opencode":
+        return llamar_opencode(prompt)
+    cmd = [ruta_claude(), "-p", "--output-format", "json", "--tools", "", "--strict-mcp-config",
+           "--no-session-persistence", "--system-prompt",
+           "Eres un asistente que responde exactamente en el formato pedido."]
+    m = MODELO if modelo is None else modelo
+    if m:
+        cmd += ["--model", m]
+    return llamar_claude(cmd, prompt)
 
 
 # ----------------------------------------------------------------- armado ----
@@ -566,7 +615,7 @@ def main():
 
     datos = None
     try:
-        ruta_claude()
+        ruta_opencode() if MOTOR == "opencode" else ruta_claude()
     except FileNotFoundError as e:
         print(f"   (sin IA: {e})")
         a.sin_ia = True
@@ -577,8 +626,8 @@ def main():
         pantallas = leer_pantallas(carpeta, capturas, cada=240 if subs else 20)
         print(f"   {len(pantallas)} pantallas leídas")
         if subs or pantallas:
-            print(f"🤖 Pidiendo a Claude ({MODELO or 'modelo de la cuenta'}) apuntes + resumen corto…")
-            reportar(75, "apuntes", "Claude armando el resumen")
+            print(f"🤖 Pidiendo a {nombre_motor()} apuntes + resumen corto…")
+            reportar(75, "apuntes", f"{nombre_motor()} armando el resumen")
             datos = pedir_a_claude(titulo, duracion, subs_para_claude(carpeta, subs), pantallas)
         if datos:
             corto = datos.pop("corto", None)

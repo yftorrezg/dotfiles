@@ -12,13 +12,14 @@
 # actual.txt (lo que se está procesando), cola.lock / trabajador.lock (flock) y logs.
 # Línea de la cola: clave<TAB>tipo<TAB>opciones<TAB>argumento<TAB>etiqueta
 #   clave: id del video / id de la playlist / ruta del curso (para no repetir el mismo pedido)
-#   opciones: SIN_IA=1 MAX_VIDEOS=2… del momento de encolar (cada pedido lleva las suyas); "-"
-#   si no hay (un campo vacío no sirve: "read" con IFS=tab junta dos tabs seguidos en uno)
+#   opciones: SIN_IA=1 MAX_VIDEOS=2 APUNTES_MOTOR=opencode… del momento de encolar (cada pedido
+#   lleva las suyas); "-" si no hay (un campo vacío no sirve: "read" con IFS=tab junta dos tabs
+#   seguidos en uno)
 SCRIPTS="${SCRIPTS_COLA:-$HOME/.config/hypr/scripts}"  # SCRIPTS_COLA: para las pruebas
 DIR_COLA="${DIR_COLA:-$HOME/.cache/auto-captura}"   # DIR_COLA: para las pruebas
 COLA="$DIR_COLA/cola.txt"
 ACTUAL="$DIR_COLA/actual.txt"
-OPCIONES="SIN_IA SIN_APUNTES MAX_VIDEOS"   # variables que viajan con cada pedido
+OPCIONES="SIN_IA SIN_APUNTES MAX_VIDEOS APUNTES_MOTOR APUNTES_MODELO_OPENCODE"   # variables que viajan con cada pedido
 mkdir -p "$DIR_COLA"
 touch "$COLA" "$ACTUAL"
 

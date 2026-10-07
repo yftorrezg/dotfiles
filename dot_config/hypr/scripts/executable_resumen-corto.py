@@ -57,13 +57,8 @@ def pedir_a_claude(titulo, duracion, datos):
     apuntes = {k: datos.get(k) for k in ("resumen", "conceptos", "secciones", "errores_comunes")}
     prompt = PROMPT.format(titulo=titulo, duracion=duracion,
                            apuntes=json.dumps(apuntes, ensure_ascii=False, indent=1))
-    cmd = [cu.ruta_claude(), "-p", "--output-format", "json", "--tools", "", "--strict-mcp-config",
-           "--no-session-persistence", "--system-prompt",
-           "Eres un asistente que responde exactamente en el formato pedido."]
-    if cu.MODELO:
-        cmd += ["--model", cu.MODELO]
     for intento in range(2):
-        texto = cu.llamar_claude(cmd, prompt)  # espera si se agotó la cuota
+        texto = cu.consultar_ia(prompt)  # espera si se agotó la cuota de Claude
         try:
             corto = json.loads(texto[texto.index("{"):texto.rindex("}") + 1])
             if corto.get("esencial"):

@@ -6,5 +6,8 @@
 SCRIPTS="$HOME/.config/hypr/scripts"
 INICIO="$(xdg-user-dir VIDEOS 2>/dev/null || echo "$HOME")/Descargas/"
 [ -d "$INICIO" ] || INICIO="$HOME/"
+# Los cursos en disco se apuntan con OpenCode (suscripción Go); los links de YouTube
+# (SUPER+ALT+Y) siguen con Claude. El modelo se elige con APUNTES_MODELO_OPENCODE.
+export APUNTES_MOTOR=opencode
 CURSO=$(zenity --file-selection --directory --title="📚 Carpeta del curso para sacar apuntes" --filename="$INICIO") || exit 0
 bash "$SCRIPTS/cola-capturas.sh" encolar curso "$CURSO" "📚 $(basename "$CURSO")" >/dev/null

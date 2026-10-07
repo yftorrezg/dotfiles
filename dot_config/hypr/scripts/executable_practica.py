@@ -425,14 +425,9 @@ def clases_anteriores(carpeta, maximo=40):
 
 
 def consultar_claude(prompt):
-    """Texto de la respuesta, o None. Espera si se agotó la cuota (llamar_claude de cuadernillo).
+    """Texto de la respuesta, o None. Espera si se agotó la cuota (consultar_ia de cuadernillo).
     Las pruebas reemplazan esta función por una respuesta fija."""
-    cmd = [cu.ruta_claude(), "-p", "--output-format", "json", "--tools", "", "--strict-mcp-config",
-           "--no-session-persistence", "--system-prompt",
-           "Eres un asistente que responde exactamente en el formato pedido."]
-    if MODELO:
-        cmd += ["--model", MODELO]
-    return cu.llamar_claude(cmd, prompt)
+    return cu.consultar_ia(prompt, modelo=MODELO)
 
 
 def slug(texto):
@@ -512,7 +507,7 @@ def verificar(ej, lenguaje):
 def generar_ejercicios(titulo, datos, lenguaje, carpeta=""):
     """1 llamada a Claude (+1 si hace falta corregir). Devuelve los ejercicios verificados."""
     prompt = armar_prompt(titulo, datos, lenguaje, carpeta)
-    print(f"🤖 Pidiendo los ejercicios a Claude ({MODELO or 'modelo de la cuenta'})… (~1 min)")
+    print(f"🤖 Pidiendo los ejercicios a {cu.nombre_motor()}… (~1 min)")
     ejercicios = parsear(consultar_claude(prompt))
     reintento_usado = False
     if not ejercicios:  # respuesta ilegible: se usa el reintento en pedir todo de nuevo
