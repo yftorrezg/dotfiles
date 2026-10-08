@@ -641,21 +641,55 @@ def ancla(titulo):
     return re.sub(r"\s+", "-", t.strip())
 
 
+def _idea(carpeta_capturas, d):
+    try:
+        datos = json.load(open(os.path.join(carpeta_capturas, d, ".apuntes-ia.json"), encoding="utf-8"))
+        return (datos.get("resumen") or [""])[0].replace("|", "/")
+    except (OSError, ValueError):
+        return ""
+
+
+def _tema_y_clase(nombre):
+    """'05 Tema - 003 Clase' -> ('05 Tema', '003 Clase'); sin tema -> ('', nombre)."""
+    m = re.match(r"^(.+?) - (\d{1,3}\s.*)$", nombre)
+    if m and not re.fullmatch(r"\d+", m.group(1).strip()):
+        return m.group(1).strip(), m.group(2).strip()
+    return "", nombre
+
+
 def indice(carpeta_capturas, nombre_curso):
-    """INDICE.md en la carpeta capturas/: una línea por clase con link a sus apuntes."""
-    L = [f"# 🎓 {nombre_curso}", "", "| # | Clase | Idea principal |", "|---|---|---|"]
+    """INDICE.md en la carpeta capturas/: clases con link a sus apuntes, agrupadas por tema
+    cuando los nombres son 'Tema - NNN Clase' (cursos con una carpeta por tema)."""
     clases = sorted(d for d in os.listdir(carpeta_capturas)
                     if os.path.isfile(os.path.join(carpeta_capturas, d, "apuntes.md")))
-    for k, d in enumerate(clases, 1):
-        idea = ""
-        try:
-            datos = json.load(open(os.path.join(carpeta_capturas, d, ".apuntes-ia.json"), encoding="utf-8"))
-            idea = (datos.get("resumen") or [""])[0]
-        except (OSError, ValueError):
-            pass
-        link = "<" + d + "/apuntes.md>"  # <...> permite espacios en el link
-        L.append(f"| {k} | [{d}]({link}) | {idea} |")
-    L += ["", f"*{len(clases)} clases con apuntes · generado por cuadernillo.py*", ""]
+    pares = [(d,) + _tema_y_clase(d) for d in clases]
+    temas = list(dict.fromkeys(t for _, t, _ in pares))
+    agrupar = len([t for t in temas if t]) >= 2
+    L = [f"# 🎓 {nombre_curso}", "",
+         f"> 📚 **{len(clases)} clases**" + (f" en **{len(temas)} temas**" if agrupar else "") +
+         " · cada clase tiene sus apuntes completos, `resumen.md` (repaso rápido) y `tarjetas.md` (para repasar con memoria espaciada).",
+         "", "> [!tip] Cómo estudiar con esto",
+         "> 1. Mira el video (o salta directo a los apuntes si ya lo viste).",
+         "> 2. Lee `🎯 Resumen` y `🧠 Conceptos clave`; tapa la tabla e intenta explicarlos con tus palabras.",
+         "> 3. Escribe el código tú mismo antes de mirar la solución.",
+         "> 4. Repasa las `tarjetas.md` a los 1, 3 y 7 días.", ""]
+    if agrupar:
+        L += ["## 🧭 Temas", ""]
+        for k, t in enumerate(temas, 1):
+            n = sum(1 for _, tt, _ in pares if tt == t)
+            L.append(f"{k}. [{t or 'Otras clases'}](#{ancla(t or 'Otras clases')}) · {n} clases")
+        L.append("")
+    n_global = 0
+    for t in temas:
+        grupo = [(d, c) for d, tt, c in pares if tt == t]
+        if agrupar:
+            L += [f"## {t or 'Otras clases'}", ""]
+        L += ["| # | Clase | Idea principal |", "|---|---|---|"]
+        for d, c in grupo:
+            n_global += 1
+            L.append(f"| {n_global} | [{c}](<{d}/apuntes.md>) | {_idea(carpeta_capturas, d)} |")
+        L.append("")
+    L += [f"*{len(clases)} clases con apuntes · generado por cuadernillo.py*", ""]
     with open(os.path.join(carpeta_capturas, "INDICE.md"), "w", encoding="utf-8") as f:
         f.write("\n".join(L))
     print(f"🗂️ Índice: {os.path.join(carpeta_capturas, 'INDICE.md')} ({len(clases)} clases)")

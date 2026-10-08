@@ -122,6 +122,7 @@ extras
 # Clases que quedaron sin resumen de IA (Claude no respondió): se rehacen ahora, sin bajar nada
 [ "${SIN_IA:-0}" = 1 ] || python3 "$SCRIPTS/rehacer-sin-ia.py" "$CURSO/capturas" || true
 python3 "$SCRIPTS/cuadernillo.py" --indice "$CURSO/capturas"
+python3 "$SCRIPTS/todas-las-capturas.py" "$CURSO/capturas" || true
 MSG="$HECHAS de $TOTAL clases con apuntes."
 [ "$SALTEADAS" -gt 0 ] && MSG="$MSG $SALTEADAS no disponibles."
 [ ${#FALLARON[@]} -gt 0 ] && MSG="$MSG Fallaron: ${FALLARON[*]}"
