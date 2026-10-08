@@ -20,14 +20,16 @@ if ! flock -n 9; then
     exit 1
 fi
 
-# Videos del curso, una vez por clase: si están "clase.mp4" y "clase.es.mp4" (doblado), se usa
-# el doblado (trae subtítulos adentro). Se ignoran descargas a medias (.part).
+# Videos del curso, una vez por clase, buscando también en las subcarpetas (un curso suele tener
+# una carpeta por tema). Rutas relativas al curso. Si están "clase.mp4" y "clase.es.mp4" (doblado)
+# se usa el doblado (trae subtítulos adentro). Se ignoran descargas a medias (.part) y las carpetas
+# capturas/ (salida de este mismo script).
 mapfile -t VIDEOS < <(
-    find "$CURSO" -maxdepth 1 -type f \( -iname '*.mp4' -o -iname '*.mkv' -o -iname '*.webm' -o -iname '*.mov' -o -iname '*.ts' \) \
-        ! -name '*.part' ! -name '*.temp.*' -printf '%f\n' |
-    awk '{ clase=$0; sub(/\.[^.]*$/, "", clase); es = (clase ~ /\.(es|en)$/); sub(/\.(es|en)$/, "", clase);
+    find "$CURSO" -type d -name capturas -prune -o -type f \( -iname '*.mp4' -o -iname '*.mkv' -o -iname '*.webm' -o -iname '*.mov' -o -iname '*.ts' \) \
+        ! -name '*.part' ! -name '*.temp.*' -printf '%P\n' |
+    awk '{ clase=$0; sub(/\.[^.\/]*$/, "", clase); es = (clase ~ /\.(es|en)$/); sub(/\.(es|en)$/, "", clase);
            if (!(clase in elegido) || es) elegido[clase]=$0 }
-         END { for (c in elegido) print elegido[c] }' | sort -V)
+         END { for (c in elegido) print elegido[c] }' | LC_ALL=C.UTF-8 sort -V)
 TOTAL=${#VIDEOS[@]}
 [ "$TOTAL" -eq 0 ] && { notify-send "Apuntes del curso" "No hay videos en $CURSO"; exit 1; }
 
@@ -39,20 +41,35 @@ setsid python3 "$SCRIPTS/progreso.py" seguir "$PROGRESO_ARCHIVO" "$NOMBRE_CURSO"
 HECHAS=0; FALLARON=()
 for i in "${!VIDEOS[@]}"; do
     V="${VIDEOS[$i]}"
+    SUB=$(dirname "$V")
     CLASE=$(basename "${V%.*}" | sed -E 's/\.(es|en)$//')
+    # Salida: todas las clases en $CURSO/capturas/ (así el índice y el panel ven el curso entero).
+    # Video en una subcarpeta -> "<subcarpeta> - <clase>"; si la clase se llama igual que la
+    # subcarpeta, solo ese nombre.
+    if [ "$SUB" = . ]; then NOM="$CLASE"
+    elif [ "$CLASE" = "$(basename "$SUB")" ]; then NOM="${SUB//\// - }"
+    else NOM="${SUB//\// - } - $CLASE"; fi
+    DEST="$CURSO/capturas/$NOM"
+    # Apuntes hechos con la versión anterior (al lado del video): se mueven a su lugar
+    VIEJO="$CURSO/$SUB/capturas/$CLASE"
+    if [ "$SUB" != . ] && [ -d "$VIEJO" ] && [ ! -e "$DEST" ]; then
+        mkdir -p "$CURSO/capturas" && mv "$VIEJO" "$DEST"
+        # el índice viejo de esa subcarpeta ya no corresponde (el panel lo tomaría por otro curso)
+        [ -f "$CURSO/$SUB/capturas/INDICE.md" ] && mv -f "$CURSO/$SUB/capturas/INDICE.md" "$CURSO/$SUB/capturas/.INDICE-viejo.md"
+    fi
     export PROGRESO_CLASE="$((i + 1))/$TOTAL"
     echo "===== [$((i + 1))/$TOTAL] $CLASE ($(date +%H:%M)) ====="
-    if [ -f "$CURSO/capturas/$CLASE/apuntes.md" ]; then
+    if [ -f "$DEST/apuntes.md" ]; then
         echo "Ya tiene apuntes: se saltea"
         HECHAS=$((HECHAS + 1)); continue
     fi
-    if nice -n 19 ionice -c 3 bash "$SCRIPTS/video-a-capturas.sh" "$CURSO/$V" \
-        && [ -f "$CURSO/capturas/$CLASE/apuntes.md" ]; then
+    if DESTINO="$DEST" nice -n 19 ionice -c 3 bash "$SCRIPTS/video-a-capturas.sh" "$CURSO/$V" \
+        && [ -f "$DEST/apuntes.md" ]; then
         HECHAS=$((HECHAS + 1))
         python3 "$SCRIPTS/cuadernillo.py" --indice "$CURSO/capturas" >/dev/null
         panel
     else
-        FALLARON+=("$CLASE")
+        FALLARON+=("$NOM")
         notify-send -u critical -t 8000 "Apuntes: falló una clase" "$CLASE"
     fi
 done
