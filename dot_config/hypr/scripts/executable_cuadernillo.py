@@ -333,7 +333,7 @@ MOTOR = os.environ.get("APUNTES_MOTOR", "claude")
 # Los "opencode/...-free" (Zen) no sirven desde la CLI ("free tier can only be used from within OpenCode"), pero
 # opencode-go/longcat-2.5-preview-free sí funciona y no gastó la ventana de Go (estaba al 100 %).
 MODELOS_OPENCODE = [m.strip() for m in os.environ.get(
-    "APUNTES_MODELO_OPENCODE", "opencode-go/longcat-2.5-preview-free,opencode-go/deepseek-v4-flash",
+    "APUNTES_MODELO_OPENCODE", "opencode-go/deepseek-v4-flash,opencode-go/glm-5.3-flash,opencode-go/longcat-2.5-preview-free",
 ).split(",") if m.strip()]
 MODELO_OPENCODE = MODELOS_OPENCODE[0] if MODELOS_OPENCODE else ""
 
@@ -341,6 +341,8 @@ MODELO_OPENCODE = MODELOS_OPENCODE[0] if MODELOS_OPENCODE else ""
 def nombre_motor():
     """Etiqueta para los mensajes: "Claude (sonnet)" u "OpenCode (opencode-go/kimi-k3)"."""
     if MOTOR == "opencode":
+        if RESPALDO:
+            return f"Claude {RESPALDO} → OpenCode ({MODELO_OPENCODE or 'modelo de la cuenta'})"
         return f"OpenCode ({MODELO_OPENCODE or 'modelo de la cuenta'})"
     return f"Claude ({MODELO or 'modelo de la cuenta'})"
 
@@ -413,6 +415,10 @@ def pedir_a_claude(titulo, duracion, cues, pantallas):
     return None
 
 
+TIMEOUT_OC = int(os.environ.get("APUNTES_TIMEOUT_OC", "150"))  # s por llamada a OpenCode antes de darla por colgada
+RONDAS_CADENA = int(os.environ.get("APUNTES_RONDAS", "2"))  # veces que se recorre la cadena antes de rendirse
+PAUSA_CADENA = int(os.environ.get("APUNTES_PAUSA", "45"))  # s entre rondas
+TIMEOUT_CLAUDE = int(os.environ.get("APUNTES_TIMEOUT_CLAUDE", "300"))
 ESPERA_CUOTA = 600  # s entre reintentos cuando se agotó la cuota de Claude
 ESPERA_CUOTA_OC = 1200  # s entre reintentos cuando se agotó la ventana móvil (~5 h) de OpenCode Go
 ESPERA_CUOTA_MAX = float(os.environ.get("APUNTES_ESPERA_MAX_H", "6")) * 3600  # la cuota se renueva cada ~5 h
@@ -424,13 +430,17 @@ def cuota_agotada(salida):
     return ("limit" in t and ("hit your" in t or "resets" in t)) or "rate_limit" in t or "usage limit" in t
 
 
-def llamar_claude(cmd, prompt, esperar=time.sleep):
+def llamar_claude(cmd, prompt, esperar=time.sleep, max_espera=None, timeout=1800):
     """Texto de la respuesta de `claude -p --output-format json`, o None si falló.
     Si se agotó la cuota NO sigue sin IA: espera a que se renueve y reintenta (hasta
     ESPERA_CUOTA_MAX). Así una playlist larga no deja clases sin resumen."""
     esperado = 0
     while True:
-        r = subprocess.run(cmd, input=prompt, capture_output=True, text=True, timeout=1800)
+        try:
+            r = subprocess.run(cmd, input=prompt, capture_output=True, text=True, timeout=timeout)
+        except subprocess.TimeoutExpired:
+            print(f"  (claude no respondió en {timeout} s)", file=sys.stderr)
+            return None
         try:
             d = json.loads(r.stdout)
             texto, error = str(d.get("result", "")), bool(d.get("is_error"))
@@ -438,7 +448,7 @@ def llamar_claude(cmd, prompt, esperar=time.sleep):
             texto, error = r.stdout, True
         if not cuota_agotada(texto + " " + r.stderr if error or r.returncode else ""):
             return None if error else texto
-        if esperado >= ESPERA_CUOTA_MAX:
+        if esperado >= (ESPERA_CUOTA_MAX if max_espera is None else max_espera):
             print("  (la cuota de Claude sigue agotada: sigo sin IA)", file=sys.stderr)
             return None
         aviso = texto.strip().splitlines()[0][:80] if texto.strip() else "límite de uso"
@@ -467,7 +477,7 @@ def llamar_opencode(prompt, esperar=time.sleep, max_espera=None):
         for modelo in MODELOS_OPENCODE or [""]:
             cmd = [ruta_opencode(), "run", "--standalone", "--agent", "apuntes"] + (["--model", modelo] if modelo else [])
             try:
-                r = subprocess.run(cmd, input=prompt, capture_output=True, text=True, timeout=360)  # normal: 40-90 s; LongCat a veces se cuelga
+                r = subprocess.run(cmd, input=prompt, capture_output=True, text=True, timeout=TIMEOUT_OC)  # normal: 40-90 s; si pasa de TIMEOUT_OC está colgado: mejor probar otro modelo
             except (OSError, subprocess.TimeoutExpired) as e:
                 print(f"  (opencode {modelo} falló: {e})", file=sys.stderr)
                 continue
@@ -518,18 +528,29 @@ def consultar_ia(prompt, modelo=None):
     Con claude espera a que se renueve la cuota; el modelo es APUNTES_MODELO salvo que se
     indique otro (practica.py usa PRACTICA_MODELO). Con opencode se usa APUNTES_MODELO_OPENCODE."""
     if MOTOR == "opencode":
-        if not RESPALDO:
-            return llamar_opencode(prompt)
-        texto = None if opencode_enfriando() else llamar_opencode(prompt, max_espera=0)
-        if texto is not None:
-            return texto
-        print(f"  (OpenCode no disponible: uso Claude {RESPALDO} como respaldo)", file=sys.stderr)
-        modelo = RESPALDO
-        extra = ["--effort", RESPALDO_EFFORT] if RESPALDO_EFFORT else []
-        cmd = [ruta_claude(), "-p", "--output-format", "json", "--tools", "", "--strict-mcp-config",
-               "--no-session-persistence", "--system-prompt",
-               "Eres un asistente que responde exactamente en el formato pedido.", "--model", modelo] + extra
-        return llamar_claude(cmd, prompt)
+        # Cadena por velocidad y fiabilidad: 1) Claude RESPALDO (haiku: rápido y barato), 2) modelos de
+        # OpenCode Go en orden (MODELOS_OPENCODE; el gratuito LongCat va al final: se cuelga seguido).
+        # Cada paso falla rápido (timeout corto, sin esperar cuota) y se pasa al siguiente. Si TODOS
+        # fallan se repite la cadena tras una pausa (los cuelgues suelen ser pasajeros); si aun así
+        # no hay respuesta, la clase sigue sin IA y rehacer-sin-ia.py la rehace al final del curso.
+        for ronda in range(RONDAS_CADENA):
+            if ronda:
+                print(f"  (todos los modelos fallaron: reintento la cadena en {PAUSA_CADENA} s, ronda {ronda + 1}/{RONDAS_CADENA})", file=sys.stderr)
+                reportar(75, "apuntes", "reintentando la IA")
+                time.sleep(PAUSA_CADENA)
+            if RESPALDO:
+                extra = ["--effort", RESPALDO_EFFORT] if RESPALDO_EFFORT else []
+                cmd = [ruta_claude(), "-p", "--output-format", "json", "--tools", "", "--strict-mcp-config",
+                       "--no-session-persistence", "--system-prompt",
+                       "Eres un asistente que responde exactamente en el formato pedido.", "--model", RESPALDO] + extra
+                texto = llamar_claude(cmd, prompt, max_espera=0, timeout=TIMEOUT_CLAUDE)
+                if texto is not None:
+                    return texto
+                print(f"  (Claude {RESPALDO} no disponible: sigo con OpenCode)", file=sys.stderr)
+            texto = None if opencode_enfriando() else llamar_opencode(prompt, max_espera=0)
+            if texto is not None:
+                return texto
+        return llamar_opencode(prompt) if not RESPALDO else None
     cmd = [ruta_claude(), "-p", "--output-format", "json", "--tools", "", "--strict-mcp-config",
            "--no-session-persistence", "--system-prompt",
            "Eres un asistente que responde exactamente en el formato pedido."]
