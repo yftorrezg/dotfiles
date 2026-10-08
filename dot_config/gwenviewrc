@@ -10,29 +10,29 @@ MouseWheelBehavior=MouseWheelBehavior::Browse
 MenuBar=Disabled
 
 [Recent Files]
-File1[$e]=$HOME/Descargas/telegram/Universidad_Desarrollo_Web_FrontEnd_Web_Developer!_part01/capturas/01 - Bienvenidos a la Universidad Desarrollo Web/0015.webp
-File10[$e]=$HOME/Descargas/telegram/Universidad_Desarrollo_Web_FrontEnd_Web_Developer!_part01/capturas/02 - Introducción Universidad Desarrollo Web - 001 Introducción a Internet/0002.webp
-File2[$e]=$HOME/Descargas/telegram/Universidad_Desarrollo_Web_FrontEnd_Web_Developer!_part01/capturas/01 - Bienvenidos a la Universidad Desarrollo Web/0001.webp
-File3[$e]=$HOME/Descargas/telegram/Universidad_Desarrollo_Web_FrontEnd_Web_Developer!_part01/capturas/01 - Bienvenidos a la Universidad Desarrollo Web/0002.webp
-File4[$e]=$HOME/Descargas/telegram/Universidad_Desarrollo_Web_FrontEnd_Web_Developer!_part01/capturas/01 - Bienvenidos a la Universidad Desarrollo Web/0003.webp
-File5[$e]=$HOME/Descargas/telegram/Universidad_Desarrollo_Web_FrontEnd_Web_Developer!_part01/capturas/01 - Bienvenidos a la Universidad Desarrollo Web/0004.webp
-File6[$e]=$HOME/Descargas/telegram/Universidad_Desarrollo_Web_FrontEnd_Web_Developer!_part01/capturas/01 - Bienvenidos a la Universidad Desarrollo Web/0005.webp
-File7[$e]=$HOME/Descargas/telegram/Universidad_Desarrollo_Web_FrontEnd_Web_Developer!_part01/capturas/01 - Bienvenidos a la Universidad Desarrollo Web/0006.webp
-File8[$e]=$HOME/Descargas/telegram/Universidad_Desarrollo_Web_FrontEnd_Web_Developer!_part01/capturas/02 - Introducción Universidad Desarrollo Web - 001 Introducción a Internet/0001.webp
-File9[$e]=$HOME/Descargas/telegram/Universidad_Desarrollo_Web_FrontEnd_Web_Developer!_part01/capturas/02 - Introducción Universidad Desarrollo Web - 001 Introducción a Internet/0003.webp
-Name1[$e]=0015.webp
-Name10[$e]=0002.webp
-Name2[$e]=0001.webp
-Name3[$e]=0002.webp
-Name4[$e]=0003.webp
-Name5[$e]=0004.webp
-Name6[$e]=0005.webp
-Name7[$e]=0006.webp
-Name8[$e]=0001.webp
-Name9[$e]=0003.webp
+File1[$e]=$HOME/Descargas/telegram/Universidad_Desarrollo_Web_FrontEnd_Web_Developer!_part01/capturas/01 - Bienvenidos a la Universidad Desarrollo Web/0001.webp
+File10[$e]=$HOME/Descargas/Telegram Desktop/Screenshot_20260829_232856_com_brave_browser_ChromeTabbedActivity.jpg
+File2[$e]=$HOME/Descargas/telegram/Universidad_Desarrollo_Web_FrontEnd_Web_Developer!_part01/capturas/01 - Bienvenidos a la Universidad Desarrollo Web/0002.webp
+File3[$e]=$HOME/Descargas/telegram/Universidad_Desarrollo_Web_FrontEnd_Web_Developer!_part01/capturas/01 - Bienvenidos a la Universidad Desarrollo Web/0003.webp
+File4[$e]=$HOME/Descargas/telegram/Universidad_Desarrollo_Web_FrontEnd_Web_Developer!_part01/capturas/01 - Bienvenidos a la Universidad Desarrollo Web/0004.webp
+File5[$e]=$HOME/Descargas/telegram/Universidad_Desarrollo_Web_FrontEnd_Web_Developer!_part01/capturas/01 - Bienvenidos a la Universidad Desarrollo Web/0005.webp
+File6[$e]=$HOME/Descargas/telegram/Universidad_Desarrollo_Web_FrontEnd_Web_Developer!_part01/capturas/01 - Bienvenidos a la Universidad Desarrollo Web/0006.webp
+File7[$e]=$HOME/Descargas/telegram/Universidad_Desarrollo_Web_FrontEnd_Web_Developer!_part01/capturas/02 - Introducción Universidad Desarrollo Web - 001 Introducción a Internet/0001.webp
+File8[$e]=$HOME/Descargas/telegram/Universidad_Desarrollo_Web_FrontEnd_Web_Developer!_part01/capturas/02 - Introducción Universidad Desarrollo Web - 001 Introducción a Internet/0003.webp
+File9[$e]=$HOME/Descargas/telegram/Universidad_Desarrollo_Web_FrontEnd_Web_Developer!_part01/capturas/02 - Introducción Universidad Desarrollo Web - 001 Introducción a Internet/0002.webp
+Name1[$e]=0001.webp
+Name10[$e]=Screenshot_20260829_232856_com_brave_browser_ChromeTabbedActivity.jpg
+Name2[$e]=0002.webp
+Name3[$e]=0003.webp
+Name4[$e]=0004.webp
+Name5[$e]=0005.webp
+Name6[$e]=0006.webp
+Name7[$e]=0001.webp
+Name8[$e]=0003.webp
+Name9[$e]=0002.webp
 
 [SideBar]
-InformationSplitterSizes=464,547
+InformationSplitterSizes=208,245
 SideBarSplitterSizes=253,1663
 
 [ThumbnailView]
