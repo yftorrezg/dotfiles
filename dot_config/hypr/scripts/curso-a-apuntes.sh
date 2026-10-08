@@ -20,6 +20,41 @@ if ! flock -n 9; then
     exit 1
 fi
 
+
+# Nombre de la carpeta de una clase dentro de capturas/ (nombre_largo = el de la versión anterior,
+# solo para renombrar lo ya hecho).
+nombre_largo() {
+    local sub="$1" clase="$2"
+    if [ "$sub" = . ]; then echo "$clase"
+    elif [ "$clase" = "$(basename "$sub")" ]; then echo "${sub//\// - }"
+    else echo "${sub//\// - } - $clase"; fi
+}
+nombre_corto() {
+    python3 -I - "$PREFIJO_COMUN" "$1" "$2" <<'PY'
+import re, sys
+prefijo, sub, clase = sys.argv[1:4]
+def limpia(t):
+    t = re.sub(r"@\w+\s*", "", t)               # "@RecursosCompartidos"
+    t = re.sub(r"^\s*(\d+)\s*[.)]\s+", r"\1 ", t)  # "001. X" -> "001 X" (el número ordena las clases)
+    t = re.sub(r"[\s/]*-\s*$", "", t)
+    return re.sub(r"\s{2,}", " ", t).strip()
+if prefijo and (sub + "/").startswith(prefijo):
+    sub = (sub + "/")[len(prefijo):].rstrip("/") or "."
+partes = [limpia(x) for x in sub.split("/")] if sub != "." else []
+partes = [x for x in partes if x]
+c = limpia(clase) or clase
+sin_num = lambda t: re.sub(r"^\d+(\s*[-.]\s*|\s+)", "", t).strip().lower()
+if partes and (sin_num(c) == sin_num(partes[-1]) or c.lower() == partes[-1].lower()):
+    nom = " - ".join(partes)                       # la clase se llama como el tema
+else:
+    nom = " - ".join(partes + [c])
+nom = nom.replace("/", "-")
+if len(nom.encode()) > 120:                        # tope de largo (el sistema admite 255 bytes)
+    nom = nom.encode()[:120].decode(errors="ignore").rstrip(" -.")
+print(nom)
+PY
+}
+
 # Videos del curso, una vez por clase, buscando también en las subcarpetas (un curso suele tener
 # una carpeta por tema). Rutas relativas al curso. Si están "clase.mp4" y "clase.es.mp4" (doblado)
 # se usa el doblado (trae subtítulos adentro). Se ignoran descargas a medias (.part) y las carpetas
@@ -31,6 +66,14 @@ mapfile -t VIDEOS < <(
            if (!(clase in elegido) || es) elegido[clase]=$0 }
          END { for (c in elegido) print elegido[c] }' | LC_ALL=C.UTF-8 sort -V)
 TOTAL=${#VIDEOS[@]}
+# Tramo de carpetas común a todas las clases (ej. "Universidad Desarrollo Web - FrontEnd Web Developer!/")
+PREFIJO_COMUN=$(printf '%s\n' "${VIDEOS[@]}" | python3 -I -c '
+import os, sys
+d = [os.path.dirname(l.rstrip("\n")).split("/") for l in sys.stdin if l.strip()]
+d = [x for x in d if x != [""]]
+c = os.path.commonprefix(d) if d else []
+print("/".join(c) + "/" if c and len(d) == sum(1 for _ in d) else "")')
+declare -A USADOS=()
 [ "$TOTAL" -eq 0 ] && { notify-send "Apuntes del curso" "No hay videos en $CURSO"; exit 1; }
 
 # Una sola barrita de progreso para todo el curso ("clase 3/10")
@@ -44,19 +87,23 @@ for i in "${!VIDEOS[@]}"; do
     SUB=$(dirname "$V")
     CLASE=$(basename "${V%.*}" | sed -E 's/\.(es|en)$//')
     # Salida: todas las clases en $CURSO/capturas/ (así el índice y el panel ven el curso entero).
-    # Video en una subcarpeta -> "<subcarpeta> - <clase>"; si la clase se llama igual que la
-    # subcarpeta, solo ese nombre.
-    if [ "$SUB" = . ]; then NOM="$CLASE"
-    elif [ "$CLASE" = "$(basename "$SUB")" ]; then NOM="${SUB//\// - }"
-    else NOM="${SUB//\// - } - $CLASE"; fi
+    # Nombre corto: sin los tramos de ruta comunes a todo el curso, sin "@Canal"/"NNN." de los
+    # nombres de Telegram, sin repetir el título de la subcarpeta, tope de largo (ver nombre_corto).
+    NOM=$(nombre_corto "$SUB" "$CLASE")
+    # Dos clases que quedan con el mismo nombre corto: la segunda lleva " (2)", etc.
+    BASE_NOM="$NOM"; n=2
+    while [ -n "${USADOS[$NOM]:-}" ] && [ "${USADOS[$NOM]}" != "$V" ]; do NOM="$BASE_NOM ($n)"; n=$((n + 1)); done
+    USADOS[$NOM]="$V"
     DEST="$CURSO/capturas/$NOM"
-    # Apuntes hechos con la versión anterior (al lado del video): se mueven a su lugar
+    # Apuntes hechos con una versión anterior: se renombran/mueven a su lugar
     VIEJO="$CURSO/$SUB/capturas/$CLASE"
     if [ "$SUB" != . ] && [ -d "$VIEJO" ] && [ ! -e "$DEST" ]; then
         mkdir -p "$CURSO/capturas" && mv "$VIEJO" "$DEST"
         # el índice viejo de esa subcarpeta ya no corresponde (el panel lo tomaría por otro curso)
         [ -f "$CURSO/$SUB/capturas/INDICE.md" ] && mv -f "$CURSO/$SUB/capturas/INDICE.md" "$CURSO/$SUB/capturas/.INDICE-viejo.md"
     fi
+    VIEJO2="$CURSO/capturas/$(nombre_largo "$SUB" "$CLASE")"
+    [ "$VIEJO2" != "$DEST" ] && [ -d "$VIEJO2" ] && [ ! -e "$DEST" ] && mv "$VIEJO2" "$DEST"
     export PROGRESO_CLASE="$((i + 1))/$TOTAL"
     echo "===== [$((i + 1))/$TOTAL] $CLASE ($(date +%H:%M)) ====="
     if [ -f "$DEST/apuntes.md" ]; then
