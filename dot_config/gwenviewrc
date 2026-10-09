@@ -1,42 +1,44 @@
 [General]
 BackgroundColorMode=DocumentView::Dark
 LastUsedVersion=210800
+ThumbnailBarIsVisible=true
 
 [ImageView]
 BackgroundColorMode=Dark
 MouseWheelBehavior=MouseWheelBehavior::Browse
+ThumbnailSplitterSizes=773,221
 
 [MainWindow]
 MenuBar=Disabled
 
 [Recent Files]
-File1[$e]=$HOME/Descargas/telegram/Universidad_Desarrollo_Web_FrontEnd_Web_Developer!_part01/capturas/02 - Introducción Universidad Desarrollo Web - 001 Introducción a Internet/0014.webp
-File10[$e]=$HOME/Descargas/telegram/Universidad_Desarrollo_Web_FrontEnd_Web_Developer!_part01/capturas/02 - Introducción Universidad Desarrollo Web - 002 Instalación de Herramientas y Visual Studio Code/0001.webp
-File2[$e]=$HOME/Descargas/telegram/Universidad_Desarrollo_Web_FrontEnd_Web_Developer!_part01/capturas/02 - Introducción Universidad Desarrollo Web - 001 Introducción a Internet/0016.webp
-File3[$e]=$HOME/Descargas/telegram/Universidad_Desarrollo_Web_FrontEnd_Web_Developer!_part01/capturas/02 - Introducción Universidad Desarrollo Web - 001 Introducción a Internet/0017.webp
-File4[$e]=$HOME/Descargas/telegram/Universidad_Desarrollo_Web_FrontEnd_Web_Developer!_part01/capturas/02 - Introducción Universidad Desarrollo Web - 001 Introducción a Internet/0019.webp
-File5[$e]=$HOME/Descargas/telegram/Universidad_Desarrollo_Web_FrontEnd_Web_Developer!_part01/capturas/02 - Introducción Universidad Desarrollo Web - 001 Introducción a Internet/0021.webp
-File6[$e]=$HOME/Descargas/telegram/Universidad_Desarrollo_Web_FrontEnd_Web_Developer!_part01/capturas/02 - Introducción Universidad Desarrollo Web - 001 Introducción a Internet/0025.webp
-File7[$e]=$HOME/Descargas/telegram/Universidad_Desarrollo_Web_FrontEnd_Web_Developer!_part01/capturas/02 - Introducción Universidad Desarrollo Web - 001 Introducción a Internet/0030.webp
-File8[$e]=$HOME/Descargas/telegram/Universidad_Desarrollo_Web_FrontEnd_Web_Developer!_part01/capturas/02 - Introducción Universidad Desarrollo Web - 001 Introducción a Internet/0032.webp
-File9[$e]=$HOME/Descargas/telegram/Universidad_Desarrollo_Web_FrontEnd_Web_Developer!_part01/capturas/02 - Introducción Universidad Desarrollo Web - 002 Instalación de Herramientas y Visual Studio Code/0002.webp
-Name1[$e]=0014.webp
-Name10[$e]=0001.webp
-Name2[$e]=0016.webp
-Name3[$e]=0017.webp
-Name4[$e]=0019.webp
-Name5[$e]=0021.webp
-Name6[$e]=0025.webp
-Name7[$e]=0030.webp
-Name8[$e]=0032.webp
-Name9[$e]=0002.webp
+File1[$e]=$HOME/Descargas/telegram/Universidad_Desarrollo_Web_FrontEnd_Web_Developer!_part01/todas-las-capturas/023 04 - Introducción a HTML con CSS - 004 Cascadeo en las Hojas de Estilo · 0044 · 00-04-29.webp
+File10[$e]=$HOME/Descargas/telegram/Universidad_Desarrollo_Web_FrontEnd_Web_Developer!_part01/todas-las-capturas/023 04 - Introducción a HTML con CSS - 004 Cascadeo en las Hojas de Estilo · 0053 · 00-05-23.webp
+File2[$e]=$HOME/Descargas/telegram/Universidad_Desarrollo_Web_FrontEnd_Web_Developer!_part01/todas-las-capturas/023 04 - Introducción a HTML con CSS - 004 Cascadeo en las Hojas de Estilo · 0045 · 00-04-36.webp
+File3[$e]=$HOME/Descargas/telegram/Universidad_Desarrollo_Web_FrontEnd_Web_Developer!_part01/todas-las-capturas/023 04 - Introducción a HTML con CSS - 004 Cascadeo en las Hojas de Estilo · 0046 · 00-04-42.webp
+File4[$e]=$HOME/Descargas/telegram/Universidad_Desarrollo_Web_FrontEnd_Web_Developer!_part01/todas-las-capturas/023 04 - Introducción a HTML con CSS - 004 Cascadeo en las Hojas de Estilo · 0047 · 00-04-47.webp
+File5[$e]=$HOME/Descargas/telegram/Universidad_Desarrollo_Web_FrontEnd_Web_Developer!_part01/todas-las-capturas/023 04 - Introducción a HTML con CSS - 004 Cascadeo en las Hojas de Estilo · 0048 · 00-04-55.webp
+File6[$e]=$HOME/Descargas/telegram/Universidad_Desarrollo_Web_FrontEnd_Web_Developer!_part01/todas-las-capturas/023 04 - Introducción a HTML con CSS - 004 Cascadeo en las Hojas de Estilo · 0049 · 00-05-00.webp
+File7[$e]=$HOME/Descargas/telegram/Universidad_Desarrollo_Web_FrontEnd_Web_Developer!_part01/todas-las-capturas/023 04 - Introducción a HTML con CSS - 004 Cascadeo en las Hojas de Estilo · 0050 · 00-05-04.webp
+File8[$e]=$HOME/Descargas/telegram/Universidad_Desarrollo_Web_FrontEnd_Web_Developer!_part01/todas-las-capturas/023 04 - Introducción a HTML con CSS - 004 Cascadeo en las Hojas de Estilo · 0051 · 00-05-15.webp
+File9[$e]=$HOME/Descargas/telegram/Universidad_Desarrollo_Web_FrontEnd_Web_Developer!_part01/todas-las-capturas/023 04 - Introducción a HTML con CSS - 004 Cascadeo en las Hojas de Estilo · 0052 · 00-05-19.webp
+Name1[$e]=023 04 - Introducción a HTML con CSS - 004 Cascadeo en las Hojas de Estilo · 0044 · 00-04-29.webp
+Name10[$e]=023 04 - Introducción a HTML con CSS - 004 Cascadeo en las Hojas de Estilo · 0053 · 00-05-23.webp
+Name2[$e]=023 04 - Introducción a HTML con CSS - 004 Cascadeo en las Hojas de Estilo · 0045 · 00-04-36.webp
+Name3[$e]=023 04 - Introducción a HTML con CSS - 004 Cascadeo en las Hojas de Estilo · 0046 · 00-04-42.webp
+Name4[$e]=023 04 - Introducción a HTML con CSS - 004 Cascadeo en las Hojas de Estilo · 0047 · 00-04-47.webp
+Name5[$e]=023 04 - Introducción a HTML con CSS - 004 Cascadeo en las Hojas de Estilo · 0048 · 00-04-55.webp
+Name6[$e]=023 04 - Introducción a HTML con CSS - 004 Cascadeo en las Hojas de Estilo · 0049 · 00-05-00.webp
+Name7[$e]=023 04 - Introducción a HTML con CSS - 004 Cascadeo en las Hojas de Estilo · 0050 · 00-05-04.webp
+Name8[$e]=023 04 - Introducción a HTML con CSS - 004 Cascadeo en las Hojas de Estilo · 0051 · 00-05-15.webp
+Name9[$e]=023 04 - Introducción a HTML con CSS - 004 Cascadeo en las Hojas de Estilo · 0052 · 00-05-19.webp
 
 [SideBar]
 InformationSplitterSizes=208,245
 SideBarSplitterSizes=253,1663
 
 [ThumbnailView]
-ThumbnailSize=108
+ThumbnailSize=548
 
 [UiSettings]
 ColorScheme=noctalia
