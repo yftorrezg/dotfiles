@@ -4,6 +4,9 @@ PreviewSize=16
 [DetailsMode]
 PreviewSize=16
 
+[ExtractDialog]
+2 screens: Window-Maximized=true
+
 [General]
 Version=202
 ViewPropsTimestamp=2026,8,29,2,40,41.068
