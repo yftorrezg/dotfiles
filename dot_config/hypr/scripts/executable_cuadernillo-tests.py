@@ -148,6 +148,18 @@ prueba("rehacer sin el video: los recursos siguen", r.returncode == 0 and
 shutil.rmtree(base)
 shutil.rmtree(clase)
 
+# 3e) YouTube: capítulos del autor y enlaces de la descripción salen de video.info.json (sin redes sociales)
+import json
+yt = tempfile.mkdtemp()
+json.dump({"description": "Links:\n- micrograd en github: https://github.com/karpathy/micrograd\n"
+                          "- mi twitter: https://twitter.com/x\n- sitio: https://karpathy.ai",
+           "chapters": [{"start_time": 0, "title": "intro"}, {"start_time": 25.5, "title": "overview"}]},
+          open(os.path.join(yt, "video.info.json"), "w"))
+enl, caps = c.rec_curso.de_youtube(yt)
+prueba("YouTube: capítulos y enlaces (GitHub primero, sin redes)",
+       caps == [(0, "intro"), (25, "overview")] and [u for _, u in enl] == ["https://github.com/karpathy/micrograd", "https://karpathy.ai"], f"{enl} {caps}")
+shutil.rmtree(yt)
+
 # 4) Webcam: con código que casi no cambia y una cara moviéndose, se detecta la zona
 det = c.ac.Detector(c.ac.leer_conf())
 v = t.Video()

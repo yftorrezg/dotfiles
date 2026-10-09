@@ -804,6 +804,14 @@ def main():
         dcc = os.path.join(carpeta, "codigo-del-curso")
         if os.path.isdir(dcc):  # sin el video: el código que ya se copió a la clase
             codigo_curso = rec_curso.codigo_para_ia({"clase": [dcc], "lecturas": [], "pdf": [], "proyecto": []})
+    # video de YouTube: enlaces de la descripción y capítulos del autor (video.info.json, lo deja video-a-capturas.sh)
+    enl_yt, capitulos = rec_curso.de_youtube(carpeta)
+    if enl_yt:
+        recursos_md = (recursos_md + "\n" if recursos_md else "## 📎 Recursos de la clase\n\n") + \
+            "**🔗 De la descripción del video:**\n\n" + "\n".join(f"- [{t}]({u})" for t, u in enl_yt) + "\n"
+    if capitulos:
+        codigo_curso += ("\n--- CAPÍTULOS DEL VIDEO (los puso el autor: úsalos como las secciones, con estos tiempos) ---\n"
+                         + "\n".join(f"[{hms(t)}] {n}" for t, n in capitulos) + "\n")
     duracion = max([capturas[-1][1]] + [c[1] for v in subs.values() for c in v[-1:]])
 
     datos = None

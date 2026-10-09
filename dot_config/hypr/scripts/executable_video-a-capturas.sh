@@ -64,8 +64,10 @@ if [[ "$1" =~ ^https?:// ]]; then
         #    resolución pero hasta 18 veces más pesado (6 GB vs 335 MB en un video de 4:42 h).
         ULT=-1
         #    --print-to-file: anota el idioma original del video (lo dice YouTube, sin otro pedido)
+        #    --write-info-json: video.info.json = capítulos del autor + enlaces de la descripción (recursos.de_youtube)
         yt-dlp --no-playlist -f "bv*[height<=1080]" -S "proto,vcodec:h264" -o "$DIR/video.%(ext)s" \
-            --print-to-file "%(language)s" "$DIR/.idioma" --newline --progress-template "download:PROGRESO %(progress._percent_str)s" "$1" |
+            --print-to-file "%(language)s" "$DIR/.idioma" \
+            --write-info-json --no-write-playlist-metafiles --newline --progress-template "download:PROGRESO %(progress._percent_str)s" "$1" |
         while IFS= read -r l; do
             if [[ "$l" == PROGRESO* ]]; then
                 p=${l#PROGRESO }; p=${p%\%}; p=${p// /}
@@ -96,7 +98,7 @@ if [[ "$1" =~ ^https?:// ]]; then
             --sub-langs "$IDIOMAS" --convert-subs srt -o "$DIR/subtitulos.%(ext)s" "$1" \
             || echo "(no se pudieron bajar los subtítulos; sigo con las capturas)"
     fi
-    VIDEO=$(ls "$DIR"/video.* 2>/dev/null | grep -v -E '\.(srt|vtt|part|ytdl)$' | head -1 || true)
+    VIDEO=$(ls "$DIR"/video.* 2>/dev/null | grep -v -E '\.(srt|vtt|part|ytdl|json)$' | head -1 || true)
     BORRAR=1
     CAPTURAS_DESDE=25
 else

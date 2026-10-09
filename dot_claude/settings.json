@@ -1,5 +1,5 @@
 {
-  "model": "opus",
+  "model": "sonnet",
   "hooks": {
     "Stop": [
       {
@@ -26,6 +26,9 @@
   },
   "modelSettings": {
     "claude-sonnet-5": {
+      "effortLevel": "high"
+    },
+    "claude-sonnet-5-5": {
       "effortLevel": "high"
     }
   },

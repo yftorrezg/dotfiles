@@ -1,3 +1,5 @@
 {
-  "userIgnoreFilters": ["todas-las-capturas/"]
+  "userIgnoreFilters": [
+    "todas-las-capturas/"
+  ]
 }
