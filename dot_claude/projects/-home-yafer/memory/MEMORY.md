@@ -3,7 +3,7 @@
 - [Responder en español](idioma-espanol.md) — el usuario siempre quiere respuestas en español.
 - [Migración a laptops](migracion-laptops.md) — ThinkPad migrada 05-10 (escala 1, gb extd); PC fusionada en chezmoi el 06-10; paquete Drive 06-10.
 - [Quiere aprender, no solo soluciones](quiere-aprender-no-solo-soluciones.md) — perfil CS/IA, explicar el porqué; "modo profesor" = pistas.
-- [Auto-captura y apuntes de cursos](auto-captura-cursos.md) — SUPER+ALT+S/Y/A, cuadernillo con Claude+OCR, pruebas, guía en Documentos/Drive.
+- [Auto-captura y apuntes de cursos](auto-captura-cursos.md) — SUPER+ALT+S/Y/A, cuadernillo, capturas clave (OCR), Whisper GPU, rehacer-con-voz, pruebas, guía.
 - [Gwenview oscuro y atajos](gwenview-tema-atajos.md) — fix esquema noctalia, plantilla qt Noctalia, atajos A/D/Q/E/C/X/F/W/T/I/S.
 - [Ahorro de cuota](ahorro-cuota.md) — qué gasta la cuota (sesiones largas con Opus), caveman no conviene
 - [Sync PC↔laptop](dotfiles-sync.md) — chezmoi + dotsync, repo yftorrezg/dotfiles; leer CLAUDE.md del repo antes de tocar config.

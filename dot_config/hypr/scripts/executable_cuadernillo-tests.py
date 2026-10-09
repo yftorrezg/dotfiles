@@ -9,7 +9,7 @@ import sys
 import tempfile
 
 import numpy as np
-from PIL import Image
+from PIL import Image, ImageDraw
 
 AQUI = os.path.dirname(os.path.abspath(__file__))
 
@@ -67,15 +67,47 @@ importantes = [x[0] for x in caps if x[2]]
 prueba("tipeo: solo el estado final es importante", importantes == [caps[-1][0]], str(importantes))
 shutil.rmtree(d)
 
-# 3) Diapositivas: todas distintas -> todas importantes (no confundir con una webcam)
+# 3) Diapositivas: todas distintas -> todas importantes (no confundir con una webcam).
+#    Las capturas clave comparan el TEXTO (OCR): cada diapositiva tiene su propio contenido.
+temas = ["variables", "funciones", "objetos", "arreglos", "promesas", "eventos", "modulos", "clases"]
 frames = []
-for n in range(8):
+for n, tema in enumerate(temas):
     v = t.Video()
-    v.lineas = [f"Diapositiva {n}: tema {n * 7}"] + [f"  punto {k} de la diapositiva {n}" for k in range(6)]
+    v.lineas = [f"Diapositiva: {tema}"] + [f"  {tema} ejemplo {palabra}" for palabra in
+                                           ("declarar", "recorrer", "copiar", "comparar", "borrar", "mostrar")]
     frames.append((30 * n, v._frame()))
 d = carpeta_de(frames)
 caps = c.elegir_capturas(d)
 prueba("diapositivas: todas importantes", all(x[2] for x in caps), f"{sum(x[2] for x in caps)}/{len(caps)}")
+shutil.rmtree(d)
+
+# 3b) Un valor que cambia (ancho = 240 -> ancho = 348) es otro estado: quedan las dos.
+#     Frame sin el ruido artificial de t.Video (el ruido uniforme confunde al OCR; el de un video real no)
+def editor_limpio(lineas):
+    im = Image.new("RGB", (1920, 1080), (30, 30, 30))
+    d = ImageDraw.Draw(im)
+    for i, l in enumerate(lineas):
+        d.text((100, 100 + i * 26), l, fill=(220, 220, 220), font=t.FUENTE)
+    return im
+
+
+codigo = ["const caja = {", "    ancho: 240,", "    alto: 120,", "};"]
+d = carpeta_de([(10, editor_limpio(codigo)), (20, editor_limpio([codigo[0], "    ancho: 348,"] + codigo[2:]))])
+caps = c.elegir_capturas(d)
+prueba("valor que cambia: quedan los dos estados", all(x[2] for x in caps), f"{sum(x[2] for x in caps)}/{len(caps)}")
+shutil.rmtree(d)
+
+# 3c) Subtítulos de Udemy (clase-es.srt) y de Whisper (clase.es.srt) al lado del video
+d = tempfile.mkdtemp()
+for nombre in ("001 Intro.mp4", "001 Intro-es.srt", "002 Tema.mp4", "002 Tema.en.srt", "003 Otra.mp4", "003 Otra.srt",
+               "001 Intro 2.mp4"):
+    open(os.path.join(d, nombre), "w").close()
+r1 = c.tr.subtitulos_al_lado(os.path.join(d, "001 Intro.mp4"))
+r2 = c.tr.subtitulos_al_lado(os.path.join(d, "002 Tema.mp4"))
+r3 = c.tr.subtitulos_al_lado(os.path.join(d, "003 Otra.mp4"))
+r4 = c.tr.subtitulos_al_lado(os.path.join(d, "001 Intro 2.mp4"))  # no es de "001 Intro"
+prueba("subtítulos al lado del video (-es, .en, sin idioma)",
+       list(r1) == ["es"] and list(r2) == ["en"] and list(r3) == ["es"] and r4 == {}, f"{r1} {r2} {r3} {r4}")
 shutil.rmtree(d)
 
 # 4) Webcam: con código que casi no cambia y una cara moviéndose, se detecta la zona

@@ -76,6 +76,22 @@ print("/".join(c) + "/" if c and len(d) == sum(1 for _ in d) else "")')
 declare -A USADOS=()
 [ "$TOTAL" -eq 0 ] && { notify-send "Apuntes del curso" "No hay videos en $CURSO"; exit 1; }
 
+# Whisper adelantado (GPU): transcribe las clases pendientes sin subtítulos mientras la CPU hace las
+# capturas y la IA de la actual. cuadernillo.py usa el mismo candado: si llega a una clase que se está
+# transcribiendo, espera; si el adelantado no llegó, la transcribe él. Va en el mismo grupo de procesos
+# (cancelar el curso lo corta) y sin el candado del curso (9>&-).
+if [ "${SIN_IA:-0}" != 1 ] && python3 -c "import sys; sys.path.insert(0, '$SCRIPTS'); import transcribir; sys.exit(not transcribir.disponible())" 2>/dev/null; then
+    LISTA_WHISPER="${XDG_RUNTIME_DIR:-/tmp}/whisper-adelantado.$$"
+    for V in "${VIDEOS[@]}"; do
+        N=$(nombre_corto "$(dirname "$V")" "$(basename "${V%.*}" | sed -E 's/\.(es|en)$//')")
+        { [ ! -f "$CURSO/capturas/$N/apuntes.md" ] || [ -f "$CURSO/capturas/$N/.rehacer" ]; } && echo "$CURSO/$V"
+    done > "$LISTA_WHISPER"
+    if [ -s "$LISTA_WHISPER" ]; then
+        echo "🎙️ Whisper adelantado: $(wc -l < "$LISTA_WHISPER") clases pendientes"
+        python3 "$SCRIPTS/transcribir.py" --lista "$LISTA_WHISPER" > "${LISTA_WHISPER}.log" 2>&1 9>&- &
+    fi
+fi
+
 # Una sola barrita de progreso para todo el curso ("clase 3/10")
 export PROGRESO_ARCHIVO="${XDG_RUNTIME_DIR:-/tmp}/curso-a-apuntes-progreso.$$"
 python3 "$SCRIPTS/progreso.py" poner 0 capturas "empezando"
@@ -106,7 +122,7 @@ for i in "${!VIDEOS[@]}"; do
     [ "$VIEJO2" != "$DEST" ] && [ -d "$VIEJO2" ] && [ ! -e "$DEST" ] && mv "$VIEJO2" "$DEST"
     export PROGRESO_CLASE="$((i + 1))/$TOTAL"
     echo "===== [$((i + 1))/$TOTAL] $CLASE ($(date +%H:%M)) ====="
-    if [ -f "$DEST/apuntes.md" ]; then
+    if [ -f "$DEST/apuntes.md" ] && [ ! -f "$DEST/.rehacer" ]; then  # .rehacer: ver rehacer-con-voz.py
         echo "Ya tiene apuntes: se saltea"
         HECHAS=$((HECHAS + 1)); continue
     fi

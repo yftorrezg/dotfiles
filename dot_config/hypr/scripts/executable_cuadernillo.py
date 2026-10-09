@@ -11,6 +11,7 @@ de Markdown). Los subtítulos se buscan en el video (pistas internas), al lado d
 """
 import argparse
 import collections
+import glob
 import importlib.util
 import json
 import os
@@ -27,6 +28,8 @@ sys.stdout.reconfigure(line_buffering=True)  # que el log del curso se vea al mo
 AQUI = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, AQUI)
 from progreso import reportar  # barrita de progreso (no hace nada si no se pidió)
+import capturas_clave as cc  # estado final de cada cosa (OCR + píxeles): las capturas importantes
+import transcribir as tr     # Whisper en la GPU para los videos sin subtítulos
 spec = importlib.util.spec_from_file_location("ac", os.path.join(AQUI, "auto-captura.py"))
 ac = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(ac)
@@ -119,9 +122,9 @@ def buscar_subtitulos(carpeta, video):
         # YouTube: subtitulos.es.srt, subtitulos.en-orig.srt...
         for ext in ("srt", "vtt"):  # YouTube a veces deja .vtt sin convertir
             candidatos[idioma] += sorted(glob.glob(os.path.join(glob.escape(carpeta), f"subtitulos.{idioma}*.{ext}")), key=len)
-        if video:
-            base = re.sub(r"\.(es|en)$", "", os.path.splitext(video)[0])
-            candidatos[idioma] += [f"{base}.{idioma}.srt", f"{base}.{idioma}.vtt"]
+        if video:  # al lado del video: clase.es.srt (Whisper), clase-es.srt (Udemy), clase.srt…
+            al_lado = tr.subtitulos_al_lado(video).get(idioma)
+            candidatos[idioma] += [al_lado] if al_lado else []
     for idioma, rutas in candidatos.items():
         for r in rutas:
             if os.path.isfile(r):
@@ -189,6 +192,29 @@ def detectar_webcam(det, reducidas):
     return det._dilatar(det._dilatar(webcam))
 
 
+def elegir_clave(carpeta, nombres, segundo):
+    """Importantes = capturas clave (capturas_clave.py: OCR + píxeles). Novedad = palabras que no
+    estaban en la clave anterior (para elegir cuáles van a la vista). None si no hay OCR
+    (o CAPTURAS_CLAVE=0): se usa el método viejo, solo por píxeles."""
+    if os.environ.get("CAPTURAS_CLAVE") == "0":
+        return None
+    reportar(5, "apuntes", "leyendo las capturas (OCR)")
+    clave = cc.elegir(carpeta, avisar=lambda k, n: reportar(5 + 50 * k / max(1, n), "apuntes",
+                                                            f"leyendo las capturas ({k}/{n})"))
+    if clave is None:
+        return None
+    clave = set(clave)
+    tx = cc.textos(carpeta, nombres) or {}
+    salida, anterior = [], collections.Counter()
+    for f in nombres:
+        p = cc.palabras(tx.get(f, ""))
+        novedad = sum((p - anterior).values()) if f in clave else 0
+        if f in clave:
+            anterior = p
+        salida.append((f, segundo[f], f in clave, novedad))
+    return salida
+
+
 def elegir_capturas(carpeta):
     """Marca cuáles capturas son importantes: una captura "superada" (todo lo que muestra
     sigue en alguna de las 2 siguientes, porque el profe siguió escribiendo sobre lo mismo)
@@ -199,6 +225,9 @@ def elegir_capturas(carpeta):
     segundo = dict(lista)
     if not nombres:
         return []
+    clave = elegir_clave(carpeta, nombres, segundo)
+    if clave is not None:
+        return clave
     det = ac.Detector(ac.leer_conf())
 
     def reducir(i):
@@ -257,6 +286,15 @@ def leer_pantallas(carpeta, capturas, cada=240, maximo=60):
     for f, t, imp, _ in capturas:
         if imp:
             tramos[t // cada] = (f, t)  # queda la última de cada tramo
+    # si la pantalla de un tramo sigue completa en la del tramo siguiente (el mismo archivo, que
+    # siguió creciendo), mandar las dos a la IA es repetir: queda solo la más completa
+    tx = cc.textos(carpeta, [f for f, _ in tramos.values()]) if os.environ.get("CAPTURAS_CLAVE") != "0" else None
+    if tx:
+        orden = sorted(tramos)
+        for a, b in zip(orden, orden[1:]):
+            pa, pb = cc.palabras(tx[tramos[a][0]]), cc.palabras(tx[tramos[b][0]])
+            if sum(pa.values()) >= cc.POCAS_PALABRAS and cc.cobertura(pa, pb) >= cc.COBERTURA:
+                del tramos[a]
     if len(tramos) > maximo:
         elegidos = sorted(tramos)
         tramos = {k: tramos[k] for k in elegidos[::-(-len(elegidos) // maximo)]}
@@ -711,7 +749,8 @@ def main():
 
     carpeta = os.path.abspath(a.carpeta)
     salida = os.path.join(carpeta, "apuntes.md")
-    if os.path.exists(salida) and not a.forzar:
+    rehacer = os.path.join(carpeta, ".rehacer")  # marcada por rehacer-con-voz.py: se rehace aunque exista
+    if os.path.exists(salida) and not a.forzar and not os.path.exists(rehacer):
         print(f"Ya existe {salida} (usar --forzar para rehacerlo)")
         return 0
     titulo = a.titulo or os.path.basename(carpeta)
@@ -724,6 +763,18 @@ def main():
     print(f"   {sum(c[2] for c in capturas)} importantes de {len(capturas)}")
 
     subs = buscar_subtitulos(carpeta, a.video)
+    if not subs and a.video and tr.disponible():
+        # sin subtítulos los apuntes salen solo de la pantalla: se transcribe el audio con Whisper (GPU)
+        print("🎙️ Sin subtítulos: transcribiendo con Whisper (GPU)…")
+        reportar(57, "apuntes", "transcribiendo el audio (Whisper)")
+        if tr.transcribir(os.path.abspath(a.video)):
+            subs = buscar_subtitulos(carpeta, a.video)
+    if a.video:
+        # copia en la carpeta de la clase: rehacer-sin-ia.py y --forzar los encuentran sin el video
+        for idioma, ruta in tr.subtitulos_al_lado(a.video).items():
+            dst = os.path.join(carpeta, f"subtitulos.{idioma}{os.path.splitext(ruta)[1].lower()}")
+            if not glob.glob(os.path.join(glob.escape(carpeta), f"subtitulos.{idioma}*")):
+                shutil.copyfile(ruta, dst)
     print(f"🗣️ Subtítulos: {', '.join(subs) or 'ninguno'}")
     duracion = max([capturas[-1][1]] + [c[1] for v in subs.values() for c in v[-1:]])
 
@@ -737,7 +788,8 @@ def main():
         print("🔎 Leyendo el código/texto de la pantalla (OCR)…")
         reportar(60, "apuntes", "leyendo el código de la pantalla")
         # sin subtítulos, la pantalla es la única fuente: se leen más capturas
-        pantallas = leer_pantallas(carpeta, capturas, cada=240 if subs else 20)
+        # cada 2 min: con las capturas clave cada pantalla es un estado final, y las repetidas se quitan
+        pantallas = leer_pantallas(carpeta, capturas, cada=120 if subs else 20)
         print(f"   {len(pantallas)} pantallas leídas")
         if subs or pantallas:
             print(f"🤖 Pidiendo a {nombre_motor()} apuntes + resumen corto…")
@@ -761,6 +813,8 @@ def main():
     reportar(97, "apuntes", "armando el cuadernillo")
     with open(salida, "w", encoding="utf-8") as f:
         f.write(armar(carpeta, titulo, capturas, subs, datos, duracion))
+    if os.path.exists(rehacer) and (datos or a.sin_ia):
+        os.remove(rehacer)  # sin IA por un fallo: queda marcada para el próximo intento
     print(f"📓 Listo: {salida}")
     return 0
 
