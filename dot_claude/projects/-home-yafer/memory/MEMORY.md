@@ -11,3 +11,4 @@
 - [Windows de la laptop](windows-thinkpad-setup.md) — W11 con AHK + PowerToys + WT/pwsh en `windows/` del repo; mismos atajos que binds.lua.
 - [Descargas SUPER+D](descargas-super-d.md) — menú del link copiado: video/720p/MP3/lista; carpetas por sitio y artista.
 - [mpv: atajos, bucle, notas](mpv-atajos-notas.md) — teclas estilo Brave, panel de notas 80/20 (h / Ctrl+n), capturas por video.
+- [Decks OpenDeck desde MAPA-DECKS.md](decks-opendeck-mapa-v2.md) — tablas md → perfiles con deck-aplicar.py; OBS por WebSocket para TikTok.

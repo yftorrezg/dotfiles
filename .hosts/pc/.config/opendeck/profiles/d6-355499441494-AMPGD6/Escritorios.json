@@ -9,7 +9,7 @@
         ],
         "disable_automatic_states": false,
         "encoder": null,
-        "icon": "custom-icons/arrow-left.png",
+        "icon": "custom-icons/numero-1.png",
         "name": "Simulate Input",
         "plugin": "com.amansprojects.starterpack.sdPlugin",
         "property_inspector": "plugins/com.amansprojects.starterpack.sdPlugin/propertyInspector/inputSimulation.html",
@@ -19,7 +19,7 @@
             "background_colour": "#000000",
             "colour": "#FFFFFF",
             "family": "Liberation Sans",
-            "image": "custom-icons/arrow-left.png",
+            "image": "custom-icons/numero-1.png",
             "image_scale": 100,
             "name": "",
             "show": true,
@@ -32,7 +32,7 @@
           }
         ],
         "supported_in_multi_actions": true,
-        "tooltip": "Escritorio\nanterior",
+        "tooltip": "1 Redes",
         "uuid": "com.amansprojects.starterpack.inputsimulation",
         "visible_in_action_list": true
       },
@@ -42,24 +42,24 @@
       "settings": {
         "anticlockwise": "",
         "clockwise": "",
-        "down": "[k(Super,Press),k(Control,Press),k(ArrowLeft),k(Control,Release),k(Super,Release)]",
+        "down": "[k(Super,Press),k(uni('1')),k(Super,Release)]",
         "up": ""
       },
       "states": [
         {
-          "alignment": "middle",
-          "background_colour": "#000000",
+          "alignment": "bottom",
+          "background_colour": "#334155",
           "colour": "#FFFFFF",
           "family": "Liberation Sans",
-          "image": "custom-icons/arrow-left.png",
+          "image": "custom-icons/numero-1.png",
           "image_scale": 100,
           "name": "",
           "show": true,
-          "size": 13,
+          "size": 11,
           "stroke_colour": "#000000",
           "stroke_size": 3,
           "style": "Regular",
-          "text": "Escritorio\nanterior",
+          "text": "Redes",
           "underline": false
         }
       ]
@@ -95,7 +95,7 @@
           }
         ],
         "supported_in_multi_actions": true,
-        "tooltip": "Escritorio 1",
+        "tooltip": "2 Ocio",
         "uuid": "com.amansprojects.starterpack.inputsimulation",
         "visible_in_action_list": true
       },
@@ -105,24 +105,531 @@
       "settings": {
         "anticlockwise": "",
         "clockwise": "",
-        "down": "[k(Super,Press),k(uni('1')),k(Super,Release)]",
+        "down": "[k(Super,Press),k(uni('2')),k(Super,Release)]",
         "up": ""
       },
       "states": [
         {
-          "alignment": "middle",
-          "background_colour": "#000000",
+          "alignment": "bottom",
+          "background_colour": "#334155",
           "colour": "#FFFFFF",
           "family": "Liberation Sans",
-          "image": "custom-icons/numero-1.png",
+          "image": "custom-icons/numero-2.png",
           "image_scale": 100,
           "name": "",
           "show": true,
-          "size": 13,
+          "size": 11,
           "stroke_colour": "#000000",
           "stroke_size": 3,
           "style": "Regular",
-          "text": "Escritorio 1",
+          "text": "Ocio",
+          "underline": false
+        }
+      ]
+    },
+    {
+      "action": {
+        "controllers": [
+          "Keypad",
+          "Encoder"
+        ],
+        "disable_automatic_states": false,
+        "encoder": null,
+        "icon": "custom-icons/numero-1.png",
+        "name": "Simulate Input",
+        "plugin": "com.amansprojects.starterpack.sdPlugin",
+        "property_inspector": "plugins/com.amansprojects.starterpack.sdPlugin/propertyInspector/inputSimulation.html",
+        "states": [
+          {
+            "alignment": "middle",
+            "background_colour": "#000000",
+            "colour": "#FFFFFF",
+            "family": "Liberation Sans",
+            "image": "custom-icons/numero-1.png",
+            "image_scale": 100,
+            "name": "",
+            "show": true,
+            "size": 13,
+            "stroke_colour": "#000000",
+            "stroke_size": 3,
+            "style": "Regular",
+            "text": "",
+            "underline": false
+          }
+        ],
+        "supported_in_multi_actions": true,
+        "tooltip": "3 Estudio",
+        "uuid": "com.amansprojects.starterpack.inputsimulation",
+        "visible_in_action_list": true
+      },
+      "children": null,
+      "context": "Keypad.2.0",
+      "current_state": 0,
+      "settings": {
+        "anticlockwise": "",
+        "clockwise": "",
+        "down": "[k(Super,Press),k(uni('3')),k(Super,Release)]",
+        "up": ""
+      },
+      "states": [
+        {
+          "alignment": "bottom",
+          "background_colour": "#334155",
+          "colour": "#FFFFFF",
+          "family": "Liberation Sans",
+          "image": "custom-icons/numero-3.png",
+          "image_scale": 100,
+          "name": "",
+          "show": true,
+          "size": 11,
+          "stroke_colour": "#000000",
+          "stroke_size": 3,
+          "style": "Regular",
+          "text": "Estudio",
+          "underline": false
+        }
+      ]
+    },
+    {
+      "action": {
+        "controllers": [
+          "Keypad",
+          "Encoder"
+        ],
+        "disable_automatic_states": false,
+        "encoder": null,
+        "icon": "custom-icons/numero-1.png",
+        "name": "Simulate Input",
+        "plugin": "com.amansprojects.starterpack.sdPlugin",
+        "property_inspector": "plugins/com.amansprojects.starterpack.sdPlugin/propertyInspector/inputSimulation.html",
+        "states": [
+          {
+            "alignment": "middle",
+            "background_colour": "#000000",
+            "colour": "#FFFFFF",
+            "family": "Liberation Sans",
+            "image": "custom-icons/numero-1.png",
+            "image_scale": 100,
+            "name": "",
+            "show": true,
+            "size": 13,
+            "stroke_colour": "#000000",
+            "stroke_size": 3,
+            "style": "Regular",
+            "text": "",
+            "underline": false
+          }
+        ],
+        "supported_in_multi_actions": true,
+        "tooltip": "4 Práctica",
+        "uuid": "com.amansprojects.starterpack.inputsimulation",
+        "visible_in_action_list": true
+      },
+      "children": null,
+      "context": "Keypad.3.0",
+      "current_state": 0,
+      "settings": {
+        "anticlockwise": "",
+        "clockwise": "",
+        "down": "[k(Super,Press),k(uni('4')),k(Super,Release)]",
+        "up": ""
+      },
+      "states": [
+        {
+          "alignment": "bottom",
+          "background_colour": "#334155",
+          "colour": "#FFFFFF",
+          "family": "Liberation Sans",
+          "image": "custom-icons/numero-4.png",
+          "image_scale": 100,
+          "name": "",
+          "show": true,
+          "size": 11,
+          "stroke_colour": "#000000",
+          "stroke_size": 3,
+          "style": "Regular",
+          "text": "Práctica",
+          "underline": false
+        }
+      ]
+    },
+    {
+      "action": {
+        "controllers": [
+          "Keypad",
+          "Encoder"
+        ],
+        "disable_automatic_states": false,
+        "encoder": null,
+        "icon": "custom-icons/numero-1.png",
+        "name": "Simulate Input",
+        "plugin": "com.amansprojects.starterpack.sdPlugin",
+        "property_inspector": "plugins/com.amansprojects.starterpack.sdPlugin/propertyInspector/inputSimulation.html",
+        "states": [
+          {
+            "alignment": "middle",
+            "background_colour": "#000000",
+            "colour": "#FFFFFF",
+            "family": "Liberation Sans",
+            "image": "custom-icons/numero-1.png",
+            "image_scale": 100,
+            "name": "",
+            "show": true,
+            "size": 13,
+            "stroke_colour": "#000000",
+            "stroke_size": 3,
+            "style": "Regular",
+            "text": "",
+            "underline": false
+          }
+        ],
+        "supported_in_multi_actions": true,
+        "tooltip": "5 Claude",
+        "uuid": "com.amansprojects.starterpack.inputsimulation",
+        "visible_in_action_list": true
+      },
+      "children": null,
+      "context": "Keypad.4.0",
+      "current_state": 0,
+      "settings": {
+        "anticlockwise": "",
+        "clockwise": "",
+        "down": "[k(Super,Press),k(uni('5')),k(Super,Release)]",
+        "up": ""
+      },
+      "states": [
+        {
+          "alignment": "bottom",
+          "background_colour": "#334155",
+          "colour": "#FFFFFF",
+          "family": "Liberation Sans",
+          "image": "custom-icons/numero-5.png",
+          "image_scale": 100,
+          "name": "",
+          "show": true,
+          "size": 11,
+          "stroke_colour": "#000000",
+          "stroke_size": 3,
+          "style": "Regular",
+          "text": "Claude",
+          "underline": false
+        }
+      ]
+    },
+    {
+      "action": {
+        "controllers": [
+          "Keypad",
+          "Encoder"
+        ],
+        "disable_automatic_states": false,
+        "encoder": null,
+        "icon": "custom-icons/numero-1.png",
+        "name": "Simulate Input",
+        "plugin": "com.amansprojects.starterpack.sdPlugin",
+        "property_inspector": "plugins/com.amansprojects.starterpack.sdPlugin/propertyInspector/inputSimulation.html",
+        "states": [
+          {
+            "alignment": "middle",
+            "background_colour": "#000000",
+            "colour": "#FFFFFF",
+            "family": "Liberation Sans",
+            "image": "custom-icons/numero-1.png",
+            "image_scale": 100,
+            "name": "",
+            "show": true,
+            "size": 13,
+            "stroke_colour": "#000000",
+            "stroke_size": 3,
+            "style": "Regular",
+            "text": "",
+            "underline": false
+          }
+        ],
+        "supported_in_multi_actions": true,
+        "tooltip": "Escritorio anterior",
+        "uuid": "com.amansprojects.starterpack.inputsimulation",
+        "visible_in_action_list": true
+      },
+      "children": null,
+      "context": "Keypad.5.0",
+      "current_state": 0,
+      "settings": {
+        "anticlockwise": "",
+        "clockwise": "",
+        "down": "[k(Super,Press),k(Control,Press),k(ArrowLeft),k(Control,Release),k(Super,Release)]",
+        "up": ""
+      },
+      "states": [
+        {
+          "alignment": "bottom",
+          "background_colour": "#334155",
+          "colour": "#FFFFFF",
+          "family": "Liberation Sans",
+          "image": "custom-icons/arrow-left.png",
+          "image_scale": 100,
+          "name": "",
+          "show": true,
+          "size": 11,
+          "stroke_colour": "#000000",
+          "stroke_size": 3,
+          "style": "Regular",
+          "text": "Escritorio\n◄",
+          "underline": false
+        }
+      ]
+    },
+    {
+      "action": {
+        "controllers": [
+          "Keypad",
+          "Encoder"
+        ],
+        "disable_automatic_states": false,
+        "encoder": null,
+        "icon": "custom-icons/numero-1.png",
+        "name": "Simulate Input",
+        "plugin": "com.amansprojects.starterpack.sdPlugin",
+        "property_inspector": "plugins/com.amansprojects.starterpack.sdPlugin/propertyInspector/inputSimulation.html",
+        "states": [
+          {
+            "alignment": "middle",
+            "background_colour": "#000000",
+            "colour": "#FFFFFF",
+            "family": "Liberation Sans",
+            "image": "custom-icons/numero-1.png",
+            "image_scale": 100,
+            "name": "",
+            "show": true,
+            "size": 13,
+            "stroke_colour": "#000000",
+            "stroke_size": 3,
+            "style": "Regular",
+            "text": "",
+            "underline": false
+          }
+        ],
+        "supported_in_multi_actions": true,
+        "tooltip": "Escritorio siguiente",
+        "uuid": "com.amansprojects.starterpack.inputsimulation",
+        "visible_in_action_list": true
+      },
+      "children": null,
+      "context": "Keypad.6.0",
+      "current_state": 0,
+      "settings": {
+        "anticlockwise": "",
+        "clockwise": "",
+        "down": "[k(Super,Press),k(Control,Press),k(ArrowRight),k(Control,Release),k(Super,Release)]",
+        "up": ""
+      },
+      "states": [
+        {
+          "alignment": "bottom",
+          "background_colour": "#334155",
+          "colour": "#FFFFFF",
+          "family": "Liberation Sans",
+          "image": "custom-icons/arrow-right.png",
+          "image_scale": 100,
+          "name": "",
+          "show": true,
+          "size": 11,
+          "stroke_colour": "#000000",
+          "stroke_size": 3,
+          "style": "Regular",
+          "text": "Escritorio\n►",
+          "underline": false
+        }
+      ]
+    },
+    {
+      "action": {
+        "controllers": [
+          "Keypad",
+          "Encoder"
+        ],
+        "disable_automatic_states": false,
+        "encoder": null,
+        "icon": "plugins/com.amansprojects.starterpack.sdPlugin/icons/runCommand.png",
+        "name": "Run Command",
+        "plugin": "com.amansprojects.starterpack.sdPlugin",
+        "property_inspector": "plugins/com.amansprojects.starterpack.sdPlugin/propertyInspector/runCommand.html",
+        "states": [
+          {
+            "alignment": "middle",
+            "background_colour": "#000000",
+            "colour": "#FFFFFF",
+            "family": "Liberation Sans",
+            "image": "plugins/com.amansprojects.starterpack.sdPlugin/icons/runCommand.png",
+            "image_scale": 100,
+            "name": "",
+            "show": true,
+            "size": 13,
+            "stroke_colour": "#000000",
+            "stroke_size": 3,
+            "style": "Regular",
+            "text": "",
+            "underline": false
+          }
+        ],
+        "supported_in_multi_actions": true,
+        "tooltip": "Cerrar ventana",
+        "uuid": "com.amansprojects.starterpack.runcommand",
+        "visible_in_action_list": true
+      },
+      "children": null,
+      "context": "Keypad.7.0",
+      "current_state": 0,
+      "settings": {
+        "down": "hyprctl dispatch 'hl.dsp.window.close()'",
+        "file": "",
+        "rotate": "",
+        "show": false,
+        "up": ""
+      },
+      "states": [
+        {
+          "alignment": "bottom",
+          "background_colour": "#374151",
+          "colour": "#FFFFFF",
+          "family": "Liberation Sans",
+          "image": "custom-icons/equis.png",
+          "image_scale": 100,
+          "name": "",
+          "show": true,
+          "size": 11,
+          "stroke_colour": "#000000",
+          "stroke_size": 3,
+          "style": "Regular",
+          "text": "Cerrar\nventana",
+          "underline": false
+        }
+      ]
+    },
+    {
+      "action": {
+        "controllers": [
+          "Keypad",
+          "Encoder"
+        ],
+        "disable_automatic_states": false,
+        "encoder": null,
+        "icon": "plugins/com.amansprojects.starterpack.sdPlugin/icons/runCommand.png",
+        "name": "Run Command",
+        "plugin": "com.amansprojects.starterpack.sdPlugin",
+        "property_inspector": "plugins/com.amansprojects.starterpack.sdPlugin/propertyInspector/runCommand.html",
+        "states": [
+          {
+            "alignment": "middle",
+            "background_colour": "#000000",
+            "colour": "#FFFFFF",
+            "family": "Liberation Sans",
+            "image": "plugins/com.amansprojects.starterpack.sdPlugin/icons/runCommand.png",
+            "image_scale": 100,
+            "name": "",
+            "show": true,
+            "size": 13,
+            "stroke_colour": "#000000",
+            "stroke_size": 3,
+            "style": "Regular",
+            "text": "",
+            "underline": false
+          }
+        ],
+        "supported_in_multi_actions": true,
+        "tooltip": "Pantalla completa",
+        "uuid": "com.amansprojects.starterpack.runcommand",
+        "visible_in_action_list": true
+      },
+      "children": null,
+      "context": "Keypad.8.0",
+      "current_state": 0,
+      "settings": {
+        "down": "hyprctl dispatch 'hl.dsp.window.fullscreen()'",
+        "file": "",
+        "rotate": "",
+        "show": false,
+        "up": ""
+      },
+      "states": [
+        {
+          "alignment": "bottom",
+          "background_colour": "#374151",
+          "colour": "#FFFFFF",
+          "family": "Liberation Sans",
+          "image": "custom-icons/pantalla-completa.png",
+          "image_scale": 100,
+          "name": "",
+          "show": true,
+          "size": 11,
+          "stroke_colour": "#000000",
+          "stroke_size": 3,
+          "style": "Regular",
+          "text": "Pantalla\ncompleta",
+          "underline": false
+        }
+      ]
+    },
+    {
+      "action": {
+        "controllers": [
+          "Keypad",
+          "Encoder"
+        ],
+        "disable_automatic_states": false,
+        "encoder": null,
+        "icon": "plugins/com.amansprojects.starterpack.sdPlugin/icons/runCommand.png",
+        "name": "Run Command",
+        "plugin": "com.amansprojects.starterpack.sdPlugin",
+        "property_inspector": "plugins/com.amansprojects.starterpack.sdPlugin/propertyInspector/runCommand.html",
+        "states": [
+          {
+            "alignment": "middle",
+            "background_colour": "#000000",
+            "colour": "#FFFFFF",
+            "family": "Liberation Sans",
+            "image": "plugins/com.amansprojects.starterpack.sdPlugin/icons/runCommand.png",
+            "image_scale": 100,
+            "name": "",
+            "show": true,
+            "size": 13,
+            "stroke_colour": "#000000",
+            "stroke_size": 3,
+            "style": "Regular",
+            "text": "",
+            "underline": false
+          }
+        ],
+        "supported_in_multi_actions": true,
+        "tooltip": "Flotar/Mosaico",
+        "uuid": "com.amansprojects.starterpack.runcommand",
+        "visible_in_action_list": true
+      },
+      "children": null,
+      "context": "Keypad.9.0",
+      "current_state": 0,
+      "settings": {
+        "down": "hyprctl dispatch 'hl.dsp.window.float({ action = \"toggle\" })'",
+        "file": "",
+        "rotate": "",
+        "show": false,
+        "up": ""
+      },
+      "states": [
+        {
+          "alignment": "bottom",
+          "background_colour": "#374151",
+          "colour": "#FFFFFF",
+          "family": "Liberation Sans",
+          "image": "custom-icons/flotar.png",
+          "image_scale": 100,
+          "name": "",
+          "show": true,
+          "size": 11,
+          "stroke_colour": "#000000",
+          "stroke_size": 3,
+          "style": "Regular",
+          "text": "Flotar/Mosaico",
           "underline": false
         }
       ]
@@ -158,533 +665,26 @@
           }
         ],
         "supported_in_multi_actions": true,
-        "tooltip": "Lanzadores",
+        "tooltip": "Ir a Diario",
         "uuid": "com.amansprojects.starterpack.switchprofile",
-        "visible_in_action_list": true
-      },
-      "children": null,
-      "context": "Keypad.2.0",
-      "current_state": 0,
-      "settings": {
-        "anticlockwise": "",
-        "clockwise": "",
-        "device": "d6-355499441494-AMPGD6",
-        "profile": "Lanzadores"
-      },
-      "states": [
-        {
-          "alignment": "middle",
-          "background_colour": "#000000",
-          "colour": "#FFFFFF",
-          "family": "Liberation Sans",
-          "image": "plugins/com.amansprojects.starterpack.sdPlugin/icons/switchProfile.png",
-          "image_scale": 100,
-          "name": "",
-          "show": true,
-          "size": 13,
-          "stroke_colour": "#000000",
-          "stroke_size": 3,
-          "style": "Regular",
-          "text": "Lanzadores",
-          "underline": false
-        }
-      ]
-    },
-    {
-      "action": {
-        "controllers": [
-          "Keypad",
-          "Encoder"
-        ],
-        "disable_automatic_states": false,
-        "encoder": null,
-        "icon": "custom-icons/numero-2.png",
-        "name": "Simulate Input",
-        "plugin": "com.amansprojects.starterpack.sdPlugin",
-        "property_inspector": "plugins/com.amansprojects.starterpack.sdPlugin/propertyInspector/inputSimulation.html",
-        "states": [
-          {
-            "alignment": "middle",
-            "background_colour": "#000000",
-            "colour": "#FFFFFF",
-            "family": "Liberation Sans",
-            "image": "custom-icons/numero-2.png",
-            "image_scale": 100,
-            "name": "",
-            "show": true,
-            "size": 13,
-            "stroke_colour": "#000000",
-            "stroke_size": 3,
-            "style": "Regular",
-            "text": "",
-            "underline": false
-          }
-        ],
-        "supported_in_multi_actions": true,
-        "tooltip": "Escritorio 2",
-        "uuid": "com.amansprojects.starterpack.inputsimulation",
-        "visible_in_action_list": true
-      },
-      "children": null,
-      "context": "Keypad.3.0",
-      "current_state": 0,
-      "settings": {
-        "anticlockwise": "",
-        "clockwise": "",
-        "down": "[k(Super,Press),k(uni('2')),k(Super,Release)]",
-        "up": ""
-      },
-      "states": [
-        {
-          "alignment": "middle",
-          "background_colour": "#000000",
-          "colour": "#FFFFFF",
-          "family": "Liberation Sans",
-          "image": "custom-icons/numero-2.png",
-          "image_scale": 100,
-          "name": "",
-          "show": true,
-          "size": 13,
-          "stroke_colour": "#000000",
-          "stroke_size": 3,
-          "style": "Regular",
-          "text": "Escritorio 2",
-          "underline": false
-        }
-      ]
-    },
-    {
-      "action": {
-        "controllers": [
-          "Keypad",
-          "Encoder"
-        ],
-        "disable_automatic_states": false,
-        "encoder": null,
-        "icon": "custom-icons/arrow-right.png",
-        "name": "Simulate Input",
-        "plugin": "com.amansprojects.starterpack.sdPlugin",
-        "property_inspector": "plugins/com.amansprojects.starterpack.sdPlugin/propertyInspector/inputSimulation.html",
-        "states": [
-          {
-            "alignment": "middle",
-            "background_colour": "#000000",
-            "colour": "#FFFFFF",
-            "family": "Liberation Sans",
-            "image": "custom-icons/arrow-right.png",
-            "image_scale": 100,
-            "name": "",
-            "show": true,
-            "size": 13,
-            "stroke_colour": "#000000",
-            "stroke_size": 3,
-            "style": "Regular",
-            "text": "",
-            "underline": false
-          }
-        ],
-        "supported_in_multi_actions": true,
-        "tooltip": "Escritorio\nsiguiente",
-        "uuid": "com.amansprojects.starterpack.inputsimulation",
-        "visible_in_action_list": true
-      },
-      "children": null,
-      "context": "Keypad.4.0",
-      "current_state": 0,
-      "settings": {
-        "anticlockwise": "",
-        "clockwise": "",
-        "down": "[k(Super,Press),k(Control,Press),k(ArrowRight),k(Control,Release),k(Super,Release)]",
-        "up": ""
-      },
-      "states": [
-        {
-          "alignment": "middle",
-          "background_colour": "#000000",
-          "colour": "#FFFFFF",
-          "family": "Liberation Sans",
-          "image": "custom-icons/arrow-right.png",
-          "image_scale": 100,
-          "name": "",
-          "show": true,
-          "size": 13,
-          "stroke_colour": "#000000",
-          "stroke_size": 3,
-          "style": "Regular",
-          "text": "Escritorio\nsiguiente",
-          "underline": false
-        }
-      ]
-    },
-    {
-      "action": {
-        "controllers": [
-          "Keypad",
-          "Encoder"
-        ],
-        "disable_automatic_states": false,
-        "encoder": null,
-        "icon": "custom-icons/numero-3.png",
-        "name": "Simulate Input",
-        "plugin": "com.amansprojects.starterpack.sdPlugin",
-        "property_inspector": "plugins/com.amansprojects.starterpack.sdPlugin/propertyInspector/inputSimulation.html",
-        "states": [
-          {
-            "alignment": "middle",
-            "background_colour": "#000000",
-            "colour": "#FFFFFF",
-            "family": "Liberation Sans",
-            "image": "custom-icons/numero-3.png",
-            "image_scale": 100,
-            "name": "",
-            "show": true,
-            "size": 13,
-            "stroke_colour": "#000000",
-            "stroke_size": 3,
-            "style": "Regular",
-            "text": "",
-            "underline": false
-          }
-        ],
-        "supported_in_multi_actions": true,
-        "tooltip": "Escritorio 3",
-        "uuid": "com.amansprojects.starterpack.inputsimulation",
-        "visible_in_action_list": true
-      },
-      "children": null,
-      "context": "Keypad.5.0",
-      "current_state": 0,
-      "settings": {
-        "anticlockwise": "",
-        "clockwise": "",
-        "down": "[k(Super,Press),k(uni('3')),k(Super,Release)]",
-        "up": ""
-      },
-      "states": [
-        {
-          "alignment": "middle",
-          "background_colour": "#000000",
-          "colour": "#FFFFFF",
-          "family": "Liberation Sans",
-          "image": "custom-icons/numero-3.png",
-          "image_scale": 100,
-          "name": "",
-          "show": true,
-          "size": 13,
-          "stroke_colour": "#000000",
-          "stroke_size": 3,
-          "style": "Regular",
-          "text": "Escritorio 3",
-          "underline": false
-        }
-      ]
-    },
-    {
-      "action": {
-        "controllers": [
-          "Keypad",
-          "Encoder"
-        ],
-        "disable_automatic_states": false,
-        "encoder": null,
-        "icon": "custom-icons/numero-4.png",
-        "name": "Simulate Input",
-        "plugin": "com.amansprojects.starterpack.sdPlugin",
-        "property_inspector": "plugins/com.amansprojects.starterpack.sdPlugin/propertyInspector/inputSimulation.html",
-        "states": [
-          {
-            "alignment": "middle",
-            "background_colour": "#000000",
-            "colour": "#FFFFFF",
-            "family": "Liberation Sans",
-            "image": "custom-icons/numero-4.png",
-            "image_scale": 100,
-            "name": "",
-            "show": true,
-            "size": 13,
-            "stroke_colour": "#000000",
-            "stroke_size": 3,
-            "style": "Regular",
-            "text": "",
-            "underline": false
-          }
-        ],
-        "supported_in_multi_actions": true,
-        "tooltip": "Escritorio 4",
-        "uuid": "com.amansprojects.starterpack.inputsimulation",
-        "visible_in_action_list": true
-      },
-      "children": null,
-      "context": "Keypad.6.0",
-      "current_state": 0,
-      "settings": {
-        "anticlockwise": "",
-        "clockwise": "",
-        "down": "[k(Super,Press),k(uni('4')),k(Super,Release)]",
-        "up": ""
-      },
-      "states": [
-        {
-          "alignment": "middle",
-          "background_colour": "#000000",
-          "colour": "#FFFFFF",
-          "family": "Liberation Sans",
-          "image": "custom-icons/numero-4.png",
-          "image_scale": 100,
-          "name": "",
-          "show": true,
-          "size": 13,
-          "stroke_colour": "#000000",
-          "stroke_size": 3,
-          "style": "Regular",
-          "text": "Escritorio 4",
-          "underline": false
-        }
-      ]
-    },
-    {
-      "action": {
-        "controllers": [
-          "Keypad",
-          "Encoder"
-        ],
-        "disable_automatic_states": false,
-        "encoder": null,
-        "icon": "custom-icons/numero-5.png",
-        "name": "Simulate Input",
-        "plugin": "com.amansprojects.starterpack.sdPlugin",
-        "property_inspector": "plugins/com.amansprojects.starterpack.sdPlugin/propertyInspector/inputSimulation.html",
-        "states": [
-          {
-            "alignment": "middle",
-            "background_colour": "#000000",
-            "colour": "#FFFFFF",
-            "family": "Liberation Sans",
-            "image": "custom-icons/numero-5.png",
-            "image_scale": 100,
-            "name": "",
-            "show": true,
-            "size": 13,
-            "stroke_colour": "#000000",
-            "stroke_size": 3,
-            "style": "Regular",
-            "text": "",
-            "underline": false
-          }
-        ],
-        "supported_in_multi_actions": true,
-        "tooltip": "Escritorio 5",
-        "uuid": "com.amansprojects.starterpack.inputsimulation",
-        "visible_in_action_list": true
-      },
-      "children": null,
-      "context": "Keypad.7.0",
-      "current_state": 0,
-      "settings": {
-        "anticlockwise": "",
-        "clockwise": "",
-        "down": "[k(Super,Press),k(uni('5')),k(Super,Release)]",
-        "up": ""
-      },
-      "states": [
-        {
-          "alignment": "middle",
-          "background_colour": "#000000",
-          "colour": "#FFFFFF",
-          "family": "Liberation Sans",
-          "image": "custom-icons/numero-5.png",
-          "image_scale": 100,
-          "name": "",
-          "show": true,
-          "size": 13,
-          "stroke_colour": "#000000",
-          "stroke_size": 3,
-          "style": "Regular",
-          "text": "Escritorio 5",
-          "underline": false
-        }
-      ]
-    },
-    {
-      "action": {
-        "controllers": [
-          "Keypad",
-          "Encoder"
-        ],
-        "disable_automatic_states": false,
-        "encoder": null,
-        "icon": "custom-icons/vacio.png",
-        "name": "Run Command",
-        "plugin": "com.amansprojects.starterpack.sdPlugin",
-        "property_inspector": "plugins/com.amansprojects.starterpack.sdPlugin/propertyInspector/runCommand.html",
-        "states": [
-          {
-            "alignment": "middle",
-            "background_colour": "#000000",
-            "colour": "#FFFFFF",
-            "family": "Liberation Sans",
-            "image": "custom-icons/vacio.png",
-            "image_scale": 100,
-            "name": "",
-            "show": true,
-            "size": 13,
-            "stroke_colour": "#000000",
-            "stroke_size": 3,
-            "style": "Regular",
-            "text": "",
-            "underline": false
-          }
-        ],
-        "supported_in_multi_actions": true,
-        "tooltip": "Próximo\nvacío",
-        "uuid": "com.amansprojects.starterpack.runcommand",
-        "visible_in_action_list": true
-      },
-      "children": null,
-      "context": "Keypad.8.0",
-      "current_state": 0,
-      "settings": {
-        "down": "hyprctl dispatch 'hl.dsp.focus({ workspace = \"emptym\" })'",
-        "file": "",
-        "rotate": "",
-        "show": false,
-        "up": ""
-      },
-      "states": [
-        {
-          "alignment": "middle",
-          "background_colour": "#000000",
-          "colour": "#FFFFFF",
-          "family": "Liberation Sans",
-          "image": "custom-icons/vacio.png",
-          "image_scale": 100,
-          "name": "",
-          "show": true,
-          "size": 13,
-          "stroke_colour": "#000000",
-          "stroke_size": 3,
-          "style": "Regular",
-          "text": "Próximo\nvacío",
-          "underline": false
-        }
-      ]
-    },
-    {
-      "action": {
-        "controllers": [
-          "Keypad",
-          "Encoder"
-        ],
-        "disable_automatic_states": false,
-        "encoder": null,
-        "icon": "custom-icons/especial.png",
-        "name": "Run Command",
-        "plugin": "com.amansprojects.starterpack.sdPlugin",
-        "property_inspector": "plugins/com.amansprojects.starterpack.sdPlugin/propertyInspector/runCommand.html",
-        "states": [
-          {
-            "alignment": "middle",
-            "background_colour": "#000000",
-            "colour": "#FFFFFF",
-            "family": "Liberation Sans",
-            "image": "custom-icons/especial.png",
-            "image_scale": 100,
-            "name": "",
-            "show": true,
-            "size": 13,
-            "stroke_colour": "#000000",
-            "stroke_size": 3,
-            "style": "Regular",
-            "text": "",
-            "underline": false
-          }
-        ],
-        "supported_in_multi_actions": true,
-        "tooltip": "Special\nworkspace",
-        "uuid": "com.amansprojects.starterpack.runcommand",
-        "visible_in_action_list": true
-      },
-      "children": null,
-      "context": "Keypad.9.0",
-      "current_state": 0,
-      "settings": {
-        "down": "hyprctl dispatch 'hl.dsp.workspace.toggle_special()'",
-        "file": "",
-        "rotate": "",
-        "show": false,
-        "up": ""
-      },
-      "states": [
-        {
-          "alignment": "middle",
-          "background_colour": "#000000",
-          "colour": "#FFFFFF",
-          "family": "Liberation Sans",
-          "image": "custom-icons/especial.png",
-          "image_scale": 100,
-          "name": "",
-          "show": true,
-          "size": 13,
-          "stroke_colour": "#000000",
-          "stroke_size": 3,
-          "style": "Regular",
-          "text": "Special\nworkspace",
-          "underline": false
-        }
-      ]
-    },
-    {
-      "action": {
-        "controllers": [
-          "Keypad",
-          "Encoder"
-        ],
-        "disable_automatic_states": false,
-        "encoder": null,
-        "icon": "custom-icons/monitor.png",
-        "name": "Run Command",
-        "plugin": "com.amansprojects.starterpack.sdPlugin",
-        "property_inspector": "plugins/com.amansprojects.starterpack.sdPlugin/propertyInspector/runCommand.html",
-        "states": [
-          {
-            "alignment": "middle",
-            "background_colour": "#000000",
-            "colour": "#FFFFFF",
-            "family": "Liberation Sans",
-            "image": "custom-icons/monitor.png",
-            "image_scale": 100,
-            "name": "",
-            "show": true,
-            "size": 13,
-            "stroke_colour": "#000000",
-            "stroke_size": 3,
-            "style": "Regular",
-            "text": "",
-            "underline": false
-          }
-        ],
-        "supported_in_multi_actions": true,
-        "tooltip": "Enfocar\nMonitor 1",
-        "uuid": "com.amansprojects.starterpack.runcommand",
         "visible_in_action_list": true
       },
       "children": null,
       "context": "Keypad.10.0",
       "current_state": 0,
       "settings": {
-        "down": "hyprctl dispatch 'hl.dsp.focus({ monitor = MONITOR1 })'",
-        "file": "",
-        "rotate": "",
-        "show": false,
-        "up": ""
+        "anticlockwise": "",
+        "clockwise": "",
+        "device": "d6-355499441494-AMPGD6",
+        "profile": "Default"
       },
       "states": [
         {
           "alignment": "middle",
-          "background_colour": "#000000",
+          "background_colour": "#3f3f46",
           "colour": "#FFFFFF",
           "family": "Liberation Sans",
-          "image": "custom-icons/monitor.png",
+          "image": "custom-icons/_nada.png",
           "image_scale": 100,
           "name": "",
           "show": true,
@@ -692,7 +692,7 @@
           "stroke_colour": "#000000",
           "stroke_size": 3,
           "style": "Regular",
-          "text": "Enfocar\nMonitor 1",
+          "text": "Diario",
           "underline": false
         }
       ]
@@ -705,17 +705,17 @@
         ],
         "disable_automatic_states": false,
         "encoder": null,
-        "icon": "custom-icons/monitor.png",
-        "name": "Run Command",
+        "icon": "plugins/com.amansprojects.starterpack.sdPlugin/icons/switchProfile.png",
+        "name": "Switch Profile",
         "plugin": "com.amansprojects.starterpack.sdPlugin",
-        "property_inspector": "plugins/com.amansprojects.starterpack.sdPlugin/propertyInspector/runCommand.html",
+        "property_inspector": "plugins/com.amansprojects.starterpack.sdPlugin/propertyInspector/switchProfile.html",
         "states": [
           {
             "alignment": "middle",
             "background_colour": "#000000",
             "colour": "#FFFFFF",
             "family": "Liberation Sans",
-            "image": "custom-icons/monitor.png",
+            "image": "plugins/com.amansprojects.starterpack.sdPlugin/icons/switchProfile.png",
             "image_scale": 100,
             "name": "",
             "show": true,
@@ -728,27 +728,26 @@
           }
         ],
         "supported_in_multi_actions": true,
-        "tooltip": "Enfocar\nMonitor 2",
-        "uuid": "com.amansprojects.starterpack.runcommand",
+        "tooltip": "Ir a Escritorios",
+        "uuid": "com.amansprojects.starterpack.switchprofile",
         "visible_in_action_list": true
       },
       "children": null,
       "context": "Keypad.11.0",
       "current_state": 0,
       "settings": {
-        "down": "hyprctl dispatch 'hl.dsp.focus({ monitor = MONITOR2 })'",
-        "file": "",
-        "rotate": "",
-        "show": false,
-        "up": ""
+        "anticlockwise": "",
+        "clockwise": "",
+        "device": "d6-355499441494-AMPGD6",
+        "profile": "Escritorios"
       },
       "states": [
         {
           "alignment": "middle",
-          "background_colour": "#000000",
-          "colour": "#FFFFFF",
+          "background_colour": "#facc15",
+          "colour": "#000000",
           "family": "Liberation Sans",
-          "image": "custom-icons/monitor.png",
+          "image": "custom-icons/_nada.png",
           "image_scale": 100,
           "name": "",
           "show": true,
@@ -756,7 +755,7 @@
           "stroke_colour": "#000000",
           "stroke_size": 3,
           "style": "Regular",
-          "text": "Enfocar\nMonitor 2",
+          "text": "Escritorios",
           "underline": false
         }
       ]
@@ -769,17 +768,17 @@
         ],
         "disable_automatic_states": false,
         "encoder": null,
-        "icon": "custom-icons/monitor.png",
-        "name": "Run Command",
+        "icon": "plugins/com.amansprojects.starterpack.sdPlugin/icons/switchProfile.png",
+        "name": "Switch Profile",
         "plugin": "com.amansprojects.starterpack.sdPlugin",
-        "property_inspector": "plugins/com.amansprojects.starterpack.sdPlugin/propertyInspector/runCommand.html",
+        "property_inspector": "plugins/com.amansprojects.starterpack.sdPlugin/propertyInspector/switchProfile.html",
         "states": [
           {
             "alignment": "middle",
             "background_colour": "#000000",
             "colour": "#FFFFFF",
             "family": "Liberation Sans",
-            "image": "custom-icons/monitor.png",
+            "image": "plugins/com.amansprojects.starterpack.sdPlugin/icons/switchProfile.png",
             "image_scale": 100,
             "name": "",
             "show": true,
@@ -792,27 +791,26 @@
           }
         ],
         "supported_in_multi_actions": true,
-        "tooltip": "Mover a\nMonitor 1",
-        "uuid": "com.amansprojects.starterpack.runcommand",
+        "tooltip": "Ir a Contenido",
+        "uuid": "com.amansprojects.starterpack.switchprofile",
         "visible_in_action_list": true
       },
       "children": null,
       "context": "Keypad.12.0",
       "current_state": 0,
       "settings": {
-        "down": "hyprctl dispatch 'hl.dsp.window.move({ monitor = MONITOR1 })'",
-        "file": "",
-        "rotate": "",
-        "show": false,
-        "up": ""
+        "anticlockwise": "",
+        "clockwise": "",
+        "device": "d6-355499441494-AMPGD6",
+        "profile": "Contenido"
       },
       "states": [
         {
           "alignment": "middle",
-          "background_colour": "#000000",
+          "background_colour": "#3f3f46",
           "colour": "#FFFFFF",
           "family": "Liberation Sans",
-          "image": "custom-icons/monitor.png",
+          "image": "custom-icons/_nada.png",
           "image_scale": 100,
           "name": "",
           "show": true,
@@ -820,7 +818,7 @@
           "stroke_colour": "#000000",
           "stroke_size": 3,
           "style": "Regular",
-          "text": "Mover a\nMonitor 1",
+          "text": "Contenido",
           "underline": false
         }
       ]
@@ -833,7 +831,7 @@
         ],
         "disable_automatic_states": false,
         "encoder": null,
-        "icon": "custom-icons/monitor.png",
+        "icon": "plugins/com.amansprojects.starterpack.sdPlugin/icons/runCommand.png",
         "name": "Run Command",
         "plugin": "com.amansprojects.starterpack.sdPlugin",
         "property_inspector": "plugins/com.amansprojects.starterpack.sdPlugin/propertyInspector/runCommand.html",
@@ -843,7 +841,7 @@
             "background_colour": "#000000",
             "colour": "#FFFFFF",
             "family": "Liberation Sans",
-            "image": "custom-icons/monitor.png",
+            "image": "plugins/com.amansprojects.starterpack.sdPlugin/icons/runCommand.png",
             "image_scale": 100,
             "name": "",
             "show": true,
@@ -856,7 +854,7 @@
           }
         ],
         "supported_in_multi_actions": true,
-        "tooltip": "Mover a\nMonitor 2",
+        "tooltip": "Captura región",
         "uuid": "com.amansprojects.starterpack.runcommand",
         "visible_in_action_list": true
       },
@@ -864,7 +862,7 @@
       "context": "Keypad.13.0",
       "current_state": 0,
       "settings": {
-        "down": "hyprctl dispatch 'hl.dsp.window.move({ monitor = MONITOR2 })'",
+        "down": "noctalia msg screenshot-region",
         "file": "",
         "rotate": "",
         "show": false,
@@ -872,24 +870,87 @@
       },
       "states": [
         {
-          "alignment": "middle",
-          "background_colour": "#000000",
+          "alignment": "bottom",
+          "background_colour": "#374151",
           "colour": "#FFFFFF",
           "family": "Liberation Sans",
-          "image": "custom-icons/monitor.png",
+          "image": "custom-icons/captura.png",
           "image_scale": 100,
           "name": "",
           "show": true,
-          "size": 13,
+          "size": 11,
           "stroke_colour": "#000000",
           "stroke_size": 3,
           "style": "Regular",
-          "text": "Mover a\nMonitor 2",
+          "text": "Captura\nregión",
           "underline": false
         }
       ]
     },
-    null
+    {
+      "action": {
+        "controllers": [
+          "Keypad",
+          "Encoder"
+        ],
+        "disable_automatic_states": false,
+        "encoder": null,
+        "icon": "plugins/com.amansprojects.starterpack.sdPlugin/icons/runCommand.png",
+        "name": "Run Command",
+        "plugin": "com.amansprojects.starterpack.sdPlugin",
+        "property_inspector": "plugins/com.amansprojects.starterpack.sdPlugin/propertyInspector/runCommand.html",
+        "states": [
+          {
+            "alignment": "middle",
+            "background_colour": "#000000",
+            "colour": "#FFFFFF",
+            "family": "Liberation Sans",
+            "image": "plugins/com.amansprojects.starterpack.sdPlugin/icons/runCommand.png",
+            "image_scale": 100,
+            "name": "",
+            "show": true,
+            "size": 13,
+            "stroke_colour": "#000000",
+            "stroke_size": 3,
+            "style": "Regular",
+            "text": "",
+            "underline": false
+          }
+        ],
+        "supported_in_multi_actions": true,
+        "tooltip": "Dictado ES",
+        "uuid": "com.amansprojects.starterpack.runcommand",
+        "visible_in_action_list": true
+      },
+      "children": null,
+      "context": "Keypad.14.0",
+      "current_state": 0,
+      "settings": {
+        "down": "hyprwhspr record toggle --lang es",
+        "file": "",
+        "rotate": "",
+        "show": false,
+        "up": ""
+      },
+      "states": [
+        {
+          "alignment": "bottom",
+          "background_colour": "#15803d",
+          "colour": "#FFFFFF",
+          "family": "Liberation Sans",
+          "image": "custom-icons/microfono-estudio.png",
+          "image_scale": 100,
+          "name": "",
+          "show": true,
+          "size": 11,
+          "stroke_colour": "#000000",
+          "stroke_size": 3,
+          "style": "Regular",
+          "text": "Dictado\nES",
+          "underline": false
+        }
+      ]
+    }
   ],
   "sliders": []
 }
