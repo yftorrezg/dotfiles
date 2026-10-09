@@ -110,6 +110,44 @@ prueba("subtítulos al lado del video (-es, .en, sin idioma)",
        list(r1) == ["es"] and list(r2) == ["en"] and list(r3) == ["es"] and r4 == {}, f"{r1} {r2} {r3} {r4}")
 shutil.rmtree(d)
 
+# 3d) main() de punta a punta con un video y recursos del curso (sin IA ni Whisper): el código del profe
+#     se copia a codigo-del-curso/ (sin .git), los apuntes traen "📎 Recursos" y al rehacer sin el video siguen
+import subprocess
+import zipfile
+base = tempfile.mkdtemp()
+tema = os.path.join(base, "01 Tema")
+os.makedirs(tema)
+open(os.path.join(tema, "001 Margin.mp4"), "w").close()
+with zipfile.ZipFile(os.path.join(tema, "001 Margin-UHTML.zip"), "w") as z:
+    z.writestr("css/estilos.css", "p { margin-top: 40px; }\n")
+    z.writestr(".git/config", "x")
+with zipfile.ZipFile(os.path.join(tema, "001 proyecto-FIN.zip"), "w") as z:
+    z.writestr("src/App.jsx", "export default function App() {}\n")
+open(os.path.join(tema, "002 Otra.mp4"), "w").close()
+open(os.path.join(tema, "002 Otra-UHTML.js"), "w").write("const otra = 1;\n")
+open(os.path.join(tema, "external-links.txt"), "w").write("001 Margin\nhttps://developer.mozilla.org/margin\n\n"
+                                                         "002 Otra\nhttps://otra.example\n")
+rec = c.rec_curso.de_la_clase(os.path.join(tema, "001 Margin.mp4"))
+prueba("recursos: los de la clase, el proyecto y sus enlaces (no los de otra clase)",
+       [os.path.basename(x) for x in rec["clase"]] == ["001 Margin-UHTML.zip"]
+       and [os.path.basename(x) for x in rec["proyecto"]] == ["001 proyecto-FIN.zip"]
+       and rec["enlaces"] == [("Margin", "https://developer.mozilla.org/margin")], str(rec))
+clase = carpeta_de([(10, editor_limpio(codigo))])
+env = dict(os.environ, SIN_WHISPER="1")
+r = subprocess.run([sys.executable, os.path.join(AQUI, "cuadernillo.py"), clase, "--video",
+                    os.path.join(tema, "001 Margin.mp4"), "--sin-ia"], capture_output=True, text=True, env=env)
+ap = open(os.path.join(clase, "apuntes.md"), encoding="utf-8").read() if os.path.exists(os.path.join(clase, "apuntes.md")) else ""
+copiado = os.path.join(clase, "codigo-del-curso", "Margin UHTML", "css", "estilos.css")
+prueba("main con video: recursos copiados y en los apuntes", r.returncode == 0 and os.path.exists(copiado)
+       and not os.path.exists(os.path.join(clase, "codigo-del-curso", "Margin UHTML", ".git"))
+       and "📎 Recursos de la clase" in ap, (r.stderr or r.stdout)[-300:])
+r = subprocess.run([sys.executable, os.path.join(AQUI, "cuadernillo.py"), clase, "--sin-ia", "--forzar"],
+                   capture_output=True, text=True, env=env)
+prueba("rehacer sin el video: los recursos siguen", r.returncode == 0 and
+       "📎 Recursos de la clase" in open(os.path.join(clase, "apuntes.md"), encoding="utf-8").read(), r.stderr[-300:])
+shutil.rmtree(base)
+shutil.rmtree(clase)
+
 # 4) Webcam: con código que casi no cambia y una cara moviéndose, se detecta la zona
 det = c.ac.Detector(c.ac.leer_conf())
 v = t.Video()

@@ -30,6 +30,7 @@ sys.path.insert(0, AQUI)
 from progreso import reportar  # barrita de progreso (no hace nada si no se pidió)
 import capturas_clave as cc  # estado final de cada cosa (OCR + píxeles): las capturas importantes
 import transcribir as tr     # Whisper en la GPU para los videos sin subtítulos
+import recursos as rec_curso  # código del profe, lecturas y enlaces que trae el curso
 spec = importlib.util.spec_from_file_location("ac", os.path.join(AQUI, "auto-captura.py"))
 ac = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(ac)
@@ -356,6 +357,9 @@ Reglas:
 - Corrige errores obvios de la transcripción automática (nombres de funciones, términos técnicos).
 - Si agregas algo que NO se dice ni se ve en la clase (un complemento útil), márcalo con "(extra)" al final del punto.
 - "corto" es una hoja de repaso MUCHO más corta (3-5 minutos de lectura): "chuleta" 4 a 12 filas con lo más usado en la práctica; "codigo" 0 a 3 fragmentos que resumen la clase; "mapa" 3 a 8 bloques que agrupen las secciones; "preguntas" 3 a 6, de entender (por qué / qué pasa si), no de memorizar nombres.
+- Si hay "CÓDIGO DE ESTA CLASE (exacto)", es el código que entregó el profe: el "codigo" de las secciones y del repaso debe salir de ahí, tal cual (nombres, valores), en el orden en que se explica en la clase.
+- Si hay "PROYECTO TERMINADO", es más avanzado que esta clase: úsalo solo para corregir errores del OCR y nombres; NO pongas código que todavía no se escribió en esta clase.
+- Si hay "LECTURA DEL CURSO", es parte de la clase: inclúyela en los apuntes (resumen, conceptos y una sección propia).
 - Todo en español, conciso, preciso."""
 
 # Modelo para los apuntes: Sonnet gasta bastante menos cuota que el modelo por defecto de la
@@ -429,7 +433,7 @@ def ruta_claude():
     raise FileNotFoundError("no se encontró un 'claude' que funcione")
 
 
-def pedir_a_claude(titulo, duracion, cues, pantallas):
+def pedir_a_claude(titulo, duracion, cues, pantallas, codigo=""):
     lineas = [f"[{hms(t)}] {txt}" for t, txt in parrafos(cues, cada=30)]
     transcripcion = ("Transcripción con marcas de tiempo [h:mm:ss]:\n<<<\n" + "\n".join(lineas) + "\n>>>\n"
                      if lineas else "(No hay transcripción del audio: arma los apuntes con lo que se ve en pantalla.)\n")
@@ -439,7 +443,7 @@ def pedir_a_claude(titulo, duracion, cues, pantallas):
                  " sirve para el código exacto y los datos que se ven:\n<<<\n"
                  + "\n\n".join(f"[{hms(t)}]\n{txt}" for t, txt in pantallas) + "\n>>>\n")
     prompt = PROMPT.format(titulo=titulo, duracion=hms(duracion), transcripcion=transcripcion,
-                           pantallas=extra)
+                           pantallas=extra + (f"\nMaterial que entrega el curso (recursos.py):\n<<<\n{codigo}\n>>>\n" if codigo else ""))
     for intento in range(2):
         texto = consultar_ia(prompt)
         try:
@@ -599,7 +603,7 @@ def consultar_ia(prompt, modelo=None):
 
 
 # ----------------------------------------------------------------- armado ----
-def armar(carpeta, titulo, capturas, subs, datos, duracion):
+def armar(carpeta, titulo, capturas, subs, datos, duracion, recursos_md=""):
     cues_es = subs.get("es") or subs.get("en") or []
     idioma_txt = "español" if subs.get("es") else ("inglés" if subs.get("en") else None)
     importantes = [c for c in capturas if c[2]]
@@ -633,6 +637,8 @@ def armar(carpeta, titulo, capturas, subs, datos, duracion):
     L += ["## 🗂️ Índice", ""]
     L += [f"{k + 1}. [{s['titulo']}](#{k + 1}-{ancla(s['titulo'])}) · `{hms(s['ini'])}`" for k, s in enumerate(secciones)]
     L += ["", "---", ""]
+    if recursos_md:
+        L += [recursos_md, "---", ""]
 
     for k, s in enumerate(secciones):
         L += [f"## {k + 1}. {s['titulo']}", "", f"⏱️ `{hms(s['ini'])} – {hms(min(s['fin'], duracion))}`", ""]
@@ -776,6 +782,28 @@ def main():
             if not glob.glob(os.path.join(glob.escape(carpeta), f"subtitulos.{idioma}*")):
                 shutil.copyfile(ruta, dst)
     print(f"🗣️ Subtítulos: {', '.join(subs) or 'ninguno'}")
+
+    # Material del curso junto al video (código del profe, lecturas, enlaces). Se guarda en la clase
+    # (codigo-del-curso/ y .recursos.md) para poder rehacer los apuntes sin el video.
+    codigo_curso, recursos_md = "", ""
+    ruta_md = os.path.join(carpeta, ".recursos.md")
+    if a.video and os.environ.get("SIN_RECURSOS") != "1":
+        rec = rec_curso.de_la_clase(a.video)
+        copiados = rec_curso.copiar_a_clase(rec, carpeta) if any(rec[k] for k in ("clase", "lecturas", "pdf", "imagenes")) else []
+        recursos_md = rec_curso.seccion_md(rec, copiados)
+        pantalla = "\n".join((cc.textos(carpeta, [c[0] for c in capturas if c[2]]) or {}).values()) \
+            if os.environ.get("CAPTURAS_CLAVE") != "0" else ""
+        codigo_curso = rec_curso.codigo_para_ia(rec, pantalla)
+        with open(ruta_md, "w", encoding="utf-8") as f:
+            f.write(recursos_md)
+        if codigo_curso or recursos_md:
+            print(f"📎 Recursos del curso: {len(rec['clase'])} de la clase, {len(rec['proyecto'])} del proyecto, "
+                  f"{len(rec['lecturas'])} lecturas, {len(rec['enlaces'])} enlaces")
+    elif os.path.exists(ruta_md):
+        recursos_md = open(ruta_md, encoding="utf-8").read()
+        dcc = os.path.join(carpeta, "codigo-del-curso")
+        if os.path.isdir(dcc):  # sin el video: el código que ya se copió a la clase
+            codigo_curso = rec_curso.codigo_para_ia({"clase": [dcc], "lecturas": [], "pdf": [], "proyecto": []})
     duracion = max([capturas[-1][1]] + [c[1] for v in subs.values() for c in v[-1:]])
 
     datos = None
@@ -794,7 +822,7 @@ def main():
         if subs or pantallas:
             print(f"🤖 Pidiendo a {nombre_motor()} apuntes + resumen corto…")
             reportar(75, "apuntes", f"{nombre_motor()} armando el resumen")
-            datos = pedir_a_claude(titulo, duracion, subs_para_claude(carpeta, subs), pantallas)
+            datos = pedir_a_claude(titulo, duracion, subs_para_claude(carpeta, subs), pantallas, codigo_curso)
         if datos:
             corto = datos.pop("corto", None)
             with open(os.path.join(carpeta, ".apuntes-ia.json"), "w", encoding="utf-8") as f:
@@ -812,7 +840,7 @@ def main():
 
     reportar(97, "apuntes", "armando el cuadernillo")
     with open(salida, "w", encoding="utf-8") as f:
-        f.write(armar(carpeta, titulo, capturas, subs, datos, duracion))
+        f.write(armar(carpeta, titulo, capturas, subs, datos, duracion, recursos_md))
     if os.path.exists(rehacer) and (datos or a.sin_ia):
         os.remove(rehacer)  # sin IA por un fallo: queda marcada para el próximo intento
     print(f"📓 Listo: {salida}")
