@@ -9,7 +9,7 @@
         ],
         "disable_automatic_states": false,
         "encoder": null,
-        "icon": "custom-icons/equis.png",
+        "icon": "plugins/com.amansprojects.starterpack.sdPlugin/icons/runCommand.png",
         "name": "Run Command",
         "plugin": "com.amansprojects.starterpack.sdPlugin",
         "property_inspector": "plugins/com.amansprojects.starterpack.sdPlugin/propertyInspector/runCommand.html",
@@ -19,7 +19,7 @@
             "background_colour": "#000000",
             "colour": "#FFFFFF",
             "family": "Liberation Sans",
-            "image": "custom-icons/equis.png",
+            "image": "plugins/com.amansprojects.starterpack.sdPlugin/icons/runCommand.png",
             "image_scale": 100,
             "name": "",
             "show": true,
@@ -32,7 +32,7 @@
           }
         ],
         "supported_in_multi_actions": true,
-        "tooltip": "Cerrar\nventana",
+        "tooltip": "Facebook",
         "uuid": "com.amansprojects.starterpack.runcommand",
         "visible_in_action_list": true
       },
@@ -40,7 +40,7 @@
       "context": "Keypad.0.0",
       "current_state": 0,
       "settings": {
-        "down": "hyprctl dispatch 'hl.dsp.window.close()'",
+        "down": "bash /home/yafer/.config/hypr/scripts/app-web.sh facebook",
         "file": "",
         "rotate": "",
         "show": false,
@@ -49,10 +49,10 @@
       "states": [
         {
           "alignment": "middle",
-          "background_colour": "#000000",
+          "background_colour": "#be185d",
           "colour": "#FFFFFF",
           "family": "Liberation Sans",
-          "image": "custom-icons/equis.png",
+          "image": "custom-icons/_nada.png",
           "image_scale": 100,
           "name": "",
           "show": true,
@@ -60,7 +60,7 @@
           "stroke_colour": "#000000",
           "stroke_size": 3,
           "style": "Regular",
-          "text": "Cerrar\nventana",
+          "text": "Facebook",
           "underline": false
         }
       ]
@@ -73,7 +73,7 @@
         ],
         "disable_automatic_states": false,
         "encoder": null,
-        "icon": "custom-icons/arrow-up.png",
+        "icon": "plugins/com.amansprojects.starterpack.sdPlugin/icons/runCommand.png",
         "name": "Run Command",
         "plugin": "com.amansprojects.starterpack.sdPlugin",
         "property_inspector": "plugins/com.amansprojects.starterpack.sdPlugin/propertyInspector/runCommand.html",
@@ -83,7 +83,7 @@
             "background_colour": "#000000",
             "colour": "#FFFFFF",
             "family": "Liberation Sans",
-            "image": "custom-icons/arrow-up.png",
+            "image": "plugins/com.amansprojects.starterpack.sdPlugin/icons/runCommand.png",
             "image_scale": 100,
             "name": "",
             "show": true,
@@ -96,7 +96,7 @@
           }
         ],
         "supported_in_multi_actions": true,
-        "tooltip": "Foco",
+        "tooltip": "Instagram",
         "uuid": "com.amansprojects.starterpack.runcommand",
         "visible_in_action_list": true
       },
@@ -104,7 +104,7 @@
       "context": "Keypad.1.0",
       "current_state": 0,
       "settings": {
-        "down": "hyprctl dispatch 'hl.dsp.focus({ direction = \"up\" })'",
+        "down": "bash /home/yafer/.config/hypr/scripts/app-web.sh instagram",
         "file": "",
         "rotate": "",
         "show": false,
@@ -113,10 +113,10 @@
       "states": [
         {
           "alignment": "middle",
-          "background_colour": "#000000",
+          "background_colour": "#be185d",
           "colour": "#FFFFFF",
           "family": "Liberation Sans",
-          "image": "custom-icons/arrow-up.png",
+          "image": "custom-icons/_nada.png",
           "image_scale": 100,
           "name": "",
           "show": true,
@@ -124,7 +124,647 @@
           "stroke_colour": "#000000",
           "stroke_size": 3,
           "style": "Regular",
-          "text": "Foco",
+          "text": "Instagram",
+          "underline": false
+        }
+      ]
+    },
+    {
+      "action": {
+        "controllers": [
+          "Keypad",
+          "Encoder"
+        ],
+        "disable_automatic_states": false,
+        "encoder": null,
+        "icon": "plugins/com.amansprojects.starterpack.sdPlugin/icons/runCommand.png",
+        "name": "Run Command",
+        "plugin": "com.amansprojects.starterpack.sdPlugin",
+        "property_inspector": "plugins/com.amansprojects.starterpack.sdPlugin/propertyInspector/runCommand.html",
+        "states": [
+          {
+            "alignment": "middle",
+            "background_colour": "#000000",
+            "colour": "#FFFFFF",
+            "family": "Liberation Sans",
+            "image": "plugins/com.amansprojects.starterpack.sdPlugin/icons/runCommand.png",
+            "image_scale": 100,
+            "name": "",
+            "show": true,
+            "size": 13,
+            "stroke_colour": "#000000",
+            "stroke_size": 3,
+            "style": "Regular",
+            "text": "",
+            "underline": false
+          }
+        ],
+        "supported_in_multi_actions": true,
+        "tooltip": "TikTok",
+        "uuid": "com.amansprojects.starterpack.runcommand",
+        "visible_in_action_list": true
+      },
+      "children": null,
+      "context": "Keypad.2.0",
+      "current_state": 0,
+      "settings": {
+        "down": "bash /home/yafer/.config/hypr/scripts/app-web.sh tiktok",
+        "file": "",
+        "rotate": "",
+        "show": false,
+        "up": ""
+      },
+      "states": [
+        {
+          "alignment": "middle",
+          "background_colour": "#be185d",
+          "colour": "#FFFFFF",
+          "family": "Liberation Sans",
+          "image": "custom-icons/_nada.png",
+          "image_scale": 100,
+          "name": "",
+          "show": true,
+          "size": 13,
+          "stroke_colour": "#000000",
+          "stroke_size": 3,
+          "style": "Regular",
+          "text": "TikTok",
+          "underline": false
+        }
+      ]
+    },
+    {
+      "action": {
+        "controllers": [
+          "Keypad",
+          "Encoder"
+        ],
+        "disable_automatic_states": false,
+        "encoder": null,
+        "icon": "plugins/com.amansprojects.starterpack.sdPlugin/icons/runCommand.png",
+        "name": "Run Command",
+        "plugin": "com.amansprojects.starterpack.sdPlugin",
+        "property_inspector": "plugins/com.amansprojects.starterpack.sdPlugin/propertyInspector/runCommand.html",
+        "states": [
+          {
+            "alignment": "middle",
+            "background_colour": "#000000",
+            "colour": "#FFFFFF",
+            "family": "Liberation Sans",
+            "image": "plugins/com.amansprojects.starterpack.sdPlugin/icons/runCommand.png",
+            "image_scale": 100,
+            "name": "",
+            "show": true,
+            "size": 13,
+            "stroke_colour": "#000000",
+            "stroke_size": 3,
+            "style": "Regular",
+            "text": "",
+            "underline": false
+          }
+        ],
+        "supported_in_multi_actions": true,
+        "tooltip": "WhatsApp",
+        "uuid": "com.amansprojects.starterpack.runcommand",
+        "visible_in_action_list": true
+      },
+      "children": null,
+      "context": "Keypad.3.0",
+      "current_state": 0,
+      "settings": {
+        "down": "bash /home/yafer/.config/hypr/scripts/app-web.sh whatsapp",
+        "file": "",
+        "rotate": "",
+        "show": false,
+        "up": ""
+      },
+      "states": [
+        {
+          "alignment": "middle",
+          "background_colour": "#be185d",
+          "colour": "#FFFFFF",
+          "family": "Liberation Sans",
+          "image": "custom-icons/_nada.png",
+          "image_scale": 100,
+          "name": "",
+          "show": true,
+          "size": 13,
+          "stroke_colour": "#000000",
+          "stroke_size": 3,
+          "style": "Regular",
+          "text": "WhatsApp",
+          "underline": false
+        }
+      ]
+    },
+    {
+      "action": {
+        "controllers": [
+          "Keypad",
+          "Encoder"
+        ],
+        "disable_automatic_states": false,
+        "encoder": null,
+        "icon": "plugins/com.amansprojects.starterpack.sdPlugin/icons/runCommand.png",
+        "name": "Run Command",
+        "plugin": "com.amansprojects.starterpack.sdPlugin",
+        "property_inspector": "plugins/com.amansprojects.starterpack.sdPlugin/propertyInspector/runCommand.html",
+        "states": [
+          {
+            "alignment": "middle",
+            "background_colour": "#000000",
+            "colour": "#FFFFFF",
+            "family": "Liberation Sans",
+            "image": "plugins/com.amansprojects.starterpack.sdPlugin/icons/runCommand.png",
+            "image_scale": 100,
+            "name": "",
+            "show": true,
+            "size": 13,
+            "stroke_colour": "#000000",
+            "stroke_size": 3,
+            "style": "Regular",
+            "text": "",
+            "underline": false
+          }
+        ],
+        "supported_in_multi_actions": true,
+        "tooltip": "Telegram",
+        "uuid": "com.amansprojects.starterpack.runcommand",
+        "visible_in_action_list": true
+      },
+      "children": null,
+      "context": "Keypad.4.0",
+      "current_state": 0,
+      "settings": {
+        "down": "bash /home/yafer/.config/hypr/scripts/app-web.sh telegram",
+        "file": "",
+        "rotate": "",
+        "show": false,
+        "up": ""
+      },
+      "states": [
+        {
+          "alignment": "middle",
+          "background_colour": "#be185d",
+          "colour": "#FFFFFF",
+          "family": "Liberation Sans",
+          "image": "custom-icons/_nada.png",
+          "image_scale": 100,
+          "name": "",
+          "show": true,
+          "size": 13,
+          "stroke_colour": "#000000",
+          "stroke_size": 3,
+          "style": "Regular",
+          "text": "Telegram",
+          "underline": false
+        }
+      ]
+    },
+    {
+      "action": {
+        "controllers": [
+          "Keypad",
+          "Encoder"
+        ],
+        "disable_automatic_states": false,
+        "encoder": null,
+        "icon": "plugins/com.amansprojects.starterpack.sdPlugin/icons/runCommand.png",
+        "name": "Run Command",
+        "plugin": "com.amansprojects.starterpack.sdPlugin",
+        "property_inspector": "plugins/com.amansprojects.starterpack.sdPlugin/propertyInspector/runCommand.html",
+        "states": [
+          {
+            "alignment": "middle",
+            "background_colour": "#000000",
+            "colour": "#FFFFFF",
+            "family": "Liberation Sans",
+            "image": "plugins/com.amansprojects.starterpack.sdPlugin/icons/runCommand.png",
+            "image_scale": 100,
+            "name": "",
+            "show": true,
+            "size": 13,
+            "stroke_colour": "#000000",
+            "stroke_size": 3,
+            "style": "Regular",
+            "text": "",
+            "underline": false
+          }
+        ],
+        "supported_in_multi_actions": true,
+        "tooltip": "YouTube",
+        "uuid": "com.amansprojects.starterpack.runcommand",
+        "visible_in_action_list": true
+      },
+      "children": null,
+      "context": "Keypad.5.0",
+      "current_state": 0,
+      "settings": {
+        "down": "bash /home/yafer/.config/hypr/scripts/app-web.sh youtube",
+        "file": "",
+        "rotate": "",
+        "show": false,
+        "up": ""
+      },
+      "states": [
+        {
+          "alignment": "bottom",
+          "background_colour": "#be185d",
+          "colour": "#FFFFFF",
+          "family": "Liberation Sans",
+          "image": "custom-icons/youtube.png",
+          "image_scale": 100,
+          "name": "",
+          "show": true,
+          "size": 11,
+          "stroke_colour": "#000000",
+          "stroke_size": 3,
+          "style": "Regular",
+          "text": "YouTube",
+          "underline": false
+        }
+      ]
+    },
+    {
+      "action": {
+        "controllers": [
+          "Keypad",
+          "Encoder"
+        ],
+        "disable_automatic_states": false,
+        "encoder": null,
+        "icon": "plugins/com.amansprojects.starterpack.sdPlugin/icons/runCommand.png",
+        "name": "Run Command",
+        "plugin": "com.amansprojects.starterpack.sdPlugin",
+        "property_inspector": "plugins/com.amansprojects.starterpack.sdPlugin/propertyInspector/runCommand.html",
+        "states": [
+          {
+            "alignment": "middle",
+            "background_colour": "#000000",
+            "colour": "#FFFFFF",
+            "family": "Liberation Sans",
+            "image": "plugins/com.amansprojects.starterpack.sdPlugin/icons/runCommand.png",
+            "image_scale": 100,
+            "name": "",
+            "show": true,
+            "size": 13,
+            "stroke_colour": "#000000",
+            "stroke_size": 3,
+            "style": "Regular",
+            "text": "",
+            "underline": false
+          }
+        ],
+        "supported_in_multi_actions": true,
+        "tooltip": "Canva",
+        "uuid": "com.amansprojects.starterpack.runcommand",
+        "visible_in_action_list": true
+      },
+      "children": null,
+      "context": "Keypad.6.0",
+      "current_state": 0,
+      "settings": {
+        "down": "uwsm app -- brave --new-window \"https://www.canva.com\"",
+        "file": "",
+        "rotate": "",
+        "show": false,
+        "up": ""
+      },
+      "states": [
+        {
+          "alignment": "middle",
+          "background_colour": "#a21caf",
+          "colour": "#FFFFFF",
+          "family": "Liberation Sans",
+          "image": "custom-icons/_nada.png",
+          "image_scale": 100,
+          "name": "",
+          "show": true,
+          "size": 13,
+          "stroke_colour": "#000000",
+          "stroke_size": 3,
+          "style": "Regular",
+          "text": "Canva",
+          "underline": false
+        }
+      ]
+    },
+    {
+      "action": {
+        "controllers": [
+          "Keypad",
+          "Encoder"
+        ],
+        "disable_automatic_states": false,
+        "encoder": null,
+        "icon": "plugins/com.amansprojects.starterpack.sdPlugin/icons/runCommand.png",
+        "name": "Run Command",
+        "plugin": "com.amansprojects.starterpack.sdPlugin",
+        "property_inspector": "plugins/com.amansprojects.starterpack.sdPlugin/propertyInspector/runCommand.html",
+        "states": [
+          {
+            "alignment": "middle",
+            "background_colour": "#000000",
+            "colour": "#FFFFFF",
+            "family": "Liberation Sans",
+            "image": "plugins/com.amansprojects.starterpack.sdPlugin/icons/runCommand.png",
+            "image_scale": 100,
+            "name": "",
+            "show": true,
+            "size": 13,
+            "stroke_colour": "#000000",
+            "stroke_size": 3,
+            "style": "Regular",
+            "text": "",
+            "underline": false
+          }
+        ],
+        "supported_in_multi_actions": true,
+        "tooltip": "Figma",
+        "uuid": "com.amansprojects.starterpack.runcommand",
+        "visible_in_action_list": true
+      },
+      "children": null,
+      "context": "Keypad.7.0",
+      "current_state": 0,
+      "settings": {
+        "down": "uwsm app -- brave --new-window \"https://www.figma.com\"",
+        "file": "",
+        "rotate": "",
+        "show": false,
+        "up": ""
+      },
+      "states": [
+        {
+          "alignment": "middle",
+          "background_colour": "#a21caf",
+          "colour": "#FFFFFF",
+          "family": "Liberation Sans",
+          "image": "custom-icons/_nada.png",
+          "image_scale": 100,
+          "name": "",
+          "show": true,
+          "size": 13,
+          "stroke_colour": "#000000",
+          "stroke_size": 3,
+          "style": "Regular",
+          "text": "Figma",
+          "underline": false
+        }
+      ]
+    },
+    {
+      "action": {
+        "controllers": [
+          "Keypad",
+          "Encoder"
+        ],
+        "disable_automatic_states": false,
+        "encoder": null,
+        "icon": "plugins/com.amansprojects.starterpack.sdPlugin/icons/runCommand.png",
+        "name": "Run Command",
+        "plugin": "com.amansprojects.starterpack.sdPlugin",
+        "property_inspector": "plugins/com.amansprojects.starterpack.sdPlugin/propertyInspector/runCommand.html",
+        "states": [
+          {
+            "alignment": "middle",
+            "background_colour": "#000000",
+            "colour": "#FFFFFF",
+            "family": "Liberation Sans",
+            "image": "plugins/com.amansprojects.starterpack.sdPlugin/icons/runCommand.png",
+            "image_scale": 100,
+            "name": "",
+            "show": true,
+            "size": 13,
+            "stroke_colour": "#000000",
+            "stroke_size": 3,
+            "style": "Regular",
+            "text": "",
+            "underline": false
+          }
+        ],
+        "supported_in_multi_actions": true,
+        "tooltip": "Ideogram",
+        "uuid": "com.amansprojects.starterpack.runcommand",
+        "visible_in_action_list": true
+      },
+      "children": null,
+      "context": "Keypad.8.0",
+      "current_state": 0,
+      "settings": {
+        "down": "uwsm app -- brave --new-window \"https://ideogram.ai\"",
+        "file": "",
+        "rotate": "",
+        "show": false,
+        "up": ""
+      },
+      "states": [
+        {
+          "alignment": "middle",
+          "background_colour": "#a21caf",
+          "colour": "#FFFFFF",
+          "family": "Liberation Sans",
+          "image": "custom-icons/_nada.png",
+          "image_scale": 100,
+          "name": "",
+          "show": true,
+          "size": 13,
+          "stroke_colour": "#000000",
+          "stroke_size": 3,
+          "style": "Regular",
+          "text": "Ideogram",
+          "underline": false
+        }
+      ]
+    },
+    {
+      "action": {
+        "controllers": [
+          "Keypad",
+          "Encoder"
+        ],
+        "disable_automatic_states": false,
+        "encoder": null,
+        "icon": "plugins/com.amansprojects.starterpack.sdPlugin/icons/runCommand.png",
+        "name": "Run Command",
+        "plugin": "com.amansprojects.starterpack.sdPlugin",
+        "property_inspector": "plugins/com.amansprojects.starterpack.sdPlugin/propertyInspector/runCommand.html",
+        "states": [
+          {
+            "alignment": "middle",
+            "background_colour": "#000000",
+            "colour": "#FFFFFF",
+            "family": "Liberation Sans",
+            "image": "plugins/com.amansprojects.starterpack.sdPlugin/icons/runCommand.png",
+            "image_scale": 100,
+            "name": "",
+            "show": true,
+            "size": 13,
+            "stroke_colour": "#000000",
+            "stroke_size": 3,
+            "style": "Regular",
+            "text": "",
+            "underline": false
+          }
+        ],
+        "supported_in_multi_actions": true,
+        "tooltip": "Bing Image",
+        "uuid": "com.amansprojects.starterpack.runcommand",
+        "visible_in_action_list": true
+      },
+      "children": null,
+      "context": "Keypad.9.0",
+      "current_state": 0,
+      "settings": {
+        "down": "uwsm app -- brave --new-window \"https://www.bing.com/images/create\"",
+        "file": "",
+        "rotate": "",
+        "show": false,
+        "up": ""
+      },
+      "states": [
+        {
+          "alignment": "middle",
+          "background_colour": "#a21caf",
+          "colour": "#FFFFFF",
+          "family": "Liberation Sans",
+          "image": "custom-icons/_nada.png",
+          "image_scale": 100,
+          "name": "",
+          "show": true,
+          "size": 13,
+          "stroke_colour": "#000000",
+          "stroke_size": 3,
+          "style": "Regular",
+          "text": "Bing\nImage",
+          "underline": false
+        }
+      ]
+    },
+    {
+      "action": {
+        "controllers": [
+          "Keypad",
+          "Encoder"
+        ],
+        "disable_automatic_states": false,
+        "encoder": null,
+        "icon": "plugins/com.amansprojects.starterpack.sdPlugin/icons/runCommand.png",
+        "name": "Run Command",
+        "plugin": "com.amansprojects.starterpack.sdPlugin",
+        "property_inspector": "plugins/com.amansprojects.starterpack.sdPlugin/propertyInspector/runCommand.html",
+        "states": [
+          {
+            "alignment": "middle",
+            "background_colour": "#000000",
+            "colour": "#FFFFFF",
+            "family": "Liberation Sans",
+            "image": "plugins/com.amansprojects.starterpack.sdPlugin/icons/runCommand.png",
+            "image_scale": 100,
+            "name": "",
+            "show": true,
+            "size": 13,
+            "stroke_colour": "#000000",
+            "stroke_size": 3,
+            "style": "Regular",
+            "text": "",
+            "underline": false
+          }
+        ],
+        "supported_in_multi_actions": true,
+        "tooltip": "Dribbble",
+        "uuid": "com.amansprojects.starterpack.runcommand",
+        "visible_in_action_list": true
+      },
+      "children": null,
+      "context": "Keypad.10.0",
+      "current_state": 0,
+      "settings": {
+        "down": "uwsm app -- brave --new-window \"https://dribbble.com\"",
+        "file": "",
+        "rotate": "",
+        "show": false,
+        "up": ""
+      },
+      "states": [
+        {
+          "alignment": "middle",
+          "background_colour": "#a21caf",
+          "colour": "#FFFFFF",
+          "family": "Liberation Sans",
+          "image": "custom-icons/_nada.png",
+          "image_scale": 100,
+          "name": "",
+          "show": true,
+          "size": 13,
+          "stroke_colour": "#000000",
+          "stroke_size": 3,
+          "style": "Regular",
+          "text": "Dribbble",
+          "underline": false
+        }
+      ]
+    },
+    {
+      "action": {
+        "controllers": [
+          "Keypad",
+          "Encoder"
+        ],
+        "disable_automatic_states": false,
+        "encoder": null,
+        "icon": "plugins/com.amansprojects.starterpack.sdPlugin/icons/runCommand.png",
+        "name": "Run Command",
+        "plugin": "com.amansprojects.starterpack.sdPlugin",
+        "property_inspector": "plugins/com.amansprojects.starterpack.sdPlugin/propertyInspector/runCommand.html",
+        "states": [
+          {
+            "alignment": "middle",
+            "background_colour": "#000000",
+            "colour": "#FFFFFF",
+            "family": "Liberation Sans",
+            "image": "plugins/com.amansprojects.starterpack.sdPlugin/icons/runCommand.png",
+            "image_scale": 100,
+            "name": "",
+            "show": true,
+            "size": 13,
+            "stroke_colour": "#000000",
+            "stroke_size": 3,
+            "style": "Regular",
+            "text": "",
+            "underline": false
+          }
+        ],
+        "supported_in_multi_actions": true,
+        "tooltip": "Gamma",
+        "uuid": "com.amansprojects.starterpack.runcommand",
+        "visible_in_action_list": true
+      },
+      "children": null,
+      "context": "Keypad.11.0",
+      "current_state": 0,
+      "settings": {
+        "down": "uwsm app -- brave --new-window \"https://gamma.app\"",
+        "file": "",
+        "rotate": "",
+        "show": false,
+        "up": ""
+      },
+      "states": [
+        {
+          "alignment": "middle",
+          "background_colour": "#a21caf",
+          "colour": "#FFFFFF",
+          "family": "Liberation Sans",
+          "image": "custom-icons/_nada.png",
+          "image_scale": 100,
+          "name": "",
+          "show": true,
+          "size": 13,
+          "stroke_colour": "#000000",
+          "stroke_size": 3,
+          "style": "Regular",
+          "text": "Gamma",
           "underline": false
         }
       ]
@@ -160,540 +800,26 @@
           }
         ],
         "supported_in_multi_actions": true,
-        "tooltip": "Escritorios",
+        "tooltip": "Ir a Estudio",
         "uuid": "com.amansprojects.starterpack.switchprofile",
-        "visible_in_action_list": true
-      },
-      "children": null,
-      "context": "Keypad.2.0",
-      "current_state": 0,
-      "settings": {
-        "anticlockwise": "",
-        "clockwise": "",
-        "device": "d6-355499441494-AMPGD6",
-        "profile": "Escritorios"
-      },
-      "states": [
-        {
-          "alignment": "middle",
-          "background_colour": "#000000",
-          "colour": "#FFFFFF",
-          "family": "Liberation Sans",
-          "image": "plugins/com.amansprojects.starterpack.sdPlugin/icons/switchProfile.png",
-          "image_scale": 100,
-          "name": "",
-          "show": true,
-          "size": 13,
-          "stroke_colour": "#000000",
-          "stroke_size": 3,
-          "style": "Regular",
-          "text": "Escritorios",
-          "underline": false
-        }
-      ]
-    },
-    {
-      "action": {
-        "controllers": [
-          "Keypad",
-          "Encoder"
-        ],
-        "disable_automatic_states": false,
-        "encoder": null,
-        "icon": "custom-icons/maximize.png",
-        "name": "Run Command",
-        "plugin": "com.amansprojects.starterpack.sdPlugin",
-        "property_inspector": "plugins/com.amansprojects.starterpack.sdPlugin/propertyInspector/runCommand.html",
-        "states": [
-          {
-            "alignment": "middle",
-            "background_colour": "#000000",
-            "colour": "#FFFFFF",
-            "family": "Liberation Sans",
-            "image": "custom-icons/maximize.png",
-            "image_scale": 100,
-            "name": "",
-            "show": true,
-            "size": 13,
-            "stroke_colour": "#000000",
-            "stroke_size": 3,
-            "style": "Regular",
-            "text": "",
-            "underline": false
-          }
-        ],
-        "supported_in_multi_actions": true,
-        "tooltip": "Maximizar",
-        "uuid": "com.amansprojects.starterpack.runcommand",
-        "visible_in_action_list": true
-      },
-      "children": null,
-      "context": "Keypad.3.0",
-      "current_state": 0,
-      "settings": {
-        "down": "hyprctl dispatch 'hl.dsp.window.fullscreen({ mode = 1 })'",
-        "file": "",
-        "rotate": "",
-        "show": false,
-        "up": ""
-      },
-      "states": [
-        {
-          "alignment": "middle",
-          "background_colour": "#000000",
-          "colour": "#FFFFFF",
-          "family": "Liberation Sans",
-          "image": "custom-icons/maximize.png",
-          "image_scale": 100,
-          "name": "",
-          "show": true,
-          "size": 13,
-          "stroke_colour": "#000000",
-          "stroke_size": 3,
-          "style": "Regular",
-          "text": "Maximizar",
-          "underline": false
-        }
-      ]
-    },
-    {
-      "action": {
-        "controllers": [
-          "Keypad",
-          "Encoder"
-        ],
-        "disable_automatic_states": false,
-        "encoder": null,
-        "icon": "custom-icons/pantalla-completa.png",
-        "name": "Run Command",
-        "plugin": "com.amansprojects.starterpack.sdPlugin",
-        "property_inspector": "plugins/com.amansprojects.starterpack.sdPlugin/propertyInspector/runCommand.html",
-        "states": [
-          {
-            "alignment": "middle",
-            "background_colour": "#000000",
-            "colour": "#FFFFFF",
-            "family": "Liberation Sans",
-            "image": "custom-icons/pantalla-completa.png",
-            "image_scale": 100,
-            "name": "",
-            "show": true,
-            "size": 13,
-            "stroke_colour": "#000000",
-            "stroke_size": 3,
-            "style": "Regular",
-            "text": "",
-            "underline": false
-          }
-        ],
-        "supported_in_multi_actions": true,
-        "tooltip": "Pantalla\ncompleta",
-        "uuid": "com.amansprojects.starterpack.runcommand",
-        "visible_in_action_list": true
-      },
-      "children": null,
-      "context": "Keypad.4.0",
-      "current_state": 0,
-      "settings": {
-        "down": "hyprctl dispatch 'hl.dsp.window.fullscreen()'",
-        "file": "",
-        "rotate": "",
-        "show": false,
-        "up": ""
-      },
-      "states": [
-        {
-          "alignment": "middle",
-          "background_colour": "#000000",
-          "colour": "#FFFFFF",
-          "family": "Liberation Sans",
-          "image": "custom-icons/pantalla-completa.png",
-          "image_scale": 100,
-          "name": "",
-          "show": true,
-          "size": 13,
-          "stroke_colour": "#000000",
-          "stroke_size": 3,
-          "style": "Regular",
-          "text": "Pantalla\ncompleta",
-          "underline": false
-        }
-      ]
-    },
-    {
-      "action": {
-        "controllers": [
-          "Keypad",
-          "Encoder"
-        ],
-        "disable_automatic_states": false,
-        "encoder": null,
-        "icon": "custom-icons/arrow-left.png",
-        "name": "Run Command",
-        "plugin": "com.amansprojects.starterpack.sdPlugin",
-        "property_inspector": "plugins/com.amansprojects.starterpack.sdPlugin/propertyInspector/runCommand.html",
-        "states": [
-          {
-            "alignment": "middle",
-            "background_colour": "#000000",
-            "colour": "#FFFFFF",
-            "family": "Liberation Sans",
-            "image": "custom-icons/arrow-left.png",
-            "image_scale": 100,
-            "name": "",
-            "show": true,
-            "size": 13,
-            "stroke_colour": "#000000",
-            "stroke_size": 3,
-            "style": "Regular",
-            "text": "",
-            "underline": false
-          }
-        ],
-        "supported_in_multi_actions": true,
-        "tooltip": "Foco",
-        "uuid": "com.amansprojects.starterpack.runcommand",
-        "visible_in_action_list": true
-      },
-      "children": null,
-      "context": "Keypad.5.0",
-      "current_state": 0,
-      "settings": {
-        "down": "hyprctl dispatch 'hl.dsp.focus({ direction = \"left\" })'",
-        "file": "",
-        "rotate": "",
-        "show": false,
-        "up": ""
-      },
-      "states": [
-        {
-          "alignment": "middle",
-          "background_colour": "#000000",
-          "colour": "#FFFFFF",
-          "family": "Liberation Sans",
-          "image": "custom-icons/arrow-left.png",
-          "image_scale": 100,
-          "name": "",
-          "show": true,
-          "size": 13,
-          "stroke_colour": "#000000",
-          "stroke_size": 3,
-          "style": "Regular",
-          "text": "Foco",
-          "underline": false
-        }
-      ]
-    },
-    {
-      "action": {
-        "controllers": [
-          "Keypad",
-          "Encoder"
-        ],
-        "disable_automatic_states": false,
-        "encoder": null,
-        "icon": "custom-icons/ciclar.png",
-        "name": "Run Command",
-        "plugin": "com.amansprojects.starterpack.sdPlugin",
-        "property_inspector": "plugins/com.amansprojects.starterpack.sdPlugin/propertyInspector/runCommand.html",
-        "states": [
-          {
-            "alignment": "middle",
-            "background_colour": "#000000",
-            "colour": "#FFFFFF",
-            "family": "Liberation Sans",
-            "image": "custom-icons/ciclar.png",
-            "image_scale": 100,
-            "name": "",
-            "show": true,
-            "size": 13,
-            "stroke_colour": "#000000",
-            "stroke_size": 3,
-            "style": "Regular",
-            "text": "",
-            "underline": false
-          }
-        ],
-        "supported_in_multi_actions": true,
-        "tooltip": "Ciclar\nventana",
-        "uuid": "com.amansprojects.starterpack.runcommand",
-        "visible_in_action_list": true
-      },
-      "children": null,
-      "context": "Keypad.6.0",
-      "current_state": 0,
-      "settings": {
-        "down": "hyprctl dispatch 'hl.dsp.window.cycle_next()'",
-        "file": "",
-        "rotate": "",
-        "show": false,
-        "up": ""
-      },
-      "states": [
-        {
-          "alignment": "middle",
-          "background_colour": "#000000",
-          "colour": "#FFFFFF",
-          "family": "Liberation Sans",
-          "image": "custom-icons/ciclar.png",
-          "image_scale": 100,
-          "name": "",
-          "show": true,
-          "size": 13,
-          "stroke_colour": "#000000",
-          "stroke_size": 3,
-          "style": "Regular",
-          "text": "Ciclar\nventana",
-          "underline": false
-        }
-      ]
-    },
-    {
-      "action": {
-        "controllers": [
-          "Keypad",
-          "Encoder"
-        ],
-        "disable_automatic_states": false,
-        "encoder": null,
-        "icon": "custom-icons/arrow-right.png",
-        "name": "Run Command",
-        "plugin": "com.amansprojects.starterpack.sdPlugin",
-        "property_inspector": "plugins/com.amansprojects.starterpack.sdPlugin/propertyInspector/runCommand.html",
-        "states": [
-          {
-            "alignment": "middle",
-            "background_colour": "#000000",
-            "colour": "#FFFFFF",
-            "family": "Liberation Sans",
-            "image": "custom-icons/arrow-right.png",
-            "image_scale": 100,
-            "name": "",
-            "show": true,
-            "size": 13,
-            "stroke_colour": "#000000",
-            "stroke_size": 3,
-            "style": "Regular",
-            "text": "",
-            "underline": false
-          }
-        ],
-        "supported_in_multi_actions": true,
-        "tooltip": "Foco",
-        "uuid": "com.amansprojects.starterpack.runcommand",
-        "visible_in_action_list": true
-      },
-      "children": null,
-      "context": "Keypad.7.0",
-      "current_state": 0,
-      "settings": {
-        "down": "hyprctl dispatch 'hl.dsp.focus({ direction = \"right\" })'",
-        "file": "",
-        "rotate": "",
-        "show": false,
-        "up": ""
-      },
-      "states": [
-        {
-          "alignment": "middle",
-          "background_colour": "#000000",
-          "colour": "#FFFFFF",
-          "family": "Liberation Sans",
-          "image": "custom-icons/arrow-right.png",
-          "image_scale": 100,
-          "name": "",
-          "show": true,
-          "size": 13,
-          "stroke_colour": "#000000",
-          "stroke_size": 3,
-          "style": "Regular",
-          "text": "Foco",
-          "underline": false
-        }
-      ]
-    },
-    null,
-    {
-      "action": {
-        "controllers": [
-          "Keypad",
-          "Encoder"
-        ],
-        "disable_automatic_states": false,
-        "encoder": null,
-        "icon": "custom-icons/split.png",
-        "name": "Run Command",
-        "plugin": "com.amansprojects.starterpack.sdPlugin",
-        "property_inspector": "plugins/com.amansprojects.starterpack.sdPlugin/propertyInspector/runCommand.html",
-        "states": [
-          {
-            "alignment": "middle",
-            "background_colour": "#000000",
-            "colour": "#FFFFFF",
-            "family": "Liberation Sans",
-            "image": "custom-icons/split.png",
-            "image_scale": 100,
-            "name": "",
-            "show": true,
-            "size": 13,
-            "stroke_colour": "#000000",
-            "stroke_size": 3,
-            "style": "Regular",
-            "text": "",
-            "underline": false
-          }
-        ],
-        "supported_in_multi_actions": true,
-        "tooltip": "Dividir\nlayout",
-        "uuid": "com.amansprojects.starterpack.runcommand",
-        "visible_in_action_list": true
-      },
-      "children": null,
-      "context": "Keypad.9.0",
-      "current_state": 0,
-      "settings": {
-        "down": "hyprctl dispatch 'hl.dsp.layout(\"togglesplit\")'",
-        "file": "",
-        "rotate": "",
-        "show": false,
-        "up": ""
-      },
-      "states": [
-        {
-          "alignment": "middle",
-          "background_colour": "#000000",
-          "colour": "#FFFFFF",
-          "family": "Liberation Sans",
-          "image": "custom-icons/split.png",
-          "image_scale": 100,
-          "name": "",
-          "show": true,
-          "size": 13,
-          "stroke_colour": "#000000",
-          "stroke_size": 3,
-          "style": "Regular",
-          "text": "Dividir\nlayout",
-          "underline": false
-        }
-      ]
-    },
-    null,
-    {
-      "action": {
-        "controllers": [
-          "Keypad",
-          "Encoder"
-        ],
-        "disable_automatic_states": false,
-        "encoder": null,
-        "icon": "custom-icons/arrow-down.png",
-        "name": "Run Command",
-        "plugin": "com.amansprojects.starterpack.sdPlugin",
-        "property_inspector": "plugins/com.amansprojects.starterpack.sdPlugin/propertyInspector/runCommand.html",
-        "states": [
-          {
-            "alignment": "middle",
-            "background_colour": "#000000",
-            "colour": "#FFFFFF",
-            "family": "Liberation Sans",
-            "image": "custom-icons/arrow-down.png",
-            "image_scale": 100,
-            "name": "",
-            "show": true,
-            "size": 13,
-            "stroke_colour": "#000000",
-            "stroke_size": 3,
-            "style": "Regular",
-            "text": "",
-            "underline": false
-          }
-        ],
-        "supported_in_multi_actions": true,
-        "tooltip": "Foco",
-        "uuid": "com.amansprojects.starterpack.runcommand",
-        "visible_in_action_list": true
-      },
-      "children": null,
-      "context": "Keypad.11.0",
-      "current_state": 0,
-      "settings": {
-        "down": "hyprctl dispatch 'hl.dsp.focus({ direction = \"down\" })'",
-        "file": "",
-        "rotate": "",
-        "show": false,
-        "up": ""
-      },
-      "states": [
-        {
-          "alignment": "middle",
-          "background_colour": "#000000",
-          "colour": "#FFFFFF",
-          "family": "Liberation Sans",
-          "image": "custom-icons/arrow-down.png",
-          "image_scale": 100,
-          "name": "",
-          "show": true,
-          "size": 13,
-          "stroke_colour": "#000000",
-          "stroke_size": 3,
-          "style": "Regular",
-          "text": "Foco",
-          "underline": false
-        }
-      ]
-    },
-    {
-      "action": {
-        "controllers": [
-          "Keypad",
-          "Encoder"
-        ],
-        "disable_automatic_states": false,
-        "encoder": null,
-        "icon": "custom-icons/selector-ventanas.png",
-        "name": "Run Command",
-        "plugin": "com.amansprojects.starterpack.sdPlugin",
-        "property_inspector": "plugins/com.amansprojects.starterpack.sdPlugin/propertyInspector/runCommand.html",
-        "states": [
-          {
-            "alignment": "middle",
-            "background_colour": "#000000",
-            "colour": "#FFFFFF",
-            "family": "Liberation Sans",
-            "image": "custom-icons/selector-ventanas.png",
-            "image_scale": 100,
-            "name": "",
-            "show": true,
-            "size": 13,
-            "stroke_colour": "#000000",
-            "stroke_size": 3,
-            "style": "Regular",
-            "text": "",
-            "underline": false
-          }
-        ],
-        "supported_in_multi_actions": true,
-        "tooltip": "Selector\nventanas",
-        "uuid": "com.amansprojects.starterpack.runcommand",
         "visible_in_action_list": true
       },
       "children": null,
       "context": "Keypad.12.0",
       "current_state": 0,
       "settings": {
-        "down": "noctalia msg window-switcher",
-        "file": "",
-        "rotate": "",
-        "show": false,
-        "up": ""
+        "anticlockwise": "",
+        "clockwise": "",
+        "device": "99-355499441494-293S",
+        "profile": "Default"
       },
       "states": [
         {
           "alignment": "middle",
-          "background_colour": "#000000",
+          "background_colour": "#3f3f46",
           "colour": "#FFFFFF",
           "family": "Liberation Sans",
-          "image": "custom-icons/selector-ventanas.png",
+          "image": "custom-icons/_nada.png",
           "image_scale": 100,
           "name": "",
           "show": true,
@@ -701,7 +827,7 @@
           "stroke_colour": "#000000",
           "stroke_size": 3,
           "style": "Regular",
-          "text": "Selector\nventanas",
+          "text": "Estudio",
           "underline": false
         }
       ]
@@ -714,17 +840,17 @@
         ],
         "disable_automatic_states": false,
         "encoder": null,
-        "icon": "custom-icons/flotar.png",
-        "name": "Run Command",
+        "icon": "plugins/com.amansprojects.starterpack.sdPlugin/icons/switchProfile.png",
+        "name": "Switch Profile",
         "plugin": "com.amansprojects.starterpack.sdPlugin",
-        "property_inspector": "plugins/com.amansprojects.starterpack.sdPlugin/propertyInspector/runCommand.html",
+        "property_inspector": "plugins/com.amansprojects.starterpack.sdPlugin/propertyInspector/switchProfile.html",
         "states": [
           {
             "alignment": "middle",
             "background_colour": "#000000",
             "colour": "#FFFFFF",
             "family": "Liberation Sans",
-            "image": "custom-icons/flotar.png",
+            "image": "plugins/com.amansprojects.starterpack.sdPlugin/icons/switchProfile.png",
             "image_scale": 100,
             "name": "",
             "show": true,
@@ -737,27 +863,26 @@
           }
         ],
         "supported_in_multi_actions": true,
-        "tooltip": "Flotar /\nMosaico",
-        "uuid": "com.amansprojects.starterpack.runcommand",
+        "tooltip": "Ir a Uni",
+        "uuid": "com.amansprojects.starterpack.switchprofile",
         "visible_in_action_list": true
       },
       "children": null,
       "context": "Keypad.13.0",
       "current_state": 0,
       "settings": {
-        "down": "hyprctl dispatch 'hl.dsp.window.float({ action = \"toggle\" })'",
-        "file": "",
-        "rotate": "",
-        "show": false,
-        "up": ""
+        "anticlockwise": "",
+        "clockwise": "",
+        "device": "99-355499441494-293S",
+        "profile": "Uni"
       },
       "states": [
         {
           "alignment": "middle",
-          "background_colour": "#000000",
+          "background_colour": "#3f3f46",
           "colour": "#FFFFFF",
           "family": "Liberation Sans",
-          "image": "custom-icons/flotar.png",
+          "image": "custom-icons/_nada.png",
           "image_scale": 100,
           "name": "",
           "show": true,
@@ -765,12 +890,265 @@
           "stroke_colour": "#000000",
           "stroke_size": 3,
           "style": "Regular",
-          "text": "Flotar /\nMosaico",
+          "text": "Uni",
           "underline": false
         }
       ]
     },
-    null
+    {
+      "action": {
+        "controllers": [
+          "Keypad",
+          "Encoder"
+        ],
+        "disable_automatic_states": false,
+        "encoder": null,
+        "icon": "plugins/com.amansprojects.starterpack.sdPlugin/icons/switchProfile.png",
+        "name": "Switch Profile",
+        "plugin": "com.amansprojects.starterpack.sdPlugin",
+        "property_inspector": "plugins/com.amansprojects.starterpack.sdPlugin/propertyInspector/switchProfile.html",
+        "states": [
+          {
+            "alignment": "middle",
+            "background_colour": "#000000",
+            "colour": "#FFFFFF",
+            "family": "Liberation Sans",
+            "image": "plugins/com.amansprojects.starterpack.sdPlugin/icons/switchProfile.png",
+            "image_scale": 100,
+            "name": "",
+            "show": true,
+            "size": 13,
+            "stroke_colour": "#000000",
+            "stroke_size": 3,
+            "style": "Regular",
+            "text": "",
+            "underline": false
+          }
+        ],
+        "supported_in_multi_actions": true,
+        "tooltip": "Ir a Dev",
+        "uuid": "com.amansprojects.starterpack.switchprofile",
+        "visible_in_action_list": true
+      },
+      "children": null,
+      "context": "Keypad.14.0",
+      "current_state": 0,
+      "settings": {
+        "anticlockwise": "",
+        "clockwise": "",
+        "device": "99-355499441494-293S",
+        "profile": "Dev"
+      },
+      "states": [
+        {
+          "alignment": "middle",
+          "background_colour": "#3f3f46",
+          "colour": "#FFFFFF",
+          "family": "Liberation Sans",
+          "image": "custom-icons/_nada.png",
+          "image_scale": 100,
+          "name": "",
+          "show": true,
+          "size": 13,
+          "stroke_colour": "#000000",
+          "stroke_size": 3,
+          "style": "Regular",
+          "text": "Dev",
+          "underline": false
+        }
+      ]
+    },
+    {
+      "action": {
+        "controllers": [
+          "Keypad",
+          "Encoder"
+        ],
+        "disable_automatic_states": false,
+        "encoder": null,
+        "icon": "plugins/com.amansprojects.starterpack.sdPlugin/icons/switchProfile.png",
+        "name": "Switch Profile",
+        "plugin": "com.amansprojects.starterpack.sdPlugin",
+        "property_inspector": "plugins/com.amansprojects.starterpack.sdPlugin/propertyInspector/switchProfile.html",
+        "states": [
+          {
+            "alignment": "middle",
+            "background_colour": "#000000",
+            "colour": "#FFFFFF",
+            "family": "Liberation Sans",
+            "image": "plugins/com.amansprojects.starterpack.sdPlugin/icons/switchProfile.png",
+            "image_scale": 100,
+            "name": "",
+            "show": true,
+            "size": 13,
+            "stroke_colour": "#000000",
+            "stroke_size": 3,
+            "style": "Regular",
+            "text": "",
+            "underline": false
+          }
+        ],
+        "supported_in_multi_actions": true,
+        "tooltip": "Ir a Redes",
+        "uuid": "com.amansprojects.starterpack.switchprofile",
+        "visible_in_action_list": true
+      },
+      "children": null,
+      "context": "Keypad.15.0",
+      "current_state": 0,
+      "settings": {
+        "anticlockwise": "",
+        "clockwise": "",
+        "device": "99-355499441494-293S",
+        "profile": "Redes"
+      },
+      "states": [
+        {
+          "alignment": "middle",
+          "background_colour": "#facc15",
+          "colour": "#000000",
+          "family": "Liberation Sans",
+          "image": "custom-icons/_nada.png",
+          "image_scale": 100,
+          "name": "",
+          "show": true,
+          "size": 13,
+          "stroke_colour": "#000000",
+          "stroke_size": 3,
+          "style": "Regular",
+          "text": "Redes",
+          "underline": false
+        }
+      ]
+    },
+    {
+      "action": {
+        "controllers": [
+          "Keypad",
+          "Encoder"
+        ],
+        "disable_automatic_states": false,
+        "encoder": null,
+        "icon": "plugins/com.amansprojects.starterpack.sdPlugin/icons/runCommand.png",
+        "name": "Run Command",
+        "plugin": "com.amansprojects.starterpack.sdPlugin",
+        "property_inspector": "plugins/com.amansprojects.starterpack.sdPlugin/propertyInspector/runCommand.html",
+        "states": [
+          {
+            "alignment": "middle",
+            "background_colour": "#000000",
+            "colour": "#FFFFFF",
+            "family": "Liberation Sans",
+            "image": "plugins/com.amansprojects.starterpack.sdPlugin/icons/runCommand.png",
+            "image_scale": 100,
+            "name": "",
+            "show": true,
+            "size": 13,
+            "stroke_colour": "#000000",
+            "stroke_size": 3,
+            "style": "Regular",
+            "text": "",
+            "underline": false
+          }
+        ],
+        "supported_in_multi_actions": true,
+        "tooltip": "Captura guardada en la carpeta del curso (CTRL+SHIFT+S)",
+        "uuid": "com.amansprojects.starterpack.runcommand",
+        "visible_in_action_list": true
+      },
+      "children": null,
+      "context": "Keypad.16.0",
+      "current_state": 0,
+      "settings": {
+        "down": "bash /home/yafer/.config/hypr/scripts/captura-guardar.sh",
+        "file": "",
+        "rotate": "",
+        "show": false,
+        "up": ""
+      },
+      "states": [
+        {
+          "alignment": "bottom",
+          "background_colour": "#15803d",
+          "colour": "#FFFFFF",
+          "family": "Liberation Sans",
+          "image": "custom-icons/screenshot.png",
+          "image_scale": 100,
+          "name": "",
+          "show": true,
+          "size": 11,
+          "stroke_colour": "#000000",
+          "stroke_size": 3,
+          "style": "Regular",
+          "text": "Captura",
+          "underline": false
+        }
+      ]
+    },
+    {
+      "action": {
+        "controllers": [
+          "Keypad",
+          "Encoder"
+        ],
+        "disable_automatic_states": false,
+        "encoder": null,
+        "icon": "plugins/com.amansprojects.starterpack.sdPlugin/icons/runCommand.png",
+        "name": "Run Command",
+        "plugin": "com.amansprojects.starterpack.sdPlugin",
+        "property_inspector": "plugins/com.amansprojects.starterpack.sdPlugin/propertyInspector/runCommand.html",
+        "states": [
+          {
+            "alignment": "middle",
+            "background_colour": "#000000",
+            "colour": "#FFFFFF",
+            "family": "Liberation Sans",
+            "image": "plugins/com.amansprojects.starterpack.sdPlugin/icons/runCommand.png",
+            "image_scale": 100,
+            "name": "",
+            "show": true,
+            "size": 13,
+            "stroke_colour": "#000000",
+            "stroke_size": 3,
+            "style": "Regular",
+            "text": "",
+            "underline": false
+          }
+        ],
+        "supported_in_multi_actions": true,
+        "tooltip": "Descarga el link copiado: video / 720p / MP3 / lista (SUPER+D)",
+        "uuid": "com.amansprojects.starterpack.runcommand",
+        "visible_in_action_list": true
+      },
+      "children": null,
+      "context": "Keypad.17.0",
+      "current_state": 0,
+      "settings": {
+        "down": "uwsm app -- bash /home/yafer/.config/hypr/scripts/descargar-menu.sh",
+        "file": "",
+        "rotate": "",
+        "show": false,
+        "up": ""
+      },
+      "states": [
+        {
+          "alignment": "bottom",
+          "background_colour": "#15803d",
+          "colour": "#FFFFFF",
+          "family": "Liberation Sans",
+          "image": "custom-icons/carpeta-flecha.png",
+          "image_scale": 100,
+          "name": "",
+          "show": true,
+          "size": 11,
+          "stroke_colour": "#000000",
+          "stroke_size": 3,
+          "style": "Regular",
+          "text": "Descargar",
+          "underline": false
+        }
+      ]
+    }
   ],
   "sliders": []
 }

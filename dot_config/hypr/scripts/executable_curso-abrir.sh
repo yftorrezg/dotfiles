@@ -1,6 +1,6 @@
 #!/bin/bash
 # SUPER+C: abre la sesión de estudio (curso + apuntes + extras opcionales)
-# en el workspace dedicado "estudio". Los slots se configuran con SUPER+ALT+C.
+# en el escritorio donde estés. Los slots se configuran con SUPER+ALT+C.
 
 CONFIG_FILE="$HOME/.config/hypr/scripts/curso.conf"
 
@@ -25,8 +25,7 @@ abrir_slot() {
     fi
 }
 
-# Hyprland con config Lua: la sintaxis vieja "dispatch workspace name:estudio" ya no anda.
-hyprctl dispatch 'hl.dsp.focus({ workspace = "name:estudio" })' >/dev/null
+# (09/10/2026) Ya no salta al workspace "estudio": todo se abre en el escritorio donde estés.
 
 abrir_slot "$SLOT1"
 sleep 0.4

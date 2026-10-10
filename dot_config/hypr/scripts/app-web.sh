@@ -4,7 +4,8 @@
 #  - Apps con escritorio fijo: si ya está abierta, salta a su escritorio virtual
 #    (ambos monitores) y la enfoca; si no, va a ese escritorio y la abre ahí
 #    (las reglas de windowrules.lua la ubican en el workspace correcto).
-#  - YouTube es libre: enfoca la ventana de YouTube del escritorio virtual actual
+#  - (09/10/2026) Solo las redes (facebook, instagram, tiktok, whatsapp, telegram) tienen escritorio fijo.
+#  - YouTube, Drive y VS Code son libres: enfoca la ventana de YouTube del escritorio virtual actual
 #    o abre una nueva ahí.
 # Escritorio virtual i = workspace i (cara principal, interna) + (i + NUM_WPM) (cara secundaria / Arzopa).
 
@@ -17,8 +18,8 @@ case "$1" in
     facebook)  url="https://www.facebook.com/";      clase="^brave-www\.facebook\.com__";  ws=1 ;;
     instagram) url="https://www.instagram.com/";     clase="^brave-www\.instagram\.com__"; ws=1 ;;
     tiktok)    url="https://www.tiktok.com/";        clase="^brave-www\.tiktok\.com__";    ws=1 ;;
-    drive)     url="https://drive.google.com/";      clase="^brave-drive\.google\.com__";  ws=8 ;;
-    code)      url="";                               clase="^(code|Code|code-oss)$";       ws=4 ;;
+    drive)     url="https://drive.google.com/";      clase="^brave-drive\.google\.com__";  ws="" ;;
+    code)      url="";                               clase="^(code|Code|code-oss)$";       ws="" ;;
     *) echo "uso: $0 <youtube|whatsapp|telegram|facebook|instagram|tiktok|drive|code>" >&2; exit 1 ;;
 esac
 

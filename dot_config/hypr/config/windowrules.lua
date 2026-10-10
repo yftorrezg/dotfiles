@@ -58,11 +58,11 @@ hl.window_rule({ match = { class = "^(dev\\.)?(noctalia\\.Noctalia(\\.Settings)?
 -- Escritorios fijos (25/09/2026). Escritorio virtual i = ws i (cara principal) + ws i+5 (cara secundaria:
 -- en la laptop sola se ve con SUPER+` / 3 dedos; con la Arzopa conectada es la Arzopa).
 -- Las apps web son "ventanas de app" de Brave (scripts/app-web.sh), con clase brave-<dominio>__-Default.
--- YouTube no tiene regla: se abre en el escritorio donde estés.
+-- YouTube, Drive y VS Code no tienen regla: se abren en el escritorio donde estés.
 local escritoriosFijos = {
     { clase = "^brave-www\\.(facebook|instagram|tiktok)\\.com__.*$", ws = "1" }, -- 1 principal: redes
     { clase = "^brave-web\\.(whatsapp\\.com|telegram\\.org)__.*$",   ws = "6" }, -- 1 secundaria: chats
-    { clase = "^brave-drive\\.google\\.com__.*$",                    ws = "8" }, -- 3 secundaria: apuntes
+    -- (09/10/2026) Quitado Drive (antes ws 8): ahora se abre en el escritorio donde estés. Solo las redes son fijas.
     -- (01/10/2026) Quitado VSCode: lo usa mucho, limitarlo al escritorio 4 no era práctico.
 }
 for _, r in ipairs(escritoriosFijos) do hl.window_rule({ match = { class = r.clase }, workspace = r.ws }) end
