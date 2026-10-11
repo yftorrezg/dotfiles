@@ -6,32 +6,32 @@ ThumbnailBarIsVisible=true
 [ImageView]
 BackgroundColorMode=Dark
 MouseWheelBehavior=MouseWheelBehavior::Browse
-ThumbnailSplitterSizes=773,221
+ThumbnailSplitterSizes=354,101
 
 [MainWindow]
 MenuBar=Disabled
 
 [Recent Files]
-File1[$e]=$HOME/Descargas/telegram/Universidad_Desarrollo_Web_FrontEnd_Web_Developer!_part01/capturas-clave/038 07 - Listas en HTML - 004 Listas Ordenadas en HTML (incluye personaliz · 0058 · 00-04-58.webp
-File10[$e]=$HOME/Descargas/telegram/Universidad_Desarrollo_Web_FrontEnd_Web_Developer!_part01/capturas-clave/038 07 - Listas en HTML - 004 Listas Ordenadas en HTML (incluye personaliz · 0084 · 00-07-21.webp
-File2[$e]=$HOME/Descargas/telegram/Universidad_Desarrollo_Web_FrontEnd_Web_Developer!_part01/capturas-clave/038 07 - Listas en HTML - 004 Listas Ordenadas en HTML (incluye personaliz · 0063 · 00-05-28.webp
-File3[$e]=$HOME/Descargas/telegram/Universidad_Desarrollo_Web_FrontEnd_Web_Developer!_part01/capturas-clave/038 07 - Listas en HTML - 004 Listas Ordenadas en HTML (incluye personaliz · 0065 · 00-05-37.webp
-File4[$e]=$HOME/Descargas/telegram/Universidad_Desarrollo_Web_FrontEnd_Web_Developer!_part01/capturas-clave/038 07 - Listas en HTML - 004 Listas Ordenadas en HTML (incluye personaliz · 0072 · 00-06-16.webp
-File5[$e]=$HOME/Descargas/telegram/Universidad_Desarrollo_Web_FrontEnd_Web_Developer!_part01/capturas-clave/038 07 - Listas en HTML - 004 Listas Ordenadas en HTML (incluye personaliz · 0074 · 00-06-28.webp
-File6[$e]=$HOME/Descargas/telegram/Universidad_Desarrollo_Web_FrontEnd_Web_Developer!_part01/capturas-clave/038 07 - Listas en HTML - 004 Listas Ordenadas en HTML (incluye personaliz · 0077 · 00-06-46.webp
-File7[$e]=$HOME/Descargas/telegram/Universidad_Desarrollo_Web_FrontEnd_Web_Developer!_part01/capturas-clave/038 07 - Listas en HTML - 004 Listas Ordenadas en HTML (incluye personaliz · 0079 · 00-06-52.webp
-File8[$e]=$HOME/Descargas/telegram/Universidad_Desarrollo_Web_FrontEnd_Web_Developer!_part01/capturas-clave/038 07 - Listas en HTML - 004 Listas Ordenadas en HTML (incluye personaliz · 0081 · 00-07-06.webp
-File9[$e]=$HOME/Descargas/telegram/Universidad_Desarrollo_Web_FrontEnd_Web_Developer!_part01/capturas-clave/038 07 - Listas en HTML - 004 Listas Ordenadas en HTML (incluye personaliz · 0086 · 00-07-28.webp
-Name1[$e]=038 07 - Listas en HTML - 004 Listas Ordenadas en HTML (incluye personaliz · 0058 · 00-04-58.webp
-Name10[$e]=038 07 - Listas en HTML - 004 Listas Ordenadas en HTML (incluye personaliz · 0084 · 00-07-21.webp
-Name2[$e]=038 07 - Listas en HTML - 004 Listas Ordenadas en HTML (incluye personaliz · 0063 · 00-05-28.webp
-Name3[$e]=038 07 - Listas en HTML - 004 Listas Ordenadas en HTML (incluye personaliz · 0065 · 00-05-37.webp
-Name4[$e]=038 07 - Listas en HTML - 004 Listas Ordenadas en HTML (incluye personaliz · 0072 · 00-06-16.webp
-Name5[$e]=038 07 - Listas en HTML - 004 Listas Ordenadas en HTML (incluye personaliz · 0074 · 00-06-28.webp
-Name6[$e]=038 07 - Listas en HTML - 004 Listas Ordenadas en HTML (incluye personaliz · 0077 · 00-06-46.webp
-Name7[$e]=038 07 - Listas en HTML - 004 Listas Ordenadas en HTML (incluye personaliz · 0079 · 00-06-52.webp
-Name8[$e]=038 07 - Listas en HTML - 004 Listas Ordenadas en HTML (incluye personaliz · 0081 · 00-07-06.webp
-Name9[$e]=038 07 - Listas en HTML - 004 Listas Ordenadas en HTML (incluye personaliz · 0086 · 00-07-28.webp
+File1[$e]=/run/media/yafer/SuperYafer/paola_v/IMG_20231130_145139.jpg
+File10[$e]=/run/media/yafer/SuperYafer/paola_v/IMG_20231130_145114.jpg
+File2[$e]=/run/media/yafer/SuperYafer/paola_v/IMG-20231023-WA0129.jpg
+File3[$e]=/run/media/yafer/SuperYafer/paola_v/captura_20260926_015931.png
+File4[$e]=/run/media/yafer/SuperYafer/paola_v/IMG_20231106_175849.jpg
+File5[$e]=/run/media/yafer/SuperYafer/paola_v/IMG_20231106_180013.jpg
+File6[$e]=/run/media/yafer/SuperYafer/paola_v/IMG_20231106_180014.jpg
+File7[$e]=/run/media/yafer/SuperYafer/paola_v/IMG_20231106_180434.jpg
+File8[$e]=/run/media/yafer/SuperYafer/paola_v/IMG_20231106_180900.jpg
+File9[$e]=/run/media/yafer/SuperYafer/paola_v/IMG_20231130_145056.jpg
+Name1[$e]=IMG_20231130_145139.jpg
+Name10[$e]=IMG_20231130_145114.jpg
+Name2[$e]=IMG-20231023-WA0129.jpg
+Name3[$e]=captura_20260926_015931.png
+Name4[$e]=IMG_20231106_175849.jpg
+Name5[$e]=IMG_20231106_180013.jpg
+Name6[$e]=IMG_20231106_180014.jpg
+Name7[$e]=IMG_20231106_180434.jpg
+Name8[$e]=IMG_20231106_180900.jpg
+Name9[$e]=IMG_20231130_145056.jpg
 
 [SideBar]
 InformationSplitterSizes=208,245
