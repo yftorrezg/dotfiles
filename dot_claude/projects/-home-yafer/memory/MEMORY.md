@@ -12,3 +12,4 @@
 - [Descargas SUPER+D](descargas-super-d.md) — menú del link copiado: video/720p/MP3/lista; carpetas por sitio y artista.
 - [mpv: atajos, bucle, notas](mpv-atajos-notas.md) — teclas estilo Brave, panel de notas 80/20 (h / Ctrl+n), capturas por video.
 - [Decks OpenDeck desde MAPA-DECKS.md](decks-opendeck-mapa-v2.md) — tablas md → perfiles con deck-aplicar.py; OBS por WebSocket para TikTok.
+- [Repo → imágenes de código](repo-a-imagenes.md) — SUPER+ALT+G: link de GitHub → carpeta de imágenes en ~/Vídeos/Código de repos; sin IA.

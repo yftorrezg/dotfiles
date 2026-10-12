@@ -136,6 +136,8 @@ hl.bind("CONTROL + SHIFT + S", hl.dsp.exec_cmd(launchPrefix .. "bash " .. os.get
 hl.bind(mainMod .. " + ALT + S", hl.dsp.exec_cmd(launchPrefix .. "bash " .. os.getenv("HOME") .. "/.config/hypr/scripts/auto-captura-toggle.sh"))
 -- SUPER+ALT+Y: capturas del link de YouTube copiado (lo baja y procesa en segundo plano)
 hl.bind(mainMod .. " + ALT + Y", hl.dsp.exec_cmd(launchPrefix .. "bash " .. os.getenv("HOME") .. "/.config/hypr/scripts/youtube-capturas.sh"))
+-- SUPER+ALT+G: link de GitHub/GitLab copiado -> carpeta con imágenes del código de todo el repo (sin IA, segundos)
+hl.bind(mainMod .. " + ALT + G", hl.dsp.exec_cmd(launchPrefix .. "bash " .. os.getenv("HOME") .. "/.config/hypr/scripts/repo-a-imagenes.sh"))
 -- SUPER+ALT+A: elegir la carpeta de un curso y sacar capturas + apuntes de todas las clases (segundo plano)
 hl.bind(mainMod .. " + ALT + A", hl.dsp.exec_cmd(launchPrefix .. "bash " .. os.getenv("HOME") .. "/.config/hypr/scripts/curso-apuntes-elegir.sh"))
 -- (29/09/2026) Centro de estudio: SUPER+I abre la próxima clase (pre-test, apuntes, práctica, tests)
