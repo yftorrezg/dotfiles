@@ -1,6 +1,3 @@
-[FullScreen]
-FullScreenModeActive=true
-
 [General]
 BackgroundColorMode=DocumentView::Dark
 LastUsedVersion=210800
@@ -9,32 +6,33 @@ ThumbnailBarIsVisible=true
 [ImageView]
 BackgroundColorMode=Dark
 MouseWheelBehavior=MouseWheelBehavior::Browse
+SpotlightMode=true
 ThumbnailSplitterSizes=354,101
 
 [MainWindow]
 MenuBar=Disabled
 
 [Recent Files]
-File1[$e]=$HOME/Vídeos/Código de repos/curso-python/1 Apuntes/007 001_Abre_esta_carpeta - iformacion_del_curso (1 de 3).webp
-File10[$e]=$HOME/Vídeos/Código de repos/curso-python/1 Apuntes/015 001_Abre_esta_carpeta - preguntas_resueltas_aquí (6 de 7).webp
-File2[$e]=$HOME/Vídeos/Código de repos/curso-python/1 Apuntes/008 001_Abre_esta_carpeta - iformacion_del_curso (2 de 3).webp
-File3[$e]=$HOME/Vídeos/Código de repos/curso-python/1 Apuntes/009 001_Abre_esta_carpeta - iformacion_del_curso (3 de 3).webp
-File4[$e]=$HOME/Vídeos/Código de repos/curso-python/1 Apuntes/010 001_Abre_esta_carpeta - preguntas_resueltas_aquí (1 de 7).webp
-File5[$e]=$HOME/Vídeos/Código de repos/curso-python/1 Apuntes/011 001_Abre_esta_carpeta - preguntas_resueltas_aquí (2 de 7).webp
-File6[$e]=$HOME/Vídeos/Código de repos/curso-python/1 Apuntes/012 001_Abre_esta_carpeta - preguntas_resueltas_aquí (3 de 7).webp
-File7[$e]=$HOME/Vídeos/Código de repos/curso-python/1 Apuntes/013 001_Abre_esta_carpeta - preguntas_resueltas_aquí (4 de 7).webp
-File8[$e]=$HOME/Vídeos/Código de repos/curso-python/1 Apuntes/014 001_Abre_esta_carpeta - preguntas_resueltas_aquí (5 de 7).webp
-File9[$e]=$HOME/Vídeos/Código de repos/curso-python/1 Apuntes/016 001_Abre_esta_carpeta - preguntas_resueltas_aquí (7 de 7).webp
-Name1[$e]=007 001_Abre_esta_carpeta - iformacion_del_curso (1 de 3).webp
-Name10[$e]=015 001_Abre_esta_carpeta - preguntas_resueltas_aquí (6 de 7).webp
-Name2[$e]=008 001_Abre_esta_carpeta - iformacion_del_curso (2 de 3).webp
-Name3[$e]=009 001_Abre_esta_carpeta - iformacion_del_curso (3 de 3).webp
-Name4[$e]=010 001_Abre_esta_carpeta - preguntas_resueltas_aquí (1 de 7).webp
-Name5[$e]=011 001_Abre_esta_carpeta - preguntas_resueltas_aquí (2 de 7).webp
-Name6[$e]=012 001_Abre_esta_carpeta - preguntas_resueltas_aquí (3 de 7).webp
-Name7[$e]=013 001_Abre_esta_carpeta - preguntas_resueltas_aquí (4 de 7).webp
-Name8[$e]=014 001_Abre_esta_carpeta - preguntas_resueltas_aquí (5 de 7).webp
-Name9[$e]=016 001_Abre_esta_carpeta - preguntas_resueltas_aquí (7 de 7).webp
+File1[$e]=$HOME/Vídeos/Código de repos/curso-python/1 Apuntes/005 README (5 de 6).webp
+File10[$e]=$HOME/Vídeos/Código de repos/curso-python/1 Apuntes/014 001_Abre_esta_carpeta - preguntas_resueltas_aquí (5 de 7).webp
+File2[$e]=$HOME/Vídeos/Código de repos/curso-python/1 Apuntes/006 README (6 de 6).webp
+File3[$e]=$HOME/Vídeos/Código de repos/curso-python/1 Apuntes/007 001_Abre_esta_carpeta - iformacion_del_curso (1 de 3).webp
+File4[$e]=$HOME/Vídeos/Código de repos/curso-python/1 Apuntes/008 001_Abre_esta_carpeta - iformacion_del_curso (2 de 3).webp
+File5[$e]=$HOME/Vídeos/Código de repos/curso-python/1 Apuntes/009 001_Abre_esta_carpeta - iformacion_del_curso (3 de 3).webp
+File6[$e]=$HOME/Vídeos/Código de repos/curso-python/1 Apuntes/010 001_Abre_esta_carpeta - preguntas_resueltas_aquí (1 de 7).webp
+File7[$e]=$HOME/Vídeos/Código de repos/curso-python/1 Apuntes/011 001_Abre_esta_carpeta - preguntas_resueltas_aquí (2 de 7).webp
+File8[$e]=$HOME/Vídeos/Código de repos/curso-python/1 Apuntes/012 001_Abre_esta_carpeta - preguntas_resueltas_aquí (3 de 7).webp
+File9[$e]=$HOME/Vídeos/Código de repos/curso-python/1 Apuntes/013 001_Abre_esta_carpeta - preguntas_resueltas_aquí (4 de 7).webp
+Name1[$e]=005 README (5 de 6).webp
+Name10[$e]=014 001_Abre_esta_carpeta - preguntas_resueltas_aquí (5 de 7).webp
+Name2[$e]=006 README (6 de 6).webp
+Name3[$e]=007 001_Abre_esta_carpeta - iformacion_del_curso (1 de 3).webp
+Name4[$e]=008 001_Abre_esta_carpeta - iformacion_del_curso (2 de 3).webp
+Name5[$e]=009 001_Abre_esta_carpeta - iformacion_del_curso (3 de 3).webp
+Name6[$e]=010 001_Abre_esta_carpeta - preguntas_resueltas_aquí (1 de 7).webp
+Name7[$e]=011 001_Abre_esta_carpeta - preguntas_resueltas_aquí (2 de 7).webp
+Name8[$e]=012 001_Abre_esta_carpeta - preguntas_resueltas_aquí (3 de 7).webp
+Name9[$e]=013 001_Abre_esta_carpeta - preguntas_resueltas_aquí (4 de 7).webp
 
 [SideBar]
 InformationSplitterSizes=208,245
