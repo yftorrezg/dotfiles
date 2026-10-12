@@ -1,3 +1,6 @@
+[FullScreen]
+FullScreenModeActive=true
+
 [General]
 BackgroundColorMode=DocumentView::Dark
 LastUsedVersion=210800
@@ -12,26 +15,26 @@ ThumbnailSplitterSizes=354,101
 MenuBar=Disabled
 
 [Recent Files]
-File1[$e]=/run/media/yafer/SuperYafer/paola_v/IMG_20231130_145139.jpg
-File10[$e]=/run/media/yafer/SuperYafer/paola_v/IMG_20231130_145114.jpg
-File2[$e]=/run/media/yafer/SuperYafer/paola_v/IMG-20231023-WA0129.jpg
-File3[$e]=/run/media/yafer/SuperYafer/paola_v/captura_20260926_015931.png
-File4[$e]=/run/media/yafer/SuperYafer/paola_v/IMG_20231106_175849.jpg
-File5[$e]=/run/media/yafer/SuperYafer/paola_v/IMG_20231106_180013.jpg
-File6[$e]=/run/media/yafer/SuperYafer/paola_v/IMG_20231106_180014.jpg
-File7[$e]=/run/media/yafer/SuperYafer/paola_v/IMG_20231106_180434.jpg
-File8[$e]=/run/media/yafer/SuperYafer/paola_v/IMG_20231106_180900.jpg
-File9[$e]=/run/media/yafer/SuperYafer/paola_v/IMG_20231130_145056.jpg
-Name1[$e]=IMG_20231130_145139.jpg
-Name10[$e]=IMG_20231130_145114.jpg
-Name2[$e]=IMG-20231023-WA0129.jpg
-Name3[$e]=captura_20260926_015931.png
-Name4[$e]=IMG_20231106_175849.jpg
-Name5[$e]=IMG_20231106_180013.jpg
-Name6[$e]=IMG_20231106_180014.jpg
-Name7[$e]=IMG_20231106_180434.jpg
-Name8[$e]=IMG_20231106_180900.jpg
-Name9[$e]=IMG_20231130_145056.jpg
+File1[$e]=$HOME/Vídeos/Código de repos/curso-python/1 Apuntes/007 001_Abre_esta_carpeta - iformacion_del_curso (1 de 3).webp
+File10[$e]=$HOME/Vídeos/Código de repos/curso-python/1 Apuntes/015 001_Abre_esta_carpeta - preguntas_resueltas_aquí (6 de 7).webp
+File2[$e]=$HOME/Vídeos/Código de repos/curso-python/1 Apuntes/008 001_Abre_esta_carpeta - iformacion_del_curso (2 de 3).webp
+File3[$e]=$HOME/Vídeos/Código de repos/curso-python/1 Apuntes/009 001_Abre_esta_carpeta - iformacion_del_curso (3 de 3).webp
+File4[$e]=$HOME/Vídeos/Código de repos/curso-python/1 Apuntes/010 001_Abre_esta_carpeta - preguntas_resueltas_aquí (1 de 7).webp
+File5[$e]=$HOME/Vídeos/Código de repos/curso-python/1 Apuntes/011 001_Abre_esta_carpeta - preguntas_resueltas_aquí (2 de 7).webp
+File6[$e]=$HOME/Vídeos/Código de repos/curso-python/1 Apuntes/012 001_Abre_esta_carpeta - preguntas_resueltas_aquí (3 de 7).webp
+File7[$e]=$HOME/Vídeos/Código de repos/curso-python/1 Apuntes/013 001_Abre_esta_carpeta - preguntas_resueltas_aquí (4 de 7).webp
+File8[$e]=$HOME/Vídeos/Código de repos/curso-python/1 Apuntes/014 001_Abre_esta_carpeta - preguntas_resueltas_aquí (5 de 7).webp
+File9[$e]=$HOME/Vídeos/Código de repos/curso-python/1 Apuntes/016 001_Abre_esta_carpeta - preguntas_resueltas_aquí (7 de 7).webp
+Name1[$e]=007 001_Abre_esta_carpeta - iformacion_del_curso (1 de 3).webp
+Name10[$e]=015 001_Abre_esta_carpeta - preguntas_resueltas_aquí (6 de 7).webp
+Name2[$e]=008 001_Abre_esta_carpeta - iformacion_del_curso (2 de 3).webp
+Name3[$e]=009 001_Abre_esta_carpeta - iformacion_del_curso (3 de 3).webp
+Name4[$e]=010 001_Abre_esta_carpeta - preguntas_resueltas_aquí (1 de 7).webp
+Name5[$e]=011 001_Abre_esta_carpeta - preguntas_resueltas_aquí (2 de 7).webp
+Name6[$e]=012 001_Abre_esta_carpeta - preguntas_resueltas_aquí (3 de 7).webp
+Name7[$e]=013 001_Abre_esta_carpeta - preguntas_resueltas_aquí (4 de 7).webp
+Name8[$e]=014 001_Abre_esta_carpeta - preguntas_resueltas_aquí (5 de 7).webp
+Name9[$e]=016 001_Abre_esta_carpeta - preguntas_resueltas_aquí (7 de 7).webp
 
 [SideBar]
 InformationSplitterSizes=208,245
