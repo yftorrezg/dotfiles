@@ -99,6 +99,22 @@ if [[ "$1" =~ ^https?:// ]]; then
             || echo "(no se pudieron bajar los subtítulos; sigo con las capturas)"
     fi
     VIDEO=$(ls "$DIR"/video.* 2>/dev/null | grep -v -E '\.(srt|vtt|part|ytdl|json)$' | head -1 || true)
+    # 3) Sin subtítulos: el video bajó SIN audio, así que Whisper no tendría qué oír y los apuntes
+    #    saldrían solo del OCR. Se baja el audio aparte (~1 MB/min) y se une al video (copia de
+    #    streams, segundos): cuadernillo.py ya transcribe lo que no trae subtítulos.
+    if [ -n "$VIDEO" ] && [ ! -f "$DIR/.cantidad" ] && [ "${SIN_WHISPER:-0}" != 1 ] \
+       && ! ls "$DIR"/subtitulos.*.srt "$DIR"/subtitulos.*.vtt >/dev/null 2>&1; then
+        echo "Sin subtítulos: bajo el audio para transcribirlo con Whisper"
+        rm -f -- "$DIR"/audio.* "$DIR"/video.union.mkv
+        if yt-dlp --no-playlist -f "ba[ext=m4a]/ba" -o "$DIR/audio.%(ext)s" "$1" >/dev/null 2>&1 \
+           && AUDIO=$(ls "$DIR"/audio.* 2>/dev/null | head -1) && [ -n "$AUDIO" ] \
+           && ffmpeg -nostdin -loglevel error -y -i "$VIDEO" -i "$AUDIO" -map 0:v:0 -map 1:a:0 -c copy "$DIR/video.union.mkv"; then
+            rm -f -- "$VIDEO" "$AUDIO"; mv -- "$DIR/video.union.mkv" "$DIR/video.mkv"; VIDEO="$DIR/video.mkv"
+        else
+            rm -f -- "$DIR"/audio.* "$DIR"/video.union.mkv
+            echo "(no se pudo bajar el audio; sigo sin voz)"
+        fi
+    fi
     BORRAR=1
     CAPTURAS_DESDE=25
 else
