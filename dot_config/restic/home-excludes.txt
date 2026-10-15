@@ -20,3 +20,6 @@ __pycache__
 .local/share/piper-voices
 .local/share/pywhispercpp/models
 .local/share/hyprwhspr/venv
+
+# Cursos descargados de Telegram: cientos de GB, re-descargables (14-10-2026)
+Descargas/Telegram Desktop
