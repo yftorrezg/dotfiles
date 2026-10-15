@@ -6,33 +6,32 @@ ThumbnailBarIsVisible=true
 [ImageView]
 BackgroundColorMode=Dark
 MouseWheelBehavior=MouseWheelBehavior::Browse
-SpotlightMode=true
-ThumbnailSplitterSizes=354,101
+ThumbnailSplitterSizes=500,143
 
 [MainWindow]
 MenuBar=Disabled
 
 [Recent Files]
-File1[$e]=$HOME/Vídeos/Capturas de YouTube/CODEX 2026- Curso Completo en Español/capturas-clave/0146 · 00-16-57.webp
-File10[$e]=$HOME/Vídeos/Capturas de YouTube/CODEX 2026- Curso Completo en Español/capturas-clave/0159 · 00-17-50.webp
-File2[$e]=$HOME/Vídeos/Capturas de YouTube/CODEX 2026- Curso Completo en Español/capturas-clave/0147 · 00-17-04.webp
-File3[$e]=$HOME/Vídeos/Capturas de YouTube/CODEX 2026- Curso Completo en Español/capturas-clave/0148 · 00-17-13.webp
-File4[$e]=$HOME/Vídeos/Capturas de YouTube/CODEX 2026- Curso Completo en Español/capturas-clave/0152 · 00-17-24.webp
-File5[$e]=$HOME/Vídeos/Capturas de YouTube/CODEX 2026- Curso Completo en Español/capturas-clave/0153 · 00-17-26.webp
-File6[$e]=$HOME/Vídeos/Capturas de YouTube/CODEX 2026- Curso Completo en Español/capturas-clave/0154 · 00-17-29.webp
-File7[$e]=$HOME/Vídeos/Capturas de YouTube/CODEX 2026- Curso Completo en Español/capturas-clave/0155 · 00-17-34.webp
-File8[$e]=$HOME/Vídeos/Capturas de YouTube/CODEX 2026- Curso Completo en Español/capturas-clave/0157 · 00-17-42.webp
-File9[$e]=$HOME/Vídeos/Capturas de YouTube/CODEX 2026- Curso Completo en Español/capturas-clave/0158 · 00-17-48.webp
-Name1[$e]=0146 · 00-16-57.webp
-Name10[$e]=0159 · 00-17-50.webp
-Name2[$e]=0147 · 00-17-04.webp
-Name3[$e]=0148 · 00-17-13.webp
-Name4[$e]=0152 · 00-17-24.webp
-Name5[$e]=0153 · 00-17-26.webp
-Name6[$e]=0154 · 00-17-29.webp
-Name7[$e]=0155 · 00-17-34.webp
-Name8[$e]=0157 · 00-17-42.webp
-Name9[$e]=0158 · 00-17-48.webp
+File1[$e]=$HOME/Vídeos/Capturas de YouTube/Aprende React Desde Cero - Curso de React Con Proyectos/capturas-clave/0237 · 00-51-19.webp
+File10[$e]=$HOME/Vídeos/Capturas de YouTube/Aprende React Desde Cero - Curso de React Con Proyectos/capturas-clave/0246 · 00-53-11.webp
+File2[$e]=$HOME/Vídeos/Capturas de YouTube/Aprende React Desde Cero - Curso de React Con Proyectos/capturas-clave/0238 · 00-51-26.webp
+File3[$e]=$HOME/Vídeos/Capturas de YouTube/Aprende React Desde Cero - Curso de React Con Proyectos/capturas-clave/0239 · 00-51-45.webp
+File4[$e]=$HOME/Vídeos/Capturas de YouTube/Aprende React Desde Cero - Curso de React Con Proyectos/capturas-clave/0240 · 00-51-55.webp
+File5[$e]=$HOME/Vídeos/Capturas de YouTube/Aprende React Desde Cero - Curso de React Con Proyectos/capturas-clave/0241 · 00-52-11.webp
+File6[$e]=$HOME/Vídeos/Capturas de YouTube/Aprende React Desde Cero - Curso de React Con Proyectos/capturas-clave/0242 · 00-52-28.webp
+File7[$e]=$HOME/Vídeos/Capturas de YouTube/Aprende React Desde Cero - Curso de React Con Proyectos/capturas-clave/0243 · 00-52-39.webp
+File8[$e]=$HOME/Vídeos/Capturas de YouTube/Aprende React Desde Cero - Curso de React Con Proyectos/capturas-clave/0244 · 00-52-47.webp
+File9[$e]=$HOME/Vídeos/Capturas de YouTube/Aprende React Desde Cero - Curso de React Con Proyectos/capturas-clave/0245 · 00-52-50.webp
+Name1[$e]=0237 · 00-51-19.webp
+Name10[$e]=0246 · 00-53-11.webp
+Name2[$e]=0238 · 00-51-26.webp
+Name3[$e]=0239 · 00-51-45.webp
+Name4[$e]=0240 · 00-51-55.webp
+Name5[$e]=0241 · 00-52-11.webp
+Name6[$e]=0242 · 00-52-28.webp
+Name7[$e]=0243 · 00-52-39.webp
+Name8[$e]=0244 · 00-52-47.webp
+Name9[$e]=0245 · 00-52-50.webp
 
 [SideBar]
 InformationSplitterSizes=208,245
