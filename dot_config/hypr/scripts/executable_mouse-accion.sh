@@ -6,7 +6,7 @@ b="$1"; m=$(cat "$MODO_FILE" 2>/dev/null || echo 1)
 S="$HOME/.config/hypr/scripts"
 case "$m:$b" in
   1:7) exec bash "$S/leer-seleccion.sh" ;;                 # leer (SUPER+R)
-  1:8) exec bash "$S/captura-guardar.sh" ;;                # captura guardada (CTRL+SHIFT+S)
+  1:8) exec bash "$S/captura-portapapeles.sh" ;;           # captura solo al portapapeles (SUPER+SHIFT+S)
   1:9) exec python3 "$S/estudiar.py" ;;                    # modo estudiar (SUPER+I)
   # M2 programacion (VS Code): guardar, abrir archivo, terminal
   2:7) exec ydotool key 29:1 31:1 31:0 29:0 ;;             # CTRL+S
