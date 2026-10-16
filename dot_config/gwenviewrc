@@ -12,26 +12,26 @@ ThumbnailSplitterSizes=500,143
 MenuBar=Disabled
 
 [Recent Files]
-File1[$e]=$HOME/Vídeos/Capturas de YouTube/Aprende React Desde Cero - Curso de React Con Proyectos/capturas-clave/0237 · 00-51-19.webp
-File10[$e]=$HOME/Vídeos/Capturas de YouTube/Aprende React Desde Cero - Curso de React Con Proyectos/capturas-clave/0246 · 00-53-11.webp
-File2[$e]=$HOME/Vídeos/Capturas de YouTube/Aprende React Desde Cero - Curso de React Con Proyectos/capturas-clave/0238 · 00-51-26.webp
-File3[$e]=$HOME/Vídeos/Capturas de YouTube/Aprende React Desde Cero - Curso de React Con Proyectos/capturas-clave/0239 · 00-51-45.webp
-File4[$e]=$HOME/Vídeos/Capturas de YouTube/Aprende React Desde Cero - Curso de React Con Proyectos/capturas-clave/0240 · 00-51-55.webp
-File5[$e]=$HOME/Vídeos/Capturas de YouTube/Aprende React Desde Cero - Curso de React Con Proyectos/capturas-clave/0241 · 00-52-11.webp
-File6[$e]=$HOME/Vídeos/Capturas de YouTube/Aprende React Desde Cero - Curso de React Con Proyectos/capturas-clave/0242 · 00-52-28.webp
-File7[$e]=$HOME/Vídeos/Capturas de YouTube/Aprende React Desde Cero - Curso de React Con Proyectos/capturas-clave/0243 · 00-52-39.webp
-File8[$e]=$HOME/Vídeos/Capturas de YouTube/Aprende React Desde Cero - Curso de React Con Proyectos/capturas-clave/0244 · 00-52-47.webp
-File9[$e]=$HOME/Vídeos/Capturas de YouTube/Aprende React Desde Cero - Curso de React Con Proyectos/capturas-clave/0245 · 00-52-50.webp
-Name1[$e]=0237 · 00-51-19.webp
-Name10[$e]=0246 · 00-53-11.webp
-Name2[$e]=0238 · 00-51-26.webp
-Name3[$e]=0239 · 00-51-45.webp
-Name4[$e]=0240 · 00-51-55.webp
-Name5[$e]=0241 · 00-52-11.webp
-Name6[$e]=0242 · 00-52-28.webp
-Name7[$e]=0243 · 00-52-39.webp
-Name8[$e]=0244 · 00-52-47.webp
-Name9[$e]=0245 · 00-52-50.webp
+File1[$e]=/run/media/yafer/SuperYafer/paola_v/IMG_20231106_175849.jpg
+File10[$e]=/run/media/yafer/SuperYafer/paola_v/IMG_20231130_145134.jpg
+File2[$e]=/run/media/yafer/SuperYafer/paola_v/IMG_20231106_180013.jpg
+File3[$e]=/run/media/yafer/SuperYafer/paola_v/IMG_20231106_180014.jpg
+File4[$e]=/run/media/yafer/SuperYafer/paola_v/IMG_20231106_180434.jpg
+File5[$e]=/run/media/yafer/SuperYafer/paola_v/IMG_20231106_180900.jpg
+File6[$e]=/run/media/yafer/SuperYafer/paola_v/IMG_20231130_145056.jpg
+File7[$e]=/run/media/yafer/SuperYafer/paola_v/IMG_20231130_145114.jpg
+File8[$e]=/run/media/yafer/SuperYafer/paola_v/IMG_20231130_145126.jpg
+File9[$e]=/run/media/yafer/SuperYafer/paola_v/IMG_20231130_145129.jpg
+Name1[$e]=IMG_20231106_175849.jpg
+Name10[$e]=IMG_20231130_145134.jpg
+Name2[$e]=IMG_20231106_180013.jpg
+Name3[$e]=IMG_20231106_180014.jpg
+Name4[$e]=IMG_20231106_180434.jpg
+Name5[$e]=IMG_20231106_180900.jpg
+Name6[$e]=IMG_20231130_145056.jpg
+Name7[$e]=IMG_20231130_145114.jpg
+Name8[$e]=IMG_20231130_145126.jpg
+Name9[$e]=IMG_20231130_145129.jpg
 
 [SideBar]
 InformationSplitterSizes=208,245
