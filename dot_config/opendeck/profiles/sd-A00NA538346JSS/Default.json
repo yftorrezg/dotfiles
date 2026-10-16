@@ -608,7 +608,7 @@
           }
         ],
         "supported_in_multi_actions": true,
-        "tooltip": "Notas de videos",
+        "tooltip": "Celular",
         "uuid": "com.amansprojects.starterpack.runcommand",
         "visible_in_action_list": true
       },
@@ -616,7 +616,7 @@
       "context": "Keypad.9.0",
       "current_state": 0,
       "settings": {
-        "down": "uwsm app -- dolphin '/home/yafer/Vídeos/Notas de videos'",
+        "down": "/home/yafer/.config/hypr/scripts/celular.sh",
         "file": "",
         "rotate": "",
         "show": false,
@@ -625,10 +625,10 @@
       "states": [
         {
           "alignment": "bottom",
-          "background_colour": "#8a4b08",
+          "background_colour": "#2b3440",
           "colour": "#FFFFFF",
           "family": "Liberation Sans",
-          "image": "custom-icons/libro-notas.png",
+          "image": "custom-icons/celular.png",
           "image_scale": 100,
           "name": "",
           "show": true,
@@ -636,7 +636,7 @@
           "stroke_colour": "#000000",
           "stroke_size": 3,
           "style": "Regular",
-          "text": "Notas de\nvideos",
+          "text": "Celular",
           "underline": false
         }
       ]
