@@ -354,6 +354,7 @@ class Selector(Gtk.ApplicationWindow):
     def aplicar(self, i):
         item = self.tarjetas[i].item
         self.estilo["tema"] = item["id"]
+        self.estilo["modo"] = item["modo"]
         tc.guardar_estilo(self.estilo)  # primero el tema, luego el modo (ver escritorios-vivos)
         if item["modo"] != self.modo:
             subprocess.Popen(["noctalia", "msg", "theme-mode-set", item["modo"]],

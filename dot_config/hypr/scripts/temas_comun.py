@@ -109,7 +109,8 @@ def acento(t):
 
 
 def leer_estilo():
-    """{"tema", "destellos", "ultimo": {"dark": id, "light": id}} (convierte el formato viejo)."""
+    """{"tema", "destellos", "ultimo": {"dark": id, "light": id}, "modo": modo para el que se eligió}
+    (convierte el formato viejo)."""
     try:
         d = json.loads(ESTILO.read_text())
     except (OSError, ValueError):
@@ -119,13 +120,14 @@ def leer_estilo():
     if not (d["tema"] in POR_ESCRITORIO or buscar(d["tema"])):
         d["tema"] = "escritorios:fijo"
     return {"tema": d["tema"], "destellos": bool(d.get("destellos", False)),
-            "ultimo": d.get("ultimo") or {}}
+            "ultimo": d.get("ultimo") or {}, "modo": d.get("modo")}
 
 
 def guardar_estilo(d):
     ESTADO.mkdir(parents=True, exist_ok=True)
     tmp = ESTILO.with_suffix(".tmp")
-    tmp.write_text(json.dumps({"tema": d["tema"], "destellos": d["destellos"], "ultimo": d.get("ultimo", {})}))
+    tmp.write_text(json.dumps({"tema": d["tema"], "destellos": d["destellos"], "ultimo": d.get("ultimo", {}),
+                               "modo": d.get("modo")}))
     tmp.replace(ESTILO)
 
 

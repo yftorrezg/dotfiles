@@ -289,9 +289,10 @@ class App(Gtk.Application):
         # Tema de video del otro modo (p. ej. Itachi en modo claro): saltar al último tema usado
         # de este modo. Se lee del disco porque estilos.py guarda el tema ANTES de cambiar el modo.
         nuevo = tc.leer_estilo()
-        t = tc.buscar(nuevo["tema"])
-        if t and t["modo"] != modo:
-            nuevo["tema"] = nuevo["ultimo"].get(modo, "escritorios:video")
+        if nuevo.get("modo") != modo:  # cambio con SUPER+SHIFT+D / botón de la barra, no desde el selector
+            t = tc.buscar(nuevo["tema"])
+            destino = nuevo["ultimo"].get(modo) or ("escritorios:video" if t else nuevo["tema"])
+            nuevo["tema"], nuevo["modo"] = destino, modo
             tc.guardar_estilo(nuevo)
         if self.aplicar_estilo(nuevo, forzar_fondos=True):
             return  # ya mostró el aviso del tema nuevo
@@ -330,7 +331,7 @@ class App(Gtk.Application):
                 self.poner_fondos()
             return False
         t = tc.buscar(nuevo["tema"])
-        modo_tema = t["modo"] if t else self.modo
+        modo_tema = t["modo"] if t else (nuevo.get("modo") or self.modo)
         if self.estilo["ultimo"].get(modo_tema) != nuevo["tema"]:  # recordar para SUPER+SHIFT+D
             self.estilo["ultimo"][modo_tema] = nuevo["tema"]
             tc.guardar_estilo(self.estilo)
