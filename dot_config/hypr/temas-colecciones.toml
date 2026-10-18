@@ -1,0 +1,71 @@
+# temas-colecciones.toml — temas del selector (SUPER+SHIFT+A): un fondo distinto en cada escritorio.
+# fondos = 5 videos, en orden: 1 Redes · 2 Entretenimiento · 3 Estudio · 4 Práctica · 5 Claude.
+# Cada fondo es "Oscuros/<archivo sin .mp4>" o "Claros/<archivo sin .mp4>" de ~/Imágenes/Wallpapers/Temas.
+# Si un video no existe (no está en este equipo o lo borraste), se repite otro de la misma colección.
+# "Mi selección" no está aquí: la armas en el selector, pestaña Galería, con las teclas 1-5.
+
+# ---------- Oscuros ----------
+[[coleccion]]
+nombre = "Sharingan"
+icono = "🍥"
+modo = "dark"
+detalle = "Itachi, Sasuke, Kakashi y Madara"
+fondos = ["Oscuros/itachi-sharingan", "Oscuros/sasuke-chidori", "Oscuros/kakashi-rayo",
+          "Oscuros/madara-sharingan", "Oscuros/itachi-luna-roja"]
+
+[[coleccion]]
+nombre = "Aura de protagonista"
+icono = "🔥"
+modo = "dark"
+detalle = "Goku, Luffy, Gojo, Tanjiro y Jinwoo"
+fondos = ["Oscuros/goku-ultra-instinto", "Oscuros/luffy-gear5", "Oscuros/gojo-purpura",
+          "Oscuros/tanjiro-fuego", "Oscuros/jinwoo-sombras"]
+
+[[coleccion]]
+nombre = "Espadachines"
+icono = "⚔️"
+modo = "dark"
+detalle = "Zoro, Levi, el samurái y Tanjiro"
+fondos = ["Oscuros/zoro-asura", "Oscuros/levi-blanco-negro", "Oscuros/samurai-luna-roja",
+          "Oscuros/tanjiro-fuego", "Oscuros/luffy-sombrero"]
+
+[[coleccion]]
+nombre = "Noche neón"
+icono = "🌃"
+modo = "dark"
+detalle = "Hina, la chica cyborg y Evangelion"
+fondos = ["Oscuros/hina-blue-archive", "Oscuros/chica-cyborg", "Oscuros/evangelion",
+          "Oscuros/gojo-purpura", "Oscuros/itachi-luna-roja"]
+
+# ---------- Claros ----------
+[[coleccion]]
+nombre = "Miku y el cielo"
+icono = "🎤"
+modo = "light"
+detalle = "Miku, Asuka y cielos de verano"
+fondos = ["Claros/miku-bajo-el-cielo", "Claros/miku-girasoles", "Claros/chica-sobre-la-ciudad",
+          "Claros/asuka-cielo", "Claros/chica-guitarra"]
+
+[[coleccion]]
+nombre = "Waifus"
+icono = "💖"
+modo = "light"
+detalle = "Rem, Zero Two, Eula y Blue Archive"
+fondos = ["Claros/rem-verano", "Claros/zero-two-calle", "Claros/rem-sakura",
+          "Claros/eula-cielo", "Claros/blue-archive-ventana"]
+
+[[coleccion]]
+nombre = "Fantasía"
+icono = "✨"
+modo = "light"
+detalle = "Frieren, Genshin y un mecha blanco"
+fondos = ["Claros/frieren-dorado", "Claros/frieren-nieve", "Claros/genshin-cielo",
+          "Claros/eula-cielo", "Claros/mecha-blanco"]
+
+[[coleccion]]
+nombre = "Primavera"
+icono = "🌸"
+modo = "light"
+detalle = "Sakura, flores y hortensias"
+fondos = ["Claros/sakura-rubia", "Claros/puente-sakura", "Claros/campo-de-flores",
+          "Claros/hortensias", "Claros/rem-sakura"]

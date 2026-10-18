@@ -502,8 +502,7 @@ class App(Gtk.Application):
                 continue
             if vivo and actual["ruta"] == ruta:
                 continue
-            if vivo and self.mpv_comando(actual["sock"], ["loadfile", ruta]):
-                actual["ruta"] = ruta
+            if vivo and self.transicion(actual, ruta):
                 continue
             if vivo:
                 terminar(actual["proc"])
@@ -519,6 +518,41 @@ class App(Gtk.Application):
             self.retrasar("pausa", 1500, self.revisar_pausa)
         else:
             self.retrasar("pausa", 150, self.revisar_pausa)
+
+    def transicion(self, info, ruta):
+        """Cambia el video con estilo: el nuevo entra desde oscuro (o claro, en modo claro) con un
+        leve zoom que se asienta, en vez de cortar de golpe. Usa el ecualizador y el zoom de mpv
+        (los aplica la GPU al dibujar, no cuesta nada)."""
+        sock = info["sock"]
+        brillo0 = 30 if self.modo == "light" else -55
+        zoom0 = 0.06
+        if not self.mpv_comando(sock, ["set_property", "brightness", brillo0]):
+            return False
+        self.mpv_comando(sock, ["set_property", "video-zoom", zoom0])
+        if not self.mpv_comando(sock, ["loadfile", ruta]):
+            return False
+        info["ruta"] = ruta
+        if info.get("t_trans"):
+            GLib.source_remove(info["t_trans"])
+        pasos, paso = 32, [0]  # ~530 ms a 60 fps
+
+        def avanzar():
+            paso[0] += 1
+            t = paso[0] / pasos
+            resto = (1 - t) ** 3  # ease-out cúbico: rápido al principio, se asienta suave
+            self.mpv_comando(sock, ["set_property", "brightness", round(brillo0 * resto)])
+            self.mpv_comando(sock, ["set_property", "video-zoom", zoom0 * resto])
+            if paso[0] >= pasos:
+                info["t_trans"] = None
+                return False
+            return True
+
+        # pequeña espera: que el video nuevo muestre su primer cuadro antes de aclararse
+        def empezar():
+            info["t_trans"] = GLib.timeout_add(16, avanzar)
+            return False
+        info["t_trans"] = GLib.timeout_add(110, empezar)
+        return True
 
     def revisar_pausa(self):
         """Pausa el video del monitor cuyo escritorio tiene ventanas en mosaico (lo tapan casi
