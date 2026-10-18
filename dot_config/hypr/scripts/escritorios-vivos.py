@@ -286,12 +286,12 @@ class App(Gtk.Application):
         self.modo = modo
         claro = modo == "light"
         self.iconos(claro)
-        # Tema de video del otro modo (p. ej. Itachi en modo claro): saltar al último tema usado
+        # Tema del otro modo (p. ej. Sharingan en modo claro): saltar al último tema usado
         # de este modo. Se lee del disco porque estilos.py guarda el tema ANTES de cambiar el modo.
         nuevo = tc.leer_estilo()
         if nuevo.get("modo") != modo:  # cambio con SUPER+SHIFT+D / botón de la barra, no desde el selector
-            t = tc.buscar(nuevo["tema"])
-            destino = nuevo["ultimo"].get(modo) or ("escritorios:video" if t else nuevo["tema"])
+            ligado = tc.modo_de(nuevo["tema"], nuevo)
+            destino = nuevo["ultimo"].get(modo) or (f"mezcla:{modo}" if ligado else nuevo["tema"])
             nuevo["tema"], nuevo["modo"] = destino, modo
             tc.guardar_estilo(nuevo)
         if self.aplicar_estilo(nuevo, forzar_fondos=True):
@@ -323,23 +323,28 @@ class App(Gtk.Application):
     def aplicar_estilo(self, nuevo, forzar_fondos=False):
         """Aplica estilo.json; devuelve True si cambió de tema (y mostró su aviso)."""
         cambio_tema = nuevo["tema"] != self.estilo["tema"]
+        cambio_mezcla = nuevo.get("mezcla") != self.estilo.get("mezcla")  # 1-5 en la Galería
         self.estilo = nuevo
         self.aplicar_destellos()
         if not cambio_tema:
-            if forzar_fondos:
+            if forzar_fondos or cambio_mezcla:
                 self.escribir_acento()
                 self.poner_fondos()
             return False
-        t = tc.buscar(nuevo["tema"])
-        modo_tema = t["modo"] if t else (nuevo.get("modo") or self.modo)
+        modo_tema = tc.modo_de(nuevo["tema"], nuevo) or nuevo.get("modo") or self.modo
         if self.estilo["ultimo"].get(modo_tema) != nuevo["tema"]:  # recordar para SUPER+SHIFT+D
             self.estilo["ultimo"][modo_tema] = nuevo["tema"]
             tc.guardar_estilo(self.estilo)
         self.escribir_acento()
         self.poner_fondos()
-        if t:
-            info = {"nombre": t["nombre"], "icono": "🌙" if t["modo"] == "dark" else "☀️",
-                    "detalle": "Tema animado en todos tus escritorios", "color": tc.acento(t)}
+        col = tc.buscar_coleccion(nuevo["tema"], nuevo)
+        fondo = tc.fondo_para(nuevo, self.escritorio())
+        if col:
+            info = {"nombre": col["nombre"], "icono": col["icono"],
+                    "detalle": "Un fondo animado distinto en cada escritorio", "color": tc.acento(fondo) if fondo else tc.ACENTO_POR_DEFECTO}
+        elif fondo:
+            info = {"nombre": fondo["nombre"], "icono": "🌙" if fondo["modo"] == "dark" else "☀️",
+                    "detalle": "Tema animado en todos tus escritorios", "color": tc.acento(fondo)}
         else:
             nombre, detalle, icono = tc.POR_ESCRITORIO[nuevo["tema"]]
             info = {"nombre": nombre, "icono": icono, "detalle": detalle, "color": "#c9a7ff"}
@@ -347,9 +352,12 @@ class App(Gtk.Application):
                            self.modo, self.monitor_activo(), self.gen.get("aviso_segundos", 1.6))
         return True
 
+    def escritorio(self):
+        return self.actual if isinstance(self.actual, int) else 1
+
     def escribir_acento(self):
-        """Color de los destellos del cursor: el del tema de video, o el del escritorio."""
-        t = tc.buscar(self.estilo["tema"])
+        """Color de los destellos del cursor: el del fondo de video de este escritorio, o el del escritorio."""
+        t = tc.fondo_para(self.estilo, self.escritorio())
         color = tc.acento(t) if t else (self.info_de(self.actual)["color"] if self.actual else tc.ACENTO_POR_DEFECTO)
         try:
             (ESTADO / "acento").write_text(color)
@@ -448,7 +456,7 @@ class App(Gtk.Application):
             monitores = hypr_json("monitors")
         except (OSError, ValueError):
             return
-        tema = tc.buscar(self.estilo["tema"])
+        tema = tc.fondo_para(self.estilo, self.actual)
         for m in monitores:
             vertical = m.get("transform", 0) % 2 == 1
             if tema:  # tema de video: su póster queda de respaldo bajo el video
@@ -468,8 +476,8 @@ class App(Gtk.Application):
 
     # --- fondos animados (mpvpaper: mpv como fondo, decodifica con la GPU) ------------------
     def video_para(self, e, sufijo, vertical):
-        tema = tc.buscar(self.estilo["tema"])
-        if tema:  # mismo video en todos los monitores; en el vertical mpv recorta el centro (panscan)
+        tema = tc.fondo_para(self.estilo, self.escritorio())
+        if tema:  # el video de este escritorio en todos los monitores; en el vertical mpv recorta el centro (panscan)
             ruta = tema["video"]
         elif self.estilo["tema"] == "escritorios:video":
             rel = e.get(f"video_vertical_{sufijo}" if vertical else f"video_{sufijo}")

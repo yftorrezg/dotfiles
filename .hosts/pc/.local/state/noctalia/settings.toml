@@ -185,3 +185,110 @@ path = "/home/yafer/.cache/escritorios-vivos/temas/oscuros-hina-blue-archive.jpg
 [wallpaper.monitors.HDMI-A-1]
 fill_mode = "fit"
 path = "/home/yafer/.cache/escritorios-vivos/temas/oscuros-hina-blue-archive.jpg"
+
+[desktop_widgets]
+enabled = true
+schema_version = 2
+widget_order = [ "desktop-widget-00000000000000a1", "desktop-widget-00000000000000a2", "desktop-widget-00000000000000a3", "desktop-widget-00000000000000a4", "desktop-widget-00000000000000a5", "desktop-widget-00000000000000b1", "desktop-widget-00000000000000b2" ]
+
+    [desktop_widgets.widget."desktop-widget-00000000000000a1"]
+    box_height = 120.0
+    box_width = 340.0
+    cx = 1700.0
+    cy = 150.0
+    output = "DP-3"
+    placement_height = 1080.0
+    placement_width = 1920.0
+    rotation = 0.0
+    type = "clock"
+
+        [desktop_widgets.widget."desktop-widget-00000000000000a1".settings]
+        clock_style = "digital"
+        show_seconds = false
+
+    [desktop_widgets.widget."desktop-widget-00000000000000a2"]
+    box_height = 110.0
+    box_width = 340.0
+    cx = 1700.0
+    cy = 300.0
+    output = "DP-3"
+    placement_height = 1080.0
+    placement_width = 1920.0
+    rotation = 0.0
+    type = "weather"
+
+        [desktop_widgets.widget."desktop-widget-00000000000000a2".settings]
+        show_forecast = false
+
+    [desktop_widgets.widget."desktop-widget-00000000000000a3"]
+    box_height = 340.0
+    box_width = 340.0
+    cx = 1700.0
+    cy = 560.0
+    output = "DP-3"
+    placement_height = 1080.0
+    placement_width = 1920.0
+    rotation = 0.0
+    type = "calendar"
+
+        [desktop_widgets.widget."desktop-widget-00000000000000a3".settings]
+        show_events = false
+
+    [desktop_widgets.widget."desktop-widget-00000000000000a4"]
+    box_height = 110.0
+    box_width = 165.0
+    cx = 1612.5
+    cy = 815.0
+    output = "DP-3"
+    placement_height = 1080.0
+    placement_width = 1920.0
+    rotation = 0.0
+    type = "sysmon"
+
+        [desktop_widgets.widget."desktop-widget-00000000000000a4".settings]
+        stat = "cpu_usage"
+        display = "gauge"
+
+    [desktop_widgets.widget."desktop-widget-00000000000000a5"]
+    box_height = 110.0
+    box_width = 165.0
+    cx = 1787.5
+    cy = 815.0
+    output = "DP-3"
+    placement_height = 1080.0
+    placement_width = 1920.0
+    rotation = 0.0
+    type = "sysmon"
+
+        [desktop_widgets.widget."desktop-widget-00000000000000a5".settings]
+        stat = "ram_pct"
+        display = "gauge"
+
+    [desktop_widgets.widget."desktop-widget-00000000000000b1"]
+    box_height = 180.0
+    box_width = 560.0
+    cx = 540.0
+    cy = 1540.0
+    output = "HDMI-A-1"
+    placement_height = 1920.0
+    placement_width = 1080.0
+    rotation = 0.0
+    type = "clock"
+
+        [desktop_widgets.widget."desktop-widget-00000000000000b1".settings]
+        clock_style = "digital"
+
+    [desktop_widgets.widget."desktop-widget-00000000000000b2"]
+    box_height = 170.0
+    box_width = 560.0
+    cx = 540.0
+    cy = 1745.0
+    output = "HDMI-A-1"
+    placement_height = 1920.0
+    placement_width = 1080.0
+    rotation = 0.0
+    type = "weather"
+
+        [desktop_widgets.widget."desktop-widget-00000000000000b2".settings]
+        show_forecast = true
+
