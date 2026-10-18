@@ -2,10 +2,18 @@ config_version = 15
 
 [dock]
 auto_hide = true
+background_opacity = 0.71999999999999997
 enabled = true
+icon_size = 46
+item_spacing = 8
+magnification = true
+magnification_scale = 1.55
 pinned = [ "code", "org.kde.dolphin", "kitty", "brave-browser", "com.anthropic.Claude", "opendeck", "obsidian" ]
 reserve_space = false
-show_running = false
+shadow = true
+show_dots = true
+show_instance_count = false
+show_running = true
 
 [location]
 auto_locate = true
@@ -145,7 +153,7 @@ community_palette = "GitHub Dark"
 custom_palette = "luffy-oscuro-sft"
 mode = "dark"
 pure_black_dark = true
-source = "wallpaper"
+source = "custom"
 wallpaper_scheme = "m3-tonal-spot"
 
     [theme.templates.user.noctwhspr_mic_osd]
@@ -156,10 +164,10 @@ wallpaper_scheme = "m3-tonal-spot"
 path = "/usr/share/noctalia/assets/noctalia-wallpaper.png"
 
 [wallpaper.last]
-path = "/home/yafer/Imágenes/Wallpapers/Oscuros/vertical/luffy-oscuro-vertical.png"
+path = "/home/yafer/Imágenes/Wallpapers/Oscuros/luffy-gear5-luna.png"
 
 [wallpaper.monitors.DP-3]
-path = "/home/yafer/Imágenes/Wallpapers/Oscuros/luffy-oscuro-4k.png"
+path = "/home/yafer/Imágenes/Wallpapers/Oscuros/luffy-gear5-luna.png"
 
 [wallpaper.monitors.HDMI-A-1]
 fill_mode = "fit"

@@ -5,7 +5,7 @@ ui_scale = 1.20
 auto_hide = true
 center = [ "workspaces", "spacer_1", "active_window" ]
 concave_edge_corners = true
-end = [ "media", "spacer_1", "tray", "notifications", "network", "volume", "brightness", "battery", "session" ]
+end = [ "media", "spacer_1", "tray", "notifications", "modo", "network", "volume", "brightness", "battery", "session" ]
 layer = "overlay"
 margin_edge = 0
 margin_ends = 0
@@ -68,7 +68,7 @@ polkit_agent = true
 settings_show_advanced = true
 
     [shell.greeter_sync]
-    auto_sync = true
+    auto_sync = false
 
     [shell.panel]
     open_near_click_control_center = true
@@ -202,3 +202,12 @@ capsule_fill = "on_primary"
 inactive_pill_size = 1.0
 pill_scale = 0.80
 show_labels = false
+
+[widget.modo]
+type = "custom_button"
+glyph = "sun-moon"
+color = "secondary"
+tooltip = "Modo claro / oscuro (SUPER+SHIFT+D)"
+
+    [widget.modo.actions]
+    left = "exec noctalia msg theme-mode-toggle"

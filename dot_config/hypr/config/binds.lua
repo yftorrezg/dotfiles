@@ -91,6 +91,7 @@ hl.bind(mainMod .. " + X",          hl.dsp.exec_cmd(noctCall .. "panel-toggle co
 hl.bind(mainMod .. " + Super_L",    hl.dsp.exec_cmd(noctCall .. "panel-toggle launcher"), { release = true })
 hl.bind(mainMod .. " + period",     hl.dsp.exec_cmd(noctCall .. "panel-toggle launcher /emo"))
 hl.bind(mainMod .. " + L",          hl.dsp.exec_cmd(noctCall .. "session lock"))
+hl.bind(mainMod .. " + SHIFT + D",  hl.dsp.exec_cmd(noctCall .. "theme-mode-toggle"))  -- modo claro/oscuro (18/10/2026)
 hl.bind(mainMod .. " + K",          hl.dsp.exec_cmd(launchPrefix .. "opendeck")) -- Abrir/enfocar la ventana de config del Stream Deck (el backend sigue corriendo aunque la cierres con SUPER+Q)
 
 -- Sesión de estudio: abrir curso+apuntes (SUPER+C) y configurar/actualizar links (SUPER+ALT+C)

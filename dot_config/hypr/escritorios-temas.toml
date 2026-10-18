@@ -1,0 +1,68 @@
+# escritorios-temas.toml — identidad de cada escritorio virtual (SUPER+1..5).
+# La lee scripts/escritorios-vivos.py: al cambiar de escritorio pone su fondo
+# (claro u oscuro según el modo de noctalia) y muestra el aviso flotante.
+# Para cambiar algo: edita aquí y guarda; el programa lo recarga solo.
+#   fondo_*      = monitor horizontal (DP-3, eDP-1)
+#   vertical_*   = monitor girado (HDMI-A-1); si falta, usa fondo_*
+
+[general]
+por_monitor = 5          # NUM_WPM de variables.lua (ws 1-5 y 6-10)
+aviso_segundos = 1.6     # cuánto dura el aviso en pantalla
+aviso_activo = true      # false = solo cambia fondos, sin aviso
+fondos_activos = true    # false = solo aviso, sin tocar fondos
+carpeta = "~/Imágenes/Wallpapers"
+
+[[escritorio]]
+nombre = "Redes"
+icono = "💬"
+detalle = "WhatsApp · Telegram · Instagram"
+color = "#ff6fa8"
+fondo_oscuro = "Oscuros/cyberpunk-sakura.jpg"
+vertical_oscuro = "Oscuros/vertical/ciudad-futurista.jpg"
+fondo_claro = "Claros/1-redes-estacion-atardecer.jpg"
+vertical_claro = "Claros/vertical/1-redes-ciudad-agua.jpg"
+
+[[escritorio]]
+nombre = "Entretenimiento"
+icono = "🎬"
+detalle = "Videos, música y series"
+color = "#ffb347"
+fondo_oscuro = "Oscuros/luffy-gear5-luna.png"
+vertical_oscuro = "Oscuros/vertical/luffy-oscuro-vertical.png"
+fondo_claro = "Claros/2-entretenimiento-calle-japonesa.png"
+vertical_claro = "Claros/vertical/2-entretenimiento-calle.jpg"
+
+[[escritorio]]
+nombre = "Estudio"
+icono = "📚"
+detalle = "Cursos y apuntes"
+color = "#7ec8ff"
+fondo_oscuro = "Oscuros/lofi-chica-noche.jpg"
+vertical_oscuro = "Oscuros/vertical/montana-noche-estrellas.png"
+fondo_claro = "Claros/3-estudio-fuji-sakura.jpg"
+vertical_claro = "Claros/vertical/3-estudio-sakura.png"
+
+[[escritorio]]
+nombre = "Práctica"
+icono = "💻"
+detalle = "Código y proyectos"
+color = "#7dde92"
+fondo_oscuro = "Oscuros/hyprland-chica-tren-8k.png"
+vertical_oscuro = "Oscuros/vertical/ciudad-luna.png"
+fondo_claro = "Claros/4-practica-pradera.png"
+vertical_claro = "Claros/vertical/4-practica-campo.jpg"
+
+[[escritorio]]
+nombre = "Claude"
+icono = "✨"
+detalle = "IA y terminal"
+color = "#c9a7ff"
+fondo_oscuro = "Oscuros/anime-cielo-estrellas.png"
+vertical_oscuro = "HD/vertical/wallhaven-yqvpmk.png"
+fondo_claro = "Claros/5-claude-nubes.jpg"
+vertical_claro = "Claros/vertical/5-claude-blanco.jpg"
+
+# Workspaces con nombre (SUPER+I estudio, gaming…): solo aviso, el fondo no cambia.
+[nombres]
+estudio = { nombre = "Modo estudio", icono = "🎓", detalle = "Concentración", color = "#7ec8ff" }
+gaming = { nombre = "Gaming", icono = "🎮", detalle = "A jugar", color = "#ff7a7a" }
