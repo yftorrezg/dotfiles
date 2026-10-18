@@ -40,6 +40,9 @@ DESTELLOS = Path(__file__).with_name("destellos-cursor.py")
 NOMBRE_FONDO = {"estatico": ("Clásico", "🖼️", "Fondos fijos por escritorio"),
                 "video": ("Animado", "🎞️", "Videos en bucle por escritorio"),
                 "aurora": ("Aurora", "🌈", "Degradados vivos con tu color")}
+# Eventos que pueden tapar o destapar el fondo (para pausar el video)
+EVENTOS_VENTANAS = {"workspacev2", "openwindow", "closewindow", "movewindowv2", "changefloatingmode",
+                    "fullscreen", "focusedmonv2"}
 HYPR_DIR = Path(os.environ["XDG_RUNTIME_DIR"]) / "hypr" / os.environ["HYPRLAND_INSTANCE_SIGNATURE"]
 
 
@@ -59,6 +62,12 @@ def leer_modo():
             return tomllib.load(f).get("theme", {}).get("mode", "dark")
     except (OSError, tomllib.TOMLDecodeError):
         return "dark"
+
+
+def terminar(proc):
+    """Cierra un proceso hijo y lo recoge en segundo plano (si no, queda como zombi)."""
+    proc.terminate()
+    threading.Thread(target=proc.wait, daemon=True).start()
 
 
 def leer_estilo():
@@ -331,7 +340,7 @@ class App(Gtk.Application):
             self.destellos = subprocess.Popen(["python3", str(DESTELLOS)],
                                               stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
         elif not self.estilo["destellos"] and vivo:
-            self.destellos.terminate()
+            terminar(self.destellos)
             self.destellos = None
 
     # --- hyprland --------------------------------------------------------------------------
@@ -349,6 +358,8 @@ class App(Gtk.Application):
                             if ev == "workspacev2":
                                 wid, _, nombre = datos.partition(",")
                                 GLib.idle_add(self.al_cambiar_workspace, int(wid), nombre)
+                            if ev in EVENTOS_VENTANAS:
+                                GLib.idle_add(self.retrasar, "pausa", 250, self.revisar_pausa)
             except OSError as e:
                 print("escritorios-vivos: socket2:", e, flush=True)
             threading.Event().wait(2)
@@ -446,6 +457,7 @@ class App(Gtk.Application):
     def poner_videos(self, e, sufijo, monitores):
         if not shutil.which("mpvpaper"):
             return
+        nuevo = False
         for m in monitores:
             nombre = m["name"]
             ruta = self.video_para(e, sufijo, m.get("transform", 0) % 2 == 1)
@@ -453,7 +465,7 @@ class App(Gtk.Application):
             vivo = actual is not None and actual["proc"].poll() is None
             if not ruta:
                 if vivo:
-                    actual["proc"].terminate()
+                    terminar(actual["proc"])
                 self.mpv.pop(nombre, None)
                 continue
             if vivo and actual["ruta"] == ruta:
@@ -462,13 +474,35 @@ class App(Gtk.Application):
                 actual["ruta"] = ruta
                 continue
             if vivo:
-                actual["proc"].terminate()
+                terminar(actual["proc"])
             sock = ESTADO / f"mpv-{nombre}.sock"
-            opciones = (f"no-audio loop-file=inf hwdec=auto-safe panscan=1.0 keep-open=yes "
-                        f"input-ipc-server={sock} profile=fast video-sync=display-resample")
-            proc = subprocess.Popen(["mpvpaper", "-p", "-l", "bottom", "-o", opciones, nombre, ruta],
+            # config=no: sin tu mpv.conf/scripts (velocidad 2x, uosc y el socket de notas son para tu mpv normal)
+            opciones = (f"config=no load-scripts=no osc=no osd-level=0 no-audio loop-file=inf hwdec=auto-safe panscan=1.0 keep-open=yes "
+                        f"input-ipc-server={sock} profile=fast")
+            proc = subprocess.Popen(["mpvpaper", "-p", "-a", "FULL", "-l", "bottom", "-o", opciones, nombre, ruta],
                                     stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
             self.mpv[nombre] = {"proc": proc, "sock": sock, "ruta": ruta}
+            nuevo = True
+        if nuevo:  # mpv recién lanzado tarda en abrir su socket
+            self.retrasar("pausa", 1500, self.revisar_pausa)
+        else:
+            self.retrasar("pausa", 150, self.revisar_pausa)
+
+    def revisar_pausa(self):
+        """Pausa el video del monitor cuyo escritorio tiene ventanas en mosaico (lo tapan casi
+        entero) y lo reanuda cuando queda vacío. mpvpaper -p no lo detecta en Hyprland."""
+        if not self.mpv:
+            return
+        try:
+            activos = {m["name"]: m["activeWorkspace"]["id"] for m in hypr_json("monitors")}
+            ocupados = {c["workspace"]["id"] for c in hypr_json("clients")
+                        if c.get("mapped", True) and not c.get("hidden") and not c.get("floating")}
+        except (OSError, ValueError, KeyError):
+            return
+        for nombre, info in self.mpv.items():
+            pausa = activos.get(nombre) in ocupados
+            if info.get("pausa") != pausa and self.mpv_comando(info["sock"], ["set_property", "pause", pausa]):
+                info["pausa"] = pausa
 
     @staticmethod
     def mpv_comando(sock, comando):

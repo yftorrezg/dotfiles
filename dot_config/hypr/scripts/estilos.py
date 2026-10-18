@@ -358,8 +358,21 @@ class Selector(Gtk.ApplicationWindow):
         self.cerrar()
 
     def cerrar(self):
+        if getattr(self, "cerrando", False):
+            return
+        self.cerrando = True
+        LS.set_keyboard_mode(self, LS.KeyboardMode.NONE)  # devolver el teclado ya, no tras el cierre
+        for _, pic in self.tarjetas:
+            media = pic.get_paintable()
+            if isinstance(media, Gtk.MediaStream):
+                media.pause()
         self.velo.add_css_class("oculto")
-        GLib.timeout_add(260, lambda: self.get_application().quit())
+
+        def fin():
+            self.set_visible(False)
+            self.get_application().quit()
+            return False
+        GLib.timeout_add(260, fin)
 
     def tecla(self, _ctl, keyval, _code, _state):
         nombre = Gdk.keyval_name(keyval) or ""
