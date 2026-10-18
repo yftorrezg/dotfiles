@@ -3,7 +3,7 @@ config_version = 15
 [dock]
 auto_hide = true
 enabled = true
-pinned = [ "code", "kitty", "org.kde.dolphin", "brave-browser", "com.anthropic.Claude", "opendeck", "obsidian" ]
+pinned = [ "code", "org.kde.dolphin", "kitty", "brave-browser", "com.anthropic.Claude", "opendeck", "obsidian" ]
 reserve_space = false
 show_running = false
 
