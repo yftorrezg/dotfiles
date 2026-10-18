@@ -161,7 +161,7 @@ corner_radius_scale = 2.0
 builtin = "Noctalia"
 community_palette = "GitHub Dark"
 custom_palette = "yafer"
-mode = "dark"
+mode = "light"
 pure_black_dark = false
 source = "custom"
 wallpaper_scheme = "m3-tonal-spot"
@@ -174,11 +174,11 @@ wallpaper_scheme = "m3-tonal-spot"
 path = "/usr/share/noctalia/assets/noctalia-wallpaper.png"
 
 [wallpaper.last]
-path = "/home/yafer/.cache/escritorios-vivos/temas/oscuros-gojo-purpura.jpg"
+path = "/home/yafer/.cache/escritorios-vivos/temas/claros-rem-verano.jpg"
 
 [wallpaper.monitors.DP-3]
-path = "/home/yafer/.cache/escritorios-vivos/temas/oscuros-gojo-purpura.jpg"
+path = "/home/yafer/.cache/escritorios-vivos/temas/claros-rem-verano.jpg"
 
 [wallpaper.monitors.HDMI-A-1]
 fill_mode = "fit"
-path = "/home/yafer/.cache/escritorios-vivos/temas/oscuros-gojo-purpura.jpg"
+path = "/home/yafer/.cache/escritorios-vivos/temas/claros-rem-verano.jpg"
