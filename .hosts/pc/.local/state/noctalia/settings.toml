@@ -2,18 +2,28 @@ config_version = 15
 
 [dock]
 auto_hide = true
-background_opacity = 0.71999999999999997
+background_opacity = 0.55
 enabled = true
-icon_size = 46
-item_spacing = 8
+icon_size = 48
+item_spacing = 10
 magnification = true
-magnification_scale = 1.55
+magnification_scale = 1.6
 pinned = [ "code", "org.kde.dolphin", "kitty", "brave-browser", "com.anthropic.Claude", "opendeck", "obsidian" ]
 reserve_space = false
 shadow = true
 show_dots = true
 show_instance_count = false
 show_running = true
+radius_top_left = 24
+radius_top_right = 24
+radius_bottom_left = 24
+radius_bottom_right = 24
+margin_edge = 10
+main_axis_padding = 14
+cross_axis_padding = 10
+border = "primary"
+border_width = 1
+inactive_opacity = 0.9
 
 [location]
 auto_locate = true

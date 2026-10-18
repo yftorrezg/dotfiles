@@ -14,3 +14,4 @@
 - [Decks OpenDeck desde MAPA-DECKS.md](decks-opendeck-mapa-v2.md) — tablas md → perfiles con deck-aplicar.py; OBS por WebSocket para TikTok.
 - [Repo → imágenes de código](repo-a-imagenes.md) — SUPER+ALT+G: link de GitHub → carpeta de imágenes en ~/Vídeos/Código de repos; sin IA.
 - [Celular con scrcpy](celular-scrcpy.md) — tecla Celular del XL (sustituyó Notas de videos) → celular.sh; Alt = atajos scrcpy.
+- [Escritorios vivos y modo claro](escritorios-vivos-tema.md) — fondo+aviso por escritorio, SUPER+SHIFT+D claro/oscuro, dock con lupa; no tocar settings.toml con regex.
