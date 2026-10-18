@@ -19,6 +19,7 @@ import ctypes
 ctypes.CDLL("libgtk4-layer-shell.so")
 
 import importlib.util  # noqa: E402
+import math  # noqa: E402
 import json  # noqa: E402
 import os  # noqa: E402
 import socket  # noqa: E402
@@ -28,6 +29,7 @@ import tomllib  # noqa: E402
 import unicodedata  # noqa: E402
 from pathlib import Path  # noqa: E402
 
+import cairo  # noqa: E402
 import gi  # noqa: E402
 
 import temas_comun as tc  # noqa: E402
@@ -58,18 +60,21 @@ def modulo(nombre):
 descubrir = modulo("descubrir-fondos")
 paletas = modulo("generar-paletas")
 
-PESTANAS = (("dark", "🌙  Oscuros"), ("light", "☀️  Claros"), ("galeria", "🖼️  Galería"), ("colores", "🎨  Colores"))
+PESTANAS = (("dark", "🌙  Oscuros"), ("light", "☀️  Claros"), ("galeria", "🖼️  Galería"), ("colores", "🎨  Colores"),
+            ("efectos", "✨  Efectos"))
 SUBTITULOS = {
     "dark": "Cada tema pone un fondo animado 4K distinto en cada escritorio (SUPER+1…5)",
     "light": "Cada tema pone un fondo animado 4K distinto en cada escritorio (SUPER+1…5)",
     "galeria": "Elige tus fondos: pulsa 1-5 para ponerlo en ese escritorio · escribe para buscar",
     "colores": "Colores de toda la interfaz: barra, terminal, Dolphin y apps · todos probados para leer bien",
+    "efectos": "Cómo cambias de escritorio: animación de las ventanas + cómo entra el fondo nuevo",
 }
 AYUDAS = {
     "dark": "Flechas mover · Enter aplicar · Tab pestaña · D destellos · Esc salir",
     "light": "Flechas mover · Enter aplicar · Tab pestaña · D destellos · Esc salir",
     "galeria": "1-5 poner en ese escritorio · Enter en este escritorio · Supr quitar · Tab pestaña · Esc salir",
     "colores": "Flechas mover · Enter aplicar · Tab pestaña · Esc salir",
+    "efectos": "Flechas mover · Enter aplicar (pruébalo con SUPER+1…5) · Tab pestaña · Esc salir",
 }
 
 CSS = """
@@ -209,6 +214,85 @@ def dibujar_esquema(_area, cr, w, h, datos):
             cr.fill()
 
 
+def suavizar(t, rebote=False):
+    t = max(0.0, min(1.0, t))
+    if rebote:  # muelle: se pasa un poco y vuelve
+        return 1 - math.exp(-6 * t) * math.cos(9 * t)
+    return 1 - (1 - t) ** 3
+
+
+def pintar_escritorio(cr, w, h, colores, n):
+    g = cairo.LinearGradient(0, 0, w, h)
+    g.add_color_stop_rgb(0, *rgb(colores[0]))
+    g.add_color_stop_rgb(1, *rgb(colores[1]))
+    cr.set_source(g)
+    cr.rectangle(0, 0, w, h)
+    cr.fill()
+    cr.set_source_rgba(1, 1, 1, 0.9)
+    cr.select_font_face("Adwaita Sans", cairo.FONT_SLANT_NORMAL, cairo.FONT_WEIGHT_BOLD)
+    cr.set_font_size(h * 0.32)
+    cr.move_to(w * 0.08, h * 0.88)
+    cr.show_text(str(n))
+
+
+def pintar_ventanas(cr, w, h, alfa, n):
+    for x, y, ww, hh in ((0.30, 0.12, 0.31, 0.58), (0.64, 0.12, 0.30, 0.76)) if n == 1 else \
+            ((0.30, 0.12, 0.64, 0.36), (0.30, 0.52, 0.64, 0.36)):
+        cr.set_source_rgba(0.08, 0.08, 0.11, 0.82 * alfa)
+        cr.rectangle(x * w, y * h, ww * w, hh * h)
+        cr.fill()
+        cr.set_source_rgba(1, 1, 1, 0.55 * alfa)
+        for k in range(3):
+            cr.rectangle((x + 0.03) * w, (y + 0.08 + k * 0.09) * h, ww * w * (0.7 - k * 0.15), h * 0.035)
+            cr.fill()
+
+
+def dibujar_efecto(_area, cr, w, h, clave):
+    """Vista previa animada: el escritorio 1 pasa al 2 y vuelve, con el efecto elegido."""
+    ef = tc.EFECTOS[clave]
+    curva, velocidad, estilo = ef["hypr"]
+    brillo0, zoom0, ms = ef["fondo"]
+    ciclo = 2.6
+    tiempo = (GLib.get_monotonic_time() / 1e6) % (2 * ciclo)
+    ida = tiempo < ciclo
+    t = (tiempo % ciclo) - 0.6                     # 0.6 s quieto antes de cambiar
+    dur_h = 0.28 * velocidad / 4.5 + 0.1           # duración aproximada de la animación de Hyprland
+    a, b = (1, 2) if ida else (2, 1)
+    fondos = {1: ("#4b2d7f", "#c45fa0"), 2: ("#1d6f8a", "#7ad3b0")}
+    # fondo: cambia en el sitio, con el brillo y el zoom del efecto
+    if t < 0:
+        pintar_escritorio(cr, w, h, fondos[a], a)
+    else:
+        e = suavizar(t / (ms / 1000)) if ms else 1
+        z = 1 + zoom0 * (1 - e)
+        cr.save()
+        cr.translate(w / 2, h / 2)
+        cr.scale(z, z)
+        cr.translate(-w / 2, -h / 2)
+        pintar_escritorio(cr, w, h, fondos[b], b)
+        cr.restore()
+        if brillo0 and ms:
+            v = 1 if brillo0 > 0 else 0
+            cr.set_source_rgba(v, v, v, abs(brillo0) / 100 * (1 - e) * 0.9)
+            cr.rectangle(0, 0, w, h)
+            cr.fill()
+    # ventanas: se mueven según el estilo de Hyprland
+    p = suavizar(t / dur_h, curva == "rebote") if t >= 0 else 0
+    signo = 1 if ida else -1
+    if estilo.startswith("fade"):
+        pintar_ventanas(cr, w, h, 1 - p, a)
+        pintar_ventanas(cr, w, h, p, b)
+        return
+    vertical = "vert" in estilo
+    desvanece = estilo.startswith("slidefade")
+    for n, desde, alfa in ((a, 0, 1 - p if desvanece else 1), (b, 1, p if desvanece else 1)):
+        d = (desde - p) * signo
+        cr.save()
+        cr.translate(0 if vertical else d * w, d * h if vertical else 0)
+        pintar_ventanas(cr, w, h, max(0, min(1, alfa)), n)
+        cr.restore()
+
+
 class Tarjeta(Gtk.Box):
     def __init__(self, selector, item):
         super().__init__(orientation=Gtk.Orientation.VERTICAL, spacing=8)
@@ -217,7 +301,15 @@ class Tarjeta(Gtk.Box):
         self.add_css_class("tarjeta")
         self.capas = Gtk.Overlay()
         w, h = selector.tam_vista
-        if item.get("esquema"):
+        self.vista_viva = None
+        if item.get("efecto"):
+            vista = Gtk.DrawingArea(content_width=w, content_height=h)
+            vista.set_draw_func(dibujar_efecto, item["efecto"])
+            vista.add_css_class("vista")
+            vista.set_overflow(Gtk.Overflow.HIDDEN)
+            self.pic, self.vista_viva, self.tic = None, vista, None
+            self.capas.set_child(vista)
+        elif item.get("esquema"):
             vista = Gtk.DrawingArea(content_width=w, content_height=h)
             vista.set_draw_func(dibujar_esquema, item["esquema"])
             vista.add_css_class("vista")
@@ -296,6 +388,13 @@ class Tarjeta(Gtk.Box):
     def animar(self, si):
         """Solo la tarjeta seleccionada reproduce su clip; las demás muestran el póster."""
         clip = self.item.get("clip")
+        if self.vista_viva is not None:  # efectos: se anima solo la seleccionada
+            if si and self.tic is None:
+                self.tic = self.vista_viva.add_tick_callback(lambda v, _c: v.queue_draw() or True)
+            elif not si and self.tic is not None:
+                self.vista_viva.remove_tick_callback(self.tic)
+                self.tic = None
+            return
         if self.pic is None:
             return
         if si and clip and Path(clip).exists():
@@ -530,6 +629,12 @@ class Selector(Gtk.ApplicationWindow):
                           "insignia": "ACTUAL" if clave == actual else None})
         return [(None, lista)]
 
+    def items_efectos(self):
+        return [(None, [{"id": k, "tipo": "efecto", "nombre": e["nombre"], "icono": e["icono"], "desc": e["desc"],
+                         "efecto": k, "acento": "#8b5cf6",
+                         "insignia": "ACTUAL" if self.estilo.get("efecto", "seda") == k else None}
+                        for k, e in tc.EFECTOS.items()])]
+
     def mostrar_pestana(self, clave, conservar=False):
         anterior = self.sel if conservar and getattr(self, "sel", None) is not None else None
         if getattr(self, "tarjetas", None):
@@ -548,6 +653,8 @@ class Selector(Gtk.ApplicationWindow):
             secciones = self.items_temas(clave)
         elif clave == "galeria":
             secciones = self.items_galeria()
+        elif clave == "efectos":
+            secciones = self.items_efectos()
         else:
             secciones = self.items_colores()
 
@@ -668,6 +775,8 @@ class Selector(Gtk.ApplicationWindow):
             self.aplicar_tema(item)
         elif item["tipo"] == "color":
             self.aplicar_colores(item)
+        elif item["tipo"] == "efecto":
+            self.aplicar_efecto(item)
         else:
             self.poner_en(i, self.escritorio)
 
@@ -687,6 +796,15 @@ class Selector(Gtk.ApplicationWindow):
         for t in self.tarjetas:
             t.insignia("ACTUAL" if t is self.tarjetas[self.sel] else None)
         self.decir(f"{item['icono']} {item['nombre']} aplicado")
+
+    def aplicar_efecto(self, item):
+        self.estilo = tc.leer_estilo()
+        self.estilo["efecto"] = item["id"]
+        tc.guardar_estilo(self.estilo)
+        tc.aplicar_efecto(item["id"])
+        for t in self.tarjetas:
+            t.insignia("ACTUAL" if t.item["id"] == item["id"] else None)
+        self.decir(f"{item['icono']} {item['nombre']} activado · pruébalo con SUPER+1…5")
 
     def poner_en(self, i, n):
         """Galería: pone el fondo en el escritorio n de "Mi selección" (del modo actual)."""

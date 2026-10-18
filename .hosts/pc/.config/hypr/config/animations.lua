@@ -27,3 +27,6 @@ hl.animation({ leaf = "layersIn",            enabled = true, speed = 3,   bezier
 hl.animation({ leaf = "layersOut",           enabled = true, speed = 2.5, bezier = "seda",  style = "fade"          })
 hl.animation({ leaf = "specialWorkspaceIn",  enabled = true, speed = 3,   bezier = "seda",  style = "slidefadevert 20%" })
 hl.animation({ leaf = "specialWorkspaceOut", enabled = true, speed = 2.5, bezier = "seda",  style = "slidefadevert 20%" })
+
+-- Efecto elegido en SUPER+SHIFT+A → ✨ Efectos (archivo generado; si no existe, queda lo de arriba)
+pcall(require, "config.transicion")

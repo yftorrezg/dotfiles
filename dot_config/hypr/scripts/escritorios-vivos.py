@@ -524,17 +524,26 @@ class App(Gtk.Application):
         leve zoom que se asienta, en vez de cortar de golpe. Usa el ecualizador y el zoom de mpv
         (los aplica la GPU al dibujar, no cuesta nada)."""
         sock = info["sock"]
-        brillo0 = 30 if self.modo == "light" else -55
-        zoom0 = 0.06
+        brillo0, zoom0, ms = tc.EFECTOS[self.estilo.get("efecto", "seda")]["fondo"]
+        if brillo0 < 0 and self.modo == "light":
+            brillo0 = -brillo0 // 2  # en modo claro entra desde claro, no desde negro
+        if info.get("t_trans"):  # una transición a medias: se corta y se deja el video normal
+            GLib.source_remove(info["t_trans"])
+            info["t_trans"] = None
+            self.mpv_comando(sock, ["set_property", "brightness", 0])
+            self.mpv_comando(sock, ["set_property", "video-zoom", 0])
+        if not ms:  # efecto "Rápido": sin animación del fondo
+            if not self.mpv_comando(sock, ["loadfile", ruta]):
+                return False
+            info["ruta"] = ruta
+            return True
         if not self.mpv_comando(sock, ["set_property", "brightness", brillo0]):
             return False
         self.mpv_comando(sock, ["set_property", "video-zoom", zoom0])
         if not self.mpv_comando(sock, ["loadfile", ruta]):
             return False
         info["ruta"] = ruta
-        if info.get("t_trans"):
-            GLib.source_remove(info["t_trans"])
-        pasos, paso = 32, [0]  # ~530 ms a 60 fps
+        pasos, paso = max(1, ms // 16), [0]  # a ~60 fps
 
         def avanzar():
             paso[0] += 1

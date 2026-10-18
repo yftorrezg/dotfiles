@@ -1,16 +1,18 @@
 #!/usr/bin/env python3
-"""chuletas.py — chuletas de programación en un panel lateral (SUPER+SHIFT+C).
+"""chuletas.py — chuletas de programación e inglés para estudiar (SUPER+SHIFT+C).
 
-Lee ~/.config/hypr/chuletas/*.md (una pestaña por archivo). Formato de cada archivo:
-  # 🐍 Título            ← nombre de la pestaña
-  ## Sección
-  código :: explicación   ← una línea por entrada (edítalas o añade las tuyas)
+Lee ~/.config/hypr/chuletas/NN-tema.md (formato en chuletas/FORMATO.md, lo interpreta chuletas_md.py):
+secciones con emoji, explicaciones, ejemplos resueltos, cajas 💡 ⚠️ 🇬🇧 📌 y tablas de vocabulario.
 
-El panel reserva su espacio a la derecha: las ventanas se apartan, no las tapa (puedes
-programar con la chuleta abierta). Usa los colores del esquema activo de noctalia, así que
-combina con tu tema y en modo claro/oscuro sigue leyéndose bien.
-Teclas: escribe para buscar · Tab / Shift+Tab pestaña · ↑↓ elegir · Enter o clic copia ·
-Esc borra la búsqueda o cierra. SUPER+SHIFT+C otra vez también lo cierra.
+Dos modos (F11 o el botón ⛶ cambia; se recuerda):
+  lateral   panel a la derecha que APARTA las ventanas: programas con la chuleta al lado.
+  completo  toda la pantalla para estudiar: índice de temas y secciones a la izquierda,
+            texto grande y centrado.
+Usa los colores del esquema activo de noctalia (combina con tu tema y se lee bien en claro y oscuro).
+
+Teclas: escribe para buscar en todas · Tab / Shift+Tab tema · ↑↓ PgUp PgDn Inicio Fin desplazar ·
+Ctrl+↑↓ sección anterior/siguiente · Enter copia el primer resultado · Esc borra la búsqueda o cierra.
+Clic en una entrada o en «Copiar» = copiar el código. El texto se puede seleccionar con el ratón.
 """
 import ctypes
 
@@ -28,32 +30,95 @@ from pathlib import Path  # noqa: E402
 
 import gi  # noqa: E402
 
+import chuletas_md as md  # noqa: E402
+
 gi.require_version("Gtk", "4.0")
 gi.require_version("Gdk", "4.0")
 gi.require_version("Gtk4LayerShell", "1.0")
 from gi.repository import Gdk, GLib, Gtk, Pango  # noqa: E402
 from gi.repository import Gtk4LayerShell as LS  # noqa: E402
 
-CARPETA = Path.home() / ".config/hypr/chuletas"
 NOCT_SETTINGS = Path.home() / ".local/state/noctalia/settings.toml"
 PALETAS = Path.home() / ".config/noctalia/palettes"
+ESTADO = Path.home() / ".local/state/escritorios-vivos/chuletas.json"
 HYPR = Path(os.environ["XDG_RUNTIME_DIR"]) / "hypr" / os.environ["HYPRLAND_INSTANCE_SIGNATURE"] / ".socket.sock"
-ANCHO = 600
+MONO = "Adwaita Mono"
 
-PALABRAS = {  # se colorean como palabras clave (lo demás: textos, números y comentarios)
-    "py": "def class return if elif else for while in not and or import from as with try except finally raise "
-          "lambda yield None True False pass break continue is async await",
-    "js": "const let var function return if else for of in while switch case default break new class extends "
-          "async await try catch finally import export from typeof null undefined true false this",
-    "css": "display flex grid position color background margin padding border gap font width height transition "
-           "transform animation content",
-    "sql": "SELECT FROM WHERE AND OR IN LIKE BETWEEN ORDER BY DESC ASC LIMIT GROUP HAVING JOIN LEFT ON INSERT "
-           "INTO VALUES UPDATE SET DELETE CREATE TABLE ALTER ADD COLUMN INDEX DROP DISTINCT COUNT AVG MAX AS "
-           "PRIMARY KEY NOT NULL INTEGER TEXT INT",
-    "sh": "git sudo cd ls cat grep find rm cp mv mkdir pip npm node python gh chmod kill pkill",
+# --- resaltado de código ----------------------------------------------------------------
+JS = ("const let var function return if else for of in while do switch case default break continue new class "
+      "extends super async await try catch finally throw import export from as typeof instanceof null undefined "
+      "true false this delete void yield static get set")
+PALABRAS = {
+    "python": "def class return if elif else for while in not and or import from as with try except finally raise "
+              "lambda yield None True False pass break continue is async await global nonlocal assert del match case",
+    "js": JS, "jsx": JS, "ts": JS + " interface type enum implements private public readonly number string boolean any",
+    "css": "!important @media @keyframes @import @font-face @container @supports",
+    "sql": "SELECT FROM WHERE AND OR NOT IN LIKE ILIKE BETWEEN ORDER BY DESC ASC LIMIT OFFSET GROUP HAVING JOIN INNER "
+           "LEFT RIGHT FULL OUTER ON INSERT INTO VALUES UPDATE SET DELETE CREATE TABLE ALTER ADD COLUMN INDEX DROP "
+           "DISTINCT COUNT AVG MAX MIN SUM AS PRIMARY KEY FOREIGN REFERENCES NULL UNIQUE CHECK DEFAULT INTEGER "
+           "TEXT INT REAL VARCHAR BOOLEAN DATE WITH VIEW BEGIN COMMIT ROLLBACK CASE WHEN THEN END OVER PARTITION "
+           "UNION ALL EXISTS IS EXPLAIN",
+    "bash": "if then else elif fi for in do done while case esac function return export local echo sudo cd ls cat grep "
+            "find rm cp mv mkdir git pip npm npx node python python3 docker chmod chown kill pkill systemctl "
+            "pacman paru curl ssh tar set end",
+    "dockerfile": "FROM RUN COPY ADD WORKDIR CMD ENTRYPOINT ENV ARG EXPOSE VOLUME USER LABEL HEALTHCHECK AS",
+    "yaml": "true false null", "json": "true false null", "html": "", "text": "",
 }
+ALIAS = {"py": "python", "javascript": "js", "typescript": "ts", "tsx": "jsx", "sh": "bash", "shell": "bash",
+         "fish": "bash", "console": "bash", "docker": "dockerfile", "yml": "yaml", "postgres": "sql"}
+COMENTARIO = {"python": r"#.*$", "bash": r"#.*$", "dockerfile": r"#.*$", "yaml": r"#.*$",
+              "js": r"//.*$|/\*.*?\*/", "jsx": r"//.*$|/\*.*?\*/", "ts": r"//.*$|/\*.*?\*/",
+              "css": r"/\*.*?\*/", "sql": r"--.*$", "html": r"<!--.*?-->", "json": r"(?!x)x", "text": r"(?!x)x"}
 
 
+def _patron(leng):
+    etiqueta_html = r"|(?P<tag></?[A-Za-z][\w.-]*>?|/?>)" if leng in ("html", "jsx") else ""
+    clave_yaml = r"|(?P<prop>^\s*[\w.-]+(?=:))" if leng == "yaml" else ""
+    prop_css = r"|(?P<prop>[\w-]+(?=\s*:[^:]))" if leng == "css" else ""
+    return re.compile(rf"""(?P<com>{COMENTARIO[leng]}){etiqueta_html}{clave_yaml}{prop_css}"""
+                      r"""|(?P<txt>"(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*'|`[^`]*`)"""
+                      r"""|(?P<num>\b\d+(?:\.\d+)?(?:px|rem|em|ms|s|fr|vh|vw|%)?\b)|(?P<pal>[@!]?[A-Za-z_][\w-]*)|(?P<otro>.)""",
+                      re.M | re.S if leng in ("css", "html") else re.M)
+
+
+PATRONES = {k: _patron(k) for k in COMENTARIO}
+
+
+def resaltar(codigo, leng, c):
+    """Código → Pango markup coloreado con los colores de la terminal del esquema activo."""
+    leng = ALIAS.get(leng, leng)
+    if leng not in PATRONES:
+        leng = "text"
+    claves = set(PALABRAS[leng].split())
+    if leng == "sql":
+        claves |= {k.lower() for k in claves}
+    partes = []
+    for m in PATRONES[leng].finditer(codigo):
+        t, g = html.escape(m.group()), m.lastgroup
+        color = {"com": c["com"], "txt": c["txt"], "num": c["num"], "tag": c["tag"], "prop": c["prop"]}.get(g)
+        if g == "pal" and m.group() in claves:
+            partes.append(f'<span foreground="{c["clave"]}" weight="bold">{t}</span>')
+        elif color:
+            estilo = ' style="italic"' if g == "com" else ""
+            partes.append(f'<span foreground="{color}"{estilo}>{t}</span>')
+        else:
+            partes.append(t)
+    return "".join(partes)
+
+
+def en_linea(texto, c):
+    """Markdown mínimo de los párrafos: `código` y **negrita** → Pango markup."""
+    salida = []
+    for p in re.split(r"(`[^`]+`)", texto):
+        if p.startswith("`") and p.endswith("`") and len(p) > 1:
+            salida.append(f'<span font_family="{MONO}" background="{c["fondo_cod"]}" foreground="{c["cod_linea"]}">'
+                          f' {html.escape(p[1:-1])} </span>')
+        else:
+            salida.append(re.sub(r"\*\*(.+?)\*\*", r"<b>\1</b>", html.escape(p)))
+    return "".join(salida)
+
+
+# --- utilidades -------------------------------------------------------------------------
 def hypr_json(cmd):
     with socket.socket(socket.AF_UNIX, socket.SOCK_STREAM) as s:
         s.connect(str(HYPR))
@@ -81,52 +146,126 @@ def paleta():
     return None, modo
 
 
+def mezclar(a, b, t):
+    x = [int(a[i:i + 2], 16) for i in (1, 3, 5)]
+    y = [int(b[i:i + 2], 16) for i in (1, 3, 5)]
+    return "#" + "".join(f"{round(p + (q - p) * t):02x}" for p, q in zip(x, y))
+
+
 def sin_tildes(texto):
     return unicodedata.normalize("NFKD", texto).encode("ascii", "ignore").decode().casefold()
 
 
-def leer_chuletas():
-    hojas = []
-    for archivo in sorted(CARPETA.glob("*.md")):
-        titulo, secciones, actual = archivo.stem, [], None
-        for linea in archivo.read_text(encoding="utf-8").splitlines():
-            if linea.startswith("## "):
-                actual = (linea[3:].strip(), [])
-                secciones.append(actual)
-            elif linea.startswith("# "):
-                titulo = linea[2:].strip()
-            elif actual is not None and " :: " in linea:
-                codigo, explicacion = linea.rsplit(" :: ", 1)
-                actual[1].append((codigo.strip(), explicacion.strip()))
-        lenguaje = next((k for k, pista in (("py", "python"), ("js", "javascript"), ("css", "css"),
-                                             ("sql", "sql")) if pista in archivo.stem), "sh")
-        hojas.append({"titulo": titulo, "secciones": secciones, "lenguaje": lenguaje})
-    return hojas
+def leer_estado():
+    try:
+        return json.loads(ESTADO.read_text())
+    except (OSError, ValueError):
+        return {}
 
 
-COMENTARIO = {"py": r"#\s.*$", "sh": r"#\s.*$", "js": r"//\s.*$", "css": r"/\*.*?\*/", "sql": r"--\s.*$"}
-TOKEN = {leng: re.compile(rf"""(?P<com>{com})|(?P<txt>"[^"]*"|'[^']*'|`[^`]*`)|"""
-                          r"""(?P<num>\b\d+(?:\.\d+)?(?:px|rem|ms|s|fr|%)?\b)|(?P<pal>[A-Za-z_][\w-]*)|(?P<otro>.)""")
-         for leng, com in COMENTARIO.items()}
+def guardar_estado(d):
+    try:
+        ESTADO.parent.mkdir(parents=True, exist_ok=True)
+        ESTADO.write_text(json.dumps(d))
+    except OSError:
+        pass
 
 
-def resaltar(codigo, lenguaje, c):
-    """Colorea el código con Pango markup (simple: palabras clave, textos, números, comentarios)."""
-    claves = set(PALABRAS[lenguaje].split())
-    partes = []
-    for m in TOKEN[lenguaje].finditer(codigo):
-        t = html.escape(m.group())
-        if m.lastgroup == "com":
-            partes.append(f'<span foreground="{c["com"]}">{t}</span>')
-        elif m.lastgroup == "txt":
-            partes.append(f'<span foreground="{c["txt"]}">{t}</span>')
-        elif m.lastgroup == "num":
-            partes.append(f'<span foreground="{c["num"]}">{t}</span>')
-        elif m.lastgroup == "pal" and m.group() in claves:
-            partes.append(f'<span foreground="{c["clave"]}" weight="bold">{t}</span>')
-        else:
-            partes.append(t)
-    return "".join(partes)
+def etiqueta(texto="", clases=(), markup=None, wrap=True, seleccionable=False):
+    lbl = Gtk.Label(xalign=0, wrap=wrap, selectable=seleccionable)
+    if wrap:
+        lbl.set_wrap_mode(Pango.WrapMode.WORD_CHAR)
+    if markup is not None:
+        lbl.set_markup(markup)
+    else:
+        lbl.set_label(texto)
+    for c in clases:
+        lbl.add_css_class(c)
+    return lbl
+
+
+PALETA_DEFECTO = ('{"mSurface":"#1a1c23","mSurfaceVariant":"#2b2e3b","mOnSurface":"#f2f2f3",'
+                  '"mOnSurfaceVariant":"#b4b5bd","mPrimary":"#8fa0ec","mOnPrimary":"#16161c","mOutline":"#61677a",'
+                  '"terminal":{"normal":{"red":"#ff6b81","green":"#8fd18a","yellow":"#f2c46d",'
+                  '"blue":"#82aaff","magenta":"#c79bf2","cyan":"#7fd6d0"},"bright":{"black":"#70758a"}}}')
+
+
+def hoja_css(p, claro, c):
+    t = p["terminal"]["normal"]
+    f, f2, pri, txt, txt2, borde = (p[k] for k in ("mSurface", "mSurfaceVariant", "mPrimary", "mOnSurface",
+                                                   "mOnSurfaceVariant", "mOutline"))
+    notas = {"consejo": t["green"], "cuidado": t["red"] if claro else t["yellow"], "ingles": t["blue"], "nota": pri}
+    css_notas = "".join(
+        f".nota-{k} {{ border-left: 4px solid {col}; background-color: alpha({col}, {0.10 if claro else 0.12}); }}"
+        for k, col in notas.items())
+    return f"""
+window.chuletas {{ background: transparent; }}
+.caja {{ background-color: alpha({f}, 0.975); color: {txt};
+        border-radius: 26px; border: 1px solid alpha({borde}, 0.45);
+        font-family: "Adwaita Sans", "Inter", sans-serif;
+        box-shadow: 0 16px 50px rgba(0,0,0,{0.18 if claro else 0.45});
+        transition: opacity 220ms ease, transform 320ms cubic-bezier(.2,1.2,.3,1); }}
+.caja.oculta {{ opacity: 0; transform: translateX(40px); }}
+.completo .caja.oculta {{ transform: scale(0.97); }}
+.cabecera {{ padding: 18px 18px 0 20px; }}
+.marca {{ font-size: 22px; font-weight: 800; }}
+.boton {{ font-size: 15px; font-weight: 700; padding: 4px 12px; border-radius: 99px; min-height: 0;
+         background-color: {f2}; color: {txt}; border: none; box-shadow: none; }}
+.boton:hover {{ background-color: alpha({pri}, 0.25); }}
+.pestana {{ font-size: 14px; font-weight: 700; padding: 5px 11px; border-radius: 99px; min-height: 0;
+           background: transparent; color: {txt2}; border: none; box-shadow: none; }}
+.pestana:hover {{ background-color: {f2}; }}
+.pestana.activa {{ background-color: {pri}; color: {p['mOnPrimary']}; }}
+.lateral-izq {{ background-color: alpha({f2}, 0.55); border-radius: 26px 0 0 26px; padding: 20px 12px; }}
+.nav {{ font-size: 15.5px; font-weight: 650; padding: 8px 12px; border-radius: 12px; min-height: 0;
+       background: transparent; color: {txt}; border: none; box-shadow: none; }}
+.nav:hover {{ background-color: alpha({pri}, 0.14); }}
+.nav.activa {{ background-color: {pri}; color: {p['mOnPrimary']}; }}
+.toc {{ font-size: 14px; font-weight: 500; padding: 5px 12px; border-radius: 10px; min-height: 0;
+       background: transparent; color: {txt2}; border: none; box-shadow: none; }}
+.toc:hover {{ background-color: alpha({pri}, 0.12); color: {txt}; }}
+.toc.activa {{ color: {pri}; font-weight: 800; background-color: alpha({pri}, 0.10); }}
+.nav-titulo {{ font-size: 12px; font-weight: 800; letter-spacing: 1.5px; color: {txt2}; margin: 14px 12px 6px 12px; }}
+.busqueda {{ font-size: 15px; font-weight: 600; padding: 9px 16px; border-radius: 14px;
+            background-color: {f2}; color: {txt2}; }}
+.busqueda.activa {{ color: {txt}; box-shadow: inset 0 0 0 2px {pri}; }}
+scrolledwindow, scrolledwindow > viewport {{ background: transparent; }}
+.hoja-titulo {{ font-size: 30px; font-weight: 800; letter-spacing: -0.5px; }}
+.hoja-sub {{ font-size: 16px; color: {txt2}; margin-bottom: 6px; }}
+.h2 {{ font-size: 22px; font-weight: 800; margin-top: 26px; padding-bottom: 8px;
+      border-bottom: 2px solid alpha({pri}, 0.35); }}
+.h3 {{ font-size: 17.5px; font-weight: 750; margin-top: 14px; color: {pri}; }}
+.p {{ font-size: 15.5px; }}
+.entrada {{ padding: 10px 14px; border-radius: 14px; background-color: alpha({f2}, 0.6); border: 1px solid transparent; }}
+.entrada:hover {{ background-color: {f2}; border-color: alpha({pri}, 0.5); }}
+.copiada {{ border-color: {pri}; box-shadow: 0 0 0 2px alpha({pri}, 0.35); }}
+.e-codigo {{ font-family: "{MONO}", monospace; font-size: 14.5px; }}
+.e-exp {{ font-size: 14px; color: {txt2}; margin-top: 3px; }}
+.bloque {{ border-radius: 16px; background-color: {c['fondo_cod']}; border: 1px solid alpha({borde}, 0.35); }}
+.bloque-cab {{ padding: 6px 8px 0 14px; }}
+.leng {{ font-size: 11.5px; font-weight: 800; letter-spacing: 1px; color: {txt2}; }}
+.copiar {{ font-size: 12.5px; font-weight: 700; padding: 2px 10px; border-radius: 99px; min-height: 0;
+          background: transparent; color: {txt2}; border: none; box-shadow: none; }}
+.copiar:hover {{ background-color: alpha({pri}, 0.2); color: {txt}; }}
+.codigo {{ font-family: "{MONO}", monospace; font-size: 14.5px; padding: 6px 16px 14px 16px; }}
+.nota {{ border-radius: 12px; padding: 10px 14px; font-size: 15px; }}
+{css_notas}
+.tabla {{ border-radius: 14px; border: 1px solid alpha({borde}, 0.4); }}
+.celda {{ padding: 7px 12px; font-size: 14.5px; }}
+.celda.cab {{ font-weight: 800; background-color: alpha({pri}, 0.16); }}
+.celda.par {{ background-color: alpha({f2}, 0.55); }}
+.pie {{ font-size: 12.5px; color: {txt2}; padding: 0 20px 12px 20px; }}
+.copiado {{ font-size: 13px; font-weight: 700; color: {pri}; }}
+.vacio {{ font-size: 16px; color: {txt2}; margin: 40px; }}
+.completo .p {{ font-size: 17px; }}
+.completo .nota {{ font-size: 16.5px; }}
+.completo .h2 {{ font-size: 27px; }}
+.completo .h3 {{ font-size: 19.5px; }}
+.completo .codigo, .completo .e-codigo {{ font-size: 15.5px; }}
+.completo .e-exp, .completo .celda {{ font-size: 15.5px; }}
+.completo .hoja-titulo {{ font-size: 38px; }}
+.completo .hoja-sub {{ font-size: 18px; }}
+"""
 
 
 class Panel(Gtk.ApplicationWindow):
@@ -137,197 +276,353 @@ class Panel(Gtk.ApplicationWindow):
         LS.set_namespace(self, "chuletas")
         LS.set_layer(self, LS.Layer.TOP)
         LS.set_keyboard_mode(self, LS.KeyboardMode.ON_DEMAND)  # puedes seguir escribiendo en tu editor
-        for borde in (LS.Edge.TOP, LS.Edge.BOTTOM, LS.Edge.RIGHT):
-            LS.set_anchor(self, borde, True)
-        for borde, m in ((LS.Edge.TOP, 8), (LS.Edge.BOTTOM, 8), (LS.Edge.RIGHT, 8)):
-            LS.set_margin(self, borde, m)
-        ancho = ANCHO
+        self.vertical, self.ancho_mon = False, 1920
         try:
             info = next(m for m in hypr_json("monitors") if m["focused"])
-            if info.get("transform", 0) % 2 == 1:  # monitor vertical: más angosto
-                ancho = 500
+            self.vertical = info.get("transform", 0) % 2 == 1
+            self.ancho_mon = round((info["height"] if self.vertical else info["width"]) / info.get("scale", 1))
             mon = next((m for m in Gdk.Display.get_default().get_monitors()
                         if m.get_connector() == info["name"]), None)
             if mon:
                 LS.set_monitor(self, mon)
-        except (OSError, ValueError, StopIteration):
+        except (OSError, ValueError, StopIteration, KeyError):
             pass
-        LS.set_exclusive_zone(self, ancho + 8)  # las ventanas se apartan
-        self.set_default_size(ancho, -1)
+        self.ancho_lateral = 520 if self.vertical else 640
 
         p, modo = paleta()
         claro = modo == "light"
-        p = p or {"mSurface": "#1a1c23", "mSurfaceVariant": "#2b2e3b", "mOnSurface": "#f2f2f3",
-                  "mOnSurfaceVariant": "#b4b5bd", "mPrimary": "#8fa0ec", "mOnPrimary": "#16161c",
-                  "mOutline": "#61677a", "terminal": {"normal": {"green": "#8fd18a", "yellow": "#f2c46d",
-                                                                 "magenta": "#c79bf2", "blue": "#82aaff"},
-                                                      "bright": {"black": "#70758a"}}}
-        t = p["terminal"]
-        self.c = {"clave": t["normal"]["magenta"], "txt": t["normal"]["green"], "num": t["normal"]["yellow"],
-                  "com": t["bright"]["black"], "codigo": p["mOnSurface"]}
+        p = p or json.loads(PALETA_DEFECTO)
+        t = p["terminal"]["normal"]
+        f, f2 = p["mSurface"], p["mSurfaceVariant"]
+        self.c = {"clave": t["magenta"], "txt": t["green"], "num": t["yellow"], "tag": t["red"], "prop": t["blue"],
+                  "com": p["terminal"]["bright"]["black"],
+                  "fondo_cod": mezclar(f, "#000000", 0.05) if claro else mezclar(f, "#000000", 0.32),
+                  "cod_linea": t["blue"] if claro else t["cyan"]}
         css = Gtk.CssProvider()
-        css.load_from_string(f"""
-window.chuletas {{ background: transparent; }}
-.caja {{ background-color: alpha({p['mSurface']}, 0.97); color: {p['mOnSurface']};
-        border-radius: 26px; border: 1px solid alpha({p['mOutline']}, 0.45);
-        padding: 20px 18px 14px 20px; font-family: "Adwaita Sans", "Inter", sans-serif;
-        box-shadow: 0 16px 50px rgba(0,0,0,{0.18 if claro else 0.45});
-        transition: opacity 220ms ease, transform 300ms cubic-bezier(.2,1.2,.3,1); }}
-.caja.oculta {{ opacity: 0; transform: translateX(40px); }}
-.titulo {{ font-size: 24px; font-weight: 800; }}
-.pestana {{ font-size: 14.5px; font-weight: 700; padding: 6px 12px; border-radius: 99px; min-height: 0;
-           background: transparent; color: {p['mOnSurfaceVariant']}; border: none; box-shadow: none; }}
-.pestana:hover {{ background-color: {p['mSurfaceVariant']}; }}
-.pestana.activa {{ background-color: {p['mPrimary']}; color: {p['mOnPrimary']}; }}
-.busqueda {{ font-size: 15px; font-weight: 600; padding: 8px 14px; border-radius: 14px;
-            background-color: {p['mSurfaceVariant']}; color: {p['mOnSurfaceVariant']}; }}
-.busqueda.activa {{ color: {p['mOnSurface']}; }}
-scrolledwindow, scrolledwindow > viewport {{ background: transparent; }}
-.seccion {{ font-size: 13px; font-weight: 800; letter-spacing: 1.5px; color: {p['mPrimary']};
-           margin: 16px 4px 6px 4px; }}
-.entrada {{ padding: 10px 14px; border-radius: 14px; background-color: alpha({p['mSurfaceVariant']}, 0.55);
-           margin: 0 6px 6px 0; border: 1px solid transparent; }}
-.entrada:hover {{ background-color: {p['mSurfaceVariant']}; }}
-.entrada.sel {{ background-color: {p['mSurfaceVariant']}; border-color: {p['mPrimary']}; }}
-.codigo {{ font-family: "Adwaita Mono", "JetBrains Mono", monospace; font-size: 15px; color: {p['mOnSurface']}; }}
-.explicacion {{ font-size: 14px; color: {p['mOnSurfaceVariant']}; margin-top: 3px; }}
-.hoja {{ font-size: 12.5px; font-weight: 700; color: {p['mPrimary']}; }}
-.pie {{ font-size: 12.5px; color: {p['mOnSurfaceVariant']}; }}
-.copiado {{ font-size: 13px; font-weight: 700; color: {p['mPrimary']}; }}
-""")
+        css.load_from_string(hoja_css(p, claro, self.c))
         Gtk.StyleContext.add_provider_for_display(Gdk.Display.get_default(), css, 800)
 
-        self.hojas = leer_chuletas()
-        self.hoja = 0
+        self.hojas = md.hojas()
+        estado = leer_estado()
+        nombres = [h["archivo"].name for h in self.hojas]
+        self.hoja = nombres.index(estado["hoja"]) if estado.get("hoja") in nombres else 0
+        self.modo = estado.get("modo", "lateral")
         self.busqueda = ""
-        self.caja = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=12)
-        self.caja.add_css_class("caja")
-        self.caja.add_css_class("oculta")
-        cab = Gtk.Box(spacing=8)
-        titulo = Gtk.Label(label="📒 Chuletas", xalign=0, hexpand=True)
-        titulo.add_css_class("titulo")
-        cab.append(titulo)
-        self.copiado = Gtk.Label(label="")
-        self.copiado.add_css_class("copiado")
-        cab.append(self.copiado)
-        self.caja.append(cab)
-        pestanas = Gtk.FlowBox(selection_mode=Gtk.SelectionMode.NONE, max_children_per_line=6,
-                               column_spacing=2, row_spacing=4, homogeneous=False)
-        self.botones = []
-        for i, h in enumerate(self.hojas):
-            b = Gtk.Button(label=h["titulo"])
-            b.add_css_class("pestana")
-            b.connect("clicked", lambda _b, i=i: self.mostrar_hoja(i))
-            pestanas.append(b)
-            self.botones.append(b)
-        self.caja.append(pestanas)
-        self.lbl_busqueda = Gtk.Label(xalign=0)
-        self.lbl_busqueda.add_css_class("busqueda")
-        self.caja.append(self.lbl_busqueda)
-        self.scroll = Gtk.ScrolledWindow(hscrollbar_policy=Gtk.PolicyType.NEVER, vexpand=True)
-        self.caja.append(self.scroll)
-        pie = Gtk.Label(label="Escribe para buscar · Tab cambia · ↑↓ elegir · Enter/clic copia · Esc cierra",
-                        xalign=0, wrap=True)
-        pie.add_css_class("pie")
-        self.caja.append(pie)
-        self.set_child(self.caja)
+        self.mostrado = False
+        self.copiables, self.anclas = [], []
+        self.construir()
 
         teclas = Gtk.EventControllerKey()
         teclas.set_propagation_phase(Gtk.PropagationPhase.CAPTURE)
         teclas.connect("key-pressed", self.tecla)
         self.add_controller(teclas)
-        self.mostrar_hoja(0)
+
+    # --- estructura según el modo ------------------------------------------------------
+    def colocar(self):
+        completo = self.modo == "completo"
+        for borde in (LS.Edge.TOP, LS.Edge.BOTTOM, LS.Edge.RIGHT, LS.Edge.LEFT):
+            LS.set_anchor(self, borde, completo or borde != LS.Edge.LEFT)
+            LS.set_margin(self, borde, 14 if completo else 8)
+        LS.set_exclusive_zone(self, 0 if completo else self.ancho_lateral + 8)  # lateral: aparta las ventanas
+        self.set_default_size(-1 if completo else self.ancho_lateral, -1)
+        (self.add_css_class if completo else self.remove_css_class)("completo")
+
+    def construir(self):
+        self.colocar()
+        completo = self.modo == "completo"
+        self.caja = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL if completo else Gtk.Orientation.VERTICAL)
+        self.caja.add_css_class("caja")
+        if not self.mostrado:
+            self.caja.add_css_class("oculta")
+
+        cab = Gtk.Box(spacing=8)
+        cab.add_css_class("cabecera")
+        cab.append(etiqueta("📒 Chuletas", ("marca",), wrap=False))
+        cab.append(Gtk.Box(hexpand=True))
+        self.copiado = etiqueta("", ("copiado",), wrap=False)
+        cab.append(self.copiado)
+        b_modo = Gtk.Button(label="◧ Lateral" if completo else "⛶ Pantalla completa")
+        b_modo.set_tooltip_text("F11: cambiar entre panel lateral y pantalla completa")
+        b_modo.add_css_class("boton")
+        b_modo.connect("clicked", lambda *_: self.cambiar_modo())
+        b_cerrar = Gtk.Button(label="✕")
+        b_cerrar.add_css_class("boton")
+        b_cerrar.connect("clicked", lambda *_: self.cerrar())
+        cab.append(b_modo)
+        cab.append(b_cerrar)
+
+        self.lbl_busqueda = etiqueta("", ("busqueda",), wrap=False)
+        self.scroll = Gtk.ScrolledWindow(hscrollbar_policy=Gtk.PolicyType.NEVER, vexpand=True, hexpand=True)
+        self.scroll.get_vadjustment().connect("value-changed", lambda *_: self.marcar_toc())
+        pie = etiqueta("Escribe para buscar · Tab tema · Ctrl+↑↓ sección · clic copia · F11 modo · Esc cierra",
+                       ("pie",))
+        self.botones_hoja, self.botones_toc = [], []
+
+        if completo:
+            izq = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2)
+            izq.add_css_class("lateral-izq")
+            izq.set_size_request(290, -1)
+            izq.append(etiqueta("TEMAS", ("nav-titulo",)))
+            for i, h in enumerate(self.hojas):
+                b = Gtk.Button()
+                b.set_child(etiqueta(h["titulo"], wrap=False))
+                b.add_css_class("nav")
+                b.connect("clicked", lambda _b, i=i: self.mostrar_hoja(i))
+                izq.append(b)
+                self.botones_hoja.append(b)
+            izq.append(etiqueta("EN ESTE TEMA", ("nav-titulo",)))
+            self.caja_toc = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=1)
+            toc_scroll = Gtk.ScrolledWindow(hscrollbar_policy=Gtk.PolicyType.NEVER, vexpand=True)
+            toc_scroll.set_child(self.caja_toc)
+            izq.append(toc_scroll)
+            self.caja.append(izq)
+            der = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=12, hexpand=True)
+            der.append(cab)
+            centro = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=12, halign=Gtk.Align.CENTER,
+                             vexpand=True, margin_start=24, margin_end=24)
+            centro.set_size_request(min(1000, self.ancho_mon - 290 - 120), -1)  # renglones cómodos de leer
+            centro.append(self.lbl_busqueda)
+            centro.append(self.scroll)
+            der.append(centro)
+            der.append(pie)
+            self.caja.append(der)
+        else:
+            self.caja.set_spacing(10)
+            self.caja.append(cab)
+            fluir = Gtk.FlowBox(selection_mode=Gtk.SelectionMode.NONE, max_children_per_line=8,
+                                column_spacing=2, row_spacing=4, margin_start=16, margin_end=16)
+            for i, h in enumerate(self.hojas):
+                b = Gtk.Button(label=h["titulo"])
+                b.add_css_class("pestana")
+                b.connect("clicked", lambda _b, i=i: self.mostrar_hoja(i))
+                fluir.append(b)
+                self.botones_hoja.append(b)
+            self.caja.append(fluir)
+            self.lbl_busqueda.set_margin_start(16)
+            self.lbl_busqueda.set_margin_end(16)
+            self.caja.append(self.lbl_busqueda)
+            self.scroll.set_margin_start(16)
+            self.scroll.set_margin_end(8)
+            self.caja.append(self.scroll)
+            self.caja.append(pie)
+            self.caja_toc = None
+        self.set_child(self.caja)
+        self.mostrar_hoja(self.hoja)
+
+    # --- contenido ----------------------------------------------------------------------
+    def copiable(self, caja, texto):
+        k = len(self.copiables)
+        self.copiables.append((caja, texto))
+        return k
+
+    def bloque(self, b, leng_hoja):
+        """Un bloque de chuletas_md → widget."""
+        tipo = b[0]
+        if tipo == "p":
+            return etiqueta(markup=en_linea(b[1], self.c), clases=("p",), seleccionable=True)
+        if tipo == "h3":
+            return etiqueta(b[1], ("h3",))
+        if tipo == "nota":
+            caja = Gtk.Box()
+            caja.add_css_class("nota")
+            caja.add_css_class(f"nota-{b[1]}")
+            caja.append(etiqueta(markup=en_linea(b[2], self.c), seleccionable=True))
+            return caja
+        if tipo == "entrada":
+            caja = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
+            caja.add_css_class("entrada")
+            caja.append(etiqueta(markup=resaltar(b[1], leng_hoja, self.c), clases=("e-codigo",)))
+            caja.append(etiqueta(markup=en_linea(b[2], self.c), clases=("e-exp",)))
+            k = self.copiable(caja, b[1])
+            clic = Gtk.GestureClick()
+            clic.connect("released", lambda *_a: self.copiar(k))
+            caja.add_controller(clic)
+            caja.set_cursor(Gdk.Cursor.new_from_name("pointer"))
+            return caja
+        if tipo == "codigo":
+            caja = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
+            caja.add_css_class("bloque")
+            cab = Gtk.Box()
+            cab.add_css_class("bloque-cab")
+            cab.append(etiqueta(b[1].upper(), ("leng",), wrap=False))
+            cab.append(Gtk.Box(hexpand=True))
+            k = self.copiable(caja, b[2])
+            boton = Gtk.Button(label="📋 Copiar")
+            boton.add_css_class("copiar")
+            boton.connect("clicked", lambda *_a: self.copiar(k))
+            cab.append(boton)
+            caja.append(cab)
+            caja.append(etiqueta(markup=resaltar(b[2], b[1], self.c), clases=("codigo",), seleccionable=True))
+            return caja
+        if tipo == "tabla":
+            marco = Gtk.Box()
+            marco.add_css_class("tabla")
+            marco.set_overflow(Gtk.Overflow.HIDDEN)
+            grid = Gtk.Grid(hexpand=True)
+            for r, fila in enumerate(b[1]):
+                for col, celda in enumerate(fila):
+                    lbl = etiqueta(markup=en_linea(celda, self.c), clases=("celda",), seleccionable=True)
+                    lbl.set_hexpand(True)
+                    if r == 0:
+                        lbl.add_css_class("cab")
+                    elif r % 2 == 0:
+                        lbl.add_css_class("par")
+                    grid.attach(lbl, col, r, 1, 1)
+            marco.append(grid)
+            return marco
+        return etiqueta(str(b))
+
+    @staticmethod
+    def lenguaje_hoja(hoja):
+        """Lenguaje de las entradas rápidas de la hoja (los bloques ``` dicen el suyo)."""
+        nombre = hoja["archivo"].stem
+        for clave, leng in (("python", "python"), ("javascript", "js"), ("node", "js"), ("react", "jsx"),
+                            ("css", "css"), ("html", "html"), ("sql", "sql")):
+            if clave in nombre:
+                return leng
+        return "bash"
 
     def mostrar_hoja(self, i):
+        if not self.hojas:
+            self.refrescar()
+            return
         self.hoja = i
-        for k, b in enumerate(self.botones):
+        guardar_estado({"hoja": self.hojas[i]["archivo"].name, "modo": self.modo})
+        for k, b in enumerate(self.botones_hoja):
             (b.add_css_class if k == i else b.remove_css_class)("activa")
         self.refrescar()
 
     def refrescar(self):
-        """Sin búsqueda: la pestaña elegida. Con búsqueda: lo que coincida en TODAS las pestañas."""
+        """Sin búsqueda: el tema elegido entero. Con búsqueda: lo que coincida en TODOS los temas."""
         if self.busqueda:
             self.lbl_busqueda.set_label(f"🔍  {self.busqueda}")
             self.lbl_busqueda.add_css_class("activa")
         else:
-            self.lbl_busqueda.set_label("🔍  Escribe para buscar en todas (ej. «lista», «flex», «commit»)")
+            self.lbl_busqueda.set_label("🔍  Escribe para buscar en todos los temas (ej. «flex», «commit», «queue»)")
             self.lbl_busqueda.remove_css_class("activa")
+        contenido = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=10, margin_end=10, margin_bottom=30)
+        self.copiables, self.anclas = [], []
         q = sin_tildes(self.busqueda)
-        lista = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
-        self.entradas = []
-        hojas = self.hojas if q else [self.hojas[self.hoja]] if self.hojas else []
-        for h in hojas:
-            for seccion, entradas in h["secciones"]:
-                visibles = [(cod, exp) for cod, exp in entradas
-                            if not q or q in sin_tildes(f"{cod} {exp} {seccion}")]
-                if not visibles:
-                    continue
-                s = Gtk.Label(label=(f"{h['titulo']} · {seccion}" if q else seccion).upper(), xalign=0)
-                s.add_css_class("seccion")
-                lista.append(s)
-                for cod, exp in visibles:
-                    caja = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
-                    caja.add_css_class("entrada")
-                    lc = Gtk.Label(xalign=0, wrap=True, wrap_mode=Pango.WrapMode.WORD_CHAR, selectable=False)
-                    lc.set_markup(resaltar(cod, h["lenguaje"], self.c))
-                    lc.add_css_class("codigo")
-                    le = Gtk.Label(label=exp, xalign=0, wrap=True)
-                    le.add_css_class("explicacion")
-                    caja.append(lc)
-                    caja.append(le)
-                    clic = Gtk.GestureClick()
-                    clic.connect("released", lambda *_a, k=len(self.entradas): self.copiar(k))
-                    caja.add_controller(clic)
-                    lista.append(caja)
-                    self.entradas.append((caja, cod))
-        if not self.entradas:
-            v = Gtk.Label(label="Nada con esa búsqueda 🙂", margin_top=30)
-            v.add_css_class("explicacion")
-            lista.append(v)
-        self.scroll.set_child(lista)
+        if not self.hojas:
+            contenido.append(etiqueta(f"No hay chuletas en {md.CARPETA}", ("vacio",)))
+        elif q:
+            encontrados = 0
+            for h in self.hojas:
+                leng = self.lenguaje_hoja(h)
+                for sec in h["secciones"]:
+                    titulo_sec = sec["titulo"] or ""
+                    coinciden = [b for b in sec["bloques"] if b[0] != "h3" and q in sin_tildes(md.texto_de(b))]
+                    if not coinciden and q in sin_tildes(titulo_sec):
+                        coinciden = sec["bloques"][:6]
+                    if not coinciden or encontrados > 120:
+                        continue
+                    contenido.append(etiqueta(f"{h['titulo']}  ›  {titulo_sec}", ("h3",)))
+                    for b in coinciden:
+                        contenido.append(self.bloque(b, leng))
+                        encontrados += 1
+            if not encontrados:
+                contenido.append(etiqueta("Nada con esa búsqueda 🙂 Prueba otra palabra (también en inglés).",
+                                          ("vacio",)))
+        else:
+            h = self.hojas[self.hoja]
+            leng = self.lenguaje_hoja(h)
+            contenido.append(etiqueta(h["titulo"], ("hoja-titulo",)))
+            if h["subtitulo"]:
+                contenido.append(etiqueta(markup=en_linea(h["subtitulo"], self.c), clases=("hoja-sub",)))
+            for sec in h["secciones"]:
+                if sec["titulo"]:
+                    titulo = etiqueta(sec["titulo"], ("h2",))
+                    contenido.append(titulo)
+                    self.anclas.append((titulo, sec["titulo"]))
+                for b in sec["bloques"]:
+                    contenido.append(self.bloque(b, leng))
+        self.scroll.set_child(contenido)
         self.scroll.get_vadjustment().set_value(0)
-        self.sel = None
-        if self.entradas and q:
-            self.seleccionar(0)
+        self.llenar_toc()
 
-    def seleccionar(self, k):
-        if not self.entradas:
+    def llenar_toc(self):
+        if self.caja_toc is None:
             return
-        if self.sel is not None:
-            self.entradas[self.sel][0].remove_css_class("sel")
-        self.sel = max(0, min(len(self.entradas) - 1, k))
-        caja = self.entradas[self.sel][0]
-        caja.add_css_class("sel")
+        while (hijo := self.caja_toc.get_first_child()):
+            self.caja_toc.remove(hijo)
+        self.botones_toc = []
+        for k, (_w, titulo) in enumerate(self.anclas):
+            b = Gtk.Button()
+            b.set_child(etiqueta(titulo))
+            b.add_css_class("toc")
+            b.connect("clicked", lambda _b, k=k: self.ir_a_seccion(k))
+            self.caja_toc.append(b)
+            self.botones_toc.append(b)
+        GLib.idle_add(self.marcar_toc)
 
-        def desplazar():
-            ok, r = caja.compute_bounds(self.scroll.get_child())
-            if ok:
-                adj = self.scroll.get_vadjustment()
-                if r.get_y() < adj.get_value() + 40:
-                    adj.set_value(max(0, r.get_y() - 50))
-                elif r.get_y() + r.get_height() > adj.get_value() + adj.get_page_size():
-                    adj.set_value(r.get_y() + r.get_height() - adj.get_page_size() + 8)
-            return False
-        GLib.idle_add(desplazar)
+    def y_de(self, widget):
+        ok, caja = widget.compute_bounds(self.scroll.get_child())
+        return caja.get_y() if ok else 0
 
+    def ir_a_seccion(self, k):
+        if 0 <= k < len(self.anclas):
+            self.scroll.get_vadjustment().set_value(max(0, self.y_de(self.anclas[k][0]) - 10))
+
+    def seccion_actual(self):
+        valor = self.scroll.get_vadjustment().get_value() + 40
+        actual = 0
+        for k, (w, _t) in enumerate(self.anclas):
+            if self.y_de(w) <= valor:
+                actual = k
+        return actual
+
+    def marcar_toc(self):
+        if self.botones_toc:
+            k = self.seccion_actual()
+            for j, b in enumerate(self.botones_toc):
+                (b.add_css_class if j == k else b.remove_css_class)("activa")
+        return False
+
+    # --- acciones -----------------------------------------------------------------------
     def copiar(self, k):
-        self.seleccionar(k)
-        codigo = self.entradas[k][1]
+        if not 0 <= k < len(self.copiables):
+            return
+        caja, codigo = self.copiables[k]
         subprocess.Popen(["wl-copy", "--", codigo], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        caja.add_css_class("copiada")
         self.copiado.set_label("Copiado ✓")
-        GLib.timeout_add(1500, lambda: self.copiado.set_label("") or False)
+
+        def limpiar():
+            self.copiado.set_label("")
+            caja.remove_css_class("copiada")
+            return False
+        GLib.timeout_add(1500, limpiar)
+
+    def cambiar_modo(self):
+        self.modo = "lateral" if self.modo == "completo" else "completo"
+        self.construir()
 
     def mostrar(self):
         self.present()
-        GLib.timeout_add(30, lambda: self.caja.remove_css_class("oculta"))
+
+        def aparecer():
+            self.mostrado = True
+            self.caja.remove_css_class("oculta")
+            return False
+        GLib.timeout_add(30, aparecer)
 
     def cerrar(self):
         self.caja.add_css_class("oculta")
         LS.set_exclusive_zone(self, 0)
         GLib.timeout_add(230, lambda: self.get_application().quit() or False)
 
+    def desplazar(self, dy=0, pagina=0, extremo=None):
+        adj = self.scroll.get_vadjustment()
+        if extremo == "inicio":
+            adj.set_value(0)
+        elif extremo == "fin":
+            adj.set_value(adj.get_upper())
+        else:
+            adj.set_value(adj.get_value() + dy + pagina * adj.get_page_size() * 0.9)
+
     def tecla(self, _ctl, keyval, _code, estado):
         nombre = Gdk.keyval_name(keyval) or ""
+        ctrl = estado & Gdk.ModifierType.CONTROL_MASK
         n = len(self.hojas)
         if nombre == "Escape":
             if self.busqueda:
@@ -335,21 +630,28 @@ scrolledwindow, scrolledwindow > viewport {{ background: transparent; }}
                 self.refrescar()
             else:
                 self.cerrar()
+        elif nombre == "F11":
+            self.cambiar_modo()
         elif nombre in ("Tab", "ISO_Left_Tab") and n:
             self.busqueda = ""
             self.mostrar_hoja((self.hoja + (-1 if nombre == "ISO_Left_Tab" else 1)) % n)
-        elif nombre == "Down":
-            self.seleccionar(0 if self.sel is None else self.sel + 1)
-        elif nombre == "Up":
-            self.seleccionar(0 if self.sel is None else self.sel - 1)
+        elif ctrl and nombre in ("Down", "Up"):
+            self.ir_a_seccion(self.seccion_actual() + (1 if nombre == "Down" else -1))
+        elif nombre in ("Down", "Up"):
+            self.desplazar(dy=70 if nombre == "Down" else -70)
+        elif nombre in ("Page_Down", "Page_Up"):
+            self.desplazar(pagina=1 if nombre == "Page_Down" else -1)
+        elif nombre in ("Home", "End"):
+            self.desplazar(extremo="inicio" if nombre == "Home" else "fin")
         elif nombre in ("Return", "KP_Enter"):
-            if self.entradas:
-                self.copiar(self.sel or 0)
+            if self.busqueda and self.copiables:
+                self.copiar(0)
         elif nombre == "BackSpace":
-            self.busqueda = self.busqueda[:-1]
-            self.refrescar()
+            if self.busqueda:
+                self.busqueda = self.busqueda[:-1]
+                self.refrescar()
         elif estado & (Gdk.ModifierType.CONTROL_MASK | Gdk.ModifierType.ALT_MASK | Gdk.ModifierType.SUPER_MASK):
-            return False
+            return False  # Ctrl+C sobre texto seleccionado, etc.
         else:
             ch = chr(Gdk.keyval_to_unicode(keyval) or 0)
             if ch.isprintable() and (ch.strip() or self.busqueda):

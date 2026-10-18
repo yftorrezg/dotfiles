@@ -125,6 +125,39 @@ def acento(t):
         return ACENTO_POR_DEFECTO
 
 
+# --- efectos al cambiar de escritorio (pestaña ✨ Efectos) ------------------------------------
+# hypr: animación de Hyprland (se escribe en config/transicion.lua) · fondo: cómo entra el video nuevo
+# (brillo inicial -100..100, zoom inicial, duración en ms; ver escritorios-vivos.transicion).
+EFECTOS = {
+    "seda": {"nombre": "Seda", "icono": "🪶", "desc": "Desliza y se desvanece; el fondo se asienta",
+             "hypr": ("seda", 4.5, "slidefade 18%"), "fondo": (-55, 0.06, 530)},
+    "cine": {"nombre": "Cinematográfico", "icono": "🎬", "desc": "Fundido lento y zoom de película",
+             "hypr": ("seda", 6, "fade"), "fondo": (-85, 0.14, 850)},
+    "vertical": {"nombre": "Ascensor", "icono": "🛗", "desc": "Los escritorios suben y bajan",
+                 "hypr": ("seda", 4.5, "slidefadevert 25%"), "fondo": (-50, 0.07, 560)},
+    "rebote": {"nombre": "Rebote", "icono": "🏀", "desc": "Deslizamiento con muelle juguetón",
+               "hypr": ("rebote", 4, "slide"), "fondo": (-30, 0.09, 620)},
+    "flash": {"nombre": "Destello", "icono": "⚡", "desc": "El fondo entra con un brillo blanco",
+              "hypr": ("seda", 4, "slidefade 12%"), "fondo": (65, 0.05, 480)},
+    "suave": {"nombre": "Desvanecer", "icono": "🌫️", "desc": "Solo un fundido tranquilo",
+              "hypr": ("seda", 4, "fade"), "fondo": (-60, 0.0, 600)},
+    "rapido": {"nombre": "Rápido", "icono": "🚀", "desc": "Lo mínimo: directo al grano",
+               "hypr": ("quick", 2.5, "slide"), "fondo": (0, 0.0, 0)},
+}
+TRANSICION_LUA = Path.home() / ".config/hypr/config/transicion.lua"
+
+
+def aplicar_efecto(clave):
+    """Escribe la animación de Hyprland del efecto y recarga (el fondo lo lee escritorios-vivos)."""
+    curva, velocidad, estilo = EFECTOS[clave]["hypr"]
+    TRANSICION_LUA.write_text(
+        "-- transicion.lua — lo escribe el selector (SUPER+SHIFT+A → ✨ Efectos). No editar a mano.\n"
+        'hl.curve("rebote", { type = "spring", mass = 1, stiffness = 230, dampening = 17 })\n'
+        f'hl.animation({{ leaf = "workspaces", enabled = true, speed = {velocidad}, '
+        f'{"spring" if curva == "rebote" else "bezier"} = "{curva}", style = "{estilo}" }})  -- efecto: {clave}\n')
+    subprocess.run(["hyprctl", "reload"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+
+
 # --- temas: colecciones y "Mi selección" ------------------------------------------------------
 MEZCLA_INICIAL = {  # punto de partida de "Mi selección" (luego la cambias en la Galería)
     "dark": ["Oscuros/hina-blue-archive", "Oscuros/levi-blanco-negro", "Oscuros/itachi-sharingan",
@@ -203,7 +236,8 @@ def leer_estilo():
         d["tema"] = "escritorios:video" if d.get("fondo") == "video" else "escritorios:fijo"
     mezcla = {m: list((d.get("mezcla") or {}).get(m) or MEZCLA_INICIAL[m]) for m in ("dark", "light")}
     estilo = {"tema": d["tema"], "destellos": bool(d.get("destellos", False)),
-              "ultimo": d.get("ultimo") or {}, "modo": d.get("modo"), "mezcla": mezcla}
+              "ultimo": d.get("ultimo") or {}, "modo": d.get("modo"), "mezcla": mezcla,
+              "efecto": d.get("efecto") if d.get("efecto") in EFECTOS else "seda"}
     # Antes un tema era un solo video para todos los escritorios: ahora pasa a "Mi selección"
     for clave in [estilo["tema"]] + list(estilo["ultimo"].values()):
         t = buscar(clave) if "/" in clave else None
@@ -224,7 +258,8 @@ def guardar_estilo(d):
     ESTADO.mkdir(parents=True, exist_ok=True)
     tmp = ESTILO.with_suffix(".tmp")
     tmp.write_text(json.dumps({"tema": d["tema"], "destellos": d["destellos"], "ultimo": d.get("ultimo", {}),
-                               "modo": d.get("modo"), "mezcla": d.get("mezcla")}, ensure_ascii=False))
+                               "modo": d.get("modo"), "mezcla": d.get("mezcla"), "efecto": d.get("efecto", "seda")},
+                              ensure_ascii=False))
     tmp.replace(ESTILO)
 
 
