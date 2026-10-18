@@ -4,6 +4,8 @@
 # Para cambiar algo: edita aquí y guarda; el programa lo recarga solo.
 #   fondo_*      = monitor horizontal (DP-3, eDP-1)
 #   vertical_*   = monitor girado (HDMI-A-1); si falta, usa fondo_*
+#   video_*      = estilo "Animado" (solo monitor horizontal; el vertical queda con su fondo fijo)
+#   El estilo "Aurora" usa Animados/Aurora/N-modo-h|v.mp4 (los crea scripts/generar-auroras.py)
 
 [general]
 por_monitor = 5          # NUM_WPM de variables.lua (ws 1-5 y 6-10)
@@ -21,6 +23,8 @@ fondo_oscuro = "Oscuros/cyberpunk-sakura.jpg"
 vertical_oscuro = "Oscuros/vertical/ciudad-futurista.jpg"
 fondo_claro = "Claros/1-redes-estacion-atardecer.jpg"
 vertical_claro = "Claros/vertical/1-redes-ciudad-agua.jpg"
+video_oscuro = "Animados/Oscuros/1-redes-ciudad-neon.mp4"
+video_claro = "Animados/Claros/1-redes-casa-verano.mp4"
 
 [[escritorio]]
 nombre = "Entretenimiento"
@@ -31,6 +35,8 @@ fondo_oscuro = "Oscuros/luffy-gear5-luna.png"
 vertical_oscuro = "Oscuros/vertical/luffy-oscuro-vertical.png"
 fondo_claro = "Claros/2-entretenimiento-calle-japonesa.png"
 vertical_claro = "Claros/vertical/2-entretenimiento-calle.jpg"
+video_oscuro = "Animados/Oscuros/2-entretenimiento-apartamento-neon.mp4"
+video_claro = "Animados/Claros/2-entretenimiento-totoro.mp4"
 
 [[escritorio]]
 nombre = "Estudio"
@@ -41,6 +47,8 @@ fondo_oscuro = "Oscuros/lofi-chica-noche.jpg"
 vertical_oscuro = "Oscuros/vertical/montana-noche-estrellas.png"
 fondo_claro = "Claros/3-estudio-fuji-sakura.jpg"
 vertical_claro = "Claros/vertical/3-estudio-sakura.png"
+video_oscuro = "Animados/Oscuros/3-estudio-lofi-girl.mp4"
+video_claro = "Animados/Claros/3-estudio-cafe-manana.mp4"
 
 [[escritorio]]
 nombre = "Práctica"
@@ -51,6 +59,8 @@ fondo_oscuro = "Oscuros/hyprland-chica-tren-8k.png"
 vertical_oscuro = "Oscuros/vertical/ciudad-luna.png"
 fondo_claro = "Claros/4-practica-pradera.png"
 vertical_claro = "Claros/vertical/4-practica-campo.jpg"
+video_oscuro = "Animados/Oscuros/4-practica-ola-binaria.mp4"
+video_claro = "Animados/Claros/4-practica-pradera.mp4"
 
 [[escritorio]]
 nombre = "Claude"
@@ -61,6 +71,8 @@ fondo_oscuro = "Oscuros/anime-cielo-estrellas.png"
 vertical_oscuro = "HD/vertical/wallhaven-yqvpmk.png"
 fondo_claro = "Claros/5-claude-nubes.jpg"
 vertical_claro = "Claros/vertical/5-claude-blanco.jpg"
+video_oscuro = "Animados/Oscuros/5-claude-estrellas.mp4"
+video_claro = "Animados/Claros/5-claude-cielo-molinos.mp4"
 
 # Workspaces con nombre (SUPER+I estudio, gaming…): solo aviso, el fondo no cambia.
 [nombres]

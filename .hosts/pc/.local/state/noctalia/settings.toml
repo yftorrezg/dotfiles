@@ -2,28 +2,28 @@ config_version = 15
 
 [dock]
 auto_hide = true
-background_opacity = 0.55
+background_opacity = 0.55000000000000004
+border = "primary"
+border_width = 1
+cross_axis_padding = 10
 enabled = true
 icon_size = 48
+inactive_opacity = 0.90000000000000002
 item_spacing = 10
 magnification = true
-magnification_scale = 1.6
+magnification_scale = 1.6000000000000001
+main_axis_padding = 14
+margin_edge = 10
 pinned = [ "code", "org.kde.dolphin", "kitty", "brave-browser", "com.anthropic.Claude", "opendeck", "obsidian" ]
+radius_bottom_left = 24
+radius_bottom_right = 24
+radius_top_left = 24
+radius_top_right = 24
 reserve_space = false
 shadow = true
 show_dots = true
 show_instance_count = false
 show_running = true
-radius_top_left = 24
-radius_top_right = 24
-radius_bottom_left = 24
-radius_bottom_right = 24
-margin_edge = 10
-main_axis_padding = 14
-cross_axis_padding = 10
-border = "primary"
-border_width = 1
-inactive_opacity = 0.9
 
 [location]
 auto_locate = true
@@ -162,7 +162,7 @@ builtin = "Noctalia"
 community_palette = "GitHub Dark"
 custom_palette = "luffy-oscuro-sft"
 mode = "dark"
-pure_black_dark = true
+pure_black_dark = false
 source = "custom"
 wallpaper_scheme = "m3-tonal-spot"
 

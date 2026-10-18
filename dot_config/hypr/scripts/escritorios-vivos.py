@@ -16,6 +16,7 @@ ctypes.CDLL("libgtk4-layer-shell.so")  # debe cargarse antes que GTK
 
 import json
 import os
+import shutil
 import socket
 import subprocess
 import threading
@@ -33,6 +34,12 @@ from gi.repository import Gtk4LayerShell as LS  # noqa: E402
 
 CONFIG = Path.home() / ".config/hypr/escritorios-temas.toml"
 NOCT_SETTINGS = Path.home() / ".local/state/noctalia/settings.toml"
+ESTADO = Path.home() / ".local/state/escritorios-vivos"
+ESTILO = ESTADO / "estilo.json"      # lo escribe estilos.py (SUPER+SHIFT+A)
+DESTELLOS = Path(__file__).with_name("destellos-cursor.py")
+NOMBRE_FONDO = {"estatico": ("Clásico", "🖼️", "Fondos fijos por escritorio"),
+                "video": ("Animado", "🎞️", "Videos en bucle por escritorio"),
+                "aurora": ("Aurora", "🌈", "Degradados vivos con tu color")}
 HYPR_DIR = Path(os.environ["XDG_RUNTIME_DIR"]) / "hypr" / os.environ["HYPRLAND_INSTANCE_SIGNATURE"]
 
 
@@ -52,6 +59,16 @@ def leer_modo():
             return tomllib.load(f).get("theme", {}).get("mode", "dark")
     except (OSError, tomllib.TOMLDecodeError):
         return "dark"
+
+
+def leer_estilo():
+    try:
+        d = json.loads(ESTILO.read_text())
+    except (OSError, ValueError):
+        d = {}
+    fondo = d.get("fondo", "estatico")
+    return {"fondo": fondo if fondo in NOMBRE_FONDO else "estatico",
+            "destellos": bool(d.get("destellos", False))}
 
 
 def mezclar(hex_color, otro, t):
@@ -207,6 +224,9 @@ class App(Gtk.Application):
         self.modo = leer_modo()
         self.fondos_puestos = {}    # conector -> ruta
         self.t_fondos = None
+        self.estilo = leer_estilo()
+        self.mpv = {}               # conector -> {"proc", "sock", "ruta"}
+        self.destellos = None       # proceso de destellos-cursor.py
 
     def do_activate(self):
         self.hold()
@@ -214,6 +234,17 @@ class App(Gtk.Application):
         self.aviso = Aviso(self)
         self.vigilar(CONFIG, self.al_cambiar_config)
         self.vigilar(NOCT_SETTINGS, self.al_cambiar_noctalia)
+        ESTADO.mkdir(parents=True, exist_ok=True)
+        if not ESTILO.exists():
+            ESTILO.write_text(json.dumps(self.estilo))
+        self.vigilar(ESTILO, self.al_cambiar_estilo)
+        # Restos de una sesión anterior de este programa (si se reinició)
+        subprocess.run(["pkill", "-x", "mpvpaper"], stderr=subprocess.DEVNULL)
+        subprocess.run(["pkill", "-f", f"python3 {DESTELLOS}"], stderr=subprocess.DEVNULL)
+        self.aplicar_destellos()
+        # Vistas previas del selector de estilos (SUPER+SHIFT+A), en segundo plano y con baja prioridad
+        subprocess.Popen(["nice", "-n", "15", "python3", str(Path(__file__).with_name("estilos.py")), "--preparar"],
+                         stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
         threading.Thread(target=self.escuchar_hyprland, daemon=True).start()
         # Al iniciar sesión: espera a que noctalia esté arriba y pone el fondo del escritorio actual.
         GLib.timeout_add_seconds(3, self.estado_inicial)
@@ -258,14 +289,50 @@ class App(Gtk.Application):
         self.modo = modo
         self.poner_fondos()
         claro = modo == "light"
+        self.iconos(claro)
         self.aviso.mostrar({
             "nombre": "Modo claro" if claro else "Modo oscuro",
             "icono": "☀️" if claro else "🌙",
-            "detalle": "SUPER + SHIFT + D para volver",
+            "detalle": "SUPER+SHIFT+D cambia · SUPER+SHIFT+A estilos",
             "antetitulo": "Apariencia",
             "color": "#ffb347" if claro else "#8fa8ff",
             "indice": 0, "total": 0,
         }, modo, self.monitor_activo(), self.gen.get("aviso_segundos", 1.6))
+
+    @staticmethod
+    def iconos(claro):
+        """Iconos Papirus-Dark/Light (Qt/KDE y GTK) y cursor Bibata Ice/Classic según el modo."""
+        tema = "Papirus-Light" if claro else "Papirus-Dark"
+        cursor = "Bibata-Modern-Classic" if claro else "Bibata-Modern-Ice"
+        for args in (["kwriteconfig6", "--file", "kdeglobals", "--group", "Icons", "--key", "Theme", tema],
+                     ["gsettings", "set", "org.gnome.desktop.interface", "icon-theme", tema],
+                     # cursor: blanco sobre oscuro, negro sobre claro (se ve siempre)
+                     ["hyprctl", "setcursor", cursor, os.environ.get("XCURSOR_SIZE", "24")],
+                     ["gsettings", "set", "org.gnome.desktop.interface", "cursor-theme", cursor]):
+            subprocess.Popen(args, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+
+    def al_cambiar_estilo(self):
+        nuevo = leer_estilo()
+        if nuevo == self.estilo:
+            return
+        cambio_fondo = nuevo["fondo"] != self.estilo["fondo"]
+        self.estilo = nuevo
+        self.aplicar_destellos()
+        if cambio_fondo:
+            self.poner_fondos()
+            nombre, icono, detalle = NOMBRE_FONDO[nuevo["fondo"]]
+            self.aviso.mostrar({"nombre": f"Estilo {nombre}", "icono": icono, "detalle": detalle,
+                                "antetitulo": "Personalización", "color": "#c9a7ff", "indice": 0, "total": 0},
+                               self.modo, self.monitor_activo(), self.gen.get("aviso_segundos", 1.6))
+
+    def aplicar_destellos(self):
+        vivo = self.destellos is not None and self.destellos.poll() is None
+        if self.estilo["destellos"] and not vivo:
+            self.destellos = subprocess.Popen(["python3", str(DESTELLOS)],
+                                              stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        elif not self.estilo["destellos"] and vivo:
+            self.destellos.terminate()
+            self.destellos = None
 
     # --- hyprland --------------------------------------------------------------------------
     def escuchar_hyprland(self):
@@ -319,6 +386,10 @@ class App(Gtk.Application):
         if self.gen.get("aviso_activo", True):
             self.aviso.mostrar(self.info_de(clave), self.modo, self.monitor_activo(),
                                self.gen.get("aviso_segundos", 1.6))
+        try:  # color de los destellos del cursor
+            (ESTADO / "acento").write_text(self.info_de(clave)["color"])
+        except OSError:
+            pass
         if isinstance(clave, int):
             self.retrasar("fondos", 120, self.poner_fondos)
         return False
@@ -329,6 +400,7 @@ class App(Gtk.Application):
             self.actual = self.clave_de(ws["id"], ws["name"])
         except (OSError, ValueError, KeyError):
             self.actual = 1
+        self.iconos(self.modo == "light")
         self.poner_fondos()
         return False
 
@@ -356,6 +428,58 @@ class App(Gtk.Application):
             self.fondos_puestos[m["name"]] = ruta
             subprocess.Popen(["noctalia", "msg", "wallpaper-set", m["name"], ruta],
                              stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        # El fondo fijo queda siempre debajo (respaldo); el video va encima en la capa "bottom".
+        self.poner_videos(e, sufijo, monitores)
+
+    # --- fondos animados (mpvpaper: mpv como fondo, decodifica con la GPU) ------------------
+    def video_para(self, e, sufijo, vertical):
+        fondo = self.estilo["fondo"]
+        if fondo == "aurora":
+            ruta = self.carpeta / "Animados/Aurora" / f"{self.actual}-{sufijo}-{'v' if vertical else 'h'}.mp4"
+        elif fondo == "video":
+            rel = e.get(f"video_vertical_{sufijo}" if vertical else f"video_{sufijo}")
+            ruta = self.carpeta / os.path.expanduser(rel) if rel else None
+        else:
+            ruta = None
+        return str(ruta) if ruta and ruta.exists() else None
+
+    def poner_videos(self, e, sufijo, monitores):
+        if not shutil.which("mpvpaper"):
+            return
+        for m in monitores:
+            nombre = m["name"]
+            ruta = self.video_para(e, sufijo, m.get("transform", 0) % 2 == 1)
+            actual = self.mpv.get(nombre)
+            vivo = actual is not None and actual["proc"].poll() is None
+            if not ruta:
+                if vivo:
+                    actual["proc"].terminate()
+                self.mpv.pop(nombre, None)
+                continue
+            if vivo and actual["ruta"] == ruta:
+                continue
+            if vivo and self.mpv_comando(actual["sock"], ["loadfile", ruta]):
+                actual["ruta"] = ruta
+                continue
+            if vivo:
+                actual["proc"].terminate()
+            sock = ESTADO / f"mpv-{nombre}.sock"
+            opciones = (f"no-audio loop-file=inf hwdec=auto-safe panscan=1.0 keep-open=yes "
+                        f"input-ipc-server={sock} profile=fast video-sync=display-resample")
+            proc = subprocess.Popen(["mpvpaper", "-p", "-l", "bottom", "-o", opciones, nombre, ruta],
+                                    stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+            self.mpv[nombre] = {"proc": proc, "sock": sock, "ruta": ruta}
+
+    @staticmethod
+    def mpv_comando(sock, comando):
+        try:
+            with socket.socket(socket.AF_UNIX, socket.SOCK_STREAM) as s:
+                s.settimeout(0.5)
+                s.connect(str(sock))
+                s.sendall((json.dumps({"command": comando}) + "\n").encode())
+            return True
+        except OSError:
+            return False
 
 
 if __name__ == "__main__":
