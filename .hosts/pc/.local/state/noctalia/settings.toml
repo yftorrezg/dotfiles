@@ -160,7 +160,7 @@ corner_radius_scale = 2.0
 [theme]
 builtin = "Noctalia"
 community_palette = "GitHub Dark"
-custom_palette = "luffy-oscuro-sft"
+custom_palette = "yafer"
 mode = "dark"
 pure_black_dark = false
 source = "custom"
