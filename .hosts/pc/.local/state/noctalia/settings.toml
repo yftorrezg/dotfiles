@@ -300,11 +300,11 @@ wallpaper_scheme = "m3-tonal-spot"
 path = "/usr/share/noctalia/assets/noctalia-wallpaper.png"
 
 [wallpaper.last]
-path = "/home/yafer/.cache/escritorios-vivos/temas/oscuros-chica-cyborg.jpg"
+path = "/home/yafer/.cache/escritorios-vivos/temas/oscuros-robin-cyber-room.jpg"
 
 [wallpaper.monitors.DP-3]
-path = "/home/yafer/.cache/escritorios-vivos/temas/oscuros-chica-cyborg.jpg"
+path = "/home/yafer/.cache/escritorios-vivos/temas/oscuros-robin-cyber-room.jpg"
 
 [wallpaper.monitors.HDMI-A-1]
 fill_mode = "fit"
-path = "/home/yafer/.cache/escritorios-vivos/temas/oscuros-chica-cyborg.jpg"
+path = "/home/yafer/.cache/escritorios-vivos/temas/oscuros-robin-cyber-room.jpg"
