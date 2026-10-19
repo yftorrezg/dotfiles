@@ -30,10 +30,14 @@ from pathlib import Path  # noqa: E402
 
 import gi  # noqa: E402
 
+import chuletas_dibujo as dib  # noqa: E402
 import chuletas_md as md  # noqa: E402
+import time  # noqa: E402
 
 gi.require_version("Gtk", "4.0")
 gi.require_version("Gdk", "4.0")
+gi.require_version("Gsk", "4.0")
+gi.require_version("Graphene", "1.0")
 gi.require_version("Gtk4LayerShell", "1.0")
 from gi.repository import Gdk, GLib, Graphene, Gsk, Gtk, Pango  # noqa: E402
 from gi.repository import Gtk4LayerShell as LS  # noqa: E402
@@ -63,12 +67,22 @@ PALABRAS = {
             "pacman paru curl ssh tar set end",
     "dockerfile": "FROM RUN COPY ADD WORKDIR CMD ENTRYPOINT ENV ARG EXPOSE VOLUME USER LABEL HEALTHCHECK AS",
     "yaml": "true false null", "json": "true false null", "html": "", "text": "",
+    "c": "int char float double void return if else for while do switch case break continue struct typedef const "
+         "static unsigned long short sizeof NULL include define auto class public private template typename "
+         "namespace using new delete nullptr bool true false std",
+    "java": "public private protected class interface extends implements static final void int long double boolean "
+            "char String new return if else for while do switch case break continue try catch finally throw throws "
+            "import package null true false this super abstract enum record var",
+    "go": "func package import return if else for range switch case default break continue go defer chan map struct "
+          "interface type var const nil true false make new select",
 }
 ALIAS = {"py": "python", "javascript": "js", "typescript": "ts", "tsx": "jsx", "sh": "bash", "shell": "bash",
-         "fish": "bash", "console": "bash", "docker": "dockerfile", "yml": "yaml", "postgres": "sql"}
+         "fish": "bash", "console": "bash", "docker": "dockerfile", "yml": "yaml", "postgres": "sql",
+         "cpp": "c", "c++": "c", "golang": "go", "kotlin": "java", "csharp": "java", "cs": "java"}
 COMENTARIO = {"python": r"#.*$", "bash": r"#.*$", "dockerfile": r"#.*$", "yaml": r"#.*$",
               "js": r"//.*$|/\*.*?\*/", "jsx": r"//.*$|/\*.*?\*/", "ts": r"//.*$|/\*.*?\*/",
-              "css": r"/\*.*?\*/", "sql": r"--.*$", "html": r"<!--.*?-->", "json": r"(?!x)x", "text": r"(?!x)x"}
+              "css": r"/\*.*?\*/", "sql": r"--.*$", "c": r"//.*$|/\*.*?\*/", "java": r"//.*$|/\*.*?\*/",
+              "go": r"//.*$|/\*.*?\*/", "html": r"<!--.*?-->", "json": r"(?!x)x", "text": r"(?!x)x"}
 
 
 def _patron(leng):
@@ -199,7 +213,8 @@ def hoja_css(p, claro, c):
     t = p["terminal"]["normal"]
     f, f2, pri, txt, txt2, borde = (p[k] for k in ("mSurface", "mSurfaceVariant", "mPrimary", "mOnSurface",
                                                    "mOnSurfaceVariant", "mOutline"))
-    notas = {"consejo": t["green"], "cuidado": t["red"] if claro else t["yellow"], "ingles": t["blue"], "nota": pri}
+    notas = {"consejo": t["green"], "cuidado": t["red"] if claro else t["yellow"], "ingles": t["blue"], "nota": pri,
+             "bien": t["green"], "mal": t["red"], "concepto": t["magenta"], "futuro": t["cyan"]}
     css_notas = "".join(
         f".nota-{k} {{ border-left: 4px solid {col}; background-color: alpha({col}, {0.10 if claro else 0.12}); }}"
         for k, col in notas.items())
@@ -222,7 +237,8 @@ window.chuletas {{ background: transparent; }}
 .pestana:hover {{ background-color: {f2}; }}
 .pestana.activa {{ background-color: {pri}; color: {p['mOnPrimary']}; }}
 .lateral-izq {{ background-color: alpha({f2}, 0.55); border-radius: 26px 0 0 26px; padding: 20px 12px; }}
-.nav {{ font-size: 15.5px; font-weight: 650; padding: 8px 12px; border-radius: 12px; min-height: 0;
+flowboxchild {{ padding: 0; }}
+.nav {{ font-size: 14px; font-weight: 650; padding: 6px 10px; border-radius: 11px; min-height: 0;
        background: transparent; color: {txt}; border: none; box-shadow: none; }}
 .nav:hover {{ background-color: alpha({pri}, 0.14); }}
 .nav.activa {{ background-color: {pri}; color: {p['mOnPrimary']}; }}
@@ -265,6 +281,19 @@ scrolledwindow, scrolledwindow > viewport {{ background: transparent; }}
 .celda {{ padding: 8px 13px; font-size: 14.5px; }}
 .celda.con-borde {{ border-left: 1px solid alpha({borde}, 0.22); }}
 .celda.e-exp {{ margin-top: 0; }}
+.lista {{ margin-left: 4px; }}
+.vineta {{ font-size: 15.5px; font-weight: 800; color: {pri}; min-width: 22px; }}
+.imagen {{ background-color: #f7f8fb; border-radius: 16px; padding: 12px; border: 1px solid alpha({borde}, 0.35); }}
+.pie-img {{ font-size: 13.5px; color: {txt2}; font-style: italic; }}
+.dibujo {{ border-radius: 16px; padding: 16px; border: 1px solid alpha({borde}, 0.4); }}
+.dibujo-error {{ color: {t["red"]}; font-size: 13px; }}
+expander.desplegable {{ border-radius: 14px; border: 1px solid alpha({pri}, 0.35); background-color: alpha({pri}, 0.05); }}
+expander.desplegable > title {{ padding: 10px 14px; border-radius: 14px; }}
+expander.desplegable > title:hover {{ background-color: alpha({pri}, 0.12); }}
+.desp-titulo {{ font-size: 15.5px; font-weight: 750; }}
+.desp-cuerpo {{ padding: 4px 14px 14px 14px; }}
+.columna {{ border-radius: 16px; padding: 14px; background-color: alpha({f2}, 0.38); border: 1px solid alpha({borde}, 0.25); }}
+.completo .vineta, .completo .desp-titulo {{ font-size: 17px; }}
 .pie {{ font-size: 12.5px; color: {txt2}; padding: 0 20px 12px 20px; }}
 .copiado {{ font-size: 13px; font-weight: 700; color: {pri}; }}
 .vacio {{ font-size: 16px; color: {txt2}; margin: 40px; }}
@@ -381,6 +410,10 @@ class Panel(Gtk.ApplicationWindow):
                   "com": p["terminal"]["bright"]["black"],
                   "fondo_cod": mezclar(f, "#000000", 0.05) if claro else mezclar(f, "#000000", 0.32),
                   "cod_linea": t["blue"] if claro else t["cyan"]}
+        self.col_dib = {"texto": p["mOnSurface"], "texto2": p["mOnSurfaceVariant"], "fondo": f,
+                        "borde": p["mOutline"],
+                        "acentos": [t["blue"], t["magenta"], t["cyan"], t["green"], t["yellow"], t["red"]]}
+        self.generacion, self.pendiente = 0, iter(())  # generacion cambia al cambiar de hoja: cancela la construcción por partes anterior
         css = Gtk.CssProvider()
         css.load_from_string(hoja_css(p, claro, self.c))
         Gtk.StyleContext.add_provider_for_display(Gdk.Display.get_default(), css, 800)
@@ -444,16 +477,19 @@ class Panel(Gtk.ApplicationWindow):
         if completo:
             izq = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2)
             izq.add_css_class("lateral-izq")
-            izq.set_size_request(290, -1)
+            izq.set_size_request(320, -1)
             izq.append(etiqueta("TEMAS", ("nav-titulo",)))
-            for i, h in enumerate(self.hojas):
+            temas = Gtk.FlowBox(selection_mode=Gtk.SelectionMode.NONE, min_children_per_line=2,
+                                max_children_per_line=2, homogeneous=True, row_spacing=2, column_spacing=2)
+            for i, h in enumerate(self.hojas):  # dos columnas: caben ~20 temas y queda sitio para el índice
                 b = Gtk.Button()
                 b.set_child(etiqueta(corto(h["titulo"]), wrap=False))
                 b.set_tooltip_text(h["titulo"])
                 b.add_css_class("nav")
                 b.connect("clicked", lambda _b, i=i: self.mostrar_hoja(i))
-                izq.append(b)
+                temas.append(b)
                 self.botones_hoja.append(b)
+            izq.append(temas)
             izq.append(etiqueta("EN ESTE TEMA", ("nav-titulo",)))
             self.caja_toc = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=1)
             toc_scroll = Gtk.ScrolledWindow(hscrollbar_policy=Gtk.PolicyType.NEVER, vexpand=True)
@@ -499,9 +535,70 @@ class Panel(Gtk.ApplicationWindow):
         self.copiables.append((caja, texto))
         return k
 
+    def bloques_en(self, caja, bloques, leng):
+        for b in self.agrupar(bloques):
+            caja.append(self.bloque(b, leng))
+
     def bloque(self, b, leng_hoja):
         """Un bloque de chuletas_md → widget."""
         tipo = b[0]
+        if tipo == "lista":
+            caja = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=5)
+            caja.add_css_class("lista")
+            for i, item in enumerate(b[1], 1):
+                fila = Gtk.Box(spacing=6)
+                fila.append(etiqueta(f"{i}." if b[2] else "•", ("vineta",), wrap=False))
+                lbl = etiqueta(markup=en_linea(item, self.c), clases=("p",), seleccionable=True)
+                lbl.set_hexpand(True)
+                fila.append(lbl)
+                caja.append(fila)
+            return caja
+        if tipo == "imagen":
+            caja = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=8)
+            try:
+                tex = Gdk.Texture.new_from_filename(b[2])
+            except GLib.Error:
+                return etiqueta(f"⚠️ No se pudo abrir la imagen {b[2]}", ("dibujo-error",))
+            # Gtk.Picture no reserva alto propio dentro de una caja vertical: se lo damos según la proporción
+            ancho = min(tex.get_width(), self.ancho_contenido() - 30, 900)
+            foto = Gtk.Picture.new_for_paintable(tex)
+            foto.set_can_shrink(True)
+            foto.set_content_fit(Gtk.ContentFit.CONTAIN)
+            foto.set_size_request(-1, round(tex.get_height() * ancho / tex.get_width()))
+            foto.add_css_class("imagen")
+            caja.append(foto)
+            if b[1]:
+                pie = etiqueta(b[1], ("pie-img",))
+                pie.set_xalign(0.5)
+                caja.append(pie)
+            return caja
+        if tipo == "desplegable":  # el contenido se construye al abrirlo (abre más rápido la hoja)
+            exp = Gtk.Expander()
+            exp.add_css_class("desplegable")
+            exp.set_label_widget(etiqueta(b[1], ("desp-titulo",)))
+            exp.set_cursor(Gdk.Cursor.new_from_name("pointer"))
+
+            def abrir(e, _p=None):
+                if e.get_expanded() and e.get_child() is None:
+                    cuerpo = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=10)
+                    cuerpo.add_css_class("desp-cuerpo")
+                    self.bloques_en(cuerpo, b[2], leng_hoja)
+                    e.set_child(cuerpo)
+            exp.connect("notify::expanded", abrir)
+            if self.busqueda:
+                exp.set_expanded(True)
+            return exp
+        if tipo == "columnas":
+            fila = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL if self.modo == "completo" else
+                           Gtk.Orientation.VERTICAL, spacing=14, homogeneous=self.modo == "completo")
+            for col in b[1]:
+                caja = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=10, hexpand=True)
+                caja.add_css_class("columna")
+                self.bloques_en(caja, col, leng_hoja)
+                fila.append(caja)
+            return fila
+        if tipo == "codigo" and b[1] in md.DIBUJOS:
+            return self.dibujo(b[1], b[2])
         if tipo == "p":
             return etiqueta(markup=en_linea(b[1], self.c), clases=("p",), seleccionable=True)
         if tipo == "h3":
@@ -546,6 +643,37 @@ class Panel(Gtk.ApplicationWindow):
                       etiqueta(markup=en_linea(exp, self.c), clases=("celda", "e-exp"))] for cod, exp in b[1]]
             return self.tabla(filas, copiar=[cod for cod, _e in b[1]])
         return etiqueta(str(b))
+
+    def ancho_contenido(self):
+        if self.modo == "completo":
+            return min(1000, self.ancho_mon - 290 - 120) - 10
+        return self.ancho_lateral - 50
+
+    def dibujo(self, tipo, cuerpo):
+        caja = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
+        caja.add_css_class("dibujo")
+        try:
+            d = dib.analizar(tipo, cuerpo)
+        except ValueError as e:
+            caja.append(etiqueta(f"⚠️ ```{tipo}: {e}", ("dibujo-error",)))
+            return caja
+        area = Gtk.DrawingArea(hexpand=True)
+        area.set_content_height(d.alto(self.ancho_contenido() - 34))
+
+        def pintar(_a, cr, ancho, _alto):
+            try:
+                d.pintar(cr, ancho, self.col_dib)
+            except Exception as e:  # noqa: BLE001 — un dibujo roto no debe tumbar el panel
+                print("dibujo:", e)
+
+        def al_cambiar(a, ancho, _alto):
+            h = d.alto(ancho)
+            if h != a.get_content_height():
+                a.set_content_height(h)
+        area.set_draw_func(pintar)
+        area.connect("resize", al_cambiar)
+        caja.append(area)
+        return caja
 
     def tabla(self, filas, cabecera=False, copiar=None):
         """Filas de etiquetas → tabla con columnas alineadas. copiar = código que copia cada fila al hacer clic."""
@@ -620,6 +748,8 @@ class Panel(Gtk.ApplicationWindow):
             self.lbl_busqueda.remove_css_class("activa")
         contenido = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=10, margin_end=10, margin_bottom=30)
         self.copiables, self.anclas = [], []
+        self.generacion += 1
+        self.pendiente = iter(())
         q = sin_tildes(self.busqueda)
         if not self.hojas:
             contenido.append(etiqueta(f"No hay chuletas en {md.CARPETA}", ("vacio",)))
@@ -643,21 +773,56 @@ class Panel(Gtk.ApplicationWindow):
                                           ("vacio",)))
         else:
             h = self.hojas[self.hoja]
-            leng = self.lenguaje_hoja(h)
             contenido.append(etiqueta(h["titulo"], ("hoja-titulo",)))
             if h["subtitulo"]:
                 contenido.append(etiqueta(markup=en_linea(h["subtitulo"], self.c), clases=("hoja-sub",)))
-            for sec in h["secciones"]:
-                if sec["titulo"]:
-                    titulo = etiqueta(sec["titulo"], ("h2",))
-                    contenido.append(titulo)
-                    self.anclas.append((titulo, sec["titulo"]))
-                for b in self.agrupar(sec["bloques"]):
-                    contenido.append(self.bloque(b, leng))
+            self.anclas = [[None, sec["titulo"]] for sec in h["secciones"] if sec["titulo"]]
+            self.pendiente = self.piezas(h)
         self.contenido = contenido
         self.scroll.set_child(contenido)
         self.scroll.get_vadjustment().set_value(0)
         self.llenar_toc()
+        if not q and self.hojas:
+            # lo primero que se ve, ya; el resto en ratos libres (la hoja abre al instante y no se traba)
+            self.generacion += 1
+            self.construir_hasta(limite=40)
+            GLib.idle_add(self.construir_resto, self.generacion, priority=GLib.PRIORITY_LOW)
+
+    def piezas(self, h):
+        leng = self.lenguaje_hoja(h)
+        k = 0
+        for sec in h["secciones"]:
+            if sec["titulo"]:
+                yield ("h2", k, sec["titulo"])
+                k += 1
+            for b in self.agrupar(sec["bloques"]):
+                yield ("bloque", b, leng)
+
+    def construir_hasta(self, basta=lambda: False, limite=None):
+        """Añade piezas pendientes hasta que basta() o se acaben. → True si quedan."""
+        hechas = 0
+        for pieza in self.pendiente:
+            if pieza[0] == "h2":
+                titulo = etiqueta(pieza[2], ("h2",))
+                self.contenido.append(titulo)
+                self.anclas[pieza[1]][0] = titulo
+            else:
+                self.contenido.append(self.bloque(pieza[1], pieza[2]))
+            hechas += 1
+            if basta() or (limite and hechas >= limite):
+                return True
+        return False
+
+    def construir_resto(self, gen):
+        if gen != self.generacion:
+            return False
+        t0 = time.monotonic()
+        quedan = self.construir_hasta(lambda: time.monotonic() - t0 > 0.012)
+        return quedan
+
+    def terminar_construccion(self):
+        self.generacion += 1
+        self.construir_hasta()
 
     def llenar_toc(self):
         if self.caja_toc is None:
@@ -679,14 +844,19 @@ class Panel(Gtk.ApplicationWindow):
         return caja.get_y() if ok else 0
 
     def ir_a_seccion(self, k):
-        if 0 <= k < len(self.anclas):
-            self.scroll.get_vadjustment().set_value(max(0, self.y_de(self.anclas[k][0]) - 10))
+        if not 0 <= k < len(self.anclas):
+            return
+        if self.anclas[k][0] is None:  # aún no construida: se construye y se salta tras medirla
+            self.construir_hasta(lambda: self.anclas[k][0] is not None)
+            GLib.timeout_add(40, lambda: self.ir_a_seccion(k) and False)
+            return
+        self.scroll.get_vadjustment().set_value(max(0, self.y_de(self.anclas[k][0]) - 10))
 
     def seccion_actual(self):
         valor = self.scroll.get_vadjustment().get_value() + 40
         actual = 0
         for k, (w, _t) in enumerate(self.anclas):
-            if self.y_de(w) <= valor:
+            if w is not None and self.y_de(w) <= valor:
                 actual = k
         return actual
 
@@ -735,7 +905,8 @@ class Panel(Gtk.ApplicationWindow):
         if extremo == "inicio":
             adj.set_value(0)
         elif extremo == "fin":
-            adj.set_value(adj.get_upper())
+            self.terminar_construccion()
+            GLib.timeout_add(60, lambda: adj.set_value(adj.get_upper()) or False)
         else:
             adj.set_value(adj.get_value() + dy + pagina * adj.get_page_size() * 0.9)
 
