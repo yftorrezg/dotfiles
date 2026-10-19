@@ -131,7 +131,16 @@ magnification = true
 magnification_scale = 1.6000000000000001
 main_axis_padding = 14
 margin_edge = 10
-pinned = [ "code", "org.kde.dolphin", "kitty", "brave-browser", "com.anthropic.Claude", "opendeck", "obsidian" ]
+pinned = [
+    "code",
+    "org.kde.dolphin",
+    "kitty",
+    "brave-browser",
+    "com.anthropic.Claude",
+    "opendeck",
+    "obsidian",
+    "virt-manager"
+]
 radius_bottom_left = 24
 radius_bottom_right = 24
 radius_top_left = 24
