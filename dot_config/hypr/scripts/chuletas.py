@@ -35,7 +35,7 @@ import chuletas_md as md  # noqa: E402
 gi.require_version("Gtk", "4.0")
 gi.require_version("Gdk", "4.0")
 gi.require_version("Gtk4LayerShell", "1.0")
-from gi.repository import Gdk, GLib, Gtk, Pango  # noqa: E402
+from gi.repository import Gdk, GLib, Graphene, Gsk, Gtk, Pango  # noqa: E402
 from gi.repository import Gtk4LayerShell as LS  # noqa: E402
 
 NOCT_SETTINGS = Path.home() / ".local/state/noctalia/settings.toml"
@@ -171,6 +171,11 @@ def guardar_estado(d):
         pass
 
 
+def corto(titulo):
+    """«🇬🇧 Inglés 1 · Sonidos y vocabulario» → «🇬🇧 Inglés 1» para pestañas e índice."""
+    return titulo.split(" · ")[0]
+
+
 def etiqueta(texto="", clases=(), markup=None, wrap=True, seleccionable=False):
     lbl = Gtk.Label(xalign=0, wrap=wrap, selectable=seleccionable)
     if wrap:
@@ -250,10 +255,16 @@ scrolledwindow, scrolledwindow > viewport {{ background: transparent; }}
 .codigo {{ font-family: "{MONO}", monospace; font-size: 14.5px; padding: 6px 16px 14px 16px; }}
 .nota {{ border-radius: 12px; padding: 10px 14px; font-size: 15px; }}
 {css_notas}
-.tabla {{ border-radius: 14px; border: 1px solid alpha({borde}, 0.4); }}
-.celda {{ padding: 7px 12px; font-size: 14.5px; }}
-.celda.cab {{ font-weight: 800; background-color: alpha({pri}, 0.16); }}
-.celda.par {{ background-color: alpha({f2}, 0.55); }}
+.tabla {{ border-radius: 14px; border: 1px solid alpha({borde}, 0.45); }}
+.fila {{ border-bottom: 1px solid alpha({borde}, 0.22); }}
+.fila:last-child {{ border-bottom: none; }}
+.fila.cab {{ font-weight: 800; background-color: alpha({pri}, 0.18); border-bottom: 2px solid alpha({pri}, 0.45); }}
+.fila.par {{ background-color: alpha({f2}, 0.55); }}
+.fila.copiable:hover {{ background-color: alpha({pri}, 0.13); }}
+.fila.copiada {{ background-color: alpha({pri}, 0.25); }}
+.celda {{ padding: 8px 13px; font-size: 14.5px; }}
+.celda.con-borde {{ border-left: 1px solid alpha({borde}, 0.22); }}
+.celda.e-exp {{ margin-top: 0; }}
 .pie {{ font-size: 12.5px; color: {txt2}; padding: 0 20px 12px 20px; }}
 .copiado {{ font-size: 13px; font-weight: 700; color: {pri}; }}
 .vacio {{ font-size: 16px; color: {txt2}; margin: 40px; }}
@@ -266,6 +277,78 @@ scrolledwindow, scrolledwindow > viewport {{ background: transparent; }}
 .completo .hoja-titulo {{ font-size: 38px; }}
 .completo .hoja-sub {{ font-size: 18px; }}
 """
+
+
+# --- tablas -----------------------------------------------------------------------------
+# Gtk.Grid pide como alto mínimo el de sus celdas al ancho mínimo (una palabra por renglón):
+# las tablas quedaban con huecos enormes debajo. Estas filas reparten el ancho por columnas
+# según lo que mide el texto de cada una y piden exactamente el alto que necesitan.
+class Columnas:
+    """Anchos compartidos por todas las filas de una tabla."""
+    def __init__(self):
+        self.filas, self.medidas = [], None
+
+    def medir(self):
+        if self.medidas is None:
+            n = max(len(f) for f in self.filas)
+            mins, nats = [0] * n, [0] * n
+            for fila in self.filas:
+                for i, celda in enumerate(fila):
+                    mn, nt, *_ = celda.measure(Gtk.Orientation.HORIZONTAL, -1)
+                    mins[i], nats[i] = max(mins[i], mn), max(nats[i], nt)
+            self.medidas = mins, nats
+        return self.medidas
+
+    def anchos(self, total):
+        mins, nats = self.medir()
+        if sum(nats) <= total:  # cabe todo: el sobrante, proporcional
+            extra = total - sum(nats)
+            return [nt + extra * nt // max(1, sum(nats)) for nt in nats]
+        # no cabe: las columnas cortas se quedan con lo suyo y las largas se reparten el resto
+        anchos, libres, resto = [0] * len(nats), set(range(len(nats))), total
+        while libres:
+            parte = resto / len(libres)
+            cortas = [i for i in libres if nats[i] <= parte]
+            if not cortas:
+                for i in libres:
+                    anchos[i] = max(mins[i], int(parte))
+                break
+            for i in cortas:
+                anchos[i] = nats[i]
+                resto -= nats[i]
+                libres.discard(i)
+        return anchos
+
+
+class FilaLayout(Gtk.LayoutManager):
+    def __init__(self, columnas):
+        super().__init__()
+        self.columnas = columnas
+
+    def do_get_request_mode(self, _widget):
+        return Gtk.SizeRequestMode.HEIGHT_FOR_WIDTH
+
+    def celdas(self, widget):
+        hijo, lista = widget.get_first_child(), []
+        while hijo:
+            lista.append(hijo)
+            hijo = hijo.get_next_sibling()
+        return lista
+
+    def do_measure(self, widget, orientacion, para):
+        mins, nats = self.columnas.medir()
+        if orientacion == Gtk.Orientation.HORIZONTAL:
+            return sum(mins), sum(nats), -1, -1
+        anchos = self.columnas.anchos(para if para >= 0 else sum(nats))
+        alto = max((c.measure(Gtk.Orientation.VERTICAL, a)[1] for c, a in zip(self.celdas(widget), anchos)),
+                   default=0)
+        return alto, alto, -1, -1
+
+    def do_allocate(self, widget, ancho, alto, _base):
+        x = 0
+        for celda, a in zip(self.celdas(widget), self.columnas.anchos(ancho)):
+            celda.allocate(a, alto, -1, Gsk.Transform().translate(Graphene.Point().init(x, 0)))
+            x += a
 
 
 class Panel(Gtk.ApplicationWindow):
@@ -365,7 +448,8 @@ class Panel(Gtk.ApplicationWindow):
             izq.append(etiqueta("TEMAS", ("nav-titulo",)))
             for i, h in enumerate(self.hojas):
                 b = Gtk.Button()
-                b.set_child(etiqueta(h["titulo"], wrap=False))
+                b.set_child(etiqueta(corto(h["titulo"]), wrap=False))
+                b.set_tooltip_text(h["titulo"])
                 b.add_css_class("nav")
                 b.connect("clicked", lambda _b, i=i: self.mostrar_hoja(i))
                 izq.append(b)
@@ -392,7 +476,7 @@ class Panel(Gtk.ApplicationWindow):
             fluir = Gtk.FlowBox(selection_mode=Gtk.SelectionMode.NONE, max_children_per_line=8,
                                 column_spacing=2, row_spacing=4, margin_start=16, margin_end=16)
             for i, h in enumerate(self.hojas):
-                b = Gtk.Button(label=h["titulo"])
+                b = Gtk.Button(label=corto(h["titulo"]), tooltip_text=h["titulo"])
                 b.add_css_class("pestana")
                 b.connect("clicked", lambda _b, i=i: self.mostrar_hoja(i))
                 fluir.append(b)
@@ -455,22 +539,56 @@ class Panel(Gtk.ApplicationWindow):
             caja.append(etiqueta(markup=resaltar(b[2], b[1], self.c), clases=("codigo",), seleccionable=True))
             return caja
         if tipo == "tabla":
-            marco = Gtk.Box()
-            marco.add_css_class("tabla")
-            marco.set_overflow(Gtk.Overflow.HIDDEN)
-            grid = Gtk.Grid(hexpand=True)
-            for r, fila in enumerate(b[1]):
-                for col, celda in enumerate(fila):
-                    lbl = etiqueta(markup=en_linea(celda, self.c), clases=("celda",), seleccionable=True)
-                    lbl.set_hexpand(True)
-                    if r == 0:
-                        lbl.add_css_class("cab")
-                    elif r % 2 == 0:
-                        lbl.add_css_class("par")
-                    grid.attach(lbl, col, r, 1, 1)
-            marco.append(grid)
-            return marco
+            return self.tabla([[etiqueta(markup=en_linea(c, self.c), clases=("celda",), seleccionable=True)
+                                for c in fila] for fila in b[1]], cabecera=True)
+        if tipo == "entradas":  # varias entradas rápidas seguidas → tabla código | explicación
+            filas = [[etiqueta(markup=resaltar(cod, leng_hoja, self.c), clases=("celda", "e-codigo")),
+                      etiqueta(markup=en_linea(exp, self.c), clases=("celda", "e-exp"))] for cod, exp in b[1]]
+            return self.tabla(filas, copiar=[cod for cod, _e in b[1]])
         return etiqueta(str(b))
+
+    def tabla(self, filas, cabecera=False, copiar=None):
+        """Filas de etiquetas → tabla con columnas alineadas. copiar = código que copia cada fila al hacer clic."""
+        marco = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
+        marco.add_css_class("tabla")
+        marco.set_overflow(Gtk.Overflow.HIDDEN)
+        columnas = Columnas()
+        for r, celdas in enumerate(filas):
+            fila = Gtk.Box()
+            fila.set_layout_manager(FilaLayout(columnas))
+            fila.add_css_class("fila")
+            if cabecera and r == 0:
+                fila.add_css_class("cab")
+            elif (r % 2 == 0) == cabecera:
+                fila.add_css_class("par")
+            for i, celda in enumerate(celdas):
+                if i:
+                    celda.add_css_class("con-borde")
+                fila.append(celda)
+            columnas.filas.append(celdas)
+            if copiar:
+                k = self.copiable(fila, copiar[r])
+                clic = Gtk.GestureClick()
+                clic.connect("released", lambda *_a, k=k: self.copiar(k))
+                fila.add_controller(clic)
+                fila.set_cursor(Gdk.Cursor.new_from_name("pointer"))
+                fila.add_css_class("copiable")
+            marco.append(fila)
+        return marco
+
+    @staticmethod
+    def agrupar(bloques):
+        """Junta las entradas rápidas seguidas en un solo bloque «entradas» (se dibuja como tabla)."""
+        salida = []
+        for b in bloques:
+            if b[0] == "entrada":
+                if salida and salida[-1][0] == "entradas":
+                    salida[-1][1].append(b[1:])
+                else:
+                    salida.append(("entradas", [b[1:]]))
+            else:
+                salida.append(b)
+        return salida
 
     @staticmethod
     def lenguaje_hoja(hoja):
@@ -517,7 +635,7 @@ class Panel(Gtk.ApplicationWindow):
                     if not coinciden or encontrados > 120:
                         continue
                     contenido.append(etiqueta(f"{h['titulo']}  ›  {titulo_sec}", ("h3",)))
-                    for b in coinciden:
+                    for b in self.agrupar(coinciden):
                         contenido.append(self.bloque(b, leng))
                         encontrados += 1
             if not encontrados:
@@ -534,8 +652,9 @@ class Panel(Gtk.ApplicationWindow):
                     titulo = etiqueta(sec["titulo"], ("h2",))
                     contenido.append(titulo)
                     self.anclas.append((titulo, sec["titulo"]))
-                for b in sec["bloques"]:
+                for b in self.agrupar(sec["bloques"]):
                     contenido.append(self.bloque(b, leng))
+        self.contenido = contenido
         self.scroll.set_child(contenido)
         self.scroll.get_vadjustment().set_value(0)
         self.llenar_toc()
@@ -556,7 +675,7 @@ class Panel(Gtk.ApplicationWindow):
         GLib.idle_add(self.marcar_toc)
 
     def y_de(self, widget):
-        ok, caja = widget.compute_bounds(self.scroll.get_child())
+        ok, caja = widget.compute_bounds(self.contenido)
         return caja.get_y() if ok else 0
 
     def ir_a_seccion(self, k):
