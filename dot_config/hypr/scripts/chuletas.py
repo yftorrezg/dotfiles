@@ -426,7 +426,9 @@ class Panel(Gtk.ApplicationWindow):
         self.busqueda = ""
         self.mostrado = False
         self.copiables, self.anclas = [], []
+        self._indice, self._t_busqueda = None, 0
         self.construir()
+        GLib.idle_add(lambda: self.indice_busqueda() and False, priority=GLib.PRIORITY_LOW)
 
         teclas = Gtk.EventControllerKey()
         teclas.set_propagation_phase(Gtk.PropagationPhase.CAPTURE)
@@ -530,6 +532,31 @@ class Panel(Gtk.ApplicationWindow):
         self.mostrar_hoja(self.hoja)
 
     # --- contenido ----------------------------------------------------------------------
+    def indice_busqueda(self):
+        """Texto normalizado de cada bloque, calculado una sola vez (buscar en 49 000 líneas cada tecla era lento)."""
+        if self._indice is None:
+            self._indice = []
+            for i, h in enumerate(self.hojas):
+                for sec in h["secciones"]:
+                    tit = sin_tildes(sec["titulo"] or "")
+                    for b in sec["bloques"]:
+                        if b[0] != "h3":
+                            self._indice.append((i, sec, b, tit, sin_tildes(md.texto_de(b))))
+        return self._indice
+
+    def buscar_luego(self):
+        """Agrupa las teclas rápidas: se busca cuando dejas de teclear 90 ms."""
+        if self._t_busqueda:
+            GLib.source_remove(self._t_busqueda)
+        self.lbl_busqueda.set_label(f"🔍  {self.busqueda}")
+        self.lbl_busqueda.add_css_class("activa")
+
+        def hacer():
+            self._t_busqueda = 0
+            self.refrescar()
+            return False
+        self._t_busqueda = GLib.timeout_add(90, hacer)
+
     def copiable(self, caja, texto):
         k = len(self.copiables)
         self.copiables.append((caja, texto))
@@ -754,20 +781,18 @@ class Panel(Gtk.ApplicationWindow):
         if not self.hojas:
             contenido.append(etiqueta(f"No hay chuletas en {md.CARPETA}", ("vacio",)))
         elif q:
-            encontrados = 0
-            for h in self.hojas:
-                leng = self.lenguaje_hoja(h)
-                for sec in h["secciones"]:
-                    titulo_sec = sec["titulo"] or ""
-                    coinciden = [b for b in sec["bloques"] if b[0] != "h3" and q in sin_tildes(md.texto_de(b))]
-                    if not coinciden and q in sin_tildes(titulo_sec):
-                        coinciden = sec["bloques"][:6]
-                    if not coinciden or encontrados > 120:
-                        continue
-                    contenido.append(etiqueta(f"{h['titulo']}  ›  {titulo_sec}", ("h3",)))
-                    for b in self.agrupar(coinciden):
-                        contenido.append(self.bloque(b, leng))
-                        encontrados += 1
+            encontrados, ultima = 0, None
+            for i, sec, bl, tit, txt in self.indice_busqueda():
+                if q not in txt and not (q in tit and bl is sec["bloques"][0]):
+                    continue
+                if encontrados >= (120 if len(q) >= 3 else 25):  # 1-2 letras: pocos, para que sea inmediato
+                    break
+                if ultima is not sec:
+                    contenido.append(etiqueta(f"{self.hojas[i]['titulo']}  ›  {sec['titulo'] or ''}", ("h3",)))
+                    ultima = sec
+                for pieza in self.agrupar([bl]):
+                    contenido.append(self.bloque(pieza, self.lenguaje_hoja(self.hojas[i])))
+                encontrados += 1
             if not encontrados:
                 contenido.append(etiqueta("Nada con esa búsqueda 🙂 Prueba otra palabra (también en inglés).",
                                           ("vacio",)))
@@ -939,14 +964,14 @@ class Panel(Gtk.ApplicationWindow):
         elif nombre == "BackSpace":
             if self.busqueda:
                 self.busqueda = self.busqueda[:-1]
-                self.refrescar()
+                self.buscar_luego() if self.busqueda else self.refrescar()
         elif estado & (Gdk.ModifierType.CONTROL_MASK | Gdk.ModifierType.ALT_MASK | Gdk.ModifierType.SUPER_MASK):
             return False  # Ctrl+C sobre texto seleccionado, etc.
         else:
             ch = chr(Gdk.keyval_to_unicode(keyval) or 0)
             if ch.isprintable() and (ch.strip() or self.busqueda):
                 self.busqueda += ch
-                self.refrescar()
+                self.buscar_luego()
             else:
                 return False
         return True

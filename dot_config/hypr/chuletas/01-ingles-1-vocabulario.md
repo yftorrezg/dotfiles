@@ -113,7 +113,7 @@ El español tiene 5 vocales y casi todas sus consonantes se pronuncian "como se 
 | j | h inglesa | jash (hash) | Solo aire, como empañar un vidrio, nunca la jota raspada |
 | i (delante de vocal) | y de "yes" | kiú (queue) | Como la "i" de "hielo" |
 | r | r inglesa | ran (run) | Lengua curvada hacia atrás sin tocar nada, nunca vibra |
-| e (sin acento) | schwa, vocal neutra | DÉI-ta (data) | Una "e/a" floja y corta, casi no se oye |
+| a / e sin acento | schwa, vocal neutra | DÉI-ta (la -a final) | Una "e/a" floja y corta, casi no se oye |
 
 ### 👅 Consonantes que no tienes
 
@@ -131,7 +131,7 @@ El español tiene 5 vocales y casi todas sus consonantes se pronuncian "como se 
 | r | Lengua curvada atrás, sin tocar el paladar | run, return, error, array, request, string, server, render | La "rr" vibrante: "rrrun", "errrror" |
 | ng final | Como la "n" de "tengo", sin decir la "g" | string, thing, loading, parsing, long, ping, logging | Decir "strin" o "string-gue" |
 | p, t, k aspiradas | Con un soplo de aire al inicio de sílaba fuerte | push, type, key, code, token, compile | Sin aire: "type" suena a "daip" para un nativo |
-| w | Labios redondos, como "u" rápida | while, web, window, wait, swap, await, wrapper (w muda) | Una "gü" fuerte: "güeb", "güail" |
+| w | Labios redondos, como "u" rápida | while, web, window, wait, swap, await, wire | Una "gü" fuerte: "güeb", "güail" |
 
 ### 🅰️ Vocales: largas, cortas y las que no tienes
 
@@ -159,7 +159,7 @@ Depende del último sonido del verbo. Solo se añade una sílaba "id" cuando ter
 | 🔊 Suena | 📏 Regla | 💻 Ejemplos | ⚠️ Error típico |
 |---|---|---|---|
 | **t** | Tras sonido sordo: p, k, f, s, sh, ch | fixed (fikst), pushed (pusht), parsed (parst), cached (kasht), stashed, fetched | "fik-sed", "push-ed" |
-| **d** | Tras sonido sonoro o vocal | logged (logd), deployed (di-PLÓID), merged (merchd), called, saved, configured | "di-ploi-ed" con sílaba extra |
+| **d** | Tras sonido sonoro o vocal | logged (logd), deployed (di-PLÓID), merged (merdyd), called, saved, configured | "di-ploi-ed" con sílaba extra |
 | **id** | Tras t o d | updated (ap-DÉI-tid), deleted, added (Á-did), loaded, imported, deprecated, started | Comerse la sílaba: "updat" |
 
 ### ✏️ La terminación -s / -es (plural y 3ª persona)
@@ -167,7 +167,7 @@ Depende del último sonido del verbo. Solo se añade una sílaba "id" cuando ter
 | 🔊 Suena | 📏 Regla | 💻 Ejemplos | ⚠️ Error típico |
 |---|---|---|---|
 | **s** | Tras p, t, k, f | types (taips), commits, tests, scripts, hooks, chunks | Comerse la s final: "tes", "scrip" |
-| **z** | Tras sonido sonoro o vocal | files (failz), nodes, bugs, runs, rows, arrays, keys | Decir "s" sorda: "fails" (que es otra palabra: fails = falla) |
+| **z** | Tras sonido sonoro o vocal | files (failz), nodes, bugs, runs, rows, arrays, keys | Decir "s" sorda: "bugs" como "bags" con s |
 | **iz** | Tras s, z, sh, ch, x, ge | hashes (JÁ-shiz), caches (KÁ-shiz), classes, branches, matches, indexes, pages | Olvidar la sílaba extra: "clas", "brach" |
 
 ### 🎵 Ritmo: dónde va el golpe
@@ -178,7 +178,7 @@ Depende del último sonido del verbo. Solo se añade una sílaba "id" cuando ter
 | Phrasal verb: golpe en la partícula | set **UP**, log **IN**, back **UP**, roll **BACK** | "Let's set ÁP the server" | Es una acción |
 | El sustantivo del phrasal verb: golpe al inicio | **SET**up, **LOG**in, **BACK**up, **ROLL**back | "The SÉT-ap is easy" | Es una cosa |
 | Números -teen vs -ty | thirteen vs thirty, fifteen vs fifty | zer-TÍN vs ZÉR-di | -teen golpe al final; -ty al inicio |
-| Siglas: golpe en la última letra | API, CLI, SQL, URL, HTML | ei-pi-ÁI, si-el-ÁI | Igual en todas las siglas deletreadas |
+| Siglas: golpe en la última letra | API, CLI, SQL, URL, HTML | ei-pi-ÁI, si-el-ÁI, es-kiu-ÉL | Igual en todas las siglas deletreadas |
 | Palabras de función se debilitan | "a list of nodes", "to the server" | "ə LÍST əv NÓUDZ" | Solo suenan fuertes las palabras con significado |
 
 ### 😬 Malentendidos reales (aprende de los errores de otros)
@@ -196,7 +196,7 @@ Estos errores son clásicos entre hispanohablantes en reuniones técnicas. No so
 | full (lleno) | fool (tonto) | u corta vs u larga | full corta y floja |
 | live demo | "liv" (vivir) | Adjetivo: ai | **láiv** demo, go **láiv** |
 | work | walk (caminar) | Vocal "er" | "uerk" con la r inglesa, sin "o" |
-| lock | luck / lack | o americana = a larga | lock = "lak" larga; luck = "lak" corta; lack = boca abierta |
+| lock | luck / lack | o americana = a abierta | lock = "lak" (boca abierta); luck = "lak" corta y floja; lack = æ, entre a y e |
 | sixty | sixteen | Golpe | **SÍKS**-ti vs siks-**TÍN** |
 
 ⚠️ Cuidado: la "s" inicial va pegada. "String", "stack", "script" nunca llevan una "e" delante: di **sss-tring**, no "e-string".
@@ -213,7 +213,7 @@ Muchas palabras técnicas las decimos "como se escriben" en español, y en una r
 
 | English | Suena | Qué es | Ejemplo en frase |
 |---|---|---|---|
-| Linux | **LÍ**-nax | Sistema operativo | "I run Arch LÍnax" (no "láinux") |
+| Linux | **LÍ**-nax | Sistema operativo | "I run Arch Linux" (no "láinux") |
 | GNU | gu-**NÚ** | Proyecto de software libre | "GNU slash Linux" |
 | Ubuntu | u-**BÚN**-tu | Distro | "an Ubuntu server" |
 | Debian | **DÉ**-bi-an | Distro | "Debian stable" |
@@ -277,7 +277,7 @@ Muchas palabras técnicas las decimos "como se escriben" en español, y en una r
 | GNOME | gui-**NÓUM** o nóum | Escritorio Linux | "GNOME Shell" |
 | Wayland | **UÉI**-land | Protocolo gráfico | "it breaks on Wayland" |
 | Wi-Fi | **UÁI**-fai | Red inalámbrica | "the Wi-Fi is down" |
-| Bluetooth | **BLÚ**-tuz | Conexión inalámbrica | "Bluetooth pairing" |
+| Bluetooth | **BLÚ**-tuz (z = th sorda) | Conexión inalámbrica | "Bluetooth pairing" |
 | NVIDIA | en-**VÍ**-dia | Fabricante de GPUs | "an NVIDIA driver" |
 | CUDA | **KÚ**-da | Plataforma de cómputo en GPU | "CUDA out of memory" |
 
@@ -384,12 +384,12 @@ Muchas palabras técnicas las decimos "como se escriben" en español, y en una r
 | algorithm | **ÁL**-go-ri-dhem | algoritmo | "a sorting algorithm" |
 | parameter | pa-**RÁ**-mi-ter | parámetro | "the second parameter" |
 | library | **LÁI**-bre-ri | biblioteca | "import the library" |
-| image | **Í**-mich | imagen | "a Docker image" |
-| package | **PÁ**-kich | paquete | "install the package" |
-| message | **MÉ**-sich | mensaje | "the error message" |
-| language | **LÁN**-guich | lenguaje | "a programming language" |
-| storage | **STÓ**-rich | almacenamiento | "cloud storage" |
-| average | **Á**-ve-rich | promedio | "the average loss" |
+| image | **Í**-midy | imagen | "a Docker image" |
+| package | **PÁ**-kidy | paquete | "install the package" |
+| message | **MÉ**-sidy | mensaje | "the error message" |
+| language | **LÁN**-guidy | lenguaje | "a programming language" |
+| storage | **STÓ**-ridy | almacenamiento | "cloud storage" |
+| average | **Á**-ve-ridy | promedio | "the average loss" |
 | cipher | **SÁI**-fer | cifrado | "a block cipher" |
 | hierarchy | **JÁI**-rar-ki | jerarquía | "class hierarchy" |
 | architecture | **ÁR**-ki-tek-cher | arquitectura | "a clean architecture" |
@@ -482,7 +482,7 @@ Regla: **sustantivo** con golpe al inicio, **verbo** con golpe al final.
 | pseudocode | **SÚ**-dou-koud | p | "write the pseudocode" |
 | wrapper / wrap | **RÁ**-per / rap | w | "a wrapper function" |
 | write / wrong | rait / rong | w | "write to disk" |
-| knowledge / know | **NÁ**-lich / nou | k | "knowledge base" |
+| knowledge / know | **NÁ**-lidy / nou | k | "knowledge base" |
 | design / sign | di-**SÁIN** / sain | g | "system design" |
 | align / assign | a-**LÁIN** / a-**SÁIN** | g | "assign a value" |
 | foreign | **FÓ**-ren | g | "foreign key" |
@@ -565,7 +565,7 @@ En pair programming, en clase o en una entrevista tienes que **dictar código**.
 | `:` | colon | **KÓU**-lon | "colon at the end of the if" |
 | `;` | semicolon | **SÉ**-mi-kou-lon | "missing semicolon" |
 | `::` | double colon | **DÁ**-bol **KÓU**-lon | `std::cout` → "std colon colon cout" |
-| `#` | hash / pound / number sign | jash / paund | "hash include", "C sharp" en C# |
+| `#` | hash / pound / number sign | jash / paund | "hash include"; en C# se dice "sharp" |
 | `@` | at sign | at | `@property` → "at property" |
 | `$` | dollar sign | **DÁ**-ler sain | `$HOME` → "dollar home" |
 | `_` | underscore | **ÁN**-der-skor | `my_var` → "my underscore var" |
@@ -577,7 +577,7 @@ En pair programming, en clase o en una entrevista tienes que **dictar código**.
 
 💡 Consejo: en código dictado se usa casi siempre la forma corta: "paren", "curly", "bracket", "bang", "dot", "star". Suena natural y rápido.
 
-⚠️ Cuidado: **asterisk** termina en "risk", no "asterix". Y en inglés "#" casi nunca se llama "hashtag" en código: dí "hash" o "pound".
+⚠️ Cuidado: **asterisk** termina en "risk", no "asterix". Y en inglés "#" casi nunca se llama "hashtag" en código: di "hash" o "pound".
 
 ## 🔢 Leer código, números, versiones y direcciones
 
@@ -720,7 +720,7 @@ Estas palabras salen en cualquier curso, doc o entrevista. Apréndelas directame
 | generic | ye-**NÉ**-rik | genérico | `List<T>` |
 | type hint / annotation | taip jint / a-no-**TÉI**-shon | anotación de tipo | `def f(x: int) -> str:` |
 | overflow | **ÓU**-ver-flou | desbordamiento | "integer overflow" |
-| NaN | nan | "no es un número" | `0.0 / 0.0` |
+| NaN | nan | "no es un número" | `float("nan")`, o `0 / 0` en JS |
 
 ### 🧱 Estructuras de datos
 
@@ -745,7 +745,7 @@ Estas palabras salen en cualquier curso, doc o entrevista. Apréndelas directame
 | trie | trai o tri | árbol de prefijos | autocompletado |
 | graph | graf | grafo | `nodes` y `edges` |
 | node | noud | nodo | `node.value` |
-| edge | ech | arista | conexión entre nodos |
+| edge | edy | arista | conexión entre nodos |
 | vertex / vertices | **VÉR**-teks / **VÉR**-ti-siz | vértice(s) | otro nombre de node |
 | adjacency list | a-**YÉI**-sen-si list | lista de adyacencia | `graph[u] = [v, w]` |
 | root / leaf / parent / child | rut / lif / **PÉ**-rent / chaild | raíz / hoja / padre / hijo | partes de un árbol |
@@ -789,7 +789,7 @@ En entrevistas técnicas tendrás que explicar **cuánto cuesta** tu solución. 
 |---|---|---|---|
 | time complexity | taim kom-**PLÉK**-si-ti | complejidad temporal | "it runs in linear time" |
 | space complexity | speis kom-**PLÉK**-si-ti | complejidad espacial | "O of one extra space" |
-| worst / best / average case | uerst / best / **Á**-ve-rich keis | peor / mejor / caso medio | "quicksort is n squared in the worst case" |
+| worst / best / average case | uerst / best / **Á**-ve-ridy keis | peor / mejor / caso medio | "quicksort is n squared in the worst case" |
 | amortized | **Á**-mor-taizd | amortizado | "append is amortized O of one" |
 | brute force | brut fors | fuerza bruta | "start with a brute-force solution" |
 | naive | nai-**ÍV** | ingenuo, directo | "the naive approach" |
@@ -1008,7 +1008,7 @@ La web es donde más inglés vas a leer: MDN, docs de frameworks, APIs. Casi tod
 | webhook | **UÉB**-juk | aviso HTTP automático | GitHub avisa a tu server |
 | background job / worker | **BÁK**-graund yab / **UÉR**-ker | tarea en segundo plano / proceso trabajador | enviar emails |
 | cron job | kran yab | tarea programada | `0 3 * * *` |
-| message queue | **MÉ**-sich kiú | cola de mensajes | RabbitMQ, Kafka |
+| message queue | **MÉ**-sidy kiú | cola de mensajes | RabbitMQ, Kafka |
 | microservices / monolith | **MÁI**-krou-ser-vi-siz / **MÁ**-no-liz | microservicios / monolito | arquitectura |
 | scalability | skei-la-**BÍ**-li-ti | escalabilidad | "built for scalability" |
 | latency / throughput | **LÉI**-ten-si / **ZRÚ**-put | latencia / rendimiento | "p99 latency" |
@@ -1063,7 +1063,7 @@ La web es donde más inglés vas a leer: MDN, docs de frameworks, APIs. Casi tod
 | repository / repo | ri-**PÁ**-zi-to-ri / **RÍ**-pou | repositorio | `git clone` |
 | commit | ko-**MÍT** | confirmar, guardar versión | `git commit -m` |
 | branch | branch | rama | `git switch -c fix` |
-| merge | merch | fusionar | `git merge dev` |
+| merge | merdy | fusionar | `git merge dev` |
 | rebase | ri-**BÉIS** | reaplicar commits encima | `git rebase main` |
 | pull / push | pul / push | traer / subir | `git push` |
 | fetch | fech | descargar sin fusionar | `git fetch` |
@@ -1072,8 +1072,8 @@ La web es donde más inglés vas a leer: MDN, docs de frameworks, APIs. Casi tod
 | upstream | **ÁP**-strim | repositorio original | `git pull upstream main` |
 | fork | fork | copia propia de un repo ajeno | botón Fork |
 | stash | stash | guardar aparte | `git stash` |
-| staging area / stage | **STÉI**-ying **É**-ri-a / steich | zona de preparación | `git add` |
-| staged / unstaged / untracked | steichd / an-**STÉICHD** / an-**TRÁKT** | preparado / sin preparar / sin seguimiento | `git status` |
+| staging area / stage | **STÉI**-ying **É**-ri-a / steidy | zona de preparación | `git add` |
+| staged / unstaged / untracked | steidyd / an-**STÉIDYD** / an-**TRÁKT** | preparado / sin preparar / sin seguimiento | `git status` |
 | working tree | **UÉR**-king tri | árbol de trabajo | tus archivos actuales |
 | HEAD | jed | el commit actual | `git reset HEAD~1` |
 | detached HEAD | di-**TÁCHT** jed | HEAD suelto, fuera de rama | tras `git checkout <hash>` |
@@ -1127,7 +1127,7 @@ La web es donde más inglés vas a leer: MDN, docs de frameworks, APIs. Casi tod
 | executable | ig-**ZÉ**-kiu-ta-bol | ejecutable | `./run.sh` |
 | wildcard / glob | **UÁILD**-kard / glab | comodín | `*.py` |
 | tab completion | tab kom-**PLÍ**-shon | autocompletar con Tab | — |
-| package manager | **PÁ**-kich **MÁ**-ne-yer | gestor de paquetes | `pacman`, `pip`, `npm` |
+| package manager | **PÁ**-kidy **MÁ**-ne-yer | gestor de paquetes | `pacman`, `pip`, `npm` |
 | dependency | di-**PÉN**-den-si | dependencia | `requirements.txt` |
 | clipboard | **KLÍP**-bord | portapapeles | `wl-copy` |
 | shortcut / keybinding | **SHÓRT**-kat / **KÍ**-bain-ding | atajo de teclado | `Ctrl+C` |
@@ -1166,7 +1166,7 @@ La web es donde más inglés vas a leer: MDN, docs de frameworks, APIs. Casi tod
 | clock speed | klak spid | frecuencia | "3.5 GHz" = "three point five gigahertz" |
 | GPU / VRAM | yi-pi-**IÚ** / **VÍ**-ram | tarjeta gráfica / su memoria | "24 GB of VRAM" |
 | RAM / memory | ram / **MÉ**-mo-ri | memoria | "16 gigs of RAM" |
-| storage / drive / disk | **STÓ**-rich / draiv / disk | almacenamiento / unidad / disco | SSD, HDD |
+| storage / drive / disk | **STÓ**-ridy / draiv / disk | almacenamiento / unidad / disco | SSD, HDD |
 | motherboard | **MÁ**-dher-bord | placa base | — |
 | power supply (PSU) | **PÁU**-er sa-**PLÁI** | fuente de poder | "a 750 W PSU" |
 | fan / heatsink | fan / **JÍT**-sink | ventilador / disipador | — |
@@ -1207,7 +1207,7 @@ La web es donde más inglés vas a leer: MDN, docs de frameworks, APIs. Casi tod
 | phishing / malware | **FÍ**-shing / **MÁL**-uer | suplantación / software malicioso | — |
 | brute-force attack | brut fors a-**TÁK** | ataque de fuerza bruta | probar contraseñas |
 | two-factor auth (2FA) | tu **FÁK**-ter oz | doble factor | código del celular |
-| least privilege | list **PRÍ**-vi-lich | mínimo privilegio | solo los permisos necesarios |
+| least privilege | list **PRÍ**-vi-lidy | mínimo privilegio | solo los permisos necesarios |
 | sandbox | **SÁND**-baks | entorno aislado | — |
 | secret | **SÍ**-kret | secreto (clave, token) | `.env` |
 
@@ -1218,7 +1218,7 @@ La web es donde más inglés vas a leer: MDN, docs de frameworks, APIs. Casi tod
 | cloud | klaud | nube | AWS, GCP, Azure |
 | instance / VM | **ÍNS**-tans / vi-**ÉM** | instancia / máquina virtual | EC2 |
 | container | kon-**TÉI**-ner | contenedor | Docker |
-| image / registry | **Í**-mich / **RÉ**-yis-tri | imagen / registro | Docker Hub |
+| image / registry | **Í**-midy / **RÉ**-yis-tri | imagen / registro | Docker Hub |
 | cluster | **KLÁS**-ter | clúster | Kubernetes |
 | pod | pad | pod | la unidad mínima en k8s |
 | orchestration | or-kes-**TRÉI**-shon | orquestación | Kubernetes |
@@ -1231,7 +1231,7 @@ La web es donde más inglés vas a leer: MDN, docs de frameworks, APIs. Casi tod
 | scale up / scale out | skeil ap / skeil aut | escalar vertical / horizontal | más CPU / más máquinas |
 | autoscaling | **Ó**-tou-skei-ling | escalado automático | — |
 | uptime / downtime | **ÁP**-taim / **DÁUN**-taim | tiempo activo / caído | "99.9% uptime" |
-| outage / incident | **ÁU**-tich / **ÍN**-si-dent | caída / incidente | "a major outage" |
+| outage / incident | **ÁU**-tidy / **ÍN**-si-dent | caída / incidente | "a major outage" |
 | monitoring / alert | **MÁ**-ni-to-ring / a-**LÉRT** | monitoreo / alerta | Grafana |
 | logging / logs | **LÁ**-guing / lagz | registro / registros | `journalctl` |
 | on-call | an-kol | de guardia | atender incidentes |
@@ -1252,7 +1252,7 @@ La web es donde más inglés vas a leer: MDN, docs de frameworks, APIs. Casi tod
 | assertion / assert | a-**SÉR**-shon / a-**SÉRT** | afirmación | `assert x == 2` |
 | mock / stub | mak / stab | doble falso | `unittest.mock` |
 | fixture | **FÍKS**-cher | dato o estado preparado | `@pytest.fixture` |
-| coverage | **KÁ**-ve-rich | cobertura | "80% coverage" |
+| coverage | **KÁ**-ve-ridy | cobertura | "80% coverage" |
 | regression | ri-**GRÉ**-shon | regresión (algo que volvió a fallar) | "a regression in v2" |
 | flaky test | **FLÉI**-ki test | prueba inestable | falla a veces |
 | pass / fail | pas / feil | pasar / fallar | "all tests pass" |
@@ -1289,7 +1289,7 @@ Es tu carrera: los papers, cursos y librerías de IA están **solo en inglés**,
 | feature engineering | **FÍ**-cher en-yi-**NÍ**-ring | ingeniería de características | crear columnas nuevas |
 | pipeline | **PÁIP**-lain | flujo de procesos | `sklearn.pipeline` |
 | DataFrame | **DÉI**-ta-freim | tabla de pandas | `df.head()` |
-| data leakage | **DÉI**-ta **LÍ**-kich | fuga de datos | info del test en el train |
+| data leakage | **DÉI**-ta **LÍ**-kidy | fuga de datos | info del test en el train |
 
 ### 🏋️ Entrenamiento
 
@@ -1309,7 +1309,7 @@ Es tu carrera: los papers, cursos y librerías de IA están **solo en inglés**,
 | epoch | **É**-pak | época (una pasada por los datos) | `epochs=10` |
 | batch / batch size | bach / bach saiz | lote / tamaño de lote | `batch_size=32` |
 | iteration / step | i-te-**RÉI**-shon / step | iteración / paso | un batch procesado |
-| converge | kon-**VÉRY** | converger | "the loss converges" |
+| converge | kon-**VÉRDY** | converger | "the loss converges" |
 | overfitting | ou-ver-**FÍ**-ting | sobreajuste (memoriza) | train 99%, test 60% |
 | underfitting | an-der-**FÍ**-ting | subajuste (no aprende) | malo en ambos |
 | regularization | re-giu-la-ri-**ZÉI**-shon | regularización | L2, weight decay |
@@ -1350,7 +1350,7 @@ Es tu carrera: los papers, cursos y librerías de IA están **solo en inglés**,
 
 | English | Suena | Español | Ejemplo real |
 |---|---|---|---|
-| large language model | larch **LÁN**-guich **MÁ**-del | modelo de lenguaje grande | LLM |
+| large language model | lardy **LÁN**-guidy **MÁ**-del | modelo de lenguaje grande | LLM |
 | token / tokenizer | **TÓU**-ken / **TÓU**-ke-nai-zer | token / tokenizador | `tokenizer.encode()` |
 | context window | **KÁN**-tekst **UÍN**-dou | ventana de contexto | "200K tokens" |
 | prompt / prompting | prampt / **PRÁMP**-ting | instrucción / dar instrucciones | — |
@@ -1369,7 +1369,7 @@ Es tu carrera: los papers, cursos y librerías de IA están **solo en inglés**,
 | distillation | dis-ti-**LÉI**-shon | destilación | modelo pequeño aprende de uno grande |
 | benchmark / eval | **BÉNCH**-mark / i-**VÁL** | prueba estándar / evaluación | MMLU |
 | tool use / function calling | tul ius / **FÁNK**-shon **KÓ**-ling | uso de herramientas | agentes |
-| knowledge cutoff | **NÁ**-lich **KÁT**-of | fecha límite de conocimiento | — |
+| knowledge cutoff | **NÁ**-lidy **KÁT**-of | fecha límite de conocimiento | — |
 
 ### 📏 Evaluación
 
@@ -1465,7 +1465,7 @@ Los cursos de IA asumen álgebra lineal, cálculo y probabilidad **en inglés**.
 | independent | in-di-**PÉN**-dent | independiente | — |
 | sample / population | **SÁM**-pol / pa-piu-**LÉI**-shon | muestra / población | — |
 | correlation / covariance | ko-re-**LÉI**-shon / kou-**VÉ**-ri-ans | correlación / covarianza | — |
-| hypothesis / hypotheses | jai-**PÁ**-dhe-sis / jai-**PÁ**-dhe-siz | hipótesis (sing. / pl.) | p-value |
+| hypothesis / hypotheses | jai-**PÁ**-ze-sis / jai-**PÁ**-ze-siz | hipótesis (sing. / pl.) | p-value |
 | entropy / cross-entropy | **ÉN**-tro-pi / kros **ÉN**-tro-pi | entropía / entropía cruzada | loss de clasificación |
 | Euclidean distance | iu-**KLÍ**-di-an **DÍS**-tans | distancia euclidiana | — |
 | cosine similarity | **KÓU**-sain si-mi-**LÁ**-ri-ti | similitud coseno | embeddings |
@@ -1578,7 +1578,7 @@ El inglés técnico construye palabras como piezas de LEGO: raíz + prefijo + su
 
 💡 Consejo: cuando veas una palabra larga como **"deserialization"**, pártela: de- (deshacer) + serial + -ize (convertir) + -ation (proceso) = "el proceso de deshacer la serialización".
 
-⚠️ Cuidado: no inventes palabras con sufijos que no existen: es **"configurable"**, no "configurationable"; **"optimal"**, no "optimizable" cuando quieres decir "óptimo".
+⚠️ Cuidado: no inventes palabras con sufijos que no existen: es **"configurable"**, no "configurationable". Y no mezcles **optimize** (verbo: optimizar) con **optimal** (adjetivo: óptimo).
 
 ## 🔗 Phrasal verbs de programación
 
@@ -2016,7 +2016,7 @@ Código: `for (let i = 0; i < arr.length; i++) { sum += arr[i]; }`
 | fixed | t | fikst |
 | deployed | d | di-**PLÓID** |
 | updated | id | ap-**DÉI**-tid |
-| merged | d | merchd |
+| merged | d | merdyd |
 | parsed | t | parst |
 | tests | s | tests |
 | files | z | failz |
