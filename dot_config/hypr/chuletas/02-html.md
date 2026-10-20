@@ -56,11 +56,11 @@ Estructura y significado : HTML — qué es cada cosa (la base de todo)
 2004 : Navegadores fundan el WHATWG
 2014 : HTML5 Recomendación del W3C
 2019 : W3C y WHATWG: un solo HTML Living Standard
-2024 : popover y details exclusivos en todos los navegadores
+2024 : popover y <details name> (acordeón exclusivo) en todos los navegadores
 2026 : hoy — el estándar se actualiza continuamente
 ```
 
-🧠 Concepto: **HTML Living Standard** (estándar vivo) es la especificación oficial actual, mantenida por el **WHATWG** (grupo formado por Apple, Google, Mozilla y Microsoft). Ya no hay "HTML6": el estándar se actualiza poco a poco y cada navegador implementa las novedades.
+🧠 Concepto: **HTML Living Standard** (estándar vivo) es la especificación oficial actual, mantenida por el **WHATWG** (fundado en 2004 por Apple, Mozilla y Opera; hoy lo dirigen Apple, Google, Mozilla y Microsoft). Ya no hay "HTML6": el estándar se actualiza poco a poco y cada navegador implementa las novedades.
 
 💡 Consejo: cuando busques si algo funciona en todos los navegadores, mira **caniuse.com** o la etiqueta **Baseline** en MDN ("Baseline 2024" = funciona en Chrome, Edge, Firefox y Safari desde 2024).
 
@@ -1776,7 +1776,7 @@ El HTML de hoy ya hace cosas que antes exigían librerías de JavaScript. Mira s
 2022 : <dialog> disponible en todos los navegadores
 2023 : loading=lazy y fetchpriority comunes
 2024 : popover y @starting-style en Baseline
-2025 : View Transitions entre páginas, customizable select (en progreso)
+2025 : View Transitions entre páginas (Chrome y Safari), select personalizable (Chrome 135; Safari 27)
 2026 : hoy — algunas funciones siguen experimentales
 ```
 
@@ -1833,8 +1833,8 @@ El HTML de hoy ya hace cosas que antes exigían librerías de JavaScript. Mira s
 | `loading="lazy"` | Carga diferida | IntersectionObserver a mano |
 | `inert` | Bloquear zonas | Trampas de foco manuales |
 | `<search>` | Región de búsqueda | `role="search"` |
-| `<selectedcontent>` / select personalizable | Selects con estilo propio | Dropdowns hechos con `div` (⚠️ en progreso) |
-| View Transitions API | Animaciones entre vistas/páginas | Librerías de animación de rutas |
+| `<selectedcontent>` / select personalizable | Selects con estilo propio | Dropdowns hechos con `div` (⚠️ Chrome/Edge 135 y Safari 27; Firefox aún no) |
+| View Transitions API | Animaciones entre vistas/páginas (entre páginas: sin Firefox) | Librerías de animación de rutas |
 | Declarative Shadow DOM | Web Components con SSR | Hidratación manual |
 | `<model>`, `<geolocation>` | Propuestas de elementos nuevos | ⚠️ experimentales: no usar aún |
 
@@ -1975,6 +1975,7 @@ Crea un custom element con Shadow DOM con un botón que muestre cuántas veces s
 class ContadorClics extends HTMLElement {
   #n = 0;
   connectedCallback() {
+    if (this.shadowRoot) return;               // si lo mueven en el DOM, no repetir
     this.#n = Number(this.getAttribute("inicio") ?? 0);
     this.attachShadow({ mode: "open" });
     const boton = document.createElement("button");

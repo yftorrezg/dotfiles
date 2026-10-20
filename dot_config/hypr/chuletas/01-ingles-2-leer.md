@@ -43,7 +43,7 @@ Cada tipo de texto técnico usa **su** tiempo verbal: las docs usan presente sim
 
 ### 1️⃣ Presente simple: la voz de la documentación
 
-Describe hechos permanentes: qué hace una función, qué acepta, qué devuelve. Con **he/she/it** (y cualquier sujeto en singular: *the function*, *this method*) el verbo lleva **-s**.
+Describe hechos permanentes: qué hace una función, qué acepta, qué devuelve. Con **he/she/it** (y cualquier sujeto en singular: "the function", "this method") el verbo lleva **-s**.
 
 | Estructura | Cuándo se usa | Ejemplo en docs/código | Traducción |
 |---|---|---|---|
@@ -329,7 +329,7 @@ Las docs están llenas de "**if** this, **then** that". Hay cuatro tipos de cond
 
 ⚠️ Cuidado: no pongas **will** después de **if** en el condicional 1: ❌ "If it will fail, ..." → ✅ "If it **fails**, ...". Lo mismo con **when**: ✅ "**When** the user **clicks**, ..."
 
-💡 Consejo: **if** vs **whether**: en "I don't know **whether** it's a bug" se puede usar *if*, pero después de preposición o antes de *to* solo vale **whether**: "decide **whether to** retry".
+💡 Consejo: **if** vs **whether**: en "I don't know **whether** it's a bug" se puede usar "if", pero después de preposición o antes de *to* solo vale **whether**: "decide **whether to** retry".
 
 ### 🧬 Gerundio (-ing) vs infinitivo (to + verbo)
 
@@ -400,6 +400,13 @@ Los artículos son **el gran error del hispanohablante**: los ponemos donde no v
 | array, object, integer | **an** array, **an** object, **an** integer | Vocal |
 | UI, USB | **a** UI, **a** USB drive | "iu" |
 
+```flujo
+dir: abajo
+Sustantivo -> ¿Contable singular? : primera pregunta
+¿Contable singular? -> a / an / the : sí, siempre artículo
+¿Contable singular? -> Sin artículo : plural o incontable en general
+```
+
 ### 🚫 Cuándo NO poner "the" (aunque en español sí)
 
 | ❌ Calco del español | ✅ Inglés correcto | Por qué |
@@ -431,7 +438,7 @@ Los artículos son **el gran error del hispanohablante**: los ponemos donde no v
 | Singular | Plural | Uso real | Nota |
 |---|---|---|---|
 | index | indices / indexes | "array **indices**", "database **indexes**" | Matemáticas y arrays: indices; bases de datos: indexes |
-| matrix | matrices | "multiply two **matrices**" | Se dice "méi-tri-sis" |
+| matrix | matrices | "multiply two **matrices**" | Se dice "MÉI-tri-siz" |
 | vertex | vertices | "the graph has 5 **vertices**" | Geometría y grafos |
 | vortex / apex | vortices / apices | raro en código | — |
 | datum | data | "the **data is** clean" | En código, data se usa como incontable: "data is" |
@@ -500,7 +507,7 @@ Los artículos son **el gran error del hispanohablante**: los ponemos donde no v
 
 ## 📍 Preposiciones, comparativos y superlativos
 
-Las preposiciones no se traducen 1 a 1 desde el español: "en" puede ser *in*, *on* o *at*; "por" puede ser *by*, *per*, *for* o *via*. En docs aparecen siempre en las mismas combinaciones, así que apréndelas **en bloque**.
+Las preposiciones no se traducen 1 a 1 desde el español: "en" puede ser "in", "on" o "at"; "por" puede ser "by", "per", "for" o "via". En docs aparecen siempre en las mismas combinaciones, así que apréndelas **en bloque**.
 
 ### 📌 in / on / at en contexto técnico
 
@@ -759,7 +766,7 @@ Todos los cometemos porque traducimos desde el español. Aprenderlos de memoria 
 | realize a task | **carry out** / **do** / **perform** a task | realize = darse cuenta |
 | a sensible data | **sensitive** data | sensible = sensato |
 | I'm exited | I'm **excited** | exited = salió (de un proceso) |
-| the login is broken (verbo) | I can't **log in** | verbo separado |
+| I can't login | I can't **log in** | verbo separado |
 | open the computer | **turn on** the computer | open = abrir físicamente |
 | close the light | **turn off** the light | luces y aparatos: turn on/off |
 | the career of Computer Science | the Computer Science **degree / program** | career = trayectoria profesional |
@@ -768,7 +775,7 @@ Todos los cometemos porque traducimos desde el español. Aprenderlos de memoria 
 | win money | **earn** money | earn = ganar trabajando |
 | I'm learning about the course | I'm **taking** the course | take a course |
 | the last version (la más nueva) | the **latest** version | latest = más reciente |
-| a lot of money (contable) | many / a lot of bugs | a lot of vale para ambos; many solo contables |
+| many money | a lot of money / much money | money es incontable: no lleva many |
 | programmation | programming | programmation no existe |
 | a computation engineer | a computer engineer / software engineer | — |
 | carpet | folder / directory | carpet = alfombra |
@@ -793,6 +800,18 @@ Todos los cometemos porque traducimos desde el español. Aprenderlos de memoria 
 | Adress | address | doble d, doble s |
 | Comit, comited | commit, committed | doble t al añadir -ed |
 | 1.000 users / 3,5 MB | 1,000 users / 3.5 MB | En inglés la coma separa miles y el punto decimales |
+
+::: columnas
+### ❌ Mal
+- "It don't work."
+- "The function return a list."
+- "Is possible to do it."
+::: siguiente
+### ✅ Bien
+- "It **doesn't** work."
+- "The function **returns** a list."
+- "**It is** possible to do it."
+:::
 
 ⚠️ Cuidado: el formato numérico al revés del español causa bugs reales: `float("3,5")` lanza `ValueError` en Python. En código siempre punto decimal.
 
@@ -1206,7 +1225,7 @@ Casi todos los errores siguen la forma **Tipo: qué pasó + dónde**. El texto l
 |---|---|---|---|
 | expected | iks-PÉK-tid | se esperaba | `SyntaxError: expected ':'` |
 | unexpected | an-iks-PÉK-tid | inesperado | `Unexpected token '}'` |
-| undefined | an-di-FÁINT | no definido | `x is not defined` / `undefined` |
+| undefined | an-di-FÁIND | no definido | `x is not defined` / `undefined` |
 | undeclared | an-di-KLÉRD | no declarado | `'b' undeclared` |
 | unresolved | an-ri-SÓLVD | no resuelto (no se encontró) | `unresolved import`, `Unresolved reference` |
 | missing | MÍ-sing | falta | `missing 1 required positional argument` |
@@ -1253,7 +1272,7 @@ Casi todos los errores siguen la forma **Tipo: qué pasó + dónde**. El texto l
 | stale | steil | desactualizado, caducado | `stale file handle`, `stale cache` |
 | dangling | DÁNG-ling | colgante, que apunta a nada | `dangling pointer` |
 | detached | di-TÁCHT | separado | `detached HEAD` |
-| diverged | dai-VÉRCHD | divergido | `have diverged` |
+| diverged | dai-VÉRDYD | divergido | `have diverged` |
 | hint | jint | pista | `hint: Updates were rejected...` |
 | traceback / stack trace | TRÉIS-bak | rastro de llamadas | `Traceback (most recent call last)` |
 
@@ -1318,6 +1337,15 @@ TypeError: Cannot read properties of undefined (reading 'name')
 | 4 | Lee esa línea y la anterior | ¿Qué valor tenía cada variable? |
 | 5 | Si no lo entiendes, busca el mensaje **sin tus nombres** | `TypeError: Cannot read properties of undefined (reading` + lenguaje |
 
+```flujo
+dir: abajo
+Error -> Tipo : TypeError, KeyError...
+Tipo -> Mensaje : palabra clave
+Mensaje -> Tu línea : salta site-packages
+Tu línea -> Valores : qué valía cada variable
+Valores -> Buscar : mensaje sin tus nombres
+```
+
 ⚠️ Cuidado: el error de los principiantes es leer **solo** la primera línea del traceback de Python (que es la más lejana) o copiar en Google el mensaje con tus rutas (`/home/yafer/...`). Quita rutas, nombres de variables y números propios.
 
 ⚠️ Cuidado: un **warning** no detiene el programa, un **error** sí. Pero los warnings de deprecación de hoy son los errores de mañana: léelos.
@@ -1326,7 +1354,7 @@ TypeError: Cannot read properties of undefined (reading 'name')
 
 ## 🐍 Errores de Python
 
-Python tiene los mensajes de error más legibles: casi son frases completas. Desde Python 3.10 incluso sugieren la solución ("**Did you mean**...?") y marcan la columna con `^^^^`. Estos son los que te vas a encontrar el 95% de las veces.
+Python tiene los mensajes de error más legibles: casi son frases completas. Desde Python 3.10 incluso sugieren la solución ("**Did you mean**...?") y desde 3.11 marcan con `^^^^` la parte exacta que falló. Estos son los que te vas a encontrar el 95% de las veces.
 
 ### 🔤 Sintaxis e indentación (antes de ejecutar)
 
@@ -1369,7 +1397,7 @@ Python tiene los mensajes de error más legibles: casi son frases completas. Des
 | `IndexError: list index out of range` | Índice fuera de rango | `lista[5]` con 5 elementos (empieza en 0) | Revisa `len()` y los bucles |
 | `KeyError: 'email'` | La clave no existe | JSON distinto al esperado | `d.get("email")` o `"email" in d` |
 | `ValueError: invalid literal for int() with base 10: 'abc'` | Texto que no es número | `int("abc")`, `int("3.5")` | Valida la entrada; `float()` para decimales |
-| `ValueError: too many values to unpack (expected 2)` | Sobran valores al desempaquetar | `a, b = [1, 2, 3]` | Ajusta variables o usa `*rest` |
+| `ValueError: too many values to unpack (expected 2, got 3)` | Sobran valores al desempaquetar | `a, b = [1, 2, 3]` | Ajusta variables o usa `*rest` |
 | `ValueError: not enough values to unpack (expected 3, got 2)` | Faltan valores | `a, b, c = (1, 2)` | Revisa la forma de los datos |
 | `ValueError: list.remove(x): x not in list` | El elemento no está | `remove` de algo que no existe | Comprueba con `in` antes |
 | `ZeroDivisionError: division by zero` | División entre cero | Lista vacía al sacar una media | Comprueba el divisor |
@@ -1378,6 +1406,25 @@ Python tiene los mensajes de error más legibles: casi son frases completas. Des
 | `AssertionError` | Falló un `assert` | Una condición que creías cierta no lo es | Mira qué valor tenía |
 | `KeyboardInterrupt` | Interrumpido por teclado | Pulsaste Ctrl+C | Nada (o captúralo para limpiar) |
 | `MemoryError` | Sin memoria | Cargaste demasiados datos | Procesa por trozos (chunks) |
+
+```arbol
+Exception
+  SyntaxError
+    IndentationError
+      TabError
+  LookupError
+    IndexError
+    KeyError
+  ArithmeticError
+    ZeroDivisionError
+  ImportError
+    ModuleNotFoundError
+  OSError
+    FileNotFoundError
+    PermissionError
+  ValueError
+    UnicodeError
+```
 
 ### 📦 Archivos, imports, codificación y entornos
 
@@ -1430,7 +1477,7 @@ En JavaScript el error importante va **arriba** del stack. En el navegador apare
 | `TypeError: user.getName is not a function` | Eso no es una función | Nombre mal escrito, import incorrecto | `console.log(typeof user.getName)` |
 | `TypeError: Assignment to constant variable.` | Reasignas una `const` | `const x = 1; x = 2` | Usa `let` |
 | `TypeError: Converting circular structure to JSON` | Objeto con referencia a sí mismo | `JSON.stringify` de un objeto con ciclos | Quita el ciclo o usa un replacer |
-| `TypeError: Failed to fetch` | La petición no llegó | Servidor caído, CORS, URL mal, sin red | Revisa la pestaña Network |
+| `TypeError: Failed to fetch` (navegador; en Node: `fetch failed`) | La petición no llegó | Servidor caído, CORS, URL mal, sin red | Revisa la pestaña Network |
 | `ReferenceError: x is not defined` | La variable no existe | Error de tipeo o fuera de scope | Declárala o impórtala |
 | `ReferenceError: Cannot access 'x' before initialization` | Usada antes de `let/const` | Temporal Dead Zone | Mueve la declaración arriba |
 | `ReferenceError: require is not defined in ES module scope, you can use import instead` | `require` en un módulo ES | `"type": "module"` en package.json | Usa `import` |
@@ -1443,6 +1490,13 @@ En JavaScript el error importante va **arriba** del stack. En el navegador apare
 | `RangeError: Maximum call stack size exceeded` | Pila de llamadas desbordada | Recursión infinita o `setState` en bucle | Busca la función que se llama a sí misma |
 | `RangeError: Invalid array length` | Longitud de array inválida | `new Array(-1)` | Valida el número |
 | `Uncaught (in promise) TypeError: ...` | Promesa rechazada sin manejar | Falta `try/catch` o `.catch` | Envuelve el `await` en `try/catch` |
+
+```secuencia
+Navegador -> API : OPTIONS /data (preflight)
+API --> Navegador : sin Access-Control-Allow-Origin
+nota Navegador : bloqueado por CORS
+Navegador -> API : GET /data (nunca se envía)
+```
 
 ### 🟩 Node.js y servidores
 
@@ -1814,9 +1868,11 @@ Las docs siempre tienen las mismas partes y usan las mismas fórmulas. Si sabes 
 Una **firma** (signature) es el "contrato" de una función: nombre, parámetros, tipos, valores por defecto y tipo de retorno. Aprende a leerla y no necesitarás el ejemplo.
 
 ```python
-open(file, mode='r', buffering=-1, encoding=None, errors=None, newline=None, closefd=True, opener=None)
+open(file, mode='r', buffering=-1, encoding=None, errors=None,
+     newline=None, closefd=True, opener=None)
 sorted(iterable, /, *, key=None, reverse=False)
-def train(model: nn.Module, epochs: int = 10, *, lr: float = 1e-3, **kwargs) -> dict[str, float]: ...
+def train(model: nn.Module, epochs: int = 10, *,
+          lr: float = 1e-3, **kwargs) -> dict[str, float]: ...
 ```
 
 | Pieza | Ejemplo | Significa |
@@ -1872,6 +1928,12 @@ Las especificaciones oficiales (RFC de la IETF, W3C, OpenAPI, protocolos) usan p
 | SHOULD | RECOMMENDED | 🟡 Recomendado | Hazlo salvo que tengas una razón seria y entiendas las consecuencias | "Clients SHOULD retry with backoff." |
 | SHOULD NOT | NOT RECOMMENDED | 🟠 Desaconsejado | No lo hagas salvo razón seria | "You SHOULD NOT cache this response." |
 | MAY | OPTIONAL | 🟢 Opcional | Puedes hacerlo o no; los demás deben funcionar en ambos casos | "The server MAY include a body." |
+
+```capas
+MUST : sí o sí, si no, no cumples
+SHOULD : recomendado, salvo razón seria
+MAY : opcional, los demás deben tolerarlo
+```
 
 ⚠️ Cuidado: en una especificación, **SHOULD** no es un simple consejo: si no lo haces, otros sistemas pueden comportarse mal. Trátalo como "obligatorio salvo excepción justificada".
 
@@ -2054,7 +2116,6 @@ Palabras que se parecen al español pero significan otra cosa. Causan malentendi
 | demand | demanda judicial | exigir, demanda (economía) | "on-**demand** instances" |
 | evidence | evidencia (obvio) | pruebas | "**evidence** of the bug" |
 | extend | extender (papel) | ampliar, heredar | "`class B extends A`" |
-| inhabitable | inhabitable | habitable | — |
 | intoxicated | intoxicado | borracho | intoxicado = poisoned |
 | large | largo | grande | "**large** files"; largo = **long** |
 | parent | pariente | padre o madre, nodo padre | "**parent** directory", "parent node" |
@@ -2072,7 +2133,7 @@ Palabras que se parecen al español pero significan otra cosa. Causan malentendi
 | fault | falta | culpa, fallo | "segmentation **fault**", "it's my **fault**" |
 | comprehensive | comprensivo | completo, exhaustivo | "a **comprehensive** guide" |
 | ultimately | últimamente | en última instancia, al final | últimamente = **lately**, recently |
-| topic / theme | tópico / tema | tema / tema visual | "a dark **theme**"; tópico = cliché |
+| topic | tópico (lugar común) | tema, asunto | "off-**topic**"; tópico = cliché |
 | casualty | casualidad | víctima (accidente) | casualidad = **coincidence** |
 | conductor | conductor (de auto) | director de orquesta, conductor eléctrico | conductor de auto = driver |
 | sensibility | sensibilidad (física) | sensibilidad artística | sensibilidad de un modelo = **sensitivity** (recall) |
@@ -2107,7 +2168,8 @@ Traceback (most recent call last):
   File "/home/yafer/ml/train.py", line 41, in <module>
     loss = criterion(model(batch), labels)
                      ^^^^^^^^^^^^
-  File "/home/yafer/ml/venv/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1736, in _wrapped_call_impl
+  File ".../venv/lib/python3.12/site-packages/torch/nn/modules/module.py",
+    line 1736, in _wrapped_call_impl
     return self._call_impl(*args, **kwargs)
   File "/home/yafer/ml/model.py", line 15, in forward
     return self.fc(x)
@@ -2138,7 +2200,8 @@ sendWelcome(user.email);
 ```
 
 ```text
-src/welcome.ts:6:13 - error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+src/welcome.ts:6:13 - error TS2345: Argument of type 'string | undefined'
+  is not assignable to parameter of type 'string'.
   Type 'undefined' is not assignable to type 'string'.
 ```
 
@@ -2206,7 +2269,8 @@ results of calling a provided function on every element in the calling array.
 
 ```text
 usage: git commit [-a | --interactive | --patch] [-s] [-v] [-u[<mode>]] [--amend]
-                  [--dry-run] [(-c | -C | --squash) <commit> | --fixup [(amend|reword):]<commit>]
+                  [--dry-run] [(-c | -C | --squash) <commit> |
+                  --fixup [(amend|reword):]<commit>]
                   [-F <file> | -m <msg>] [--reset-author] [--allow-empty]
                   [--allow-empty-message] [--no-verify] [-e] [--author=<author>]
                   [--date=<date>] [--cleanup=<mode>] [--[no-]status]

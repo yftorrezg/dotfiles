@@ -12,10 +12,19 @@ El cerebro aprende por repetición espaciada: 20 minutos diarios rinden más que
 | ⏱️ Minutos | 🎯 Qué hacer | 🧪 Ejemplo concreto | 🧠 Por qué funciona |
 |---|---|---|---|
 | 0–5 | Leer algo técnico real | Un apartado de la doc de Python o un README | Vocabulario en contexto real |
-| 5–8 | Anotar 3–5 frases nuevas | **"Defaults to `None`"** = "por defecto vale None" | Frases enteras se recuerdan mejor que palabras |
+| 5–8 | Anotar 3–5 frases nuevas | "Defaults to `None`" = "por defecto vale None" | Frases enteras se recuerdan mejor que palabras |
 | 8–12 | Escuchar e imitar (shadowing) | 1 minuto de un video técnico, repitiendo encima | Entrena oído y boca a la vez |
 | 12–16 | Repasar tarjetas Anki | Las que tocan hoy, diciéndolas en voz alta | Repetición espaciada: no olvidas |
 | 16–20 | Escribir o hablar | Un commit, un comentario o explicar tu código en voz alta | Pasas de entender a producir |
+
+```flujo
+dir: derecha
+Leer -> Anotar : frases
+Anotar -> Imitar : shadowing
+Imitar -> Anki : repasar
+Anki -> Producir : escribir o hablar
+Producir --> Leer : mañana otra vez
+```
 
 ### 📅 Repetición espaciada: cuándo repasar
 
@@ -29,6 +38,15 @@ Cada repaso justo antes de olvidar multiplica cuánto dura el recuerdo. Anki lo 
 | 4º | A la semana | La buscas en código real | grep `returns` en una doc |
 | 5º | A las 2 semanas | La dices sin pensar | En tu standup imaginario |
 | 6º | Al mes | Ya es tuya: sale de la libreta | — |
+
+```tiempo
+Día 0 : 1º repaso, la dices 3 veces
+Día 1 : 2º, reconstruyes la frase
+Día 3 : 3º, la usas en una frase tuya
+Día 7 : 4º, la buscas en código real
+Día 14 : 5º, la dices sin pensar
+Día 30 : 6º, ya es tuya
+```
 
 ### 🃏 Cómo hacer buenas tarjetas Anki
 
@@ -161,6 +179,15 @@ Depende del último sonido del verbo. Solo se añade una sílaba "id" cuando ter
 | **t** | Tras sonido sordo: p, k, f, s, sh, ch | fixed (fikst), pushed (pusht), parsed (parst), cached (kasht), stashed, fetched | "fik-sed", "push-ed" |
 | **d** | Tras sonido sonoro o vocal | logged (logd), deployed (di-PLÓID), merged (merdyd), called, saved, configured | "di-ploi-ed" con sílaba extra |
 | **id** | Tras t o d | updated (ap-DÉI-tid), deleted, added (Á-did), loaded, imported, deprecated, started | Comerse la sílaba: "updat" |
+
+```flujo
+dir: abajo
+Verbo en pasado -> ¿Acaba en t o d? : mira el último sonido
+¿Acaba en t o d? -> id : sí (updated, added)
+¿Acaba en t o d? -> ¿Sonido sordo? : no
+¿Sonido sordo? -> t : sí (fixed, pushed)
+¿Sonido sordo? -> d : no (logged, saved)
+```
 
 ### ✏️ La terminación -s / -es (plural y 3ª persona)
 
@@ -761,6 +788,16 @@ Estas palabras salen en cualquier curso, doc o entrevista. Apréndelas directame
 | pointer / reference | **PÓIN**-ter / **RÉ**-fe-rens | puntero / referencia | `int *p` |
 | empty / full | **ÉMP**-ti / ful | vacío / lleno | "the stack is empty" |
 
+```arbol
+binary tree
+  root
+    left child
+      leaf
+      leaf
+    right child
+      leaf
+```
+
 💡 Consejo: los plurales irregulares salen mucho: index → indices, vertex → vertices, matrix → matrices, child → children, leaf → leaves, datum → data, axis → axes.
 
 ⚠️ Cuidado: **"arreglo"** en inglés es array, no "arrangement". Y "data" es plural en lo formal ("the data are"), pero en código se usa como singular: "the data is loaded". Las dos se aceptan.
@@ -937,6 +974,13 @@ La web es donde más inglés vas a leer: MDN, docs de frameworks, APIs. Casi tod
 | CORS | kors | política de orígenes cruzados | "blocked by CORS policy" |
 | websocket | **UÉB**-sa-ket | conexión bidireccional | chat en tiempo real |
 | polling | **PÓU**-ling | consultar cada cierto tiempo | "long polling" |
+
+```secuencia
+Navegador -> Servidor : GET /users/42
+Servidor --> Navegador : 200 OK + JSON
+Navegador -> Servidor : GET /users/999
+Servidor --> Navegador : 404 Not Found
+```
 
 ### 🚦 Códigos de estado HTTP que más verás
 
@@ -1638,6 +1682,18 @@ Un **phrasal verb** es verbo + partícula (up, out, in, down…) con un signific
 | turn on / turn off | encender / apagar | "Turn off the cache in dev." | — |
 | pick up | tomar, detectar | "The watcher picks up file changes." | pickup |
 | catch up | ponerse al día | "Rebase to catch up with main." | catch-up |
+
+::: columnas
+### ❌ Mal
+- "I need to setup the server."
+- "Please login."
+- "Backup your files."
+::: siguiente
+### ✅ Bien
+- "I need to **set up** the server."
+- "Please **log in**."
+- "**Back up** your files."
+:::
 
 ### 🎯 Verbo separado vs sustantivo junto
 

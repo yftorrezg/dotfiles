@@ -121,15 +121,16 @@ def resaltar(codigo, leng, c):
 
 
 def en_linea(texto, c):
-    """Markdown mínimo de los párrafos: `código` y **negrita** → Pango markup."""
-    salida = []
-    for p in re.split(r"(`[^`]+`)", texto):
-        if p.startswith("`") and p.endswith("`") and len(p) > 1:
-            salida.append(f'<span font_family="{MONO}" background="{c["fondo_cod"]}" foreground="{c["cod_linea"]}">'
-                          f' {html.escape(p[1:-1])} </span>')
-        else:
-            salida.append(re.sub(r"\*\*(.+?)\*\*", r"<b>\1</b>", html.escape(p)))
-    return "".join(salida)
+    """Markdown mínimo de los párrafos: `código` y **negrita** → Pango markup (la negrita puede envolver código)."""
+    trozos = []
+
+    def guardar(m):
+        trozos.append(f'<span font_family="{MONO}" background="{c["fondo_cod"]}" foreground="{c["cod_linea"]}">'
+                      f' {html.escape(m.group(1))} </span>')
+        return f"\x00{len(trozos) - 1}\x00"
+    sin_codigo = re.sub(r"`([^`]+)`", guardar, texto)
+    salida = re.sub(r"\*\*(.+?)\*\*", r"<b>\1</b>", html.escape(sin_codigo, quote=False))
+    return re.sub(r"\x00(\d+)\x00", lambda m: trozos[int(m.group(1))], salida)
 
 
 # --- utilidades -------------------------------------------------------------------------

@@ -63,6 +63,19 @@ Un commit es una nota para tu equipo del futuro (y para ti en 6 meses). Se escri
 
 💡 Consejo: `feat` y `fix` son "para el usuario"; `refactor`, `style`, `test`, `chore` son "para el desarrollador". Si dudas entre `feat` y `refactor`, pregúntate: ¿el usuario nota algo nuevo?
 
+```arbol
+Commit
+  Para el usuario
+    feat : algo nuevo
+    fix : un bug corregido
+    perf : más rápido
+  Para el desarrollador
+    refactor : misma conducta
+    test : pruebas
+    docs : documentación
+    chore : mantenimiento
+```
+
 ### ⚙️ Verbos de commit en imperativo
 
 | Verbo | Significa | Úsalo para | Ejemplo |
@@ -538,6 +551,17 @@ If you know a cleaner pattern for this, I'm open to suggestions.
 
 📌 Por qué funciona: el título usa Conventional Commits; el **Summary** cuenta el problema en lenguaje humano; **Why** da contexto de negocio ("30+ complaints"); **How to test** permite verificarlo en 2 minutos; **Notes** pide ayuda sobre la parte dudosa.
 
+```flujo
+dir: abajo
+Rama -> Commits : pequeños
+Commits -> Push
+Push -> Abrir PR : plantilla completa
+Abrir PR -> Review : PTAL
+Review -> Cambios : comentarios
+Cambios --> Review : otra vuelta
+Review -> Merge : LGTM
+```
+
 ### 📏 PR buenos vs malos
 
 | ❌ PR malo | Riesgo | ✅ PR bueno |
@@ -955,6 +979,18 @@ El email sigue siendo el canal con clientes, reclutadores y empresas extranjeras
 | Rechazar reunión | I'm not available at that time. Would Thursday at 10 am work instead? |
 | Decir que no a una idea | I appreciate the suggestion, but I don't think it fits our current priorities. |
 
+::: columnas
+### ❌ Email flojo
+- Subject: "Hi"
+- "Hello sir, I need access urgent."
+- Cinco preguntas en un párrafo
+::: siguiente
+### ✅ Email claro
+- Subject: "Request: access to staging"
+- Saludo con nombre y contexto en una línea
+- Una petición y un plazo
+:::
+
 ### ✅ Ejemplo 1: pedir acceso (cliente nuevo)
 
 ```text
@@ -1095,6 +1131,15 @@ No blockers, but I might need help with the database schema tomorrow.
 ```
 
 📌 Fíjate: el 2) **nombra a la persona** que puede desbloquearlo; el 3) **avisa antes** y pone un límite ("if I can't find it by noon"); el 4) deja preguntas largas "for later" para no alargar la reunión.
+
+```secuencia
+actores: Líder, Ana, Yafer
+Líder -> Ana : ¿Ayer, hoy, bloqueos?
+Ana --> Líder : Ayer terminé el login. Hoy, tests. Sin bloqueos.
+Líder -> Yafer : ¿Y tú?
+Yafer --> Líder : Sigo con pagos, bloqueado: faltan las API keys.
+nota Líder : se resuelve después del standup
+```
 
 ### 📋 Frases de standup
 
@@ -1496,6 +1541,11 @@ Una entrevista en inglés evalúa tres cosas a la vez: si sabes programar, si **
 | 7 | Negotiation | Negocias salario y condiciones |
 | 8 | Onboarding | Primeras semanas |
 
+```flujo
+Application -> Recruiter call -> Technical -> Team interview -> Offer -> Onboarding
+Technical --> Application : rejected
+```
+
 🇬🇧 Vocabulario: "**I'm moving forward** in the process" (avanzo), "**They rejected me** / **I didn't get the offer**", "**I got ghosted**" (no respondieron más), "**next steps**" (siguientes pasos), "**hiring freeze**" (congelación de contrataciones).
 
 ## 🙂 "Tell me about yourself" y método STAR
@@ -1829,12 +1879,12 @@ Trabajar para afuera desde Bolivia es realista, pero hay un vocabulario de contr
 | flexible hours | horario flexible |
 | on-call rotation | guardias rotativas |
 
-| Zona | Diferencia con Bolivia (UTC−4) | Overlap típico |
+| Zona | Diferencia con Bolivia (UTC−4), verano / invierno de ellos | Overlap típico |
 |---|---|---|
 | US Eastern (New York) | 0 h (su verano) / −1 h (su invierno) | Casi total |
 | US Pacific (San Francisco) | −3 / −4 h | Su mañana = tu mediodía |
-| Europe (Madrid, Berlín) | +5 / +6 h | Tu mañana = su tarde |
-| UK (Londres) | +4 / +5 h | Tu mañana |
+| Europe (Madrid, Berlín) | +6 / +5 h | Tu mañana = su tarde |
+| UK (Londres) | +5 / +4 h | Tu mañana |
 
 🇬🇧 "What are the **core hours**?", "How much **timezone overlap** do you need?", "I'm in **GMT−4**; I can overlap with **Eastern Time** almost entirely."
 
@@ -1853,7 +1903,7 @@ Trabajar para afuera desde Bolivia es realista, pero hay un vocabulario de contr
 
 ⚠️ Cuidado: nunca digas **la primera cifra demasiado baja** "para asegurar el trabajo". En remoto, las empresas tienen un presupuesto; si pides poco, te dan poco y además pareces junior. Investiga en Glassdoor, Levels.fyi o pregunta en comunidades.
 
-💡 Consejo: como contractor, pide **más** que como empleado: tú pagas impuestos, equipo, internet, salud y no tienes vacaciones pagadas (salvo que se negocien). Una regla común es +20–40 %.
+💡 Consejo: como contractor, pide **más** que como empleado: tú pagas impuestos, equipo, internet, salud y no tienes vacaciones pagadas (salvo que se negocien). Algunos freelancers usan un recargo de +20–40 % (orientativo).
 
 ### 🚩 Señales de alerta (red flags)
 
@@ -1992,6 +2042,14 @@ La fluidez profesional viene de **usar** el inglés en tareas reales, no de estu
 | 29 | LinkedIn | Headline, About y 2 proyectos en inglés | 40 min |
 | 30 | Simulacro | Entrevista simulada con un amigo, Exponent o un LLM con voz | 60 min |
 
+```tiempo
+Días 1-5 : Entorno en inglés y commits
+Días 6-14 : Issues, PRs, preguntas y chat
+Días 15-21 : Emails, standup, reuniones, jerga
+Días 22-27 : Tell me about yourself, STAR, live coding
+Días 28-30 : Resume, LinkedIn y simulacro
+```
+
 ### 🗺️ Plan de 90 días
 
 | Mes | Meta | Hábitos semanales | Entregable al final |
@@ -2034,7 +2092,7 @@ La fluidez profesional viene de **usar** el inglés en tareas reales, no de estu
 | Never Split the Difference (Chris Voss) | Libro | Intermedio | Negociación (salario, clientes) |
 | LeetCode / NeetCode.io | Práctica | Intermedio | Problemas de entrevista |
 | Exercism | Práctica | Básico | Ejercicios con mentoría en inglés |
-| Exponent (antes Pramp) | Simulacros | Intermedio | Entrevistas simuladas entre pares |
+| Exponent (adquirió Pramp) | Simulacros | Intermedio | Entrevistas simuladas entre pares |
 | interviewing.io | Simulacros | Avanzado | Entrevistas anónimas con ingenieros |
 | italki / Cambly / Preply | Tutores | Todos | Conversación con nativos |
 | Tandem / HelloTalk | Intercambio | Básico | Practicar a cambio de enseñar español |
