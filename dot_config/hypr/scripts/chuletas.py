@@ -91,7 +91,7 @@ def _patron(leng):
     prop_css = r"|(?P<prop>[\w-]+(?=\s*:[^:]))" if leng == "css" else ""
     return re.compile(rf"""(?P<com>{COMENTARIO[leng]}){etiqueta_html}{clave_yaml}{prop_css}"""
                       r"""|(?P<txt>"(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*'|`[^`]*`)"""
-                      r"""|(?P<num>\b\d+(?:\.\d+)?(?:px|rem|em|ms|s|fr|vh|vw|%)?\b)|(?P<pal>[@!]?[A-Za-z_][\w-]*)|(?P<otro>.)""",
+                      r"""|(?P<num>\b\d+(?:\.\d+)?(?:px|rem|em|ms|s|fr|vh|vw|%)?\b)|(?P<pal>[@!]?[A-Za-z_][\w-]*)|(?P<otro>.|\n)""",
                       re.M | re.S if leng in ("css", "html") else re.M)
 
 
