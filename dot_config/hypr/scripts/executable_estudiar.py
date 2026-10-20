@@ -200,14 +200,32 @@ def _texto(v):
     return v.strip() if isinstance(v, str) else ""
 
 
-def preguntas_pretest(clase, n=N_PRETEST):
-    """[(pregunta, respuesta)] para el pre-test. Primero las preguntas del resumen (repartidas:
+def duracion_clase(clase):
+    """Segundos de la clase: el minuto de la última captura (.minutos.tsv: `0001.webp<TAB>hh-mm-ss`). 0 si no se sabe."""
+    try:
+        with open(os.path.join(clase, ".minutos.tsv"), encoding="utf-8") as f:
+            ultima = [l for l in f.read().splitlines() if l.strip()][-1]
+        h, m, seg = (int(x) for x in ultima.split("\t")[1].split("-"))
+        return h * 3600 + m * 60 + seg
+    except (OSError, IndexError, ValueError):
+        return 0
+
+
+def n_pretest(segundos):
+    """Preguntas del pre-test según la duración: 3 (hasta ~10 min) a 10 (2 h o más). Misma fórmula que
+    cuadernillo.n_pretest (aquí copiada para no cargar cuadernillo.py)."""
+    return max(N_PRETEST, min(10, round(3 + segundos / 60 / 15)))
+
+
+def preguntas_pretest(clase, n=None):
+    """[(pregunta, respuesta)] para el pre-test (n según la duración de la clase). Primero las preguntas del resumen (repartidas:
     primera, del medio y última, así cubren toda la clase); si faltan, conceptos de los apuntes
     como '¿Qué es X?' (los de definición más larga: los triviales no sirven para decidir)."""
     corto = leer_json(os.path.join(clase, ".resumen-ia.json"))
     preg = [(_texto(p.get("pregunta")), _texto(p.get("respuesta")))
             for p in (corto.get("preguntas") or []) if isinstance(p, dict)] if isinstance(corto, dict) else []
     preg = [p for p in preg if p[0] and p[1]]
+    n = n or n_pretest(duracion_clase(clase))
     if len(preg) > n:
         idx = sorted({round(i * (len(preg) - 1) / (n - 1)) for i in range(n)}) if n > 1 else [0]
         preg = [preg[i] for i in idx]

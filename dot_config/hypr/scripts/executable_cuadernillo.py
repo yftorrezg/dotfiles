@@ -35,7 +35,17 @@ spec = importlib.util.spec_from_file_location("ac", os.path.join(AQUI, "auto-cap
 ac = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(ac)
 
-CAPTURAS_A_LA_VISTA = 4   # capturas visibles por sección (el resto queda plegado)
+CAPTURAS_A_LA_VISTA = 4   # capturas visibles por sección si no hay esenciales (el resto queda plegado)
+
+
+def n_preguntas(segundos):
+    """Preguntas de autoevaluación/tarjetas según la duración: 3 (video corto) hasta 25 (3 h o más)."""
+    return max(3, min(25, round(3 + segundos / 60 / 5)))
+
+
+def n_pretest(segundos):
+    """Preguntas del pre-test (SUPER+I): 3 hasta 10."""
+    return max(3, min(10, round(3 + segundos / 60 / 15)))
 TOLERANCIA_SUPERADA = 120  # pedazos de fila sin cubrir tolerados (~2 líneas: mouse, un número que cambió)
 
 
@@ -205,6 +215,7 @@ def elegir_clave(carpeta, nombres, segundo):
     if clave is None:
         return None
     clave = set(clave)
+    cc.esenciales(carpeta)  # la mitad de las clave: son las que quedan a la vista en apuntes.md
     tx = cc.textos(carpeta, nombres) or {}
     salida, anterior = [], collections.Counter()
     for f in nombres:
@@ -353,10 +364,10 @@ Responde SOLO con un objeto JSON válido (sin ``` ni texto extra) con esta forma
 
 Reglas:
 - Secciones = temas reales de la clase (una cada 5-15 minutos aprox.; en videos cortos, menos), en orden, cubriendo TODO el video. "inicio" debe ser una marca de tiempo que aparezca en la transcripción o en el texto de pantalla.
-- 6 a 12 conceptos. Términos técnicos en su forma original (backpropagation, tensor, loss...) con la explicación en español.
+- 6 a 12 conceptos (hasta 20 si la clase dura más de 1 hora). Términos técnicos en su forma original (backpropagation, tensor, loss...) con la explicación en español.
 - Corrige errores obvios de la transcripción automática (nombres de funciones, términos técnicos).
 - Si agregas algo que NO se dice ni se ve en la clase (un complemento útil), márcalo con "(extra)" al final del punto.
-- "corto" es una hoja de repaso MUCHO más corta (3-5 minutos de lectura): "chuleta" 4 a 12 filas con lo más usado en la práctica; "codigo" 0 a 3 fragmentos que resumen la clase; "mapa" 3 a 8 bloques que agrupen las secciones; "preguntas" 3 a 6, de entender (por qué / qué pasa si), no de memorizar nombres.
+- "corto" es una hoja de repaso MUCHO más corta (3-5 minutos de lectura): "chuleta" 4 a 12 filas con lo más usado en la práctica; "codigo" 0 a 3 fragmentos que resumen la clase; "mapa" 3 a 8 bloques que agrupen las secciones; "preguntas" EXACTAMENTE {n_preg}, repartidas por TODO el video (al menos una por cada bloque del "mapa", y más en las partes largas), de entender (por qué / qué pasa si), no de memorizar nombres.
 - Si hay "CÓDIGO DE ESTA CLASE (exacto)", es el código que entregó el profe: el "codigo" de las secciones y del repaso debe salir de ahí, tal cual (nombres, valores), en el orden en que se explica en la clase.
 - Si hay "PROYECTO TERMINADO", es más avanzado que esta clase: úsalo solo para corregir errores del OCR y nombres; NO pongas código que todavía no se escribió en esta clase.
 - Si hay "LECTURA DEL CURSO", es parte de la clase: inclúyela en los apuntes (resumen, conceptos y una sección propia).
@@ -442,7 +453,7 @@ def pedir_a_claude(titulo, duracion, cues, pantallas, codigo=""):
         extra = ("\nTexto leído de la PANTALLA (OCR, puede tener errores de lectura) en algunos momentos;"
                  " sirve para el código exacto y los datos que se ven:\n<<<\n"
                  + "\n\n".join(f"[{hms(t)}]\n{txt}" for t, txt in pantallas) + "\n>>>\n")
-    prompt = PROMPT.format(titulo=titulo, duracion=hms(duracion), transcripcion=transcripcion,
+    prompt = PROMPT.format(titulo=titulo, duracion=hms(duracion), n_preg=n_preguntas(duracion), transcripcion=transcripcion,
                            pantallas=extra + (f"\nMaterial que entrega el curso (recursos.py):\n<<<\n{codigo}\n>>>\n" if codigo else ""))
     for intento in range(2):
         texto = consultar_ia(prompt)
@@ -607,6 +618,12 @@ def armar(carpeta, titulo, capturas, subs, datos, duracion, recursos_md=""):
     cues_es = subs.get("es") or subs.get("en") or []
     idioma_txt = "español" if subs.get("es") else ("inglés" if subs.get("en") else None)
     importantes = [c for c in capturas if c[2]]
+    esenciales = set()
+    if os.environ.get("CAPTURAS_CLAVE") != "0":
+        try:  # las deja capturas_clave.esenciales() al elegir las importantes
+            esenciales = set(open(os.path.join(carpeta, cc.ESENCIALES), encoding="utf-8").read().splitlines()[1:])
+        except OSError:
+            pass
 
     if datos:
         secciones = []
@@ -625,8 +642,8 @@ def armar(carpeta, titulo, capturas, subs, datos, duracion, recursos_md=""):
         s["fin"] = secciones[k + 1]["ini"] if k + 1 < len(secciones) else duracion + 1
 
     L = [f"# 📓 {titulo}", ""]
-    L += [f"> ⏱️ **Duración:** {hms(duracion)} · 📸 **Capturas:** {len(importantes)} importantes "
-          f"(de {len(capturas)}) · 📚 **Secciones:** {len(secciones)}", ""]
+    L += [f"> ⏱️ **Duración:** {hms(duracion)} · 📸 **Capturas:** {len(esenciales) or len(importantes)} a la vista "
+          f"({len(importantes)} clave de {len(capturas)}) · 📚 **Secciones:** {len(secciones)}", ""]
     if datos:
         L += ["## 🎯 Resumen de la clase", ""]
         L += [f"- {p}" for p in datos.get("resumen", [])] + [""]
@@ -649,8 +666,11 @@ def armar(carpeta, titulo, capturas, subs, datos, duracion, recursos_md=""):
             L += [f"```{s.get('lenguaje') or ''}", s["codigo"].strip("\n"), "```", ""]
         caps = [c for c in importantes if s["ini"] <= c[1] < s["fin"]]
         if caps:
-            # a la vista: la última de la sección (estado final) + las de más novedad
-            elegidas = {caps[-1][0]} | {c[0] for c in sorted(caps[:-1], key=lambda c: -c[3])[:CAPTURAS_A_LA_VISTA - 1]}
+            # a la vista: las esenciales de la sección (la mitad de las clave); si no hay, la última
+            # (estado final) + las de más novedad. El resto queda plegado.
+            elegidas = {c[0] for c in caps if c[0] in esenciales}
+            if not elegidas:
+                elegidas = {caps[-1][0]} | {c[0] for c in sorted(caps[:-1], key=lambda c: -c[3])[:CAPTURAS_A_LA_VISTA - 1]}
             for c in caps:
                 if c[0] in elegidas:
                     L += [f"![⏱️ {hms(c[1])}]({c[0]})", f"*⏱️ {hms(c[1])}*", ""]

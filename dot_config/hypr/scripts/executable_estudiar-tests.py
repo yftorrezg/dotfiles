@@ -160,6 +160,14 @@ d = clase(os.path.join(TMP, "pre", "d"))                                      # 
 assert es.preguntas_pretest(d) == []
 open(os.path.join(d, ".resumen-ia.json"), "w").write("{roto")                 # JSON roto: no revienta
 assert es.preguntas_pretest(d) == [] and es.info_clase(d)["idea"] == ""
+# más preguntas en clases largas: n según la duración (.minutos.tsv), repartidas por toda la clase
+largas = [{"pregunta": f"¿Q{i}?", "respuesta": f"R{i}."} for i in range(30)]
+d = clase(os.path.join(TMP, "pre", "e"), corto={"preguntas": largas})
+open(os.path.join(d, ".minutos.tsv"), "w").write("0001.webp\t00-00-05\n0002.webp\t01-30-00\n")
+assert es.duracion_clase(d) == 5400 and es.n_pretest(5400) == 9 and es.n_pretest(120) == 3 and es.n_pretest(99999) == 10
+got = es.preguntas_pretest(d)
+assert len(got) == 9 and got[0][0] == "¿Q0?" and got[-1][0] == "¿Q29?", got
+assert len(es.preguntas_pretest(d, n=3)) == 3 and es.duracion_clase(os.path.join(TMP, "no-existe")) == 0
 assert es.md_pango("¿Qué es **x** y `a<b>`?") == "¿Qué es <b>x</b> y <tt>a&lt;b&gt;</tt>?"
 ok += 1
 

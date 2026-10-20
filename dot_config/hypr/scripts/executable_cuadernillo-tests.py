@@ -214,5 +214,89 @@ os.remove(os.path.join(d, "subtitulos.es-orig.srt")); open(os.path.join(d, ".idi
 prueba("curso en inglés (.idioma): el inglés", c.subs_para_claude(d, {"es": es, "en": en}) == en)
 shutil.rmtree(d)
 
+# 8) Niveles de capturas: esenciales ⊆ clave ⊆ amplia, esenciales ≈ la mitad; n_preguntas según la duración
+cc = c.cc
+prueba("n_preguntas: 1 min, 10 min, 1 h, 3 h, 5 h = 3, 5, 15, 25, 25",
+       [c.n_preguntas(x) for x in (60, 600, 3600, 10800, 18000)] == [3, 5, 15, 25, 25],
+       str([c.n_preguntas(x) for x in (60, 600, 3600, 10800, 18000)]))
+prueba("n_pretest: 1 min, 10 min, 1 h, 3 h = 3, 4, 7, 10",
+       [c.n_pretest(x) for x in (60, 600, 3600, 10800)] == [3, 4, 7, 10], str([c.n_pretest(x) for x in (60, 600, 3600, 10800)]))
+# una clase de 20 diapositivas, todas distintas (cada una con su propio texto): todas son clave
+temas = ["variables", "funciones", "objetos", "arreglos", "promesas", "eventos", "modulos", "clases", "tipos", "bucles",
+         "cierres", "prototipos", "async", "errores", "regex", "fechas", "mapas", "sets", "proxies", "tests"]
+frames = []
+for n, tema in enumerate(temas):
+    v = t.Video()
+    v.lineas = [f"Diapositiva {n}: {tema}"] + [f"  {tema} ejemplo {palabra}" for palabra in
+                                                ("declarar", "recorrer", "copiar", "comparar", "borrar", "mostrar")]
+    frames.append((30 * n, v._frame()))
+d = carpeta_de(frames)
+amplia = cc.elegir(d, nivel="amplia")
+clave = cc.elegir(d)
+ese = cc.esenciales(d)
+todas = cc.imagenes(d)
+prueba("niveles: esenciales ⊆ clave ⊆ amplia ⊆ todas",
+       set(ese) <= set(clave) <= set(amplia) <= set(todas) and len(clave) == 20, f"{len(ese)}/{len(clave)}/{len(amplia)}/{len(todas)}")
+prueba("esenciales = la mitad de las clave, y la última está",
+       len(ese) == 10 and clave[-1] in ese, f"{len(ese)} de {len(clave)}")
+os.environ["ESENCIALES_PCT"] = "25"
+prueba("ESENCIALES_PCT cambia el tamaño", len(cc.esenciales(d)) == 5, str(len(cc.esenciales(d))))
+del os.environ["ESENCIALES_PCT"]
+# un .clave.txt viejo (v3) pasa a ser la amplia y no se pierde
+d2 = tempfile.mkdtemp()
+for f in todas[:5]:
+    shutil.copy(os.path.join(d, f), os.path.join(d2, f))
+open(os.path.join(d2, ".clave.txt"), "w").write("# v3 5\n" + "\n".join(todas[:2]) + "\n")
+prueba("clave v3 vieja = amplia (se conserva, no se recalcula)", cc.elegir(d2, nivel="amplia") == todas[:2])
+prueba("la clave nueva queda dentro de la amplia", set(cc.elegir(d2)) <= set(todas[:2]))
+shutil.rmtree(d2)
+
+# lo borrado en un nivel no vuelve y desaparece de los más chicos (armado por curso)
+curso = tempfile.mkdtemp()
+cap = os.path.join(curso, "capturas", "001 Clase")
+shutil.copytree(d, cap)
+open(os.path.join(cap, "apuntes.md"), "w").write("x")
+tl = cc._todas()
+tl.procesar(os.path.join(curso, "capturas"))
+cc.procesar(os.path.join(curso, "capturas"))
+n_todas, n_clave, n_ese = (len([f for f in os.listdir(os.path.join(curso, x)) if f.endswith(".webp")]) for x in ("todas-las-capturas", "capturas-clave", "capturas-esenciales"))
+prueba("carpetas del curso: todas ≥ clave ≥ esenciales", n_todas >= n_clave >= n_ese > 0, f"{n_todas}/{n_clave}/{n_ese}")
+borrada = sorted(f for f in os.listdir(os.path.join(curso, "capturas-clave")) if f.endswith(".webp"))[3]
+os.remove(os.path.join(curso, "capturas-clave", borrada))
+cc.procesar(os.path.join(curso, "capturas"))
+prueba("lo borrado de clave no vuelve", not os.path.exists(os.path.join(curso, "capturas-clave", borrada)))
+borrada2 = sorted(f for f in os.listdir(os.path.join(curso, "todas-las-capturas")) if f.endswith(".webp"))[0]
+os.remove(os.path.join(curso, "todas-las-capturas", borrada2))
+os.remove(os.path.join(curso, "capturas-clave", borrada2)) if os.path.exists(os.path.join(curso, "capturas-clave", borrada2)) else None
+shutil.rmtree(os.path.join(curso, "capturas-clave")); shutil.rmtree(os.path.join(curso, "capturas-esenciales"))
+cc.procesar(os.path.join(curso, "capturas"))
+prueba("lo borrado de todas no aparece en clave ni esenciales",
+       not any(borrada2 in os.listdir(os.path.join(curso, x)) for x in ("capturas-clave", "capturas-esenciales")))
+shutil.rmtree(curso)
+shutil.rmtree(d)
+
+# 9) mas-preguntas.py: completa las preguntas hasta las que tocan por duración (IA simulada, sin video)
+import json
+mp = cargar("mp", "mas-preguntas.py")
+d = tempfile.mkdtemp()
+json.dump({"resumen": ["a"], "conceptos": [], "secciones": [{"inicio": "0:00", "titulo": "Intro", "puntos": ["x"]}]},
+          open(os.path.join(d, ".apuntes-ia.json"), "w"))
+json.dump({"idea": "i", "esencial": ["e"], "preguntas": [{"pregunta": "¿P0?", "respuesta": "R0."}]},
+          open(os.path.join(d, ".resumen-ia.json"), "w"))
+open(os.path.join(d, ".minutos.tsv"), "w").write("0001.webp\t00-00-01\n0002.webp\t00-10-00\n")  # 10 min -> 5 preguntas
+open(os.path.join(d, "apuntes.md"), "w").write("# 📓 Clase de prueba\n")
+pedidos = []
+mp.cu.consultar_ia = lambda prompt, modelo=None: (pedidos.append(prompt) or json.dumps(
+    {"preguntas": [{"pregunta": f"¿N{i}?", "respuesta": f"RN{i}."} for i in range(8)]}))
+pend = mp.pendientes(d)
+prueba("mas-preguntas: detecta la clase con 1 de 5", [(x[2], x[3]) for x in pend] == [(1, 5)], str(pend))
+mp.subprocess.run = lambda *a, **k: None   # sin tarjetas ni panel reales
+prueba("mas-preguntas: agrega exactamente las que faltan", mp.agregar(d, 600, 1, 5) and
+       len(json.load(open(os.path.join(d, ".resumen-ia.json")))["preguntas"]) == 5)
+prueba("mas-preguntas: pide 4 y no repite las existentes", "EXACTAMENTE 4" in pedidos[0] and "- ¿P0?" in pedidos[0])
+prueba("mas-preguntas: resumen.md rehecho con las nuevas", "¿N0?" in open(os.path.join(d, "resumen.md")).read())
+prueba("mas-preguntas: ya completa = nada pendiente", mp.pendientes(d) == [])
+shutil.rmtree(d)
+
 print("\nTODO OK" if all(res) else "\nHAY PRUEBAS QUE FALLAN")
 raise SystemExit(0 if all(res) else 1)
