@@ -130,6 +130,7 @@ def en_linea(texto, c):
         return f"\x00{len(trozos) - 1}\x00"
     sin_codigo = re.sub(r"`([^`]+)`", guardar, texto)
     salida = re.sub(r"\*\*(.+?)\*\*", r"<b>\1</b>", html.escape(sin_codigo, quote=False))
+    salida = re.sub(r"(?<![\w*])\*(?!\s)([^*\n]+?)(?<!\s)\*(?![\w*])", r"<i>\1</i>", salida)  # *cursiva*
     return re.sub(r"\x00(\d+)\x00", lambda m: trozos[int(m.group(1))], salida)
 
 
@@ -239,6 +240,10 @@ window.chuletas {{ background: transparent; }}
 .pestana.activa {{ background-color: {pri}; color: {p['mOnPrimary']}; }}
 .lateral-izq {{ background-color: alpha({f2}, 0.55); border-radius: 26px 0 0 26px; padding: 20px 12px; }}
 flowboxchild {{ padding: 0; }}
+.selector-tema {{ font-size: 15px; font-weight: 750; border-radius: 99px; padding: 2px 6px; min-height: 0;
+                 background-color: {pri}; color: {p['mOnPrimary']}; border: none; box-shadow: none; }}
+.selector-tema:hover {{ background-color: alpha({pri}, 0.85); }}
+popover.selector-pop > contents {{ background-color: {f}; border-radius: 18px; padding: 10px; border: 1px solid alpha({borde}, 0.5); }}
 .nav {{ font-size: 14px; font-weight: 650; padding: 6px 10px; border-radius: 11px; min-height: 0;
        background: transparent; color: {txt}; border: none; box-shadow: none; }}
 .nav:hover {{ background-color: alpha({pri}, 0.14); }}
@@ -512,15 +517,24 @@ class Panel(Gtk.ApplicationWindow):
         else:
             self.caja.set_spacing(10)
             self.caja.append(cab)
-            fluir = Gtk.FlowBox(selection_mode=Gtk.SelectionMode.NONE, max_children_per_line=8,
-                                column_spacing=2, row_spacing=4, margin_start=16, margin_end=16)
+            # 21 temas no caben en una fila: un botón con el tema actual y una lista que se despliega
+            self.menu_tema = Gtk.MenuButton(halign=Gtk.Align.FILL, margin_start=16, margin_end=16)
+            self.menu_tema.add_css_class("selector-tema")
+            self.menu_tema.set_direction(Gtk.ArrowType.DOWN)
+            pop = Gtk.Popover()
+            pop.add_css_class("selector-pop")
+            fluir = Gtk.FlowBox(selection_mode=Gtk.SelectionMode.NONE, min_children_per_line=2,
+                                max_children_per_line=3, homogeneous=True, column_spacing=2, row_spacing=2)
             for i, h in enumerate(self.hojas):
-                b = Gtk.Button(label=corto(h["titulo"]), tooltip_text=h["titulo"])
-                b.add_css_class("pestana")
-                b.connect("clicked", lambda _b, i=i: self.mostrar_hoja(i))
+                b = Gtk.Button()
+                b.set_child(etiqueta(corto(h["titulo"]), wrap=False))
+                b.add_css_class("nav")
+                b.connect("clicked", lambda _b, i=i, pop=pop: (pop.popdown(), self.mostrar_hoja(i)))
                 fluir.append(b)
                 self.botones_hoja.append(b)
-            self.caja.append(fluir)
+            pop.set_child(fluir)
+            self.menu_tema.set_popover(pop)
+            self.caja.append(self.menu_tema)
             self.lbl_busqueda.set_margin_start(16)
             self.lbl_busqueda.set_margin_end(16)
             self.caja.append(self.lbl_busqueda)
@@ -635,7 +649,9 @@ class Panel(Gtk.ApplicationWindow):
             caja = Gtk.Box()
             caja.add_css_class("nota")
             caja.add_css_class(f"nota-{b[1]}")
-            caja.append(etiqueta(markup=en_linea(b[2], self.c), seleccionable=True))
+            texto = etiqueta(markup=en_linea(b[2], self.c), seleccionable=True)
+            texto.set_hexpand(True)  # sin esto el renglón largo no se parte y se sale de la caja
+            caja.append(texto)
             return caja
         if tipo == "entrada":
             caja = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
@@ -764,6 +780,8 @@ class Panel(Gtk.ApplicationWindow):
         guardar_estado({"hoja": self.hojas[i]["archivo"].name, "modo": self.modo})
         for k, b in enumerate(self.botones_hoja):
             (b.add_css_class if k == i else b.remove_css_class)("activa")
+        if getattr(self, "menu_tema", None) is not None and self.modo != "completo":
+            self.menu_tema.set_label(f"{corto(self.hojas[i]['titulo'])}   ▾  cambiar de tema (Tab)")
         self.refrescar()
 
     def refrescar(self):

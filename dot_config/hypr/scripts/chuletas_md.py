@@ -124,13 +124,13 @@ def leer(archivo):
             cerrar_lista()
         elif s.startswith("### "):
             cerrar_todo()
-            destino().append(("h3", s[4:].strip()))
+            destino().append(("h3", s[4:].strip().replace("`", "")))
         elif s.startswith("## "):
             cerrar_todo()
             if pila:
                 hoja["errores"].append(f"línea {n}: sección nueva con un ::: abierto en la línea {pila[-1][2]}")
                 pila.clear()
-            seccion = {"titulo": s[3:].strip(), "bloques": []}
+            seccion = {"titulo": s[3:].strip().replace("`", ""), "bloques": []}
             hoja["secciones"].append(seccion)
         elif s.startswith("# "):
             hoja["titulo"] = s[2:].strip()
