@@ -310,6 +310,12 @@ class App(Gtk.Application):
         """Iconos Papirus-Dark/Light (Qt/KDE y GTK) y cursor Bibata Ice/Classic según el modo."""
         tema = "Papirus-Light" if claro else "Papirus-Dark"
         cursor = "Bibata-Modern-Classic" if claro else "Bibata-Modern-Ice"
+        try:  # cursor elegido en SUPER+SHIFT+A → Cursor; "auto" = Bibata según el modo
+            elegido = json.loads((ESTADO / "cursor.json").read_text()).get("tema", "auto")
+            if elegido != "auto" and (Path.home() / ".local/share/icons" / elegido).is_dir():
+                cursor = elegido
+        except (OSError, ValueError):
+            pass
         for args in (["kwriteconfig6", "--file", "kdeglobals", "--group", "Icons", "--key", "Theme", tema],
                      ["gsettings", "set", "org.gnome.desktop.interface", "icon-theme", tema],
                      # cursor: blanco sobre oscuro, negro sobre claro (se ve siempre)

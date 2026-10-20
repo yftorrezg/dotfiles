@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """estilos.py — personaliza tu escritorio (SUPER+SHIFT+A).
 
-Cuatro pestañas:
+Pestañas (la última, 🖱️ Cursor, elige el cursor y la estela del ratón):
   🌙 Oscuros / ☀️ Claros  temas: cada uno pone un fondo animado DISTINTO en cada escritorio
                           (la tira de 5 miniaturas = SUPER+1..5). Enter lo aplica.
   🖼️ Galería              todos los fondos: los tuyos y ~300 para descubrir (vista previa animada).
@@ -61,13 +61,14 @@ descubrir = modulo("descubrir-fondos")
 paletas = modulo("generar-paletas")
 
 PESTANAS = (("dark", "🌙  Oscuros"), ("light", "☀️  Claros"), ("galeria", "🖼️  Galería"), ("colores", "🎨  Colores"),
-            ("efectos", "✨  Efectos"))
+            ("efectos", "✨  Efectos"), ("cursor", "🖱️  Cursor"))
 SUBTITULOS = {
     "dark": "Cada tema pone un fondo animado 4K distinto en cada escritorio (SUPER+1…5)",
     "light": "Cada tema pone un fondo animado 4K distinto en cada escritorio (SUPER+1…5)",
     "galeria": "Elige tus fondos: pulsa 1-5 para ponerlo en ese escritorio · escribe para buscar",
     "colores": "Colores de toda la interfaz: barra, terminal, Dolphin y apps · todos probados para leer bien",
     "efectos": "Cómo cambias de escritorio: animación de las ventanas + cómo entra el fondo nuevo",
+    "cursor": "Cómo se ve tu ratón y qué deja al moverse · cada vista previa muestra noche (izq.) y día (der.)",
 }
 AYUDAS = {
     "dark": "Flechas mover · Enter aplicar · Tab pestaña · D destellos · Esc salir",
@@ -75,7 +76,174 @@ AYUDAS = {
     "galeria": "1-5 poner en ese escritorio · Enter en este escritorio · Supr quitar · Tab pestaña · Esc salir",
     "colores": "Flechas mover · Enter aplicar · Tab pestaña · Esc salir",
     "efectos": "Flechas mover · Enter aplicar (pruébalo con SUPER+1…5) · Tab pestaña · Esc salir",
+    "cursor": "Flechas mover · Enter aplicar (mueve el ratón para probar) · Tab pestaña · Esc salir",
 }
+
+# --- cursor y estela del ratón ------------------------------------------------------------------
+ICONOS_DIR = Path.home() / ".local/share/icons"
+CURSOR_JSON = tc.ESTADO / "cursor.json"
+CACHE_CURSORES = Path.home() / ".cache/escritorios-vivos/cursores"
+CURSORES = (
+    ("auto", "🔄", "Automático", "Bibata: blanco de noche, negro de día", "Bibata-Modern-Ice", "Bibata-Modern-Classic"),
+    ("Llama-Oscura", "🔥", "Llama oscura", "Violeta y carmesí, las llamas reptan por el borde", None, None),
+    ("Llama-Brasa", "🧡", "Llama brasa", "Naranja ardiente, animado", None, None),
+    ("phinger-cursors-dark", "🌑", "Phinger oscuro", "Sobrio y elegante, para fondos claros", None, None),
+    ("phinger-cursors-light", "🤍", "Phinger claro", "Sobrio y elegante, para fondos oscuros", None, None),
+    ("Bibata-Modern-Ice", "🧊", "Bibata Ice", "El blanco de siempre", None, None),
+    ("Bibata-Modern-Classic", "⚫", "Bibata Classic", "El negro de siempre", None, None),
+)
+# estela: nombre, icono, descripción, dibujo, paleta (la misma que destellos-cursor.py)
+ESTELAS = {
+    "chispas": ("✨", "Chispas", "La de siempre: motas y estrellitas del color del escritorio", "chispa",
+                [(0.79, 0.65, 1.0), (0.65, 0.9, 0.7), (1.0, 0.9, 0.6)]),
+    "llamas": ("🔥", "Llamas oscuras", "Lenguas de fuego con el centro negro y borde violeta/rojo", "llama_osc",
+               [(0.66, 0.33, 0.97), (0.86, 0.15, 0.15), (0.75, 0.1, 0.4), (0.45, 0.1, 0.9)]),
+    "fuego": ("🧡", "Fuego", "Llamas vivas naranjas y amarillas", "llama",
+              [(1.0, 0.55, 0.12), (1.0, 0.35, 0.1), (0.95, 0.75, 0.2), (0.85, 0.15, 0.1)]),
+    "brasas": ("🌋", "Brasas", "Ascuas pequeñas que suben y parpadean", "brasa",
+               [(1.0, 0.6, 0.15), (1.0, 0.4, 0.1), (1.0, 0.8, 0.3)]),
+    "humo": ("🌫️", "Humo oscuro", "Volutas de humo que se expanden", "humo",
+             [(0.1, 0.1, 0.12), (0.18, 0.17, 0.2)]),
+    "sakura": ("🌸", "Sakura", "Pétalos que caen aleteando (muy de modo claro)", "petalo",
+               [(1.0, 0.72, 0.8), (1.0, 0.6, 0.72), (1.0, 0.85, 0.9)]),
+    "hielo": ("❄️", "Hielo", "Cristales azules que brillan", "chispa",
+              [(0.55, 0.85, 1.0), (0.7, 0.92, 1.0), (0.4, 0.7, 1.0)]),
+    "ninguno": ("🚫", "Ninguna", "Sin estela: el ratón solo se mueve", None, []),
+}
+
+
+def leer_cursor():
+    try:
+        d = json.loads(CURSOR_JSON.read_text())
+    except (OSError, ValueError):
+        d = {}
+    return d.get("tema", "auto"), d.get("efecto", "chispas")
+
+
+def fotogramas_cursor(tema, nombre="left_ptr", tam=48):
+    """Cuadros de un cursor (Xcursor) como superficies cairo; se sacan una vez con xcur2png y se guardan en caché."""
+    carpeta = CACHE_CURSORES / tema / nombre
+    conf = carpeta / "c.conf"
+    origen = ICONOS_DIR / tema / "cursors" / nombre
+    if not origen.exists():
+        return []
+    if not conf.exists() or conf.stat().st_mtime < origen.stat().st_mtime:
+        carpeta.mkdir(parents=True, exist_ok=True)
+        subprocess.run(["xcur2png", "-d", str(carpeta), "-c", str(conf), str(origen)],
+                       stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    filas = [l.split() for l in conf.read_text().splitlines() if l.strip() and not l.startswith("#")] if conf.exists() else []
+    if not filas:
+        return []
+    mejor = min({int(f[0]) for f in filas}, key=lambda t: abs(t - tam))
+    return [(cairo.ImageSurface.create_from_png(str(carpeta / f[3])), int(f[1]), int(f[2]), mejor)
+            for f in filas if int(f[0]) == mejor]
+
+
+def mitades(cr, w, h):
+    """Fondo partido: noche a la izquierda, día a la derecha."""
+    for x0, x1, a, b in ((0, w / 2, (0.08, 0.09, 0.13), (0.14, 0.15, 0.21)), (w / 2, w, (0.93, 0.9, 0.85), (0.86, 0.83, 0.78))):
+        g = cairo.LinearGradient(0, 0, 0, h)
+        g.add_color_stop_rgb(0, *a)
+        g.add_color_stop_rgb(1, *b)
+        cr.set_source(g)
+        cr.rectangle(x0, 0, x1 - x0, h)
+        cr.fill()
+
+
+def dibujar_cursor(cr, w, h, t, datos):
+    mitades(cr, w, h)
+    izq, der = datos
+    for lado, cuadros in ((0, izq), (1, der)):
+        if not cuadros:
+            continue
+        img, xh, yh, tam = cuadros[int(t * 14) % len(cuadros)]
+        k = min(2.4, h * 0.42 / tam)
+        cr.save()
+        cr.translate(w * (0.25 + 0.5 * lado) - xh * k - tam * k * 0.1, h * 0.5 - tam * k * 0.5)
+        cr.scale(k, k)
+        cr.set_source_surface(img, 0, 0)
+        cr.get_source().set_filter(cairo.FILTER_BEST)
+        cr.paint()
+        cr.restore()
+
+
+def _halo(cr, x, y, r, paradas):
+    g = cairo.RadialGradient(x, y, 0, x, y, r)
+    for o, (cr_, cg, cb, ca) in paradas:
+        g.add_color_stop_rgba(o, cr_, cg, cb, ca)
+    cr.set_source(g)
+    cr.arc(x, y, r, 0, 6.2832)
+    cr.fill()
+
+
+def dibujar_estela(cr, w, h, t, clave):
+    """Vista previa de una estela: un ratón imaginario recorre una curva y suelta partículas (como destellos-cursor.py)."""
+    mitades(cr, w, h)
+    icono, _n, _d, dibujo, paleta = ESTELAS[clave]
+    if not dibujo:
+        return
+    cabeza = (t * 0.3) % 1.0
+    for k in range(40, -1, -1):
+        sk = cabeza - k * 0.011
+        if sk < 0:
+            continue
+        edad = k / 40
+        rnd = (k * 7919) % 100 / 100
+        col = paleta[k % len(paleta)]
+        x = w * (0.07 + 0.86 * sk) + math.sin(k * 2.3) * 4
+        y = h * (0.52 + 0.2 * math.sin(sk * 7)) + math.cos(k * 1.7) * 4
+        alfa = (1 - edad) ** 1.5
+        r, g, b = col
+        if dibujo == "chispa":
+            tam = 4 * (1 - 0.5 * edad)
+            y += edad * 14
+            _halo(cr, x, y, tam * 3.2, [(0, (r, g, b, 0.55 * alfa)), (1, (r, g, b, 0))])
+            cr.set_source_rgba(min(1, r + .35), min(1, g + .35), min(1, b + .35), alfa)
+            cr.arc(x, y, tam * 0.7, 0, 6.2832)
+            cr.fill()
+        elif dibujo in ("llama_osc", "llama"):
+            y -= edad * h * 0.28
+            x += math.sin(t * 9 + k) * 3 * edad
+            tam = 7 * (0.55 + 0.9 * math.sin(math.pi * min(1, edad * 1.1)))
+            ap = min(1, alfa * 1.3)
+            k2 = edad ** 1.3
+            r, g, b = r * (1 - .7 * k2), g * (1 - .7 * k2), b * (1 - .7 * k2)
+            cr.save()
+            cr.translate(x, y)
+            cr.scale(0.7, 1.55)
+            if dibujo == "llama_osc":
+                par = [(0, (.02, 0, .05, .9 * ap)), (.35, (.04, 0, .07, .72 * ap)), (.6, (r, g, b, .7 * ap)),
+                       (.85, (r, g, b, .25 * ap)), (1, (r, g, b, 0))]
+            else:
+                par = [(0, (1, .95, .7, .95 * ap)), (.3, (1, min(1, g + .25), .25, .85 * ap)),
+                       (.65, (r, g, b, .5 * ap)), (1, (r, g, b, 0))]
+            _halo(cr, 0, 0, tam * 2.2, par)
+            cr.restore()
+        elif dibujo == "brasa":
+            y -= edad * h * 0.16
+            fl = 0.65 + 0.35 * math.sin(t * 28 + k)
+            tam = 2.4 * (1 - 0.6 * edad)
+            _halo(cr, x, y, tam * 3, [(0, (r, g, b, .5 * alfa * fl)), (1, (r, g, b, 0))])
+            cr.set_source_rgba(1, min(1, g + .3), min(1, b + .3), alfa * fl)
+            cr.arc(x, y, tam * .8, 0, 6.2832)
+            cr.fill()
+        elif dibujo == "humo":
+            y -= edad * h * 0.12
+            tam = 7 * (1 + 1.6 * edad)
+            _halo(cr, x, y, tam * 2, [(0, (r, g, b, .55 * alfa)), (1, (r, g, b, 0))])
+        elif dibujo == "petalo":
+            y += edad * h * 0.2 + math.sin(edad * 9 + k) * 5
+            cr.save()
+            cr.translate(x, y)
+            cr.rotate(rnd * 3 + edad * 4.5)
+            ancho = 4.2 * 2.2
+            alto = max(1.0, abs(4.2 * (0.9 + 0.5 * math.sin(edad * 14 + k))))
+            cr.scale(ancho / 2, alto / 2)
+            cr.arc(0, 0, 1, 0, 6.2832)
+            cr.restore()
+            cr.set_source_rgba(r, g, b, .95 * alfa)
+            cr.fill()
+
 
 CSS = """
 window.estilos { background: transparent; }
@@ -302,9 +470,18 @@ class Tarjeta(Gtk.Box):
         self.capas = Gtk.Overlay()
         w, h = selector.tam_vista
         self.vista_viva = None
+        self.activa = False
         if item.get("efecto"):
             vista = Gtk.DrawingArea(content_width=w, content_height=h)
             vista.set_draw_func(dibujar_efecto, item["efecto"])
+            vista.add_css_class("vista")
+            vista.set_overflow(Gtk.Overflow.HIDDEN)
+            self.pic, self.vista_viva, self.tic = None, vista, None
+            self.capas.set_child(vista)
+        elif item.get("dibujo"):  # vista previa animada (solo se mueve la seleccionada)
+            vista = Gtk.DrawingArea(content_width=w, content_height=h)
+            vista.set_draw_func(lambda _a, cr, ww, hh: item["dibujo"](
+                cr, ww, hh, GLib.get_monotonic_time() / 1e6 if self.activa else 1.2))
             vista.add_css_class("vista")
             vista.set_overflow(Gtk.Overflow.HIDDEN)
             self.pic, self.vista_viva, self.tic = None, vista, None
@@ -388,7 +565,9 @@ class Tarjeta(Gtk.Box):
     def animar(self, si):
         """Solo la tarjeta seleccionada reproduce su clip; las demás muestran el póster."""
         clip = self.item.get("clip")
+        self.activa = si
         if self.vista_viva is not None:  # efectos: se anima solo la seleccionada
+            self.vista_viva.queue_draw()
             if si and self.tic is None:
                 self.tic = self.vista_viva.add_tick_callback(lambda v, _c: v.queue_draw() or True)
             elif not si and self.tic is not None:
@@ -635,6 +814,23 @@ class Selector(Gtk.ApplicationWindow):
                          "insignia": "ACTUAL" if self.estilo.get("efecto", "seda") == k else None}
                         for k, e in tc.EFECTOS.items()])]
 
+    def items_cursor(self):
+        tema, efecto = leer_cursor()
+        cursores = []
+        for clave, icono, nombre, desc, noche, dia in CURSORES:
+            if clave != "auto" and not (ICONOS_DIR / clave).is_dir():
+                continue
+            izq = fotogramas_cursor(noche or clave)
+            der = fotogramas_cursor(dia or clave)
+            cursores.append({"id": clave, "tipo": "cursor", "nombre": nombre, "icono": icono, "desc": desc,
+                             "dibujo": lambda cr, w, h, t, d=(izq, der): dibujar_cursor(cr, w, h, t, d),
+                             "acento": "#f97316", "insignia": "ACTUAL" if clave == tema else None})
+        estelas = [{"id": k, "tipo": "estela", "nombre": e[1], "icono": e[0], "desc": e[2],
+                    "dibujo": lambda cr, w, h, t, k=k: dibujar_estela(cr, w, h, t, k),
+                    "acento": "#a855f7", "insignia": "ACTUAL" if k == (efecto if self.estilo["destellos"] else "ninguno") else None}
+                   for k, e in ESTELAS.items()]
+        return [("Cursor", cursores), ("Estela al mover el ratón", estelas)]
+
     def mostrar_pestana(self, clave, conservar=False):
         anterior = self.sel if conservar and getattr(self, "sel", None) is not None else None
         if getattr(self, "tarjetas", None):
@@ -655,6 +851,8 @@ class Selector(Gtk.ApplicationWindow):
             secciones = self.items_galeria()
         elif clave == "efectos":
             secciones = self.items_efectos()
+        elif clave == "cursor":
+            secciones = self.items_cursor()
         else:
             secciones = self.items_colores()
 
@@ -777,6 +975,10 @@ class Selector(Gtk.ApplicationWindow):
             self.aplicar_colores(item)
         elif item["tipo"] == "efecto":
             self.aplicar_efecto(item)
+        elif item["tipo"] == "cursor":
+            self.aplicar_cursor(item)
+        elif item["tipo"] == "estela":
+            self.aplicar_estela(item)
         else:
             self.poner_en(i, self.escritorio)
 
@@ -805,6 +1007,34 @@ class Selector(Gtk.ApplicationWindow):
         for t in self.tarjetas:
             t.insignia("ACTUAL" if t.item["id"] == item["id"] else None)
         self.decir(f"{item['icono']} {item['nombre']} activado · pruébalo con SUPER+1…5")
+
+    def guardar_cursor(self, **cambios):
+        tema, efecto = leer_cursor()
+        d = {"tema": tema, "efecto": efecto, **cambios}
+        CURSOR_JSON.parent.mkdir(parents=True, exist_ok=True)
+        CURSOR_JSON.write_text(json.dumps(d))
+
+    def marcar_actual(self, seccion_ids, elegido):
+        for t in self.tarjetas:
+            if t.item["id"] in seccion_ids:
+                t.insignia("ACTUAL" if t.item["id"] == elegido else None)
+
+    def aplicar_cursor(self, item):
+        self.guardar_cursor(tema=item["id"])
+        real = item["id"]
+        if real == "auto":
+            real = "Bibata-Modern-Classic" if self.modo == "light" else "Bibata-Modern-Ice"
+        for args in (["hyprctl", "setcursor", real, os.environ.get("XCURSOR_SIZE", "24")],
+                     ["gsettings", "set", "org.gnome.desktop.interface", "cursor-theme", real]):
+            subprocess.Popen(args, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        self.marcar_actual({c[0] for c in CURSORES}, item["id"])
+        self.decir(f"{item['icono']} Cursor {item['nombre']} aplicado · mueve el ratón para verlo")
+
+    def aplicar_estela(self, item):
+        self.guardar_cursor(efecto=item["id"] if item["id"] != "ninguno" else leer_cursor()[1])
+        self.interruptor.set_active(item["id"] != "ninguno")  # guarda estilo.json (destellos) si cambia
+        self.marcar_actual(set(ESTELAS), item["id"])
+        self.decir(f"{item['icono']} Estela {item['nombre']} · mueve el ratón para probarla")
 
     def poner_en(self, i, n):
         """Galería: pone el fondo en el escritorio n de "Mi selección" (del modo actual)."""

@@ -8,6 +8,8 @@ Para no gastar: sin movimiento la capa se oculta (cero cuadros), y en pantalla
 completa (juegos, videos) se desactiva.
 Color: el acento del escritorio actual (lo escribe escritorios-vivos.py en
 ~/.local/state/escritorios-vivos/acento), con variaciones de tono.
+Efecto: ~/.local/state/escritorios-vivos/cursor.json {"efecto": ...}; lo cambia SUPER+SHIFT+A → pestaña Cursor (estilos.py)
+(chispas, llamas oscuras, fuego, brasas, humo, sakura, hielo). Se relee cada segundo.
 """
 import ctypes
 
@@ -35,7 +37,26 @@ from gi.repository import Gtk4LayerShell as LS  # noqa: E402
 
 HYPR = Path(os.environ["XDG_RUNTIME_DIR"]) / "hypr" / os.environ["HYPRLAND_INSTANCE_SIGNATURE"] / ".socket.sock"
 ACENTO = Path.home() / ".local/state/escritorios-vivos/acento"
+CURSOR_JSON = Path.home() / ".local/state/escritorios-vivos/cursor.json"
 MAX_CHISPAS = 140
+
+# grav: aceleración vertical (negativa = sube) · freno: (x, y) por tick · n: partículas máximas por tick
+# dur / tam: rangos · color: ("acento",) o rampa fija de colores sueltos
+EFECTOS = {
+    "chispas": dict(dibujo="chispa", grav=160, freno=(0.92, 0.94), n=5, dur=(0.6, 1.1), tam=(2.4, 5.0), estrella=0.3),
+    "llamas": dict(dibujo="llama", grav=-230, freno=(0.90, 0.97), n=4, dur=(0.55, 1.0), tam=(4.5, 8.0),
+                   paleta=[(0.66, 0.33, 0.97), (0.86, 0.15, 0.15), (0.75, 0.1, 0.4), (0.45, 0.1, 0.9)]),
+    "fuego": dict(dibujo="llama", grav=-260, freno=(0.90, 0.97), n=4, dur=(0.5, 0.9), tam=(4.5, 8.0),
+                  paleta=[(1.0, 0.55, 0.12), (1.0, 0.35, 0.1), (0.95, 0.75, 0.2), (0.85, 0.15, 0.1)]),
+    "brasas": dict(dibujo="brasa", grav=-70, freno=(0.95, 0.985), n=3, dur=(0.9, 1.7), tam=(1.4, 3.0),
+                   paleta=[(1.0, 0.6, 0.15), (1.0, 0.4, 0.1), (1.0, 0.8, 0.3)]),
+    "humo": dict(dibujo="humo", grav=-45, freno=(0.94, 0.97), n=2, dur=(0.9, 1.6), tam=(5.0, 9.0),
+                 paleta=[(0.1, 0.1, 0.12), (0.18, 0.17, 0.2)]),
+    "sakura": dict(dibujo="petalo", grav=55, freno=(0.96, 0.985), n=2, dur=(1.3, 2.2), tam=(3.0, 5.0),
+                   paleta=[(1.0, 0.72, 0.8), (1.0, 0.6, 0.72), (1.0, 0.85, 0.9)]),
+    "hielo": dict(dibujo="chispa", grav=40, freno=(0.93, 0.96), n=4, dur=(0.7, 1.2), tam=(2.4, 4.8), estrella=0.55,
+                  paleta=[(0.55, 0.85, 1.0), (0.7, 0.92, 1.0), (0.4, 0.7, 1.0)]),
+}
 
 
 def hypr(cmd):
@@ -73,32 +94,86 @@ class Lienzo(Gtk.Widget):
                 continue
             vida = c["t"] / c["dur"]           # 0 → 1
             alfa = (1 - vida) ** 1.6
-            r, g, b = c["rgb"]
-            x, y, tam = c["x"] - ox, c["y"] - oy, c["tam"] * (1 - 0.5 * vida)
-            # halo suave
-            halo = tam * 3.2
-            centro = Graphene.Point().init(x, y)
-            caja = Graphene.Rect().init(x - halo, y - halo, halo * 2, halo * 2)
-            snap.append_radial_gradient(caja, centro, halo, halo, 0, 1, [
-                parada(0, rgba(r, g, b, 0.55 * alfa)), parada(1, rgba(r, g, b, 0))])
-            # destello en cruz (estrellita de 4 puntas) para las chispas "estrella"
-            if c["estrella"]:
-                largo, grosor = tam * 2.6, max(1.0, tam * 0.32)
-                blanco = rgba(1, 1, 1, 0.9 * alfa)
-                snap.save()
-                snap.translate(Graphene.Point().init(x, y))
-                snap.rotate(c["giro"] + vida * 90)
-                for w, h in ((largo, grosor), (grosor, largo)):
-                    snap.append_color(blanco, Graphene.Rect().init(-w / 2, -h / 2, w, h))
-                snap.restore()
-            # núcleo brillante
-            n = tam * 0.7
-            rr = Gsk.RoundedRect()
-            rr.init_from_rect(Graphene.Rect().init(x - n, y - n, n * 2, n * 2), n)
-            snap.push_rounded_clip(rr)
-            snap.append_color(rgba(min(1, r + 0.35), min(1, g + 0.35), min(1, b + 0.35), alfa),
-                              Graphene.Rect().init(x - n, y - n, n * 2, n * 2))
-            snap.pop()
+            x, y = c["x"] - ox, c["y"] - oy
+            getattr(self, "dib_" + c["dib"])(snap, c, x, y, vida, alfa)
+
+    @staticmethod
+    def halo(snap, x, y, radio, paradas):
+        centro = Graphene.Point().init(x, y)
+        caja = Graphene.Rect().init(x - radio, y - radio, radio * 2, radio * 2)
+        snap.append_radial_gradient(caja, centro, radio, radio, 0, 1, [parada(o, col) for o, col in paradas])
+
+    @staticmethod
+    def disco(snap, x, y, r, color):
+        rr = Gsk.RoundedRect()
+        rr.init_from_rect(Graphene.Rect().init(x - r, y - r, r * 2, r * 2), r)
+        snap.push_rounded_clip(rr)
+        snap.append_color(color, Graphene.Rect().init(x - r, y - r, r * 2, r * 2))
+        snap.pop()
+
+    def dib_chispa(self, snap, c, x, y, vida, alfa):
+        r, g, b = c["rgb"]
+        tam = c["tam"] * (1 - 0.5 * vida)
+        self.halo(snap, x, y, tam * 3.2, [(0, rgba(r, g, b, 0.55 * alfa)), (1, rgba(r, g, b, 0))])
+        # destello en cruz (estrellita de 4 puntas) para las chispas "estrella"
+        if c["estrella"]:
+            largo, grosor = tam * 2.6, max(1.0, tam * 0.32)
+            blanco = rgba(1, 1, 1, 0.9 * alfa)
+            snap.save()
+            snap.translate(Graphene.Point().init(x, y))
+            snap.rotate(c["giro"] + vida * 90)
+            for w, h in ((largo, grosor), (grosor, largo)):
+                snap.append_color(blanco, Graphene.Rect().init(-w / 2, -h / 2, w, h))
+            snap.restore()
+        self.disco(snap, x, y, tam * 0.7, rgba(min(1, r + 0.35), min(1, g + 0.35), min(1, b + 0.35), alfa))
+
+    def dib_llama(self, snap, c, x, y, vida, alfa):
+        """Lengua de fuego (alargada, se mece al subir). 'oscura': centro negro y borde encendido que acaba
+        en ceniza; 'viva' (fuego): centro claro y caliente."""
+        r, g, b = c["rgb"]
+        k = vida ** 1.3                      # el color se apaga hacia negro-rojizo
+        r, g, b = r * (1 - 0.7 * k), g * (1 - 0.7 * k), b * (1 - 0.7 * k)
+        tam = c["tam"] * (0.55 + 0.9 * math.sin(math.pi * min(1, vida * 1.1)))
+        a = min(1, alfa * 1.3)
+        if c["oscura"]:
+            centro = [(0, rgba(0.02, 0.0, 0.05, 0.9 * a)), (0.35, rgba(0.04, 0.0, 0.07, 0.72 * a)),
+                      (0.6, rgba(r, g, b, 0.7 * a)), (0.85, rgba(r, g, b, 0.25 * a)), (1, rgba(r, g, b, 0))]
+        else:
+            centro = [(0, rgba(1, 0.95, 0.7, 0.95 * a)), (0.3, rgba(1, min(1, g + 0.25), 0.25, 0.85 * a)),
+                      (0.65, rgba(r, g, b, 0.5 * a)), (1, rgba(r, g, b, 0))]
+        snap.save()
+        snap.translate(Graphene.Point().init(x, y))
+        snap.rotate(12 * math.sin(c["t"] * 13 + c["giro"]))          # se mece como llama
+        snap.scale(0.7, 1.55)                                        # alargada hacia arriba
+        self.halo(snap, 0, -tam * 0.4, tam * 2.2, centro)
+        snap.restore()
+
+    def dib_brasa(self, snap, c, x, y, vida, alfa):
+        r, g, b = c["rgb"]
+        parpadeo = 0.65 + 0.35 * math.sin(c["t"] * 28 + c["giro"])
+        tam = c["tam"] * (1 - 0.6 * vida)
+        self.halo(snap, x, y, tam * 3.0, [(0, rgba(r, g, b, 0.5 * alfa * parpadeo)), (1, rgba(r, g, b, 0))])
+        self.disco(snap, x, y, tam * 0.8, rgba(1, min(1, g + 0.3), min(1, b + 0.3), alfa * parpadeo))
+
+    def dib_humo(self, snap, c, x, y, vida, alfa):
+        r, g, b = c["rgb"]
+        tam = c["tam"] * (1 + 1.6 * vida)
+        self.halo(snap, x, y, tam * 2.0, [(0, rgba(r, g, b, 0.55 * alfa)), (1, rgba(r, g, b, 0))])
+
+    def dib_petalo(self, snap, c, x, y, vida, alfa):
+        r, g, b = c["rgb"]
+        tam = c["tam"]
+        snap.save()
+        snap.translate(Graphene.Point().init(x, y))
+        snap.rotate(c["giro"] + vida * 280)
+        w, h = tam * 2.2, tam * (0.9 + 0.5 * math.sin(vida * 14 + c["giro"]))   # aletea al caer
+        h = max(1.0, abs(h))
+        rr = Gsk.RoundedRect()
+        rr.init_from_rect(Graphene.Rect().init(-w / 2, -h / 2, w, h), h / 2)
+        snap.push_rounded_clip(rr)
+        snap.append_color(rgba(r, g, b, 0.95 * alfa), Graphene.Rect().init(-w / 2, -h / 2, w, h))
+        snap.pop()
+        snap.restore()
 
 
 class App(Gtk.Application):
@@ -110,6 +185,7 @@ class App(Gtk.Application):
         self.quieto_desde = time.monotonic()
         self.pantalla_completa = False
         self.acento = (0.79, 0.65, 1.0)
+        self.efecto = "chispas"
         self.t_prev = time.monotonic()
 
     def do_activate(self):
@@ -161,6 +237,11 @@ class App(Gtk.Application):
         except (OSError, ValueError):
             self.pantalla_completa = False
         try:
+            e = json.loads(CURSOR_JSON.read_text()).get("efecto", "chispas")
+            self.efecto = e if e in EFECTOS else "chispas"
+        except (OSError, ValueError):
+            self.efecto = "chispas"
+        try:
             h = ACENTO.read_text().strip()
             self.acento = tuple(int(h[i:i + 2], 16) / 255 for i in (1, 3, 5))
         except (OSError, ValueError):
@@ -174,6 +255,11 @@ class App(Gtk.Application):
         return None
 
     def color(self):
+        paleta = EFECTOS[self.efecto].get("paleta")
+        if paleta:
+            r, g, b = random.choice(paleta)
+            v = random.uniform(0.85, 1.1)
+            return min(1, r * v), min(1, g * v), min(1, b * v)
         h, l, s = colorsys.rgb_to_hls(*self.acento)
         h = (h + random.uniform(-0.08, 0.08)) % 1
         return colorsys.hls_to_rgb(h, min(0.82, max(0.55, l + random.uniform(-0.05, 0.15))), min(1, s + 0.1))
@@ -198,23 +284,25 @@ class App(Gtk.Application):
                 self.quieto_desde = ahora
             if dist > 1.5 and mon:
                 origen = self.ventanas[mon][1].origen
-                n = min(5, max(1, int(dist / 14)))
+                ef = EFECTOS[self.efecto]
+                n = min(ef["n"], max(1, int(dist / 14)))
                 for i in range(n):
                     f = i / n  # repartir a lo largo del trazo
                     self.chispas.append({
                         "x": x - dx * f + random.uniform(-3, 3), "y": y - dy * f + random.uniform(-3, 3),
                         "vx": random.uniform(-40, 40) - dx * 0.8, "vy": random.uniform(-50, 20) - dy * 0.8,
-                        "t": 0.0, "dur": random.uniform(0.6, 1.1), "tam": random.uniform(2.4, 5.0),
-                        "rgb": self.color(), "estrella": random.random() < 0.3,
-                        "giro": random.uniform(0, 90), "mon": origen})
+                        "t": 0.0, "dur": random.uniform(*ef["dur"]), "tam": random.uniform(*ef["tam"]),
+                        "rgb": self.color(), "estrella": random.random() < ef.get("estrella", 0),
+                        "giro": random.uniform(0, 90), "mon": origen, "dib": ef["dibujo"],
+                        "grav": ef["grav"], "freno": ef["freno"], "oscura": self.efecto == "llamas"})
                 del self.chispas[:-MAX_CHISPAS]
         self.ultimo = (x, y)
 
         for c in self.chispas:
             c["t"] += dt
-            c["vy"] += 160 * dt          # gravedad suave
-            c["vx"] *= 0.92
-            c["vy"] *= 0.94
+            c["vy"] += c["grav"] * dt    # gravedad suave (negativa = sube, como el fuego)
+            c["vx"] *= c["freno"][0]
+            c["vy"] *= c["freno"][1]
             c["x"] += c["vx"] * dt
             c["y"] += c["vy"] * dt
         self.chispas = [c for c in self.chispas if c["t"] < c["dur"]]

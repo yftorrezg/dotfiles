@@ -15,3 +15,4 @@
 - [Repo → imágenes de código](repo-a-imagenes.md) — SUPER+ALT+G: link de GitHub → carpeta de imágenes en ~/Vídeos/Código de repos; sin IA.
 - [Celular con scrcpy](celular-scrcpy.md) — tecla Celular del XL (sustituyó Notas de videos) → celular.sh; Alt = atajos scrcpy.
 - [Escritorios vivos, temas 4K y modo claro](escritorios-vivos-tema.md) — temas = 5 fondos (uno por escritorio), Galería/Descubrir, 12 esquemas de color, widgets, chuletas SUPER+SHIFT+C, transiciones.
+- [Cursor y estelas en el selector](cursor-estela-selector.md) — pestaña Cursor de SUPER+SHIFT+A, Llama-Oscura/Brasa; sin atajos nuevos.

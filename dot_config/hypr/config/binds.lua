@@ -188,3 +188,4 @@ hl.bind(mainMod .. " + ALT + R", hl.dsp.exec_cmd(launchPrefix .. "bash " .. os.g
 
 -- (24/09/2026) Quitado SUPER+SHIFT+ALT+N (mover ventana a workspace N): 4 teclas,
 -- reemplazado por SUPER+CONTROL+N.
+
