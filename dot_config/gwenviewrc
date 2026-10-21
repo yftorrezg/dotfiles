@@ -6,32 +6,32 @@ ThumbnailBarIsVisible=true
 [ImageView]
 BackgroundColorMode=Dark
 MouseWheelBehavior=MouseWheelBehavior::Browse
-ThumbnailSplitterSizes=346,99
+ThumbnailSplitterSizes=320,92
 
 [MainWindow]
 MenuBar=Disabled
 
 [Recent Files]
-File1[$e]=/run/media/yafer/SuperYafer/paola_v/IMG_20231106_180434.jpg
+File1[$e]=$HOME/Compartido-VM/hola-lettering-by-writing-on-spain-color-flag.webp
 File10[$e]=$HOME/GoogleDrive/Uni/Robotica2/practica6/r1.jpeg
-File2[$e]=/run/media/yafer/SuperYafer/paola_v/IMG_20231106_180900.jpg
-File3[$e]=/run/media/yafer/SuperYafer/paola_v/IMG_20231130_145056.jpg
-File4[$e]=/run/media/yafer/SuperYafer/paola_v/IMG_20231130_145114.jpg
-File5[$e]=/run/media/yafer/SuperYafer/paola_v/IMG_20231130_145126.jpg
-File6[$e]=/run/media/yafer/SuperYafer/paola_v/IMG_20231130_145129.jpg
-File7[$e]=/run/media/yafer/SuperYafer/paola_v/IMG_20231130_145134.jpg
-File8[$e]=$HOME/Compartido-VM/hola-lettering-by-writing-on-spain-color-flag.webp
-File9[$e]=$HOME/Compartido-VM/PROGRAMAS ALUMNOS/adobe/mastercito-x/recuperacion-datos/recuva3.png
-Name1[$e]=IMG_20231106_180434.jpg
+File2[$e]=$HOME/Compartido-VM/PROGRAMAS ALUMNOS/adobe/mastercito-x/recuperacion-datos/recuva3.png
+File3[$e]=$HOME/GoogleDrive/Uni/Robotica2/practica6/WhatsApp Image 2026-10-20 at 9.26.36 AM.jpeg
+File4[$e]=$HOME/GoogleDrive/Uni/Robotica2/practica6/r5.jpeg
+File5[$e]=$HOME/GoogleDrive/Uni/Robotica2/practica6/r4.jpeg
+File6[$e]=$HOME/GoogleDrive/Uni/Robotica2/practica6/WhatsApp Image 2026-10-20 at 9.26.40 AM.jpeg
+File7[$e]=$HOME/GoogleDrive/Uni/Robotica2/practica6/MANUAL RASPBERRY PI.pdf
+File8[$e]=$HOME/GoogleDrive/Uni/Robotica2/practica6/r3.jpeg
+File9[$e]=$HOME/GoogleDrive/Uni/Robotica2/practica6/r2.jpeg
+Name1[$e]=hola-lettering-by-writing-on-spain-color-flag.webp
 Name10[$e]=r1.jpeg
-Name2[$e]=IMG_20231106_180900.jpg
-Name3[$e]=IMG_20231130_145056.jpg
-Name4[$e]=IMG_20231130_145114.jpg
-Name5[$e]=IMG_20231130_145126.jpg
-Name6[$e]=IMG_20231130_145129.jpg
-Name7[$e]=IMG_20231130_145134.jpg
-Name8[$e]=hola-lettering-by-writing-on-spain-color-flag.webp
-Name9[$e]=recuva3.png
+Name2[$e]=recuva3.png
+Name3[$e]=WhatsApp Image 2026-10-20 at 9.26.36 AM.jpeg
+Name4[$e]=r5.jpeg
+Name5[$e]=r4.jpeg
+Name6[$e]=WhatsApp Image 2026-10-20 at 9.26.40 AM.jpeg
+Name7[$e]=MANUAL RASPBERRY PI.pdf
+Name8[$e]=r3.jpeg
+Name9[$e]=r2.jpeg
 
 [SideBar]
 InformationSplitterSizes=209,246
