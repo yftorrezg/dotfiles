@@ -6,35 +6,35 @@ ThumbnailBarIsVisible=true
 [ImageView]
 BackgroundColorMode=Dark
 MouseWheelBehavior=MouseWheelBehavior::Browse
-ThumbnailSplitterSizes=500,143
+ThumbnailSplitterSizes=346,99
 
 [MainWindow]
 MenuBar=Disabled
 
 [Recent Files]
-File1[$e]=/run/media/yafer/SuperYafer/paola_v/IMG_20231106_180014.jpg
-File10[$e]=$HOME/Compartido-VM/PROGRAMAS ALUMNOS/adobe/mastercito-x/recuperacion-datos/recuva3.png
-File2[$e]=/run/media/yafer/SuperYafer/paola_v/IMG_20231106_180434.jpg
-File3[$e]=/run/media/yafer/SuperYafer/paola_v/IMG_20231106_180900.jpg
-File4[$e]=/run/media/yafer/SuperYafer/paola_v/IMG_20231130_145056.jpg
-File5[$e]=/run/media/yafer/SuperYafer/paola_v/IMG_20231130_145114.jpg
-File6[$e]=/run/media/yafer/SuperYafer/paola_v/IMG_20231130_145126.jpg
-File7[$e]=/run/media/yafer/SuperYafer/paola_v/IMG_20231130_145129.jpg
-File8[$e]=/run/media/yafer/SuperYafer/paola_v/IMG_20231130_145134.jpg
-File9[$e]=$HOME/Compartido-VM/hola-lettering-by-writing-on-spain-color-flag.webp
-Name1[$e]=IMG_20231106_180014.jpg
-Name10[$e]=recuva3.png
-Name2[$e]=IMG_20231106_180434.jpg
-Name3[$e]=IMG_20231106_180900.jpg
-Name4[$e]=IMG_20231130_145056.jpg
-Name5[$e]=IMG_20231130_145114.jpg
-Name6[$e]=IMG_20231130_145126.jpg
-Name7[$e]=IMG_20231130_145129.jpg
-Name8[$e]=IMG_20231130_145134.jpg
-Name9[$e]=hola-lettering-by-writing-on-spain-color-flag.webp
+File1[$e]=/run/media/yafer/SuperYafer/paola_v/IMG_20231106_180434.jpg
+File10[$e]=$HOME/GoogleDrive/Uni/Robotica2/practica6/r1.jpeg
+File2[$e]=/run/media/yafer/SuperYafer/paola_v/IMG_20231106_180900.jpg
+File3[$e]=/run/media/yafer/SuperYafer/paola_v/IMG_20231130_145056.jpg
+File4[$e]=/run/media/yafer/SuperYafer/paola_v/IMG_20231130_145114.jpg
+File5[$e]=/run/media/yafer/SuperYafer/paola_v/IMG_20231130_145126.jpg
+File6[$e]=/run/media/yafer/SuperYafer/paola_v/IMG_20231130_145129.jpg
+File7[$e]=/run/media/yafer/SuperYafer/paola_v/IMG_20231130_145134.jpg
+File8[$e]=$HOME/Compartido-VM/hola-lettering-by-writing-on-spain-color-flag.webp
+File9[$e]=$HOME/Compartido-VM/PROGRAMAS ALUMNOS/adobe/mastercito-x/recuperacion-datos/recuva3.png
+Name1[$e]=IMG_20231106_180434.jpg
+Name10[$e]=r1.jpeg
+Name2[$e]=IMG_20231106_180900.jpg
+Name3[$e]=IMG_20231130_145056.jpg
+Name4[$e]=IMG_20231130_145114.jpg
+Name5[$e]=IMG_20231130_145126.jpg
+Name6[$e]=IMG_20231130_145129.jpg
+Name7[$e]=IMG_20231130_145134.jpg
+Name8[$e]=hola-lettering-by-writing-on-spain-color-flag.webp
+Name9[$e]=recuva3.png
 
 [SideBar]
-InformationSplitterSizes=208,245
+InformationSplitterSizes=209,246
 SideBarSplitterSizes=253,1663
 
 [ThumbnailView]
