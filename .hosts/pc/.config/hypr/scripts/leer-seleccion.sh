@@ -14,6 +14,21 @@ PIPER_DAEMON="$HOME/.config/hypr/scripts/piper-daemon.py"
 PIPER_CLIENT="$HOME/.config/hypr/scripts/piper-client.py"
 PIPER_DAEMON_SOCK="${PIPER_DAEMON_SOCK:-$HOME/.cache/piper-voz.sock}"
 LIMPIAR_TEXTO="$HOME/.config/hypr/scripts/limpiar-texto.py"
+TEXT_FILE=""
+STOP_ONLY=0
+
+case "${1:-}" in
+    --texto-archivo)
+        if [ -z "${2:-}" ]; then
+            notify-send -t 2000 "Lectura en voz alta" "Falta el archivo de texto para leer"
+            exit 2
+        fi
+        TEXT_FILE="$2"
+        ;;
+    --stop)
+        STOP_ONLY=1
+        ;;
+esac
 
 ENGINE="piper"
 VOICE="$PIPER_FALLBACK"
@@ -37,17 +52,50 @@ if pgrep -x piper-tts >/dev/null || pgrep -x edge-tts >/dev/null || pgrep -x ffp
     pkill -x ffplay 2>/dev/null
     pkill -x pw-play 2>/dev/null
     pkill -f "$CHATTERBOX_SCRIPT" 2>/dev/null
-    exit 0
+    if [ -z "$TEXT_FILE" ] || [ "$STOP_ONLY" -eq 1 ]; then
+        exit 0
+    fi
 fi
+[ "$STOP_ONLY" -eq 1 ] && exit 0
 
-TEXT=$(wl-paste --primary --no-newline 2>/dev/null)
-if [ -z "$(echo "$TEXT" | tr -d '[:space:]')" ]; then
+if [ -n "$TEXT_FILE" ]; then
+    if [ ! -r "$TEXT_FILE" ]; then
+        notify-send -t 2000 "Lectura en voz alta" "No se puede leer el archivo de texto"
+        exit 2
+    fi
+    TEXT=$(cat -- "$TEXT_FILE" 2>/dev/null)
+else
+    WIN_CLASS=$(hyprctl activewindow -j 2>/dev/null | jq -r '[.class // empty, .initialClass // empty, .title // empty] | join(" ")')
+    SUMMARY_TEXT_FILE="${XDG_RUNTIME_DIR:-/run/user/$(id -u)}/resumidor-seleccion.txt"
+    SUMMARY_PID_FILE="${XDG_RUNTIME_DIR:-/run/user/$(id -u)}/resumidor-seleccion.pid"
+    SUMMARY_PID=$(cat -- "$SUMMARY_PID_FILE" 2>/dev/null)
+    SUMMARY_LAYER_ACTIVE=0
+    if [[ "$SUMMARY_PID" =~ ^[0-9]+$ ]] \
+        && hyprctl layers 2>/dev/null | grep -Fq "namespace: resumen-seleccion, pid: $SUMMARY_PID"; then
+        SUMMARY_LAYER_ACTIVE=1
+    fi
+    case "$WIN_CLASS" in
+        *org.yafer.ResumenSeleccion*|*"Resumen de selección"*)
+            if [ -s "$SUMMARY_TEXT_FILE" ]; then
+                TEXT=$(cat -- "$SUMMARY_TEXT_FILE" 2>/dev/null)
+            else
+                TEXT=$(wl-paste --primary --no-newline 2>/dev/null)
+            fi
+            ;;
+        *)
+            TEXT=$(wl-paste --primary --no-newline 2>/dev/null)
+            ;;
+    esac
+    if [ "$SUMMARY_LAYER_ACTIVE" -eq 1 ] && [ -s "$SUMMARY_TEXT_FILE" ]; then
+        TEXT=$(cat -- "$SUMMARY_TEXT_FILE" 2>/dev/null)
+    fi
+fi
+if [ -z "$TEXT_FILE" ] && [ -z "$(echo "$TEXT" | tr -d '[:space:]')" ]; then
     # Apps Chromium/Electron (Brave, VSCode) no exponen la selección de mouse como
     # primary selection en Wayland (limitación conocida de Chromium, no del script).
     # Para que siga siendo UN solo atajo, se simula Ctrl+C (wtype) y se lee el
     # portapapeles normal. Se excluyen terminales: ahí Ctrl+C no copia, manda
     # SIGINT y podría cortar un proceso corriendo (por ejemplo, Claude Code).
-    WIN_CLASS=$(hyprctl activewindow -j 2>/dev/null | jq -r '.class // empty')
     case "$WIN_CLASS" in
         kitty|Alacritty|alacritty|foot|footclient|wezterm|org.wezfurlong.wezterm|kate|konsole|org.kde.konsole|gnome-terminal|gnome-terminal-server|terminator|tilix|contour|xterm|urxvt|st|wterm)
             TEXT=$(wl-paste --no-newline 2>/dev/null)

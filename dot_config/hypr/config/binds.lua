@@ -190,5 +190,12 @@ hl.bind(mainMod .. " + ALT + R", hl.dsp.exec_cmd(launchPrefix .. "bash " .. os.g
 -- El mismo script se puede enlazar a un botón Stream Deck con OpenDeck > Run Command.
 hl.bind(mainMod .. " + SHIFT + T", hl.dsp.exec_cmd(launchPrefix .. "bash " .. os.getenv("HOME") .. "/.config/hypr/scripts/traducir-seleccion.sh"))
 
+-- Resumir la selección: atajo directo y menú propio con SUPER+SHIFT+click derecho.
+-- El click abre el menú; el arrastre SUPER+click derecho sigue redimensionando ventanas.
+local resumenSeleccion = "bash " .. os.getenv("HOME") .. "/.config/hypr/scripts/resumir-seleccion.sh"
+hl.bind(mainMod .. " + SHIFT + R", hl.dsp.exec_cmd(launchPrefix .. resumenSeleccion))
+hl.bind(mainMod .. " + SHIFT + mouse:273",
+    hl.dsp.exec_cmd(launchPrefix .. resumenSeleccion .. " --menu"), { mouse = true, click = true })
+
 -- (24/09/2026) Quitado SUPER+SHIFT+ALT+N (mover ventana a workspace N): 4 teclas,
 -- reemplazado por SUPER+CONTROL+N.
