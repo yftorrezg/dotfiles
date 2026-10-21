@@ -186,6 +186,9 @@ hl.bind(mainMod .. " + SHIFT + S", hl.dsp.exec_cmd(launchPrefix .. "bash " .. os
 hl.bind(mainMod .. " + R",       hl.dsp.exec_cmd(launchPrefix .. "bash " .. os.getenv("HOME") .. "/.config/hypr/scripts/leer-seleccion.sh"))
 hl.bind(mainMod .. " + ALT + R", hl.dsp.exec_cmd(launchPrefix .. "bash " .. os.getenv("HOME") .. "/.config/hypr/scripts/actualizar-voz.sh"))
 
+-- Traductor flotante EN/ES: selección, diccionario/phrasal verbs y pronunciación Piper.
+-- El mismo script se puede enlazar a un botón Stream Deck con OpenDeck > Run Command.
+hl.bind(mainMod .. " + SHIFT + T", hl.dsp.exec_cmd(launchPrefix .. "bash " .. os.getenv("HOME") .. "/.config/hypr/scripts/traducir-seleccion.sh"))
+
 -- (24/09/2026) Quitado SUPER+SHIFT+ALT+N (mover ventana a workspace N): 4 teclas,
 -- reemplazado por SUPER+CONTROL+N.
-
