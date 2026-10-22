@@ -6,32 +6,32 @@ ThumbnailBarIsVisible=true
 [ImageView]
 BackgroundColorMode=Dark
 MouseWheelBehavior=MouseWheelBehavior::Browse
-ThumbnailSplitterSizes=320,92
+ThumbnailSplitterSizes=346,99
 
 [MainWindow]
 MenuBar=Disabled
 
 [Recent Files]
-File1[$e]=$HOME/Compartido-VM/hola-lettering-by-writing-on-spain-color-flag.webp
-File10[$e]=$HOME/GoogleDrive/Uni/Robotica2/practica6/r1.jpeg
-File2[$e]=$HOME/Compartido-VM/PROGRAMAS ALUMNOS/adobe/mastercito-x/recuperacion-datos/recuva3.png
-File3[$e]=$HOME/GoogleDrive/Uni/Robotica2/practica6/WhatsApp Image 2026-10-20 at 9.26.36 AM.jpeg
-File4[$e]=$HOME/GoogleDrive/Uni/Robotica2/practica6/r5.jpeg
-File5[$e]=$HOME/GoogleDrive/Uni/Robotica2/practica6/r4.jpeg
-File6[$e]=$HOME/GoogleDrive/Uni/Robotica2/practica6/WhatsApp Image 2026-10-20 at 9.26.40 AM.jpeg
-File7[$e]=$HOME/GoogleDrive/Uni/Robotica2/practica6/MANUAL RASPBERRY PI.pdf
-File8[$e]=$HOME/GoogleDrive/Uni/Robotica2/practica6/r3.jpeg
-File9[$e]=$HOME/GoogleDrive/Uni/Robotica2/practica6/r2.jpeg
-Name1[$e]=hola-lettering-by-writing-on-spain-color-flag.webp
-Name10[$e]=r1.jpeg
-Name2[$e]=recuva3.png
-Name3[$e]=WhatsApp Image 2026-10-20 at 9.26.36 AM.jpeg
-Name4[$e]=r5.jpeg
-Name5[$e]=r4.jpeg
-Name6[$e]=WhatsApp Image 2026-10-20 at 9.26.40 AM.jpeg
-Name7[$e]=MANUAL RASPBERRY PI.pdf
-Name8[$e]=r3.jpeg
-Name9[$e]=r2.jpeg
+File1[$e]=$HOME/GoogleDrive/Uni/Taller1/proyecto/WhatsApp Image 2026-10-09 at 8.06.04 PM.jpeg
+File10[$e]=$HOME/GoogleDrive/Uni/Robotica2/practica6/WhatsApp Image 2026-10-20 at 9.26.36 AM.jpeg
+File2[$e]=$HOME/GoogleDrive/Uni/Taller1/proyecto/WhatsApp Image 2026-10-07 at 7.11.39 PM.jpeg
+File3[$e]=$HOME/GoogleDrive/Uni/Taller1/proyecto/WhatsApp Image 2026-10-07 at 7.33.21 PM.jpeg
+File4[$e]=$HOME/GoogleDrive/Uni/Taller1/proyecto/WhatsApp Image 2026-10-07 at 7.37.38 PM.jpeg
+File5[$e]=$HOME/GoogleDrive/Uni/Taller1/proyecto/WhatsApp Image 2026-10-09 at 7.08.42 PM.jpeg
+File6[$e]=$HOME/GoogleDrive/Uni/Taller1/proyecto/WhatsApp Image 2026-10-07 at 8.06.00 PM.jpeg
+File7[$e]=$HOME/GoogleDrive/Uni/Taller1/proyecto/WhatsApp Image 2026-10-09 at 7.10.08 PM.jpeg
+File8[$e]=$HOME/GoogleDrive/Uni/Taller1/proyecto/WhatsApp Image 2026-10-09 at 7.24.38 PM.jpeg
+File9[$e]=$HOME/GoogleDrive/Uni/Taller1/proyecto/WhatsApp Image 2026-10-09 at 7.37.23 PM.jpeg
+Name1[$e]=WhatsApp Image 2026-10-09 at 8.06.04 PM.jpeg
+Name10[$e]=WhatsApp Image 2026-10-20 at 9.26.36 AM.jpeg
+Name2[$e]=WhatsApp Image 2026-10-07 at 7.11.39 PM.jpeg
+Name3[$e]=WhatsApp Image 2026-10-07 at 7.33.21 PM.jpeg
+Name4[$e]=WhatsApp Image 2026-10-07 at 7.37.38 PM.jpeg
+Name5[$e]=WhatsApp Image 2026-10-09 at 7.08.42 PM.jpeg
+Name6[$e]=WhatsApp Image 2026-10-07 at 8.06.00 PM.jpeg
+Name7[$e]=WhatsApp Image 2026-10-09 at 7.10.08 PM.jpeg
+Name8[$e]=WhatsApp Image 2026-10-09 at 7.24.38 PM.jpeg
+Name9[$e]=WhatsApp Image 2026-10-09 at 7.37.23 PM.jpeg
 
 [SideBar]
 InformationSplitterSizes=209,246
