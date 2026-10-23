@@ -41,7 +41,9 @@ widget_order = [ "lockscreen-login-box@eDP-1" ]
 enabled = [ "goodroot/noctwhspr" ]
 
 [theme]
+custom_palette = "tokyo"
 mode = "dark"
+source = "custom"
 
     [theme.templates.user.noctwhspr_mic_osd]
     input_path = "/home/yafer/.config/noctalia/templates/noctwhspr-mic-osd.css"
@@ -51,4 +53,7 @@ mode = "dark"
 path = "/usr/share/noctalia/assets/noctalia-wallpaper.png"
 
 [wallpaper.last]
-path = "/usr/share/noctalia/assets/noctalia-wallpaper.png"
+path = "/home/yafer/Imágenes/Wallpapers/Oscuros/luffy-gear5-luna.png"
+
+[wallpaper.monitors.eDP-1]
+path = "/home/yafer/Imágenes/Wallpapers/Oscuros/luffy-gear5-luna.png"
