@@ -40,9 +40,12 @@ widget_order = [ "lockscreen-login-box@eDP-1" ]
 [plugins]
 enabled = [ "goodroot/noctwhspr" ]
 
-[theme.templates.user.noctwhspr_mic_osd]
-input_path = "/home/yafer/.config/noctalia/templates/noctwhspr-mic-osd.css"
-output_path = "/home/yafer/.config/hyprwhspr/theme/mic-osd.css"
+[theme]
+mode = "dark"
+
+    [theme.templates.user.noctwhspr_mic_osd]
+    input_path = "/home/yafer/.config/noctalia/templates/noctwhspr-mic-osd.css"
+    output_path = "/home/yafer/.config/hyprwhspr/theme/mic-osd.css"
 
 [wallpaper.default]
 path = "/usr/share/noctalia/assets/noctalia-wallpaper.png"
