@@ -1,0 +1,12 @@
+{
+  "modelos": [
+    "opencode-go/deepseek-v4.1-flash",
+    "opencode-go/glm-5.3-flash",
+    "opencode-go/longcat-2.5-preview-free"
+  ],
+  "max_chars": 60000,
+  "chunk_chars": 20000,
+  "timeout_seconds": 90,
+  "cache_days": 7,
+  "save_dir": "~/Vídeos/Resúmenes"
+}

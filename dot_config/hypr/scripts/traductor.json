@@ -1,0 +1,4 @@
+{
+  "piper_model": "~/.local/share/piper-voices/en_US-lessac-high.onnx",
+  "speech_speed": 0.9
+}
