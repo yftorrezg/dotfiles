@@ -88,6 +88,14 @@ function VD.relativo(delta)
     VD.ir(((cur - 1 + delta) % N) + 1)
 end
 
+-- Mover la ventana enfocada al escritorio virtual siguiente/anterior (misma cara) e ir con ella.
+-- Lo usa el gesto de 4 dedos izquierda/derecha del touchpad (inputs.lua).
+function VD.moverVentanaRelativo(delta)
+    local i = ((VD.indiceActual() - 1 + delta) % N) + 1
+    local destino = (VD.ladoActual() == 1) and i or (i + N)
+    dispatch(hl.dsp.window.move({ workspace = tostring(destino) }))
+end
+
 -- Voltear (SUPER+`, gesto 3 dedos arriba/abajo):
 --  1 pantalla: ws i <-> ws i+N ; 2 pantallas: foco a la otra pantalla.
 function VD.voltear()

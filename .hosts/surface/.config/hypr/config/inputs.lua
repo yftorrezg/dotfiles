@@ -39,5 +39,7 @@ hl.gesture({ fingers = 3, direction = "left",  action = function() VD.relativo(1
 hl.gesture({ fingers = 3, direction = "right", action = function() VD.relativo(-1) end })
 hl.gesture({ fingers = 3, direction = "up",    action = function() VD.voltear() end })
 hl.gesture({ fingers = 3, direction = "down",  action = function() VD.voltear() end })
+hl.gesture({ fingers = 4, direction = "left",  action = function() VD.moverVentanaRelativo(1) end })
+hl.gesture({ fingers = 4, direction = "right", action = function() VD.moverVentanaRelativo(-1) end })
 hl.gesture({ fingers = 4, direction = "up",    action = "fullscreen" })
 hl.gesture({ fingers = 4, direction = "down",  action = "float" })
