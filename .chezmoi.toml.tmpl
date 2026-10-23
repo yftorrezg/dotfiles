@@ -2,6 +2,7 @@
 {{- $equipo := "" -}}
 {{- if eq .chezmoi.hostname "yf" -}}{{- $equipo = "pc" -}}
 {{- else if eq .chezmoi.hostname "yafer" -}}{{- $equipo = "laptop" -}}
+{{- else if eq .chezmoi.hostname "yf-s" -}}{{- $equipo = "surface" -}}
 {{- else -}}{{- $equipo = promptStringOnce . "equipo" "¿Qué equipo es este? (pc / laptop)" -}}
 {{- end -}}
 [data]

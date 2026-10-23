@@ -11,6 +11,7 @@ shell noctalia, fish). Se sincroniza por GitHub privado `yftorrezg/dotfiles` con
 |---|---|---|---|
 | PC de escritorio (casa) | `yf` | `pc` | i7-6700K, NVIDIA GTX 980 (driver 580xx), DP-3 + HDMI-A-1 vertical, mic USB Maono |
 | Laptop ThinkPad E14 Gen4 (facultad) | `yafer` | `laptop` | i7-1255U, Iris Xe, eDP-1 1920x1080 escala 1 (+ Arzopa opcional), teclado UK `gb`+`extd`, batería tope 80% |
+| Surface Pro 6 (casa) | `yf-s` | `surface` | Kaby Lake-R, UHD Graphics 620, eDP-1 2736x1824 escala 2, Type Cover teclado `es` |
 
 `chezmoi execute-template '{{ .equipo }}'` dice en cuál estás.
 
