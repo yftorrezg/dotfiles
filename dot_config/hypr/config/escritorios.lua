@@ -184,13 +184,20 @@ INTERNAL_MONITOR_SPEC = { output = MONITOR1, mode = "preferred", position = "0x0
 
 hl.on("hyprland.start", programarRedistribucion)
 hl.on("config.reloaded", programarRedistribucion)
-hl.on("monitor.added", programarRedistribucion)
-hl.on("monitor.removed", function()
-    -- Seguridad: si se desconecta la Arzopa con la tapa cerrada y la interna apagada,
-    -- volver a encender la interna para no quedar sin pantalla.
-    if #monitores() == 0 then hl.monitor(INTERNAL_MONITOR_SPEC) end
-    programarRedistribucion()
-end)
+
+-- Hotplug: al conectar/desconectar un monitor, recargar la config para que se adapte sola
+-- (1 pantalla = 5 escritorios + chats en ws 1; 2 pantallas = 10 + chats en ws 6).
+-- La recarga re-evalúa windowrules/workspaces con el nuevo número de monitores.
+local function recargarTrasHotplug()
+    hl.timer(function()
+        -- Seguridad: si al desconectar quedó sin monitores (tapa cerrada), reencender la interna.
+        if #monitores() == 0 then hl.monitor(INTERNAL_MONITOR_SPEC) end
+        hl.exec_cmd("hyprctl reload")
+    end, { timeout = 500, type = "oneshot" })
+end
+
+hl.on("monitor.added", recargarTrasHotplug)
+hl.on("monitor.removed", recargarTrasHotplug)
 
 -- Tapa (switch "Lid Switch" de hyprctl devices). "on" = cerrada.
 hl.bind("switch:on:Lid Switch", function()

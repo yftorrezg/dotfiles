@@ -60,7 +60,8 @@ hl.window_rule({ match = { class = "^(dev\\.)?(noctalia\\.Noctalia(\\.Settings)?
 --   Con 2 pantallas, chats vuelven al ws 6 (cara secundaria).
 -- Las apps web son "ventanas de app" de Brave (scripts/app-web.sh), con clase brave-<dominio>__-Default.
 -- YouTube, Drive y VS Code no tienen regla: se abren en el escritorio donde estés.
-local wsChats = (secondaryMonitor() and "6" or "1")
+local wsChats = "6" -- PC (2 monitores) / laptop+surface con 2 pantallas
+if secondaryMonitor and not secondaryMonitor() then wsChats = "1" end -- laptop+surface con 1 pantalla
 local escritoriosFijos = {
     { clase = "^brave-www\\.(facebook|instagram|tiktok)\\.com__.*$", ws = "1" }, -- redes
     { clase = "^brave-web\\.(whatsapp\\.com|telegram\\.org)__.*$",   ws = wsChats }, -- chats: ws 1 (1 pantalla) / ws 6 (2 pantallas)
