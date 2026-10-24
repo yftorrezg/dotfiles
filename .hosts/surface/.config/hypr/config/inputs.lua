@@ -30,16 +30,20 @@ hl.config({
 -- Nombre tomado de `hyprctl devices` en la Surface.
 hl.device({ name = "microsoft-surface-type-cover-touchpad", accel_profile = "adaptive" })
 
--- Gestos del touchpad (SURFACE). Ninguno es destructivo.
+-- Gestos del touchpad (SURFACE). 3 dedos = navegación; 4 dedos = gestión de ventanas.
 --   3 dedos izquierda/derecha = escritorio virtual siguiente/anterior (igual que SUPER+CTRL+→/←)
---   3 dedos arriba/abajo      = voltear a la cara secundaria (chats, Drive) y volver
+--   3 dedos arriba            = abrir terminal (1 pantalla) / voltear monitor (2 pantallas, HDMI)
+--   3 dedos abajo             = cerrar pestaña (Ctrl+W)
+--   4 dedos izquierda/derecha = mover ventana al escritorio virtual siguiente/anterior
 --   4 dedos arriba            = pantalla completa
---   4 dedos abajo             = ventana flotante
+--   4 dedos abajo             = cerrar ventana
 hl.gesture({ fingers = 3, direction = "left",  action = function() VD.relativo(1) end })
 hl.gesture({ fingers = 3, direction = "right", action = function() VD.relativo(-1) end })
-hl.gesture({ fingers = 3, direction = "up",    action = function() VD.voltear() end })
-hl.gesture({ fingers = 3, direction = "down",  action = function() VD.voltear() end })
+hl.gesture({ fingers = 3, direction = "up",    action = function()
+    if secondaryMonitor() then VD.voltear() else hl.exec_cmd("uwsm app -- " .. TERMINAL) end
+end })
+hl.gesture({ fingers = 3, direction = "down",  action = function() hl.exec_cmd("ydotool key 29:1 17:1 17:0 29:0") end }) -- Ctrl+W: cerrar pestaña
 hl.gesture({ fingers = 4, direction = "left",  action = function() VD.moverVentanaRelativo(1) end })
 hl.gesture({ fingers = 4, direction = "right", action = function() VD.moverVentanaRelativo(-1) end })
 hl.gesture({ fingers = 4, direction = "up",    action = "fullscreen" })
-hl.gesture({ fingers = 4, direction = "down",  action = "float" })
+hl.gesture({ fingers = 4, direction = "down",  action = "close" })
