@@ -10,9 +10,10 @@ end
 -- Cara secundaria NUM_WPM+1..2*NUM_WPM: en la Arzopa si está conectada al cargar la config;
 -- si no, sin monitor fijo (viven en la interna). Al conectar/desconectar en caliente las
 -- reubica config/escritorios.lua (VD.redistribuir), así que aquí no se fija un nombre.
+-- (24/10/2026) 1 pantalla: no persistentes -> el panel muestra solo 5 escritorios.
 local sec = secondaryMonitor and secondaryMonitor() or nil
 for i = 1, NUM_WPM do
-    local regla = { workspace = tostring(NUM_WPM + i), persistent = true }
+    local regla = { workspace = tostring(NUM_WPM + i), persistent = (sec ~= nil) }
     if sec then
         regla.monitor = sec
         regla.default = (i == 1)

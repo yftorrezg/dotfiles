@@ -1,11 +1,10 @@
 -- Escritorios virtuales dinámicos (laptop + Arzopa opcional) — 2026-10
 --
 -- Modelo (igual que en la PC): escritorio virtual i = ws i ("cara principal")
--- + ws i+NUM_WPM ("cara secundaria": chats en 6, Drive en 8...).
+-- + ws i+NUM_WPM ("cara secundaria"). Con 1 pantalla solo se usa la principal (1..5).
 --
---  * Solo la interna (eDP-1): las dos caras viven en eDP-1. SUPER+1..5 va a la cara
---    principal; SUPER+` (tecla bajo Esc) o 3 dedos arriba/abajo "voltean" a la
---    secundaria y vuelven.
+--  * Solo la interna (eDP-1): 5 escritorios (ws 1..5). No hay cara secundaria:
+--    "voltear" no hace nada y los chats (WhatsApp/Telegram) van al ws 1 (junto a redes).
 --  * Con la Arzopa conectada (cualquier nombre: HDMI-A-1, DP-1, DP-2...): igual que la
 --    PC, eDP-1 = ws 1..5 y la Arzopa = ws 6..10; SUPER+N cambia ambas. "Voltear" pasa
 --    el foco a la otra pantalla.
@@ -97,37 +96,31 @@ function VD.moverVentanaRelativo(delta)
 end
 
 -- Voltear (SUPER+`, gesto 3 dedos arriba/abajo):
---  1 pantalla: ws i <-> ws i+N ; 2 pantallas: foco a la otra pantalla.
+--  1 pantalla: sin cara secundaria (solo 5 escritorios) -> no hace nada;
+--  2 pantallas: foco a la otra pantalla.
 function VD.voltear()
     local p, s = primaryMonitor(), secondaryMonitor()
     if s then
         local mon = hl.get_active_monitor()
         dispatch(hl.dsp.focus({ monitor = (mon and mon.name == s) and p or s }))
-    else
-        local i = VD.indiceActual()
-        local destino = (VD.ladoActual() == 1) and (i + N) or i
-        dispatch(hl.dsp.focus({ workspace = tostring(destino) }))
     end
 end
 
--- SUPER+ALT+1 / SUPER+ALT+2: ir a la cara/pantalla principal o secundaria
+-- SUPER+ALT+1 / SUPER+ALT+2: ir a la cara/pantalla principal o secundaria.
+-- 1 pantalla: no hay cara secundaria, no hace nada.
 function VD.enfocarLado(lado)
     local p, s = primaryMonitor(), secondaryMonitor()
     if s then
         dispatch(hl.dsp.focus({ monitor = (lado == 2) and s or p }))
-    else
-        dispatch(hl.dsp.focus({ workspace = tostring((lado - 1) * N + VD.indiceActual()) }))
     end
 end
 
--- SUPER+SHIFT+1 / SUPER+SHIFT+2: mandar la ventana a la cara/pantalla principal o secundaria
+-- SUPER+SHIFT+1 / SUPER+SHIFT+2: mandar la ventana a la cara/pantalla principal o secundaria.
+-- 1 pantalla: no hay cara secundaria, no hace nada.
 function VD.moverVentanaALado(lado)
     local p, s = primaryMonitor(), secondaryMonitor()
     if s then
         dispatch(hl.dsp.window.move({ monitor = (lado == 2) and s or p }))
-    else
-        -- 1 pantalla: la ventana se va a la otra cara y tú te quedas donde estás
-        dispatch(hl.dsp.window.move({ workspace = tostring((lado - 1) * N + VD.indiceActual()), follow = false }))
     end
 end
 

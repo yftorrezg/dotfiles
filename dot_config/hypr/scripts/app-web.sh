@@ -11,10 +11,14 @@
 
 NUM_WPM=5
 
+# (24/10/2026) Chats según pantallas: 1 pantalla -> ws 1 (junto a redes); 2 pantallas -> ws 6 (cara secundaria).
+n_mon=$(hyprctl monitors -j 2>/dev/null | jq 'length' 2>/dev/null)
+ws_chats=1; [[ "${n_mon:-1}" -ge 2 ]] && ws_chats=6
+
 case "$1" in
     youtube)   url="https://www.youtube.com/";       clase="^brave-www\.youtube\.com__";   ws="" ;;
-    whatsapp)  url="https://web.whatsapp.com/";      clase="^brave-web\.whatsapp\.com__";  ws=6 ;;
-    telegram)  url="https://web.telegram.org/";      clase="^brave-web\.telegram\.org__";  ws=6 ;;
+    whatsapp)  url="https://web.whatsapp.com/";      clase="^brave-web\.whatsapp\.com__";  ws=$ws_chats ;;
+    telegram)  url="https://web.telegram.org/";      clase="^brave-web\.telegram\.org__";  ws=$ws_chats ;;
     facebook)  url="https://www.facebook.com/";      clase="^brave-www\.facebook\.com__";  ws=1 ;;
     instagram) url="https://www.instagram.com/";     clase="^brave-www\.instagram\.com__"; ws=1 ;;
     tiktok)    url="https://www.tiktok.com/";        clase="^brave-www\.tiktok\.com__";    ws=1 ;;

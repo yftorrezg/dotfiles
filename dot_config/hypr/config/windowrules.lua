@@ -55,13 +55,15 @@ hl.window_rule({ match = { class = "^(org\\.kde\\.ark)$" }, size = { "max(monito
 hl.window_rule({ match = { class = "^(.*satty.*)$", title = "^(Satty)$" }, min_size = { "max(monitor_w, monitor_h)*0.35", "min(monitor_w, monitor_h)*0.35" }, float = true })
 hl.window_rule({ match = { class = "^(dev\\.)?(noctalia\\.Noctalia(\\.Settings)?)$" }, float = true, size = { "monitor_w*0.70", "monitor_h*0.70" } })
 
--- Escritorios fijos (25/09/2026). Escritorio virtual i = ws i (cara principal) + ws i+5 (cara secundaria:
--- en la laptop sola se ve con SUPER+` / 3 dedos; con la Arzopa conectada es la Arzopa).
+-- Escritorios fijos (25/09/2026). Escritorio virtual i = ws i (cara principal) + ws i+5 (cara secundaria).
+-- (24/10/2026) 1 pantalla = solo 5 escritorios: chats (WhatsApp/Telegram) van al ws 1 junto a redes.
+--   Con 2 pantallas, chats vuelven al ws 6 (cara secundaria).
 -- Las apps web son "ventanas de app" de Brave (scripts/app-web.sh), con clase brave-<dominio>__-Default.
 -- YouTube, Drive y VS Code no tienen regla: se abren en el escritorio donde estés.
+local wsChats = (secondaryMonitor() and "6" or "1")
 local escritoriosFijos = {
-    { clase = "^brave-www\\.(facebook|instagram|tiktok)\\.com__.*$", ws = "1" }, -- 1 principal: redes
-    { clase = "^brave-web\\.(whatsapp\\.com|telegram\\.org)__.*$",   ws = "6" }, -- 1 secundaria: chats
+    { clase = "^brave-www\\.(facebook|instagram|tiktok)\\.com__.*$", ws = "1" }, -- redes
+    { clase = "^brave-web\\.(whatsapp\\.com|telegram\\.org)__.*$",   ws = wsChats }, -- chats: ws 1 (1 pantalla) / ws 6 (2 pantallas)
     -- (09/10/2026) Quitado Drive (antes ws 8): ahora se abre en el escritorio donde estés. Solo las redes son fijas.
     -- (01/10/2026) Quitado VSCode: lo usa mucho, limitarlo al escritorio 4 no era práctico.
 }
