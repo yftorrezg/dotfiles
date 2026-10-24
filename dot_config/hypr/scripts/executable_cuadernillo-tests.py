@@ -45,6 +45,11 @@ vtt = ("WEBVTT\nKind: captions\nLanguage: es\n\n"
        "00:00:02.750 --> 00:00:05.000 align:start position:0%\nhola a todos\nhoy<00:00:03.100><c> vemos</c><00:00:03.500><c> React</c>\n")
 prueba("subtítulos .vtt de YouTube", [x[2] for x in c.leer_srt(vtt)] == ["hola a todos", "hoy vemos React"],
        str([x[2] for x in c.leer_srt(vtt)]))
+vtt_udemy = ("WEBVTT\n\n00:00.300 --> 00:04.320\nYa creamos nuestro menú.\n\n"
+             "01:05.000 --> 01:09.500\nFalta mostrarlo en el front end.\n")
+cu_udemy = c.leer_srt(vtt_udemy)
+prueba("subtítulos .vtt de Udemy (MM:SS.mmm, sin horas)", [(x[0], x[2]) for x in cu_udemy] ==
+       [(0.3, "Ya creamos nuestro menú."), (65.0, "Falta mostrarlo en el front end.")], str(cu_udemy))
 prueba("tiempos de subtítulos", cues[1][0] == 3.0 and c.a_segundos("1:02:03") == 3723 and c.hms(3723) == "1:02:03")
 
 

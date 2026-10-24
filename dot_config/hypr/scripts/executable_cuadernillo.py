@@ -97,7 +97,7 @@ def leer_srt(texto):
     for bloque in re.split(r"\n\s*\n", texto.replace("\r", "")):
         lineas = [l for l in bloque.strip().split("\n") if l.strip()]
         for k, l in enumerate(lineas):
-            m = re.match(r"(\d+:\d\d:\d\d[,.]\d+)\s*-->\s*(\d+:\d\d:\d\d[,.]\d+)", l)
+            m = re.match(r"((?:\d+:)?\d\d:\d\d[,.]\d+)\s*-->\s*((?:\d+:)?\d\d:\d\d[,.]\d+)", l)  # VTT de Udemy: 00:04.320 (sin horas)
             if m:
                 txt = " ".join(lineas[k + 1:])
                 txt = re.sub(r"<[^>]+>|\{[^}]+\}", "", txt)
