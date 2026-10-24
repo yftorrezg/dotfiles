@@ -16,6 +16,11 @@ widget_order = [
     "desktop-widget-00000000000000b2"
 ]
 
+    [desktop_widgets.grid]
+    cell_size = 16
+    major_interval = 4
+    visible = true
+
     [desktop_widgets.widget.desktop-widget-00000000000000a1]
     box_height = 120.0
     box_width = 340.0
@@ -300,11 +305,11 @@ wallpaper_scheme = "m3-tonal-spot"
 path = "/usr/share/noctalia/assets/noctalia-wallpaper.png"
 
 [wallpaper.last]
-path = "/home/yafer/.cache/escritorios-vivos/temas/oscuros-levi-blanco-negro.jpg"
+path = "/home/yafer/Imágenes/Wallpapers/Oscuros/vertical/ciudad-futurista.jpg"
 
 [wallpaper.monitors.DP-3]
-path = "/home/yafer/.cache/escritorios-vivos/temas/oscuros-levi-blanco-negro.jpg"
+path = "/home/yafer/Imágenes/Wallpapers/Oscuros/cyberpunk-sakura.jpg"
 
 [wallpaper.monitors.HDMI-A-1]
 fill_mode = "fit"
-path = "/home/yafer/.cache/escritorios-vivos/temas/oscuros-levi-blanco-negro.jpg"
+path = "/home/yafer/Imágenes/Wallpapers/Oscuros/vertical/ciudad-futurista.jpg"
