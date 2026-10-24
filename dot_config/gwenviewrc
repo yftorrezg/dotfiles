@@ -1,44 +1,43 @@
 [General]
 BackgroundColorMode=DocumentView::Dark
 LastUsedVersion=210800
-ThumbnailBarIsVisible=true
 
 [ImageView]
 BackgroundColorMode=Dark
 MouseWheelBehavior=MouseWheelBehavior::Browse
-ThumbnailSplitterSizes=346,99
+ThumbnailSplitterSizes=765,219
 
 [MainWindow]
 MenuBar=Disabled
 
 [Recent Files]
-File1[$e]=/run/media/yafer/SuperYafer/hack4u/Aprende Oracle PLSQL desde Cero/Aprende Oracle PLSQL desde Cero/todas-las-capturas/006 02 - Preparación infraestructura necesaria (SOLO NECESARIA SI NO LA TI · 0008 · 00-01-35.webp
-File10[$e]=/run/media/yafer/SuperYafer/hack4u/Aprende Oracle PLSQL desde Cero/Aprende Oracle PLSQL desde Cero/todas-las-capturas/008 02 - Preparación infraestructura necesaria (SOLO NECESARIA SI NO LA TI · 0005 · 00-00-31.webp
-File2[$e]=/run/media/yafer/SuperYafer/hack4u/Aprende Oracle PLSQL desde Cero/Aprende Oracle PLSQL desde Cero/todas-las-capturas/006 02 - Preparación infraestructura necesaria (SOLO NECESARIA SI NO LA TI · 0009 · 00-03-19.webp
-File3[$e]=/run/media/yafer/SuperYafer/hack4u/Aprende Oracle PLSQL desde Cero/Aprende Oracle PLSQL desde Cero/todas-las-capturas/006 02 - Preparación infraestructura necesaria (SOLO NECESARIA SI NO LA TI · 0010 · 00-03-25.webp
-File4[$e]=/run/media/yafer/SuperYafer/hack4u/Aprende Oracle PLSQL desde Cero/Aprende Oracle PLSQL desde Cero/todas-las-capturas/007 02 - Preparación infraestructura necesaria (SOLO NECESARIA SI NO LA TI · 0003 · 00-03-36.webp
-File5[$e]=/run/media/yafer/SuperYafer/hack4u/Aprende Oracle PLSQL desde Cero/Aprende Oracle PLSQL desde Cero/todas-las-capturas/007 02 - Preparación infraestructura necesaria (SOLO NECESARIA SI NO LA TI · 0004 · 00-03-39.webp
-File6[$e]=/run/media/yafer/SuperYafer/hack4u/Aprende Oracle PLSQL desde Cero/Aprende Oracle PLSQL desde Cero/todas-las-capturas/007 02 - Preparación infraestructura necesaria (SOLO NECESARIA SI NO LA TI · 0006 · 00-03-50.webp
-File7[$e]=/run/media/yafer/SuperYafer/hack4u/Aprende Oracle PLSQL desde Cero/Aprende Oracle PLSQL desde Cero/todas-las-capturas/007 02 - Preparación infraestructura necesaria (SOLO NECESARIA SI NO LA TI · 0007 · 00-03-55.webp
-File8[$e]=/run/media/yafer/SuperYafer/hack4u/Aprende Oracle PLSQL desde Cero/Aprende Oracle PLSQL desde Cero/todas-las-capturas/008 02 - Preparación infraestructura necesaria (SOLO NECESARIA SI NO LA TI · 0003 · 00-00-19.webp
-File9[$e]=/run/media/yafer/SuperYafer/hack4u/Aprende Oracle PLSQL desde Cero/Aprende Oracle PLSQL desde Cero/todas-las-capturas/008 02 - Preparación infraestructura necesaria (SOLO NECESARIA SI NO LA TI · 0004 · 00-00-24.webp
-Name1[$e]=006 02 - Preparación infraestructura necesaria (SOLO NECESARIA SI NO LA TI · 0008 · 00-01-35.webp
-Name10[$e]=008 02 - Preparación infraestructura necesaria (SOLO NECESARIA SI NO LA TI · 0005 · 00-00-31.webp
-Name2[$e]=006 02 - Preparación infraestructura necesaria (SOLO NECESARIA SI NO LA TI · 0009 · 00-03-19.webp
-Name3[$e]=006 02 - Preparación infraestructura necesaria (SOLO NECESARIA SI NO LA TI · 0010 · 00-03-25.webp
-Name4[$e]=007 02 - Preparación infraestructura necesaria (SOLO NECESARIA SI NO LA TI · 0003 · 00-03-36.webp
-Name5[$e]=007 02 - Preparación infraestructura necesaria (SOLO NECESARIA SI NO LA TI · 0004 · 00-03-39.webp
-Name6[$e]=007 02 - Preparación infraestructura necesaria (SOLO NECESARIA SI NO LA TI · 0006 · 00-03-50.webp
-Name7[$e]=007 02 - Preparación infraestructura necesaria (SOLO NECESARIA SI NO LA TI · 0007 · 00-03-55.webp
-Name8[$e]=008 02 - Preparación infraestructura necesaria (SOLO NECESARIA SI NO LA TI · 0003 · 00-00-19.webp
-Name9[$e]=008 02 - Preparación infraestructura necesaria (SOLO NECESARIA SI NO LA TI · 0004 · 00-00-24.webp
+File1[$e]=/run/media/yafer/SuperYafer/hack4u/Aprende Oracle PLSQL desde Cero/Aprende Oracle PLSQL desde Cero/capturas-estudio-codigos/121 07 - Usar SQL en PLSQL · 006 · delete.sql.webp
+File10[$e]=/run/media/yafer/SuperYafer/hack4u/Aprende Oracle PLSQL desde Cero/Aprende Oracle PLSQL desde Cero/capturas-estudio-codigos/001 02 - Preparación infraestructura necesaria (SOLO NECESARIA SI NO LA TIENES) · 007 · tablas-hr.sql · 01.webp
+File2[$e]=/run/media/yafer/SuperYafer/hack4u/Aprende Oracle PLSQL desde Cero/Aprende Oracle PLSQL desde Cero/capturas-estudio-codigos/122 08 - Excepciones · 002 · EXCEPCIONES-SINTAXIS.sql.webp
+File3[$e]=/run/media/yafer/SuperYafer/hack4u/Aprende Oracle PLSQL desde Cero/Aprende Oracle PLSQL desde Cero/capturas-estudio-codigos/123 08 - Excepciones · 003 · EXCEPCIONES-PREDEFINIDAS.sql.webp
+File4[$e]=/run/media/yafer/SuperYafer/hack4u/Aprende Oracle PLSQL desde Cero/Aprende Oracle PLSQL desde Cero/capturas-estudio-codigos/124 08 - Excepciones · 004 · EXCEPCIONES-NO-PREDEFINIDAS.sql.webp
+File5[$e]=/run/media/yafer/SuperYafer/hack4u/Aprende Oracle PLSQL desde Cero/Aprende Oracle PLSQL desde Cero/capturas-estudio-codigos/125 08 - Excepciones · 005 · SQLCODE-Y-SQLERRM.sql.webp
+File6[$e]=/run/media/yafer/SuperYafer/hack4u/Aprende Oracle PLSQL desde Cero/Aprende Oracle PLSQL desde Cero/capturas-estudio-codigos/126 08 - Excepciones · 007 · CONTROLAR-SQL-CON-EXCEPCIONES.sql.webp
+File7[$e]=/run/media/yafer/SuperYafer/hack4u/Aprende Oracle PLSQL desde Cero/Aprende Oracle PLSQL desde Cero/capturas-estudio-codigos/142 11 - Procedimientos y funciones almacenadas · 006 · calc-tax.sql.webp
+File8[$e]=/run/media/yafer/SuperYafer/hack4u/Aprende Oracle PLSQL desde Cero/Aprende Oracle PLSQL desde Cero/capturas-estudio-codigos/003 02 - Preparación infraestructura necesaria (SOLO NECESARIA SI NO LA TIENES) · 007 · tablas-hr.sql · 03.webp
+File9[$e]=/run/media/yafer/SuperYafer/hack4u/Aprende Oracle PLSQL desde Cero/Aprende Oracle PLSQL desde Cero/capturas-estudio-codigos/002 02 - Preparación infraestructura necesaria (SOLO NECESARIA SI NO LA TIENES) · 007 · tablas-hr.sql · 02.webp
+Name1[$e]=121 07 - Usar SQL en PLSQL · 006 · delete.sql.webp
+Name10[$e]=001 02 - Preparación infraestructura necesaria (SOLO NECESARIA SI NO LA TIENES) · 007 · tablas-hr.sql · 01.webp
+Name2[$e]=122 08 - Excepciones · 002 · EXCEPCIONES-SINTAXIS.sql.webp
+Name3[$e]=123 08 - Excepciones · 003 · EXCEPCIONES-PREDEFINIDAS.sql.webp
+Name4[$e]=124 08 - Excepciones · 004 · EXCEPCIONES-NO-PREDEFINIDAS.sql.webp
+Name5[$e]=125 08 - Excepciones · 005 · SQLCODE-Y-SQLERRM.sql.webp
+Name6[$e]=126 08 - Excepciones · 007 · CONTROLAR-SQL-CON-EXCEPCIONES.sql.webp
+Name7[$e]=142 11 - Procedimientos y funciones almacenadas · 006 · calc-tax.sql.webp
+Name8[$e]=003 02 - Preparación infraestructura necesaria (SOLO NECESARIA SI NO LA TIENES) · 007 · tablas-hr.sql · 03.webp
+Name9[$e]=002 02 - Preparación infraestructura necesaria (SOLO NECESARIA SI NO LA TIENES) · 007 · tablas-hr.sql · 02.webp
 
 [SideBar]
 InformationSplitterSizes=209,246
 SideBarSplitterSizes=253,1663
 
 [ThumbnailView]
-ThumbnailSize=548
+ThumbnailSize=360
 
 [UiSettings]
 ColorScheme=noctalia
