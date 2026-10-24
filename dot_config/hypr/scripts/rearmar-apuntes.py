@@ -111,13 +111,17 @@ def rearmar(carpeta):
 
 
 def main():
-    n = 0
+    n, fallas = 0, []
     for base in sys.argv[1:]:
         for c in sorted(clases(base)):
-            if rearmar(c):
-                n += 1
-                print("✔", os.path.relpath(c, base))
-    print(f"{n} clases rearmadas")
+            try:
+                if rearmar(c):
+                    n += 1
+                    print("✔", os.path.relpath(c, base))
+            except OSError as e:  # archivo ilegible (disco con errores): se salta y se avisa al final
+                fallas.append(c)
+                print("✘", os.path.relpath(c, base), "->", e, flush=True)
+    print(f"{n} clases rearmadas" + (f", {len(fallas)} con error de lectura/escritura" if fallas else ""))
     return 0
 
 
