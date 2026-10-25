@@ -11,30 +11,30 @@ ThumbnailSplitterSizes=765,219
 MenuBar=Disabled
 
 [Recent Files]
-File1[$e]=/run/media/yafer/SuperYafer/hack4u/Aprende Oracle PLSQL desde Cero/Aprende Oracle PLSQL desde Cero/capturas-estudio-codigos/121 07 - Usar SQL en PLSQL · 006 · delete.sql.webp
-File10[$e]=/run/media/yafer/SuperYafer/hack4u/Aprende Oracle PLSQL desde Cero/Aprende Oracle PLSQL desde Cero/capturas-estudio-codigos/001 02 - Preparación infraestructura necesaria (SOLO NECESARIA SI NO LA TIENES) · 007 · tablas-hr.sql · 01.webp
-File2[$e]=/run/media/yafer/SuperYafer/hack4u/Aprende Oracle PLSQL desde Cero/Aprende Oracle PLSQL desde Cero/capturas-estudio-codigos/122 08 - Excepciones · 002 · EXCEPCIONES-SINTAXIS.sql.webp
-File3[$e]=/run/media/yafer/SuperYafer/hack4u/Aprende Oracle PLSQL desde Cero/Aprende Oracle PLSQL desde Cero/capturas-estudio-codigos/123 08 - Excepciones · 003 · EXCEPCIONES-PREDEFINIDAS.sql.webp
-File4[$e]=/run/media/yafer/SuperYafer/hack4u/Aprende Oracle PLSQL desde Cero/Aprende Oracle PLSQL desde Cero/capturas-estudio-codigos/124 08 - Excepciones · 004 · EXCEPCIONES-NO-PREDEFINIDAS.sql.webp
-File5[$e]=/run/media/yafer/SuperYafer/hack4u/Aprende Oracle PLSQL desde Cero/Aprende Oracle PLSQL desde Cero/capturas-estudio-codigos/125 08 - Excepciones · 005 · SQLCODE-Y-SQLERRM.sql.webp
-File6[$e]=/run/media/yafer/SuperYafer/hack4u/Aprende Oracle PLSQL desde Cero/Aprende Oracle PLSQL desde Cero/capturas-estudio-codigos/126 08 - Excepciones · 007 · CONTROLAR-SQL-CON-EXCEPCIONES.sql.webp
-File7[$e]=/run/media/yafer/SuperYafer/hack4u/Aprende Oracle PLSQL desde Cero/Aprende Oracle PLSQL desde Cero/capturas-estudio-codigos/142 11 - Procedimientos y funciones almacenadas · 006 · calc-tax.sql.webp
-File8[$e]=/run/media/yafer/SuperYafer/hack4u/Aprende Oracle PLSQL desde Cero/Aprende Oracle PLSQL desde Cero/capturas-estudio-codigos/003 02 - Preparación infraestructura necesaria (SOLO NECESARIA SI NO LA TIENES) · 007 · tablas-hr.sql · 03.webp
-File9[$e]=/run/media/yafer/SuperYafer/hack4u/Aprende Oracle PLSQL desde Cero/Aprende Oracle PLSQL desde Cero/capturas-estudio-codigos/002 02 - Preparación infraestructura necesaria (SOLO NECESARIA SI NO LA TIENES) · 007 · tablas-hr.sql · 02.webp
-Name1[$e]=121 07 - Usar SQL en PLSQL · 006 · delete.sql.webp
-Name10[$e]=001 02 - Preparación infraestructura necesaria (SOLO NECESARIA SI NO LA TIENES) · 007 · tablas-hr.sql · 01.webp
-Name2[$e]=122 08 - Excepciones · 002 · EXCEPCIONES-SINTAXIS.sql.webp
-Name3[$e]=123 08 - Excepciones · 003 · EXCEPCIONES-PREDEFINIDAS.sql.webp
-Name4[$e]=124 08 - Excepciones · 004 · EXCEPCIONES-NO-PREDEFINIDAS.sql.webp
-Name5[$e]=125 08 - Excepciones · 005 · SQLCODE-Y-SQLERRM.sql.webp
-Name6[$e]=126 08 - Excepciones · 007 · CONTROLAR-SQL-CON-EXCEPCIONES.sql.webp
-Name7[$e]=142 11 - Procedimientos y funciones almacenadas · 006 · calc-tax.sql.webp
-Name8[$e]=003 02 - Preparación infraestructura necesaria (SOLO NECESARIA SI NO LA TIENES) · 007 · tablas-hr.sql · 03.webp
-Name9[$e]=002 02 - Preparación infraestructura necesaria (SOLO NECESARIA SI NO LA TIENES) · 007 · tablas-hr.sql · 02.webp
+File1[$e]=/run/media/yafer/USB DISK/Aprende Oracle PLSQL desde Cero/capturas-estudio-codigos/186 15 - JSON en Oracle · 019 · 23-masoperaciones.sql.webp
+File10[$e]=/run/media/yafer/USB DISK/Aprende Oracle PLSQL desde Cero/capturas-estudio-codigos/194 16 - Práctica Final · 001 · creaci-n-ddl.sql · 02.webp
+File2[$e]=/run/media/yafer/USB DISK/Aprende Oracle PLSQL desde Cero/capturas-estudio-codigos/187 15 - JSON en Oracle · 020 · 24-get.sql.webp
+File3[$e]=/run/media/yafer/USB DISK/Aprende Oracle PLSQL desde Cero/capturas-estudio-codigos/188 15 - JSON en Oracle · 021 · 25-Trabajar-con-db.sql.webp
+File4[$e]=/run/media/yafer/USB DISK/Aprende Oracle PLSQL desde Cero/capturas-estudio-codigos/189 15 - JSON en Oracle · 022 · 26-crear-array.sql.webp
+File5[$e]=/run/media/yafer/USB DISK/Aprende Oracle PLSQL desde Cero/capturas-estudio-codigos/190 15 - JSON en Oracle · 023 · 27-recuperar-valores-array.sql.webp
+File6[$e]=/run/media/yafer/USB DISK/Aprende Oracle PLSQL desde Cero/capturas-estudio-codigos/191 15 - JSON en Oracle · 024 · 28-multiples-documentos.sql.webp
+File7[$e]=/run/media/yafer/USB DISK/Aprende Oracle PLSQL desde Cero/capturas-estudio-codigos/192 15 - JSON en Oracle · 025 · 29-otras-operaciones.sql.webp
+File8[$e]=/run/media/yafer/USB DISK/Aprende Oracle PLSQL desde Cero/capturas-estudio-codigos/193 16 - Práctica Final · 001 · creaci-n-ddl.sql · 01.webp
+File9[$e]=/run/media/yafer/USB DISK/Aprende Oracle PLSQL desde Cero/capturas-estudio-codigos/001 02 - Preparación infraestructura necesaria (SOLO NECESARIA SI NO LA TIENES) · 007 · tablas-hr.sql · 01.webp
+Name1[$e]=186 15 - JSON en Oracle · 019 · 23-masoperaciones.sql.webp
+Name10[$e]=194 16 - Práctica Final · 001 · creaci-n-ddl.sql · 02.webp
+Name2[$e]=187 15 - JSON en Oracle · 020 · 24-get.sql.webp
+Name3[$e]=188 15 - JSON en Oracle · 021 · 25-Trabajar-con-db.sql.webp
+Name4[$e]=189 15 - JSON en Oracle · 022 · 26-crear-array.sql.webp
+Name5[$e]=190 15 - JSON en Oracle · 023 · 27-recuperar-valores-array.sql.webp
+Name6[$e]=191 15 - JSON en Oracle · 024 · 28-multiples-documentos.sql.webp
+Name7[$e]=192 15 - JSON en Oracle · 025 · 29-otras-operaciones.sql.webp
+Name8[$e]=193 16 - Práctica Final · 001 · creaci-n-ddl.sql · 01.webp
+Name9[$e]=001 02 - Preparación infraestructura necesaria (SOLO NECESARIA SI NO LA TIENES) · 007 · tablas-hr.sql · 01.webp
 
 [SideBar]
-InformationSplitterSizes=209,246
-SideBarSplitterSizes=253,1663
+InformationSplitterSizes=440,518
+SideBarSplitterSizes=253,876
 
 [ThumbnailView]
 ThumbnailSize=360
