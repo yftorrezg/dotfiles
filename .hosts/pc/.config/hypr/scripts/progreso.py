@@ -75,6 +75,23 @@ class Estado:
         self.t0, self.pct_prev, self.clase_prev = time.time(), 0.0, None
         self.visto = time.time()  # última vez que el archivo existía / cambió
         self.mtime = None
+        # Quien escribe el avance: PROGRESO_PID, o el número al final del nombre del archivo
+        # ("curso-a-apuntes-progreso.<pid>"). Si sigue vivo, una etapa larga (Whisper, la IA) no es un cuelgue.
+        try:
+            self.dueno = int(os.environ.get("PROGRESO_PID") or archivo.rsplit(".", 1)[1])
+        except (IndexError, ValueError):
+            self.dueno = None
+
+    def dueno_vivo(self):
+        if not self.dueno:
+            return None  # no se sabe
+        try:
+            os.kill(self.dueno, 0)
+            return True
+        except ProcessLookupError:
+            return False
+        except OSError:
+            return True  # existe pero no es nuestro
 
     def leer(self):
         """-> (pct, etapa, detalle, clase, falta). etapa "error" si el que escribía desapareció."""
@@ -88,8 +105,16 @@ class Estado:
             pct, etapa, detalle, clase = self.pct_prev, "descarga", "", self.clase_prev or ""
             if not os.path.exists(self.archivo) and time.time() - self.visto > 30:
                 return 0.0, "error", "Se cortó el proceso (sin archivo de progreso)", clase, ""
-        if time.time() - self.visto > SIN_NOVEDAD:
+        vivo = self.dueno_vivo()
+        if etapa not in ("fin", "error") and vivo is False:
+            return pct, "error", "El proceso terminó sin avisar el resultado", clase, ""
+        quieto = time.time() - self.visto
+        if quieto > SIN_NOVEDAD and vivo is not True:
             return pct, "error", "Sin novedades hace una hora: ¿se colgó?", clase, ""
+        if quieto > 180 and vivo is True and etapa not in ("fin", "error"):
+            # Honesto: el proceso vive pero esta etapa no reporta pasos; se dice cuánto lleva igual.
+            aviso = f"sigue, {int(quieto // 60)} min sin cambios"
+            detalle = f"{detalle} ({aviso})" if detalle else aviso
         if clase != self.clase_prev or pct < self.pct_prev - 5:  # empezó otra clase: reiniciar el reloj
             self.t0, self.clase_prev = time.time(), clase
         self.pct_prev = pct
