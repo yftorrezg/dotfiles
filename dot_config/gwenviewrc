@@ -11,29 +11,29 @@ ThumbnailSplitterSizes=765,219
 MenuBar=Disabled
 
 [Recent Files]
-File1[$e]=/run/media/yafer/USB DISK/Aprende Oracle PLSQL desde Cero/capturas-estudio-codigos/186 15 - JSON en Oracle · 019 · 23-masoperaciones.sql.webp
-File10[$e]=/run/media/yafer/USB DISK/Aprende Oracle PLSQL desde Cero/capturas-estudio-codigos/194 16 - Práctica Final · 001 · creaci-n-ddl.sql · 02.webp
-File2[$e]=/run/media/yafer/USB DISK/Aprende Oracle PLSQL desde Cero/capturas-estudio-codigos/187 15 - JSON en Oracle · 020 · 24-get.sql.webp
-File3[$e]=/run/media/yafer/USB DISK/Aprende Oracle PLSQL desde Cero/capturas-estudio-codigos/188 15 - JSON en Oracle · 021 · 25-Trabajar-con-db.sql.webp
-File4[$e]=/run/media/yafer/USB DISK/Aprende Oracle PLSQL desde Cero/capturas-estudio-codigos/189 15 - JSON en Oracle · 022 · 26-crear-array.sql.webp
-File5[$e]=/run/media/yafer/USB DISK/Aprende Oracle PLSQL desde Cero/capturas-estudio-codigos/190 15 - JSON en Oracle · 023 · 27-recuperar-valores-array.sql.webp
-File6[$e]=/run/media/yafer/USB DISK/Aprende Oracle PLSQL desde Cero/capturas-estudio-codigos/191 15 - JSON en Oracle · 024 · 28-multiples-documentos.sql.webp
-File7[$e]=/run/media/yafer/USB DISK/Aprende Oracle PLSQL desde Cero/capturas-estudio-codigos/192 15 - JSON en Oracle · 025 · 29-otras-operaciones.sql.webp
-File8[$e]=/run/media/yafer/USB DISK/Aprende Oracle PLSQL desde Cero/capturas-estudio-codigos/193 16 - Práctica Final · 001 · creaci-n-ddl.sql · 01.webp
-File9[$e]=/run/media/yafer/USB DISK/Aprende Oracle PLSQL desde Cero/capturas-estudio-codigos/001 02 - Preparación infraestructura necesaria (SOLO NECESARIA SI NO LA TIENES) · 007 · tablas-hr.sql · 01.webp
-Name1[$e]=186 15 - JSON en Oracle · 019 · 23-masoperaciones.sql.webp
-Name10[$e]=194 16 - Práctica Final · 001 · creaci-n-ddl.sql · 02.webp
-Name2[$e]=187 15 - JSON en Oracle · 020 · 24-get.sql.webp
-Name3[$e]=188 15 - JSON en Oracle · 021 · 25-Trabajar-con-db.sql.webp
-Name4[$e]=189 15 - JSON en Oracle · 022 · 26-crear-array.sql.webp
-Name5[$e]=190 15 - JSON en Oracle · 023 · 27-recuperar-valores-array.sql.webp
-Name6[$e]=191 15 - JSON en Oracle · 024 · 28-multiples-documentos.sql.webp
-Name7[$e]=192 15 - JSON en Oracle · 025 · 29-otras-operaciones.sql.webp
-Name8[$e]=193 16 - Práctica Final · 001 · creaci-n-ddl.sql · 01.webp
-Name9[$e]=001 02 - Preparación infraestructura necesaria (SOLO NECESARIA SI NO LA TIENES) · 007 · tablas-hr.sql · 01.webp
+File1[$e]=$HOME/GoogleDrive/Uni/Robotica2/practica6/r3.jpeg
+File10[$e]=$HOME/GoogleDrive/Uni/Robotica2/practica6/WhatsApp Image 2026-10-20 at 9.26.36 AM.jpeg
+File2[$e]=$HOME/GoogleDrive/Uni/Robotica2/practica6/r4.jpeg
+File3[$e]=$HOME/GoogleDrive/Uni/Robotica2/practica6/r5.jpeg
+File4[$e]=$HOME/GoogleDrive/Uni/Robotica2/practica6/rasberry4.jpeg
+File5[$e]=$HOME/GoogleDrive/Uni/Robotica2/practica6/raspberry4b.jpeg
+File6[$e]=$HOME/GoogleDrive/Uni/Robotica2/practica6/raspberry4modelb.jpeg.jpeg
+File7[$e]=$HOME/GoogleDrive/Uni/Robotica2/practica6/raspberrypicamera.jpeg
+File8[$e]=$HOME/GoogleDrive/Uni/Robotica2/practica6/sd.jpeg
+File9[$e]=$HOME/GoogleDrive/Uni/Robotica2/practica6/sd2.jpeg
+Name1[$e]=r3.jpeg
+Name10[$e]=WhatsApp Image 2026-10-20 at 9.26.36 AM.jpeg
+Name2[$e]=r4.jpeg
+Name3[$e]=r5.jpeg
+Name4[$e]=rasberry4.jpeg
+Name5[$e]=raspberry4b.jpeg
+Name6[$e]=raspberry4modelb.jpeg.jpeg
+Name7[$e]=raspberrypicamera.jpeg
+Name8[$e]=sd.jpeg
+Name9[$e]=sd2.jpeg
 
 [SideBar]
-InformationSplitterSizes=440,518
+InformationSplitterSizes=209,246
 SideBarSplitterSizes=253,876
 
 [ThumbnailView]
