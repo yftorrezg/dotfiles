@@ -11,26 +11,26 @@ ThumbnailSplitterSizes=765,219
 MenuBar=Disabled
 
 [Recent Files]
-File1[$e]=mtp:/S24 Ultra de Fer/Almacenamiento interno/Pictures/WhatsApp/IMG-20260528-WA0057.jpg
-File10[$e]=mtp:/S24 Ultra de Fer/Almacenamiento interno/DCIM/Camera/0f723d2a3f9b052e0c8e0e0b69e7ce45.mp4
-File2[$e]=mtp:/S24 Ultra de Fer/Almacenamiento interno/Pictures/WhatsApp/IMG-20260529-WA0011.jpg
-File3[$e]=mtp:/S24 Ultra de Fer/Almacenamiento interno/Pictures/WhatsApp/IMG-20260529-WA0011(1).jpg
-File4[$e]=mtp:/S24 Ultra de Fer/Almacenamiento interno/Pictures/WhatsApp/IMG-20260529-WA0056.jpg
-File5[$e]=mtp:/S24 Ultra de Fer/Almacenamiento interno/Pictures/WhatsApp/IMG-20260529-WA0056(1).jpg
-File6[$e]=mtp:/S24 Ultra de Fer/Almacenamiento interno/Pictures/WhatsApp/IMG-20260605-WA0002.jpg
-File7[$e]=mtp:/S24 Ultra de Fer/Almacenamiento interno/Pictures/WhatsApp/IMG-20260606-WA0040.jpg
-File8[$e]=mtp:/S24 Ultra de Fer/Almacenamiento interno/Pictures/WhatsApp/IMG-20260608-WA0027.jpg
-File9[$e]=mtp:/S24 Ultra de Fer/Almacenamiento interno/DCIM/Camera/0e735447a1a30df6b81998b9ce1ce7f4.png
-Name1[$e]=IMG-20260528-WA0057.jpg
-Name10[$e]=0f723d2a3f9b052e0c8e0e0b69e7ce45.mp4
-Name2[$e]=IMG-20260529-WA0011.jpg
-Name3[$e]=IMG-20260529-WA0011(1).jpg
-Name4[$e]=IMG-20260529-WA0056.jpg
-Name5[$e]=IMG-20260529-WA0056(1).jpg
-Name6[$e]=IMG-20260605-WA0002.jpg
-Name7[$e]=IMG-20260606-WA0040.jpg
-Name8[$e]=IMG-20260608-WA0027.jpg
-Name9[$e]=0e735447a1a30df6b81998b9ce1ce7f4.png
+File1[$e]=mtp:/S24 Ultra de Fer/Almacenamiento interno/DCIM/Camera/20260302_142557.mp4
+File10[$e]=mtp:/S24 Ultra de Fer/Almacenamiento interno/DCIM/Camera/20260225_164912.mp4
+File2[$e]=mtp:/S24 Ultra de Fer/Almacenamiento interno/DCIM/Camera/20260302_172529.heic
+File3[$e]=mtp:/S24 Ultra de Fer/Almacenamiento interno/DCIM/Camera/20260304_094118.heic
+File4[$e]=mtp:/S24 Ultra de Fer/Almacenamiento interno/DCIM/Camera/20260304_095552.heic
+File5[$e]=mtp:/S24 Ultra de Fer/Almacenamiento interno/DCIM/Camera/20260304_121935.heic
+File6[$e]=mtp:/S24 Ultra de Fer/Almacenamiento interno/DCIM/Camera/20260305_005736.heic
+File7[$e]=mtp:/S24 Ultra de Fer/Almacenamiento interno/DCIM/Camera/20260305_004145.heic
+File8[$e]=mtp:/S24 Ultra de Fer/Almacenamiento interno/DCIM/Camera/20260223_125047.heic
+File9[$e]=mtp:/S24 Ultra de Fer/Almacenamiento interno/DCIM/Camera/20260223_123343.heic
+Name1[$e]=20260302_142557.mp4
+Name10[$e]=20260225_164912.mp4
+Name2[$e]=20260302_172529.heic
+Name3[$e]=20260304_094118.heic
+Name4[$e]=20260304_095552.heic
+Name5[$e]=20260304_121935.heic
+Name6[$e]=20260305_005736.heic
+Name7[$e]=20260305_004145.heic
+Name8[$e]=20260223_125047.heic
+Name9[$e]=20260223_123343.heic
 
 [SideBar]
 InformationSplitterSizes=209,246

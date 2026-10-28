@@ -113,7 +113,8 @@
     <Action name="rotate_right" shortcut="Ctrl+R; E"/>
     <Action name="crop" shortcut="Shift+C; C"/>
     <Action name="resize" shortcut="Shift+R; R"/>
-    <Action name="file_trash" shortcut="Del; X"/>
+    <Action name="file_trash" shortcut="Ctrl+Del"/>
+    <Action name="deletefile" shortcut="Del; X"/>
     <Action name="view_zoom_to_fit" shortcut="W"/>
     <Action name="view_zoom_to_fill" shortcut="Shift+W"/>
     <Action name="toggle_thumbnailbar" shortcut="Ctrl+B; T"/>
