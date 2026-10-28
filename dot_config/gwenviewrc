@@ -11,26 +11,26 @@ ThumbnailSplitterSizes=765,219
 MenuBar=Disabled
 
 [Recent Files]
-File1[$e]=mtp:/S24 Ultra de Fer/Almacenamiento interno/DCIM/Camera/20260302_142557.mp4
-File10[$e]=mtp:/S24 Ultra de Fer/Almacenamiento interno/DCIM/Camera/20260225_164912.mp4
-File2[$e]=mtp:/S24 Ultra de Fer/Almacenamiento interno/DCIM/Camera/20260302_172529.heic
-File3[$e]=mtp:/S24 Ultra de Fer/Almacenamiento interno/DCIM/Camera/20260304_094118.heic
-File4[$e]=mtp:/S24 Ultra de Fer/Almacenamiento interno/DCIM/Camera/20260304_095552.heic
-File5[$e]=mtp:/S24 Ultra de Fer/Almacenamiento interno/DCIM/Camera/20260304_121935.heic
-File6[$e]=mtp:/S24 Ultra de Fer/Almacenamiento interno/DCIM/Camera/20260305_005736.heic
-File7[$e]=mtp:/S24 Ultra de Fer/Almacenamiento interno/DCIM/Camera/20260305_004145.heic
-File8[$e]=mtp:/S24 Ultra de Fer/Almacenamiento interno/DCIM/Camera/20260223_125047.heic
-File9[$e]=mtp:/S24 Ultra de Fer/Almacenamiento interno/DCIM/Camera/20260223_123343.heic
-Name1[$e]=20260302_142557.mp4
-Name10[$e]=20260225_164912.mp4
-Name2[$e]=20260302_172529.heic
-Name3[$e]=20260304_094118.heic
-Name4[$e]=20260304_095552.heic
-Name5[$e]=20260304_121935.heic
-Name6[$e]=20260305_005736.heic
-Name7[$e]=20260305_004145.heic
-Name8[$e]=20260223_125047.heic
-Name9[$e]=20260223_123343.heic
+File1[$e]=$HOME/Vídeos/Código de repos/30-Days-Of-JavaScript/2 Código/013 02_Day_Data_types - non_primitive_data_types.js.webp
+File10[$e]=$HOME/Vídeos/Código de repos/30-Days-Of-JavaScript/2 Código/022 02_Day_Data_types - string_methods - ends_with.js.webp
+File2[$e]=$HOME/Vídeos/Código de repos/30-Days-Of-JavaScript/2 Código/014 02_Day_Data_types - number_data_types.js.webp
+File3[$e]=$HOME/Vídeos/Código de repos/30-Days-Of-JavaScript/2 Código/015 02_Day_Data_types - primitive_data_types.js.webp
+File4[$e]=$HOME/Vídeos/Código de repos/30-Days-Of-JavaScript/2 Código/016 02_Day_Data_types - string_concatenation.js.webp
+File5[$e]=$HOME/Vídeos/Código de repos/30-Days-Of-JavaScript/2 Código/017 02_Day_Data_types - string_data_types.js.webp
+File6[$e]=$HOME/Vídeos/Código de repos/30-Days-Of-JavaScript/2 Código/018 02_Day_Data_types - string_methods - accessing_character.js.webp
+File7[$e]=$HOME/Vídeos/Código de repos/30-Days-Of-JavaScript/2 Código/019 02_Day_Data_types - string_methods - char_at.js.webp
+File8[$e]=$HOME/Vídeos/Código de repos/30-Days-Of-JavaScript/2 Código/020 02_Day_Data_types - string_methods - char_code_at.js.webp
+File9[$e]=$HOME/Vídeos/Código de repos/30-Days-Of-JavaScript/2 Código/021 02_Day_Data_types - string_methods - concat.js.webp
+Name1[$e]=013 02_Day_Data_types - non_primitive_data_types.js.webp
+Name10[$e]=022 02_Day_Data_types - string_methods - ends_with.js.webp
+Name2[$e]=014 02_Day_Data_types - number_data_types.js.webp
+Name3[$e]=015 02_Day_Data_types - primitive_data_types.js.webp
+Name4[$e]=016 02_Day_Data_types - string_concatenation.js.webp
+Name5[$e]=017 02_Day_Data_types - string_data_types.js.webp
+Name6[$e]=018 02_Day_Data_types - string_methods - accessing_character.js.webp
+Name7[$e]=019 02_Day_Data_types - string_methods - char_at.js.webp
+Name8[$e]=020 02_Day_Data_types - string_methods - char_code_at.js.webp
+Name9[$e]=021 02_Day_Data_types - string_methods - concat.js.webp
 
 [SideBar]
 InformationSplitterSizes=209,246
