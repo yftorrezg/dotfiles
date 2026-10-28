@@ -11,26 +11,26 @@ ThumbnailSplitterSizes=765,219
 MenuBar=Disabled
 
 [Recent Files]
-File1[$e]=$HOME/GoogleDrive/Uni/Robotica2/practica6/r3.jpeg
-File10[$e]=$HOME/GoogleDrive/Uni/Robotica2/practica6/WhatsApp Image 2026-10-20 at 9.26.36 AM.jpeg
-File2[$e]=$HOME/GoogleDrive/Uni/Robotica2/practica6/r4.jpeg
-File3[$e]=$HOME/GoogleDrive/Uni/Robotica2/practica6/r5.jpeg
-File4[$e]=$HOME/GoogleDrive/Uni/Robotica2/practica6/rasberry4.jpeg
-File5[$e]=$HOME/GoogleDrive/Uni/Robotica2/practica6/raspberry4b.jpeg
-File6[$e]=$HOME/GoogleDrive/Uni/Robotica2/practica6/raspberry4modelb.jpeg.jpeg
-File7[$e]=$HOME/GoogleDrive/Uni/Robotica2/practica6/raspberrypicamera.jpeg
-File8[$e]=$HOME/GoogleDrive/Uni/Robotica2/practica6/sd.jpeg
-File9[$e]=$HOME/GoogleDrive/Uni/Robotica2/practica6/sd2.jpeg
-Name1[$e]=r3.jpeg
-Name10[$e]=WhatsApp Image 2026-10-20 at 9.26.36 AM.jpeg
-Name2[$e]=r4.jpeg
-Name3[$e]=r5.jpeg
-Name4[$e]=rasberry4.jpeg
-Name5[$e]=raspberry4b.jpeg
-Name6[$e]=raspberry4modelb.jpeg.jpeg
-Name7[$e]=raspberrypicamera.jpeg
-Name8[$e]=sd.jpeg
-Name9[$e]=sd2.jpeg
+File1[$e]=mtp:/S24 Ultra de Fer/Almacenamiento interno/Pictures/WhatsApp/IMG-20260528-WA0057.jpg
+File10[$e]=mtp:/S24 Ultra de Fer/Almacenamiento interno/DCIM/Camera/0f723d2a3f9b052e0c8e0e0b69e7ce45.mp4
+File2[$e]=mtp:/S24 Ultra de Fer/Almacenamiento interno/Pictures/WhatsApp/IMG-20260529-WA0011.jpg
+File3[$e]=mtp:/S24 Ultra de Fer/Almacenamiento interno/Pictures/WhatsApp/IMG-20260529-WA0011(1).jpg
+File4[$e]=mtp:/S24 Ultra de Fer/Almacenamiento interno/Pictures/WhatsApp/IMG-20260529-WA0056.jpg
+File5[$e]=mtp:/S24 Ultra de Fer/Almacenamiento interno/Pictures/WhatsApp/IMG-20260529-WA0056(1).jpg
+File6[$e]=mtp:/S24 Ultra de Fer/Almacenamiento interno/Pictures/WhatsApp/IMG-20260605-WA0002.jpg
+File7[$e]=mtp:/S24 Ultra de Fer/Almacenamiento interno/Pictures/WhatsApp/IMG-20260606-WA0040.jpg
+File8[$e]=mtp:/S24 Ultra de Fer/Almacenamiento interno/Pictures/WhatsApp/IMG-20260608-WA0027.jpg
+File9[$e]=mtp:/S24 Ultra de Fer/Almacenamiento interno/DCIM/Camera/0e735447a1a30df6b81998b9ce1ce7f4.png
+Name1[$e]=IMG-20260528-WA0057.jpg
+Name10[$e]=0f723d2a3f9b052e0c8e0e0b69e7ce45.mp4
+Name2[$e]=IMG-20260529-WA0011.jpg
+Name3[$e]=IMG-20260529-WA0011(1).jpg
+Name4[$e]=IMG-20260529-WA0056.jpg
+Name5[$e]=IMG-20260529-WA0056(1).jpg
+Name6[$e]=IMG-20260605-WA0002.jpg
+Name7[$e]=IMG-20260606-WA0040.jpg
+Name8[$e]=IMG-20260608-WA0027.jpg
+Name9[$e]=0e735447a1a30df6b81998b9ce1ce7f4.png
 
 [SideBar]
 InformationSplitterSizes=209,246
