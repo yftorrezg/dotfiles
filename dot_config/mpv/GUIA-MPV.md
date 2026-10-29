@@ -45,6 +45,7 @@
 | `[` / `]` | −30 / +30 s |
 | `←` `→` · `Ctrl+←→` · `Alt+←→` | ±5 · ±10 · ±30 s |
 | `j` / `l` | ∓10 / +10 s (como YouTube) |
+| `0` … `9` | Salto proporcional: 0 = inicio · 1 = 10 % · 2 = 20 % … 9 = 90 % (como YouTube) |
 | `.` / `,` | Un cuadro adelante o atrás |
 | `Inicio` | Volver al principio |
 | `Ctrl+z` | **Deshacer el último salto** |
@@ -75,7 +76,7 @@ Rango 0.25x a 4.0x. El audio conserva el tono. mpv recuerda la última velocidad
 |---|---|
 | `b` | Marca rápida: se guarda en el primer número libre (1 a 9) |
 | `n` | **Saltar a la marca más cercana** (la que no tienes encima) |
-| `1` … `9` | Saltar a esa marca |
+| `B` (Shift+b) | Menú con todas las marcas (para elegir y saltar a una) |
 | `Ctrl+1` … `Ctrl+9` | Guardar la marca en ese número (reemplaza la anterior) |
 | `Alt+1` … `Alt+9` | Borrar esa marca |
 | `B` (Shift+b) | Menú con todas las marcas |
@@ -164,7 +165,7 @@ Sal con `Ctrl+q`. La próxima vez que abras ese video, empezará en el minuto do
 1. Abre el primer video del módulo (o pulsa `Alt+c` para cargar todo el curso).
 2. Sube la velocidad con `d` (o salta con `w`/`g`/`e`) hasta que el ritmo te resulte cómodo (1.3x a 1.7x suele ir bien).
 3. En partes difíciles, baja con `a` o vuelve a 1x con `r`.
-4. Cuando algo sea importante, pulsa **`b`** para marcarlo. Después vuelves con `n`, `1`…`9` o `B`.
+4. Cuando algo sea importante, pulsa **`b`** para marcarlo. Después vuelves con `n` (la más cercana) o `B` (el menú).
 5. ¿Una explicación que no entendiste? `y` retrocede 10 s, o `Ctrl+c` para repetir los últimos 15 s (o `c` dos veces para elegir tú el trozo).
 6. ¿El profe escribe código rápido? `Espacio` para pausar y `.` / `,` para avanzar cuadro a cuadro.
 7. Captura el código con `s` o con tu atajo del sistema `Ctrl+Shift+S`.

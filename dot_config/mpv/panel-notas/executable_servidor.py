@@ -422,7 +422,8 @@ def lista_reproduccion():
         if not re.match(r"^\w[\w+.-]*://", ruta) and not ruta.startswith("/"):
             ruta = os.path.join(wd, ruta)
         nombre = e.get("title") or os.path.splitext(os.path.basename(ruta))[0]
-        out.append({"i": i, "nombre": nombre, "ruta": normalizar(ruta), "actual": bool(e.get("current"))})
+        out.append({"i": i, "nombre": nombre, "ruta": normalizar(ruta),
+                    "actual": bool(e.get("current")), "dur": duracion(ruta)})
     return out
 
 
@@ -442,6 +443,48 @@ def miniatura(i):
             if r.returncode != 0 or not os.path.exists(destino):
                 return None
     return destino
+
+
+# ---------- duración (ffprobe, cacheada) ----------
+CACHE_DUR = os.path.join(CACHE_MINI, "duraciones.json")
+_dur_candado = threading.Lock()
+_dur_cache = None
+
+
+def _duraciones():
+    global _dur_cache
+    if _dur_cache is None:
+        _dur_cache = leer_json(CACHE_DUR, {})
+    return _dur_cache
+
+
+def duracion(ruta):
+    """Duración en segundos del video local (ffprobe + caché); None si es URL o falla."""
+    if not ruta or re.match(r"^\w[\w+.-]*://", ruta) or not os.path.isfile(ruta):
+        return None
+    try:
+        st = os.stat(ruta)
+    except OSError:
+        return None
+    clave = hashlib.sha1(f"{ruta}|{st.st_size}|{st.st_mtime_ns}".encode()).hexdigest()
+    with _dur_candado:
+        cache = _duraciones()
+        if clave in cache:
+            return cache[clave]
+        r = subprocess.run(
+            ["ffprobe", "-v", "error", "-show_entries", "format=duration",
+             "-of", "default=noprint_wrappers=1:nokey=1", ruta],
+            stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, timeout=15)
+        if r.returncode != 0:
+            return None
+        try:
+            seg = float(r.stdout.decode().strip().splitlines()[0])
+        except (ValueError, IndexError):
+            return None
+        cache[clave] = seg
+        os.makedirs(CACHE_MINI, exist_ok=True)
+        escribir_json(CACHE_DUR, cache)
+        return seg
 
 
 # ---------- HTTP ----------

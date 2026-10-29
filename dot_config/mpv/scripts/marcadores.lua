@@ -2,11 +2,14 @@
 --
 --   b            agrega un marcador en el primer hueco libre (1-9)
 --   Ctrl+1..9    guarda el marcador en ese número (lo reemplaza)
---   1..9         salta a ese marcador
 --   Alt+1..9     borra ese marcador
 --   n            salta a la marca más cercana (a la que no estés ya encima)
 --   B            lista de marcadores (menú de uosc) para elegir y saltar
 --   Ctrl+B       borra todos los marcadores del video
+--
+-- Las teclas 1..9 sueltas ya NO saltan a marcas: ahora saltan proporcionalmente
+-- por el video (0-9, como YouTube; ver input.conf). Para ir a una marca usa
+-- n (la más cercana) o B (el menú).
 --
 -- Los marcadores se guardan por video en ~/.local/state/mpv/marcadores.json y
 -- aparecen como rayitas en la barra de tiempo (se añaden como capítulos,
@@ -149,7 +152,6 @@ end
 mp.register_script_message("saltar-marca", function(i) jump_mark(tonumber(i)) end)
 
 for i = 1, 9 do
-    mp.add_forced_key_binding(tostring(i), "saltar-marca-" .. i, function() jump_mark(i) end)
     mp.add_forced_key_binding("Ctrl+" .. i, "guardar-marca-" .. i, function() set_mark(i) end)
     mp.add_forced_key_binding("Alt+" .. i, "borrar-marca-" .. i, function() delete_mark(i) end)
 end
