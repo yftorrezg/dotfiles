@@ -19,7 +19,7 @@ ViewPropsTimestamp=2026,8,29,2,40,41.068
 [IconsMode]
 IconSize=64
 MaximumTextLines=3
-PreviewSize=96
+PreviewSize=80
 TextWidthIndex=1
 
 [KFileDialog Settings]
