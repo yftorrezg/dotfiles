@@ -1,0 +1,8 @@
+[Unit]
+Description=Pintar carpetas de cursos según el avance de sus apuntes
+
+[Service]
+Type=oneshot
+Nice=15
+IOSchedulingClass=idle
+ExecStart=/usr/bin/python3 -I %h/.config/hypr/scripts/estado-carpetas.py

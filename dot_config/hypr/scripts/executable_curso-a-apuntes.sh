@@ -58,9 +58,10 @@ PY
 # Videos del curso, una vez por clase, buscando también en las subcarpetas (un curso suele tener
 # una carpeta por tema). Rutas relativas al curso. Si están "clase.mp4" y "clase.es.mp4" (doblado)
 # se usa el doblado (trae subtítulos adentro). Se ignoran descargas a medias (.part) y las carpetas
-# capturas/ (salida de este mismo script).
+# capturas/ (salida de este mismo script) ni node_modules/; un .ts solo cuenta si pesa >5 MB (los
+# .ts de TypeScript del código del curso no son video: en "React desde cero" eran 2.097 falsos).
 mapfile -t VIDEOS < <(
-    find "$CURSO" -type d -name capturas -prune -o -type f \( -iname '*.mp4' -o -iname '*.mkv' -o -iname '*.webm' -o -iname '*.mov' -o -iname '*.ts' \) \
+    find "$CURSO" \( -type d \( -name capturas -o -name node_modules \) \) -prune -o -type f \( -iname '*.mp4' -o -iname '*.mkv' -o -iname '*.webm' -o -iname '*.mov' -o \( -iname '*.ts' ! -iname '*.d.ts' -size +5M \) \) \
         ! -name '*.part' ! -name '*.temp.*' -printf '%P\n' |
     awk '{ clase=$0; sub(/\.[^.\/]*$/, "", clase); es = (clase ~ /\.(es|en)$/); sub(/\.(es|en)$/, "", clase);
            if (!(clase in elegido) || es) elegido[clase]=$0 }
