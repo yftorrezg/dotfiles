@@ -138,6 +138,8 @@ hl.bind("CONTROL + SHIFT + S", hl.dsp.exec_cmd(launchPrefix .. "bash " .. os.get
 -- (26/09/2026) Auto-captura de cursos: captura el monitor con foco solo cuando cambia (ajustes en auto-captura.conf).
 -- Videos de YouTube/archivos sin reproducir: scripts/video-a-capturas.sh <url|archivo>
 hl.bind(mainMod .. " + ALT + S", hl.dsp.exec_cmd(launchPrefix .. "bash " .. os.getenv("HOME") .. "/.config/hypr/scripts/auto-captura-toggle.sh"))
+-- (01/11/2026) SUPER+ALT+N: modo enfoque (activa/desactiva): todo negro sin widgets/barra/dock, solo la hora chiquita. Ver scripts/modo-enfoque.py
+hl.bind(mainMod .. " + ALT + N", hl.dsp.exec_cmd(launchPrefix .. "python3 " .. os.getenv("HOME") .. "/.config/hypr/scripts/modo-enfoque.py"))
 -- SUPER+ALT+Y: capturas del link de YouTube copiado (lo baja y procesa en segundo plano)
 hl.bind(mainMod .. " + ALT + Y", hl.dsp.exec_cmd(launchPrefix .. "bash " .. os.getenv("HOME") .. "/.config/hypr/scripts/youtube-capturas.sh"))
 -- SUPER+ALT+G: link de GitHub/GitLab copiado -> carpeta con imágenes del código de todo el repo (sin IA, segundos)

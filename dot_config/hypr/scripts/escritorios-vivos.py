@@ -37,6 +37,7 @@ from gi.repository import Gtk4LayerShell as LS  # noqa: E402
 CONFIG = Path.home() / ".config/hypr/escritorios-temas.toml"
 NOCT_SETTINGS = Path.home() / ".local/state/noctalia/settings.toml"
 ESTADO, ESTILO = tc.ESTADO, tc.ESTILO   # estilo.json lo escribe estilos.py (SUPER+SHIFT+A)
+ENFOQUE = ESTADO / "enfoque"            # existe mientras dura el modo enfoque (modo-enfoque.py, SUPER+ALT+N)
 DESTELLOS = Path(__file__).with_name("destellos-cursor.py")
 # Eventos que pueden tapar o destapar el fondo (para pausar el video)
 EVENTOS_VENTANAS = {"workspacev2", "openwindow", "closewindow", "movewindowv2", "changefloatingmode",
@@ -235,6 +236,7 @@ class App(Gtk.Application):
         if not ESTILO.exists():
             tc.guardar_estilo(self.estilo)
         self.vigilar(ESTILO, self.al_cambiar_estilo)
+        self.vigilar(ENFOQUE, self.al_cambiar_enfoque)
         # Restos de una sesión anterior de este programa (si se reinició)
         subprocess.run(["pkill", "-x", "mpvpaper"], stderr=subprocess.DEVNULL)
         subprocess.run(["pkill", "-f", f"python3 {DESTELLOS}"], stderr=subprocess.DEVNULL)
@@ -278,6 +280,13 @@ class App(Gtk.Application):
         self.cargar_config()
         self.fondos_puestos.clear()
         self.poner_fondos()
+
+    def al_cambiar_enfoque(self):
+        """Modo enfoque (SUPER+ALT+N): al activarse pausa el video; al terminar repone fondo y video."""
+        if not ENFOQUE.exists():
+            self.fondos_puestos.clear()
+            self.poner_fondos()
+        self.revisar_pausa()
 
     def al_cambiar_noctalia(self):
         modo = leer_modo()
@@ -430,7 +439,7 @@ class App(Gtk.Application):
         if clave is None or clave == self.actual:
             return False
         self.actual = clave
-        if self.gen.get("aviso_activo", True):
+        if self.gen.get("aviso_activo", True) and not ENFOQUE.exists():
             self.aviso.mostrar(self.info_de(clave), self.modo, self.monitor_activo(),
                                self.gen.get("aviso_segundos", 1.6))
         self.escribir_acento()
@@ -451,7 +460,7 @@ class App(Gtk.Application):
 
     # --- fondos ----------------------------------------------------------------------------
     def poner_fondos(self):
-        if not self.gen.get("fondos_activos", True) or not isinstance(self.actual, int):
+        if not self.gen.get("fondos_activos", True) or not isinstance(self.actual, int) or ENFOQUE.exists():
             return
         lista = self.cfg.get("escritorio", [])
         if self.actual > len(lista):
@@ -581,7 +590,7 @@ class App(Gtk.Application):
         except (OSError, ValueError, KeyError):
             return
         for nombre, info in self.mpv.items():
-            pausa = activos.get(nombre) in ocupados
+            pausa = ENFOQUE.exists() or activos.get(nombre) in ocupados  # en modo enfoque el video está tapado: pausa
             if info.get("pausa") != pausa and self.mpv_comando(info["sock"], ["set_property", "pause", pausa]):
                 info["pausa"] = pausa
 
