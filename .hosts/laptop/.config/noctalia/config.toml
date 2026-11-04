@@ -36,6 +36,7 @@ enable_ddcutil = false
 # Un video a pantalla (Brave/mpv) inhibe el idle solo. Cerrar la tapa suspende (logind) y
 # Noctalia bloquea antes (lockscreen.lock_before_suspend, por defecto true).
 [dock]
+reserve_space = false
 auto_hide = true
 
 [idle]
