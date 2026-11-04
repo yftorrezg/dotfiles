@@ -35,6 +35,9 @@ enable_ddcutil = false
 #  4:30 aviso con fundido -> 5 min bloquear -> 5:30 apagar pantalla -> 15 min suspender.
 # Un video a pantalla (Brave/mpv) inhibe el idle solo. Cerrar la tapa suspende (logind) y
 # Noctalia bloquea antes (lockscreen.lock_before_suspend, por defecto true).
+[dock]
+auto_hide = true
+
 [idle]
 behavior_order = [ "lock", "screen-off", "suspend" ]
 pre_action_fade_seconds = 5.0

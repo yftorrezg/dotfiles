@@ -2,7 +2,7 @@
 """modo-enfoque.py — SUPER+ALT+N: fondo negro total para concentrarse (activa/desactiva).
 
 Activo: cada monitor queda en negro (capa "bottom": debajo de las ventanas, encima del fondo,
-del video de mpvpaper y de los widgets), se ocultan widgets, barra y dock, y solo queda la hora
+del video de mpvpaper y de los widgets), se ocultan widgets y barra (el dock queda en auto-hide: aparece al pasar el mouse por el borde inferior), y solo queda la hora
 chiquita abajo a la derecha del monitor principal. Al desactivar, todo vuelve como estaba.
 
 El flag ~/.local/state/escritorios-vivos/enfoque guarda el pid del demonio; escritorios-vivos.py lo
@@ -80,7 +80,7 @@ def activar():
     FLAG.write_text(str(proc.pid))
     noctalia("desktop-widgets-hide")
     noctalia("bar-hide")
-    noctalia("dock-hide")
+    noctalia("dock-show")  # el dock está en auto-hide (config.toml [dock]): solo sale al pasar el mouse por abajo
 
 
 def toggle():
