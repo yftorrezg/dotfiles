@@ -11,4 +11,7 @@ hl.on("hyprland.start", function ()
     hl.exec_cmd("python3 " .. os.getenv("HOME") .. "/.config/hypr/scripts/sesion-ventanas.py")
     -- Fondo propio y aviso bonito por escritorio (config: ~/.config/hypr/escritorios-temas.toml)
     hl.exec_cmd("python3 " .. os.getenv("HOME") .. "/.config/hypr/scripts/escritorios-vivos.py")
+    -- MX Master 4: Solaar oculto (sin ventana) ejecuta las reglas de ~/.config/solaar/rules.yaml
+    -- que llaman a scripts/mx-accion.py (acción según el programa con foco)
+    hl.exec_cmd("solaar -w hide")
 end)
