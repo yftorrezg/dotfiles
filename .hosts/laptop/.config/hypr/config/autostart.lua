@@ -14,4 +14,6 @@ hl.on("hyprland.start", function ()
     -- MX Master 4: Solaar oculto (sin ventana) ejecuta las reglas de ~/.config/solaar/rules.yaml
     -- que llaman a scripts/mx-accion.py (acción según el programa con foco)
     hl.exec_cmd("solaar -w hide")
+    -- Anillo radial del panel háptico (anillo.py; sectores en el propio script)
+    hl.exec_cmd("python3 " .. os.getenv("HOME") .. "/.config/hypr/scripts/anillo.py --demonio")
 end)

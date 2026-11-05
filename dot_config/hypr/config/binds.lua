@@ -186,6 +186,9 @@ hl.bind(mainMod .. " + SHIFT + S", hl.dsp.exec_cmd(launchPrefix .. "bash " .. os
 -- Lectura en voz alta: SUPER+R lee el texto seleccionado (mouse). Apretar de nuevo mientras lee = interrumpe.
 -- SUPER+ALT+R elige qué voz usar (edge-tts online o Piper offline). Config en voz.conf.
 hl.bind(mainMod .. " + R",       hl.dsp.exec_cmd(launchPrefix .. "bash " .. os.getenv("HOME") .. "/.config/hypr/scripts/leer-seleccion.sh"))
+-- Anillo radial: abrir al mantener, ejecutar el sector al soltar (igual que el panel háptico del MX Master 4)
+hl.bind(mainMod .. " + ALT + O", hl.dsp.exec_cmd("python3 " .. os.getenv("HOME") .. "/.config/hypr/scripts/anillo.py abrir"))
+hl.bind(mainMod .. " + ALT + O", hl.dsp.exec_cmd("python3 " .. os.getenv("HOME") .. "/.config/hypr/scripts/anillo.py soltar"), { release = true })
 hl.bind(mainMod .. " + ALT + R", hl.dsp.exec_cmd(launchPrefix .. "bash " .. os.getenv("HOME") .. "/.config/hypr/scripts/actualizar-voz.sh"))
 
 -- Traductor flotante EN/ES: selección, diccionario/phrasal verbs y pronunciación Piper.

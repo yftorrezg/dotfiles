@@ -5,6 +5,9 @@ Saca emojis (no aportan nada al escucharlos) y reemplaza URLs completas y
 rutas de archivo por una frase corta ("este enlace" / "esta ruta") en vez de
 deletrear cada segmento — leer un dominio o un path largo carácter por
 carácter no ayuda a entender, solo confirma que ahí había un link/una ruta.
+Borra también las líneas de resumen de herramientas de la terminal
+("Ran 1 shell command", "Ran 3 shell commands"): no son contenido y no
+aportan nada al escucharlas.
 Corre primero en el pipeline para operar sobre el texto "crudo", antes de que
 las reglas de sed conviertan las barras en pausas.
 """
@@ -47,8 +50,15 @@ def _replace_path(match):
     return path
 
 
+_TOOL_SUMMARY_RE = re.compile(
+    r"^[ \t\r\u00a0]*Ran \d+ shell commands?[ \t\r\u00a0]*(?:\n|$)",
+    re.IGNORECASE | re.MULTILINE,
+)
+
+
 def main():
     text = sys.stdin.read()
+    text = _TOOL_SUMMARY_RE.sub("", text)
     text = _EMOJI_RE.sub(" ", text)
     text = _URL_RE.sub(_replace_url, text)
     text = _PATH_RE.sub(_replace_path, text)
