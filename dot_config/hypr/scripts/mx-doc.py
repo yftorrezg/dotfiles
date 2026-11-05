@@ -37,6 +37,9 @@ import anillo_apps as ap  # noqa: E402
 G = "global"
 BR, WA, MP, GW, DO = (r"^brave-browser$", r"^brave-web\.whatsapp\.com", r"^mpv$",
                       r"^org\.kde\.gwenview$", r"^org\.kde\.dolphin$")
+OB = r"^md\.obsidian\.Obsidian$"
+VS, KS, KC, KO = (r"^(com\.microsoft\.VSCode|code|Code|code-oss)$", r"^kitty:shell$", r"^kitty:claude$",
+                  r"^kitty:opencode$")
 NOMBRES = {
     G: {
         "rueda": ["Captura al portapapeles", "Pantalla completa", "Cerrar ventana", "Escritorio anterior",
@@ -77,13 +80,48 @@ NOMBRES = {
         "gestos": ["Carpeta nueva", "Dividir vista", "Mostrar ocultos", "Ordenar por nombre", "Ordenar por tipo"],
         "pulgar": ["Iconos más chicos", "Iconos más grandes"],
     },
+    VS: {
+        "gestos": ["Terminal", "Paleta de comandos", "Abrir archivo", "Barra lateral", "Dividir editor"],
+        "atras": ["Atrás (navegación)", "Ir a definición", "Ver definición (peek)", "Referencias", "Adelante (navegación)"],
+        "adelante": ["Depurar: continuar", "Punto de interrupción", "Paso sobre", "Paso dentro", "Paso fuera"],
+        "pulgar": ["Pestaña anterior", "Pestaña siguiente"],
+    },
+    OB: {
+        "gestos": ["Deshacer", "Fila encima", "Fila debajo", "Columna a la izquierda", "Columna a la derecha"],
+        "atras": ["Atrás (historial)", "Mover fila arriba", "Mover fila abajo", "Mover columna izquierda",
+                  "Mover columna derecha"],
+        "adelante": ["Adelante (historial)", "Borrar fila", "Borrar columna", "Duplicar fila", "Duplicar columna"],
+        "pulgar": ["Pestaña anterior", "Pestaña siguiente"],
+    },
+    KS: {
+        "gestos": ["Interrumpir", "Historial (fzf)", "Limpiar", "Borrar línea", "Último argumento"],
+        "atras": ["Directorio anterior", "Copiar", "Pegar", "Borrar palabra", "Anteponer sudo"],
+        "adelante": ["Directorio siguiente", "Pestaña nueva", "Cerrar pestaña", "Pestaña anterior", "Pestaña siguiente"],
+        "pulgar": ["Prompt anterior", "Prompt siguiente"],
+    },
+    KC: {
+        "gestos": ["Cambiar modo (editar / plan)", "Transcript", "Pasar a segundo plano", "Cambiar modelo",
+                   "Checklist de tareas"],
+        "atras": ["Pegar imagen", "Editar prompt en editor", "Pegar texto", "Borrar línea", "Guardar borrador"],
+        "adelante": ["Último mensaje", "Inicio de la conversación", "Redibujar", "Rewind (Esc Esc)", "Enviar cola ya"],
+        "pulgar": ["Subir (media pantalla)", "Bajar (media pantalla)"],
+    },
+    KO: {
+        "gestos": ["Agente build / plan", "Variante de esfuerzo", "Paleta de comandos", "Modelo reciente",
+                   "Agente anterior"],
+        "atras": ["Deshacer mensaje", "Pegar imagen", "Pegar texto", "Borrar línea", "Editor externo"],
+        "adelante": ["Rehacer", "Primer mensaje", "Último mensaje", "Barra lateral", "Línea de tiempo"],
+        "pulgar": ["Subir (media pantalla)", "Bajar (media pantalla)"],
+    },
 }
 APPS_GESTOS = [(BR, "🦁 Brave"), (WA, "💬 WhatsApp"), (MP, "🎬 mpv"), (GW, "🖼️ Fotos (Gwenview)"),
-               (DO, "📁 Dolphin")]
+               (DO, "📁 Dolphin"), (VS, "🧑‍💻 VS Code"), (OB, "📓 Obsidian"), (KS, "⌨️ Terminal (shell)"),
+               (KC, "✳️ Claude Code"), (KO, "🤖 opencode")]
 # programa del anillo → clase de ventana de ejemplo (para comparar con los gestos)
 CLASE_EJEMPLO = {"Sistema": "", "Brave": "brave-browser", "YouTube": "brave-www.youtube.com__-Default",
                  "WhatsApp": "brave-web.whatsapp.com__-Default", "Telegram": "org.telegram.desktop", "mpv": "mpv",
-                 "Dolphin": "org.kde.dolphin", "Fotos": "org.kde.gwenview", "Terminal": "kitty", "VS Code": "code"}
+                 "Dolphin": "org.kde.dolphin", "Fotos": "org.kde.gwenview", "Terminal": "kitty:shell", "VS Code": "com.microsoft.VSCode",
+                 "Obsidian": "md.obsidian.Obsidian", "Claude Code": "kitty:claude", "opencode": "kitty:opencode"}
 
 # ---- Descripción de atajos -----------------------------------------------------------------------------
 TECLAS = {"return": "Enter", "esc": "Esc", "tab": "Tab", "space": "Espacio", "left": "←", "right": "→", "up": "↑",
@@ -112,6 +150,8 @@ def describir(a):
         return "rueda libre/carraca"
     if a[0] == "esperar":
         return "captura de región y pegar"
+    if a[0] == "texto":
+        return a[1].strip()
     c = a[1]
     if c[:2] == ["noctalia", "msg"]:
         return "noctalia msg " + " ".join(c[2:])
@@ -439,7 +479,6 @@ Estas acciones están a la vez en el anillo y en un botón. Es duplicar esfuerzo
 - **WhatsApp · Archivar chat**: dos fuentes dicen `Ctrl+Alt+E` y otras `Ctrl+Alt+Shift+E`; comprueba cuál funciona.
 - **Telegram · Carpetas 1 a 4** (`Ctrl+1…4`): en Telegram también fijan chats; si chocan, usa Carpeta siguiente.
 - **Brave · Duplicar pestaña**: es la combinación `Ctrl+L` y `Alt+Enter`; si no te gusta, quítala.
-- **Terminal y VS Code** no tienen perfil de gestos; usan los globales.
 - **Gestos globales antiguos** (portapapeles, YouTube, terminal, archivos, WhatsApp): se quitaron de Gestos. Siguen en teclado: `Super+V`, `Super+Alt+Q`, `Super+Enter`, `Super+E`, `Super+Alt+W`.
 
 ### Ideas

@@ -42,6 +42,8 @@ def teclas(accion):
         return [accion]
     if isinstance(accion, list):
         return [t for a in accion for t in teclas(a)]
+    if isinstance(accion, tuple) and accion[0] == "texto":
+        return mx.combos_de_texto(accion[1])
     return []
 
 
@@ -74,6 +76,13 @@ for p in [apps.GLOBAL] + apps.PERFILES:
                 for parte in combo.split("+"):
                     ok(parte in mx.K, f"{n}: tecla desconocida {parte!r} en {combo!r} ({e['nombre']})")
         ok(len(s["sub"]) <= 6, f"{n}: {s['nombre']} tiene más de 6 sub-opciones")
+        for e in s["sub"]:
+            ok(e["accion"] != s["accion"], f"{n}: la sub '{e['nombre']}' repite la acción de '{s['nombre']}'")
+    for s in secs:
+        for e in [s] + s["sub"]:
+            a = e["accion"]
+            if isinstance(a, tuple) and a[0] == "texto":
+                ok(len(mx.combos_de_texto(a[1])) == len(a[1]), f"{n}: texto con caracteres no soportados {a[1]!r}")
 
 ok(apps.perfil_para("brave-browser", "Mr Robot - YouTube - Brave")["nombre"] == "YouTube", "YouTube por título")
 ok(apps.perfil_para("brave-browser", "Nueva pestaña - Brave")["nombre"] == "Brave", "Brave")
@@ -81,6 +90,11 @@ ok(apps.perfil_para("brave-www.youtube.com__-Default", "")["nombre"] == "YouTube
 ok(apps.perfil_para("brave-web.whatsapp.com__-Default", "")["nombre"] == "WhatsApp", "WhatsApp")
 ok(apps.perfil_para("org.telegram.desktop", "")["nombre"] == "Telegram", "Telegram")
 ok(apps.perfil_para("loquesea", "")["nombre"] == "Sistema", "global")
+for c, nombre in (("kitty:claude", "Claude Code"), ("kitty:opencode", "opencode"), ("kitty:shell", "Terminal"),
+                  ("kitty", "Terminal"), ("com.microsoft.VSCode", "VS Code")):
+    ok(apps.perfil_para(c, "")["nombre"] == nombre, f"{c} debe dar el perfil {nombre}")
+ok(mx.combos_de_texto("/compact") == ["slash", "c", "o", "m", "p", "a", "c", "t"], "texto /compact")
+ok(mx.buscar("kitty:claude", "adelante", 3)[1] == ["esc", "esc"], "Claude: rewind en Adelante ←")
 
 
 # -- anti-rebote del panel: ráfaga pulsar/soltar/pulsar/soltar = UN solo pulsar y UN solo soltar --

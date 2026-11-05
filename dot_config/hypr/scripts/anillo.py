@@ -48,6 +48,7 @@ ZONA_MUERTA = 36    # dentro = nada elegido
 UMBRAL_SUB = (R1 + R2) / 2 + 6
 LADO = int(2 * max(R2 + RS * 1.35 + 34, R1 + RB + 10 + ANCHO_TXT + 12))
 REBOTE_S = 0.14     # el sensor de fuerza del panel rebota: un soltar solo vale si no vuelve a pulsar en este tiempo
+ABRIR_GUARDA_S = 0.5  # tras abrir, otro "pulsar" en este tiempo es rebote del sensor de fuerza: se ignora
 MANTENER_S = 0.35   # mantenido más que esto + algo elegido → soltar ejecuta; si no, queda abierto
 AUTOCIERRE_S = 10
 ONDA_CAMBIO, ONDA_SUB, ONDA_EJECUTAR = 4, 0x1B, 7   # formas de onda HID++ del motor háptico
@@ -256,6 +257,7 @@ class Mouse:
         if d[2] == self.f_rep and d[3] >> 4 == 0:      # divertedButtonsEvent: CIDs pulsados ahora
             cids = {(d[4 + 2 * k] << 8) | d[5 + 2 * k] for k in range(4)}
             if CID_HAPTICO in cids:
+                _log(f"panel: PULSADO t={time.time() % 100:.3f} (rebote={bool(self.timer_soltar)}, ya_pulsado={self.pulsado})")
                 if self.timer_soltar:                    # volvió a pulsar enseguida: era rebote, ignorar
                     self.GLib.source_remove(self.timer_soltar)
                     self.timer_soltar = None
@@ -263,6 +265,7 @@ class Mouse:
                     self.pulsado = True
                     self.al_pulsar()
             elif self.pulsado and not self.timer_soltar:
+                _log(f"panel: soltado t={time.time() % 100:.3f}")
                 self.timer_soltar = self.GLib.timeout_add(int(REBOTE_S * 1000), self._soltar_real)
         elif d[2] == self.f_wds:                        # se reconectó: volver a desviar el botón
             self.GLib.timeout_add(400, lambda: (self._desviar(), False)[1])
@@ -676,6 +679,9 @@ def demonio():
         def pulsar(self):
             """Botón háptico (o SUPER+ALT+O) pulsado."""
             if self.visible and not self.cerrando:
+                if time.time() - self.t0 < ABRIR_GUARDA_S:
+                    _log(f"pulsar ignorado: {time.time() - self.t0:.2f} s tras abrir (rebote del sensor)")
+                    return
                 # ya estaba abierto (modo toque): este toque confirma lo elegido, o cierra
                 self.ignorar_soltar = True
                 if self.elegido():
@@ -696,7 +702,7 @@ def demonio():
             if os.environ.get("ANILLO_APP"):
                 perfil = next((p for p in apps.PERFILES if p["nombre"] == os.environ["ANILLO_APP"]), apps.GLOBAL)
             else:
-                perfil = apps.perfil_para(act.get("class", ""), act.get("title", ""))
+                perfil = apps.perfil_para(mx.clase_efectiva(act.get("class", ""), act.get("pid", 0)), act.get("title", ""))
             mon, mw, mh = None, 0, 0
             for m in mons:
                 w, h = m["width"] / m["scale"], m["height"] / m["scale"]
@@ -888,6 +894,7 @@ def demonio():
             try:
                 while True:
                     cmd = srv.recv(64).decode().strip()
+                    _log(f"socket: {cmd} (atajo SUPER+ALT+O / anillo.py {cmd})")
                     {"abrir": anillo.pulsar, "soltar": anillo.soltar, "cancelar": anillo.cerrar}.get(cmd, lambda: 0)()
             except BlockingIOError:
                 pass

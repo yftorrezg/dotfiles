@@ -53,7 +53,7 @@ El botón **Gestos** es el que cambia más: cada programa tiene sus 5 acciones m
 |---|---|---|---|---|---|
 | Gestos | Buscar chat `Ctrl+Alt+/` | Perfil `Ctrl+Alt+P` | Volumen − | Pista anterior | Pista siguiente |
 | Atrás | Esc | Chat anterior `Ctrl+Alt+Shift+[` | Chat siguiente `Ctrl+Alt+Shift+]` | Esc | Buscar `Ctrl+Alt+/` |
-| Adelante | Chat nuevo `Ctrl+Alt+N` | Fijar chat `Ctrl+Alt+Shift+P` | Archivar chat `Ctrl+Alt+E` | Silenciar chat `Ctrl+Alt+Shift+M` | Marcar no leído `Ctrl+Alt+Shift+U` |
+| Adelante | Chat nuevo `Ctrl+Alt+N` | Fijar chat `Ctrl+Alt+Shift+P` | Archivar chat `Ctrl+Alt+Shift+E` | Silenciar chat `Ctrl+Alt+Shift+M` | Marcar no leído `Ctrl+Alt+Shift+U` |
 
 - `Rueda del pulgar` :: Chat anterior (`Ctrl+Alt+Shift+[`) / Chat siguiente (`Ctrl+Alt+Shift+]`)
 
@@ -83,9 +83,59 @@ El botón **Gestos** es el que cambia más: cada programa tiene sus 5 acciones m
 |---|---|---|---|---|---|
 | Gestos | Carpeta nueva `Ctrl+Shift+N` | Dividir vista `F3` | Mostrar ocultos `Alt+.` | Ordenar por nombre `Ctrl+Alt+N` | Ordenar por tipo `Ctrl+Alt+T` |
 | Atrás | Atrás `Alt+←` | Barra de direcciones `F6` | Carpeta superior `Alt+↑` | Renombrar `F2` | Duplicar `Ctrl+D` |
-| Adelante | Adelante `Alt+→` | Nueva pestaña `Ctrl+T` | Cerrar pestaña `Ctrl+W` | Pestaña anterior `Ctrl+Shift+Tab` | Pestaña siguiente `Ctrl+Tab` |
+| Adelante | Adelante `Alt+→` | Nueva pestaña `Ctrl+T` | Cerrar pestaña `Ctrl+W` | Pestaña anterior `Ctrl+Re Pág` | Pestaña siguiente `Ctrl+Av Pág` |
 
 - `Rueda del pulgar` :: Iconos más chicos (`Ctrl+-`) / Iconos más grandes (`Ctrl+=`)
+
+### 🧑‍💻 VS Code
+
+| Botón | Clic | ↑ Arriba | ↓ Abajo | ← Izquierda | → Derecha |
+|---|---|---|---|---|---|
+| Gestos | Terminal `Ctrl+acento grave` | Paleta de comandos `Ctrl+Shift+P` | Abrir archivo `Ctrl+P` | Barra lateral `Ctrl+B` | Dividir editor `Ctrl+\` |
+| Atrás | Atrás (navegación) `Ctrl+Alt+-` | Ir a definición `F12` | Ver definición (peek) `Alt+F12` | Referencias `Shift+F12` | Adelante (navegación) `Ctrl+Shift+-` |
+| Adelante | Depurar: continuar `F5` | Punto de interrupción `F9` | Paso sobre `F10` | Paso dentro `F11` | Paso fuera `Shift+F11` |
+
+- `Rueda del pulgar` :: Pestaña anterior (`Ctrl+Re Pág`) / Pestaña siguiente (`Ctrl+Av Pág`)
+
+### 📓 Obsidian
+
+| Botón | Clic | ↑ Arriba | ↓ Abajo | ← Izquierda | → Derecha |
+|---|---|---|---|---|---|
+| Gestos | Deshacer `Ctrl+Z` | Fila encima `Ctrl+Alt+Shift+↑` | Fila debajo `Ctrl+Alt+Shift+↓` | Columna a la izquierda `Ctrl+Alt+Shift+←` | Columna a la derecha `Ctrl+Alt+Shift+→` |
+| Atrás | Atrás (historial) | Mover fila arriba `Ctrl+Alt+Shift+Re Pág` | Mover fila abajo `Ctrl+Alt+Shift+Av Pág` | Mover columna izquierda `Ctrl+Alt+Shift+Inicio` | Mover columna derecha `Ctrl+Alt+Shift+Fin` |
+| Adelante | Adelante (historial) | Borrar fila `Ctrl+Alt+Shift+Retroceso` | Borrar columna `Ctrl+Alt+Shift+Supr` | Duplicar fila `Ctrl+Alt+Shift+D` | Duplicar columna `Ctrl+Alt+Shift+C` |
+
+- `Rueda del pulgar` :: Pestaña anterior (`Ctrl+Shift+Tab`) / Pestaña siguiente (`Ctrl+Tab`)
+
+### ⌨️ Terminal (shell)
+
+| Botón | Clic | ↑ Arriba | ↓ Abajo | ← Izquierda | → Derecha |
+|---|---|---|---|---|---|
+| Gestos | Interrumpir `Ctrl+C` | Historial (fzf) `Ctrl+R` | Limpiar `Ctrl+L` | Borrar línea `Ctrl+U` | Último argumento `Alt+.` |
+| Atrás | Directorio anterior `Alt+←` | Copiar `Ctrl+Shift+C` | Pegar `Ctrl+Shift+V` | Borrar palabra `Ctrl+W` | Anteponer sudo `Alt+S` |
+| Adelante | Directorio siguiente `Alt+→` | Pestaña nueva `Ctrl+Shift+T` | Cerrar pestaña `Ctrl+Shift+Q` | Pestaña anterior `Ctrl+Shift+←` | Pestaña siguiente `Ctrl+Shift+→` |
+
+- `Rueda del pulgar` :: Prompt anterior (`Ctrl+Shift+Z`) / Prompt siguiente (`Ctrl+Shift+X`)
+
+### ✳️ Claude Code
+
+| Botón | Clic | ↑ Arriba | ↓ Abajo | ← Izquierda | → Derecha |
+|---|---|---|---|---|---|
+| Gestos | Cambiar modo (editar / plan) `Shift+Tab` | Transcript `Ctrl+O` | Pasar a segundo plano `Ctrl+B` | Cambiar modelo `Alt+P` | Checklist de tareas `Ctrl+T` |
+| Atrás | Pegar imagen `Ctrl+V` | Editar prompt en editor `Ctrl+G` | Pegar texto `Ctrl+Shift+V` | Borrar línea `Ctrl+U` | Guardar borrador `Ctrl+S` |
+| Adelante | Último mensaje `Ctrl+Fin` | Inicio de la conversación `Ctrl+Inicio` | Redibujar `Ctrl+L` | Rewind (Esc Esc) | Enviar cola ya `Ctrl+Enter` |
+
+- `Rueda del pulgar` :: Subir (media pantalla) (`Re Pág`) / Bajar (media pantalla) (`Av Pág`)
+
+### 🤖 opencode
+
+| Botón | Clic | ↑ Arriba | ↓ Abajo | ← Izquierda | → Derecha |
+|---|---|---|---|---|---|
+| Gestos | Agente build / plan `Tab` | Variante de esfuerzo `Ctrl+T` | Paleta de comandos `Ctrl+P` | Modelo reciente `F2` | Agente anterior `Shift+Tab` |
+| Atrás | Deshacer mensaje `Ctrl+X → U` | Pegar imagen `Ctrl+V` | Pegar texto `Ctrl+Shift+V` | Borrar línea `Ctrl+U` | Editor externo `Ctrl+X → E` |
+| Adelante | Rehacer `Ctrl+X → R` | Primer mensaje `Ctrl+G` | Último mensaje `Ctrl+Alt+G` | Barra lateral `Ctrl+X → B` | Línea de tiempo `Ctrl+X → G` |
+
+- `Rueda del pulgar` :: Subir (media pantalla) (`Re Pág`) / Bajar (media pantalla) (`Av Pág`)
 
 ### 🧰 Resto de programas
 
@@ -189,7 +239,7 @@ Cada tabla es el anillo de ese programa. «Atajo» es lo que se ejecuta; si pone
 | 1 | **Chat siguiente** | `Ctrl+Alt+Shift+]` | — | `↑ Ctrl+Alt+Shift+[ / ↓ Ctrl+Alt+Shift+]` |
 | 2 | **Fijar chat** | `Ctrl+Alt+Shift+P` | — | — |
 | 3 | **Silenciar chat** | `Ctrl+Alt+Shift+M` | — | — |
-| 4 | **Archivar chat** | `Ctrl+Alt+E` | — | — |
+| 4 | **Archivar chat** | `Ctrl+Alt+Shift+E` | — | — |
 | 5 | **Marcar no leído** | `Ctrl+Alt+Shift+U` | — | — |
 | 6 | **Pegar captura** | `captura de región y pegar → Ctrl+V` | — | — |
 | 7 | **Audio más rápido** | `Shift+.` | Audio más lento `Shift+,` | — |
@@ -257,12 +307,12 @@ Cada tabla es el anillo de ese programa. «Atajo» es lo que se ejecuta; si pone
 | 1 | **Renombrar** | `F2` | — | — |
 | 2 | **Dividir vista** | `F3` | — | — |
 | 3 | **Buscar** | `Ctrl+F` | Filtrar `Ctrl+I` | — |
-| 4 | **Nueva pestaña** | `Ctrl+T` | Pestaña anterior `Ctrl+Shift+Tab` · Pestaña siguiente `Ctrl+Tab` · Cerrar pestaña `Ctrl+W` | `↑ Ctrl+Shift+Tab / ↓ Ctrl+Tab` |
+| 4 | **Nueva pestaña** | `Ctrl+T` | Pestaña anterior `Ctrl+Re Pág` · Pestaña siguiente `Ctrl+Av Pág` · Cerrar pestaña `Ctrl+W` | `↑ Ctrl+Re Pág / ↓ Ctrl+Av Pág` |
 | 5 | **Vista** | `Ctrl+1` | Iconos `Ctrl+1` · Compacta `Ctrl+2` · Detalles `Ctrl+3` · Mostrar ocultos `Alt+.` | `↑ Ctrl+= / ↓ Ctrl+-` |
 | 6 | **Carpeta superior** | `Alt+↑` | — | — |
 | 7 | **Atrás** | `Alt+←` | Adelante `Alt+→` | — |
 | 8 | **Ordenar por nombre** | `Ctrl+Alt+N` | Ordenar por tipo `Ctrl+Alt+T` | — |
-| 9 | **Terminal aquí** | `Alt+Shift+F4` | Panel terminal `F4` | — |
+| 9 | **Terminal aquí** | `Alt+Shift+F4` | — | — |
 | 10 | **Barra de direcciones** | `Ctrl+L` | — | — |
 | 11 | **A la papelera** | `Supr` | Deshacer `Ctrl+Z` · Duplicar `Ctrl+D` · Propiedades `Alt+Enter` | — |
 
@@ -283,39 +333,90 @@ Cada tabla es el anillo de ese programa. «Atajo» es lo que se ejecuta; si pone
 | 10 | **Copiar imagen** | `Ctrl+C` | — | — |
 | 11 | **Archivo** | `Ctrl+Alt+O` | Copiar a… `F7` · Mover a… `Ctrl+Alt+M` · Abrir en otra ventana `Ctrl+Alt+N` | — |
 
+### Claude Code
+
+| Hora | Acción | Atajo | Sub-opciones (aleja más el mouse) | Rueda del mouse |
+|---|---|---|---|---|
+| 12 | **Nueva conversación** | `/clear` | Retomar `/resume` · Ramificar `/branch` · Nombrar sesión `/rename` · Salir `/exit` | — |
+| 1 | **Insertar ruta** | `Ctrl+Shift+P → F` | Hash de git `Ctrl+Shift+P → H` · Línea de pantalla `Ctrl+Shift+P → L` · Abrir URL `Ctrl+Shift+E` | — |
+| 2 | **Ver cambios** | `/diff` | Revisar `/review` · Seguridad `/security-review` · Simplificar `/simplify` | — |
+| 3 | **Captura y pegar** | `captura de región y pegar → Ctrl+V` | — | — |
+| 4 | **Copiar respuesta** | `/copy` | Exportar `/export` · Copiar selección `Ctrl+Shift+C` | — |
+| 5 | **Permisos** | `/permissions` | Memoria `/memory` · Agentes `/agents` · MCP `/mcp` · Ajustes `/config` | — |
+| 6 | **@ Archivo** | `Shift+Apostrophe` | ! Comando `Shift+1` · Buscar prompt `Ctrl+R` · Buscar en conversación `Ctrl+O → /` | — |
+| 7 | **Tareas** | `/tasks` | Plan `/plan` · Crear CLAUDE.md `/init` | — |
+| 8 | **Esfuerzo** | `/effort` | Modo rápido `Alt+O` · Uso y cuota `/usage` | — |
+| 9 | **Compactar** | `/compact` | Contexto `/context` · Pregunta lateral `/btw` | — |
+| 10 | **Skills** | `/skills` | Bucle `/loop` | — |
+| 11 | **Diagnóstico** | `/doctor` | Estado `/status` · Ayuda `/help` | — |
+
+### opencode
+
+| Hora | Acción | Atajo | Sub-opciones (aleja más el mouse) | Rueda del mouse |
+|---|---|---|---|---|
+| 12 | **Nueva sesión** | `Ctrl+X → N` | Sesiones `Ctrl+X → L` · Exportar `Ctrl+X → X` | — |
+| 1 | **Insertar ruta** | `Ctrl+Shift+P → F` | Hash de git `Ctrl+Shift+P → H` · Línea de pantalla `Ctrl+Shift+P → L` · Abrir URL `Ctrl+Shift+E` | — |
+| 2 | **Modelos** | `Ctrl+X → M` | Conectar proveedor `/connect` · Temas `Ctrl+X → T` | — |
+| 3 | **Captura y pegar** | `captura de región y pegar → Ctrl+V` | — | — |
+| 4 | **Copiar mensaje** | `Ctrl+X → Y` | Copiar selección `Ctrl+Shift+C` | — |
+| 5 | **Estado** | `Ctrl+X → S` | Crear AGENTS.md `/init` · Actualizar `/update` | — |
+| 6 | **@ Archivo** | `Shift+Apostrophe` | ! Comando `Shift+1` | — |
+| 7 | **Detalles de herramientas** | `/details` | Razonamiento `/thinking` | — |
+| 8 | **Agentes** | `Ctrl+X → A` | Subagente (hijo) `Ctrl+X → ↓` | — |
+| 9 | **Compactar** | `Ctrl+X → C` | Exportar `Ctrl+X → X` | — |
+| 10 | **Salir** | `Ctrl+X → Q` | Suspender `Ctrl+Z` | — |
+| 11 | **Chuleta de atajos** | `Ctrl+Alt+K` | Ayuda `/help` | — |
+
 ### Terminal
 
 | Hora | Acción | Atajo | Sub-opciones (aleja más el mouse) | Rueda del mouse |
 |---|---|---|---|---|
-| 12 | **Nueva pestaña** | `Ctrl+Shift+T` | — | — |
-| 1 | **Pestaña siguiente** | `Ctrl+Shift+→` | — | `↑ Ctrl+Shift+← / ↓ Ctrl+Shift+→` |
-| 2 | **Nueva ventana** | `Ctrl+Shift+Enter` | — | — |
-| 3 | **Copiar** | `Ctrl+Shift+C` | — | — |
-| 4 | **Pegar** | `Ctrl+Shift+V` | — | — |
-| 5 | **Letra normal** | `Ctrl+Shift+Retroceso` | Más grande `Ctrl+Shift+=` · Más chica `Ctrl+Shift+-` | `↑ Ctrl+Shift+= / ↓ Ctrl+Shift+-` |
-| 6 | **Cerrar pestaña** | `Ctrl+Shift+Q` | — | — |
-| 7 | **Interrumpir** | `Ctrl+C` | Salir (EOF) `Ctrl+D` | — |
-| 8 | **Pestaña anterior** | `Ctrl+Shift+←` | — | — |
-| 9 | **Historial** | `Ctrl+Shift+H` | Arriba `Ctrl+Shift+Re Pág` · Abajo `Ctrl+Shift+Av Pág` | — |
-| 10 | **Limpiar** | `Ctrl+L` | — | — |
-| 11 | **Buscar comando** | `Ctrl+R` | Inicio de línea `Ctrl+A` · Fin de línea `Ctrl+E` | — |
+| 12 | **Archivo (fzf)** | `Ctrl+T` | Carpeta (fzf) `Alt+C` · Carpeta frecuente `zi` | — |
+| 1 | **Insertar ruta** | `Ctrl+Shift+P → F` | Hash de git `Ctrl+Shift+P → H` · Línea de pantalla `Ctrl+Shift+P → L` · Abrir URL `Ctrl+Shift+E` | — |
+| 2 | **Git estado** | `git status -sb` | Diff `git diff` · Log `git log --oneline -15` · Pull `git pull` · Push `git push` | — |
+| 3 | **Claude Code** | `claude` | Continuar `claude --continue` · opencode `opencode` · opencode continuar `opencode -c` | — |
+| 4 | **Salida del último comando** | `Ctrl+Shift+G` | Scrollback completo `Ctrl+Shift+H` | — |
+| 5 | **Nueva ventana kitty** | `Ctrl+Shift+Enter` | Siguiente layout `Ctrl+Shift+L` · Redimensionar `Ctrl+Shift+R` · Cerrar ventana `Ctrl+Shift+W` | — |
+| 6 | **Editar comando** | `Alt+E` | Inicio de línea `Ctrl+A` · Fin de línea `Ctrl+E` | — |
+| 7 | **Suspender** | `Ctrl+Z` | Reanudar (fg) `fg` · Salir (EOF) `Ctrl+D` | — |
+| 8 | **Monitor** | `btop` | Contenedores `docker ps` | — |
+| 9 | **Reiniciar terminal** | `reset` | Limpiar todo `Ctrl+Shift+Supr` | — |
+| 10 | **Letra normal** | `Ctrl+Shift+Retroceso` | Más grande `Ctrl+Shift+=` · Más chica `Ctrl+Shift+-` | `↑ Ctrl+Shift+= / ↓ Ctrl+Shift+-` |
+| 11 | **Abrir en Dolphin** | `xdg-open .` | VS Code aquí `code .` | — |
 
 ### VS Code
 
 | Hora | Acción | Atajo | Sub-opciones (aleja más el mouse) | Rueda del mouse |
 |---|---|---|---|---|
-| 12 | **Comandos** | `Ctrl+Shift+P` | — | — |
-| 1 | **Abrir archivo** | `Ctrl+P` | — | — |
-| 2 | **Terminal** | `Ctrl+acento grave` | — | — |
-| 3 | **Barra lateral** | `Ctrl+B` | Dividir editor `Ctrl+\` | — |
-| 4 | **Buscar en todo** | `Ctrl+Shift+F` | Reemplazar `Ctrl+H` · Buscar aquí `Ctrl+F` | — |
-| 5 | **Formatear** | `Ctrl+Shift+I` | — | — |
-| 6 | **Ir a definición** | `F12` | Volver `Ctrl+Alt+-` · Ir a símbolo `Ctrl+Shift+O` | — |
-| 7 | **Comentar** | `Ctrl+/` | — | — |
-| 8 | **Renombrar símbolo** | `F2` | — | — |
-| 9 | **Guardar** | `Ctrl+S` | — | — |
-| 10 | **Cerrar editor** | `Ctrl+W` | Reabrir `Ctrl+Shift+T` | — |
-| 11 | **Mover línea abajo** | `Alt+↓` | Mover línea arriba `Alt+↑` · Duplicar línea `Shift+Alt+↓` | `↑ Alt+↑ / ↓ Alt+↓` |
+| 12 | **Chat IA** | `Ctrl+Alt+I` | Chat en línea `Ctrl+I` · Ajustes `Ctrl+,` · Atajos `Ctrl+K → Ctrl+S` · Extensiones `Ctrl+Shift+X` · Tareas / Build `Ctrl+Shift+B` | — |
+| 1 | **Nueva terminal** | `Ctrl+Shift+acento grave` | Dividir `Ctrl+Shift+5` · Maximizar panel `Ctrl+Alt+M` · Foco terminal `Ctrl+Alt+J` · Terminal siguiente `Ctrl+Alt+Av Pág` · Terminal anterior `Ctrl+Alt+Re Pág` | — |
+| 2 | **Explorador** | `Ctrl+Shift+E` | Git `Ctrl+Shift+G` · Depurar `Ctrl+Shift+D` · Problemas `Ctrl+Shift+M` · Revelar archivo `Ctrl+Alt+E` · Salida `Ctrl+Shift+U` | — |
+| 3 | **Buscar en proyecto** | `Ctrl+Shift+F` | Reemplazar en proyecto `Ctrl+Shift+H` · Buscar en archivo `Ctrl+F` · Reemplazar en archivo `Ctrl+H` · Siguiente coincidencia `F3` · Anterior coincidencia `Shift+F3` · Regex `Alt+R` | — |
+| 4 | **Ir a símbolo** | `Ctrl+Shift+O` | Símbolo en proyecto `Ctrl+T` · Ir a línea `Ctrl+G` · Implementación `Ctrl+F12` · Archivos recientes `Ctrl+R` · Última edición `Ctrl+K → Ctrl+Q` · Corchete par `Ctrl+Shift+\` | `↑ Ctrl+Alt+- / ↓ Ctrl+Shift+-` |
+| 5 | **Siguiente problema** | `F8` | Problema anterior `Shift+F8` · Arreglo rápido `Ctrl+.` · Mostrar hover `Ctrl+K → Ctrl+I` · Desplegar todo `Ctrl+K → Ctrl+J` · Plegar todo `Ctrl+K → Ctrl+0` | `↑ Shift+F8 / ↓ F8` |
+| 6 | **Parar depuración** | `Shift+F5` | Reiniciar `Ctrl+Shift+F5` · Ejecutar sin depurar `Ctrl+F5` · Consola de depuración `Ctrl+Shift+Y` · Build `Ctrl+Shift+B` | — |
+| 7 | **Ejecutar .py** | `Ctrl+Alt+R` | Ejecutar selección en REPL `Shift+Enter` · Organizar imports `Shift+Alt+O` · Elegir intérprete `Ctrl+Alt+Shift+I` · Abrir REPL `Ctrl+Alt+Shift+R` | — |
+| 8 | **Multicursor** | `Ctrl+D` | Todas las ocurrencias `Ctrl+Shift+L` · Cursor arriba `Ctrl+Alt+↑` · Cursor abajo `Ctrl+Alt+↓` · Deshacer cursor `Ctrl+U` · Cursores al fin de línea `Shift+Alt+I` · Expandir selección `Shift+Alt+→` | `↑ Ctrl+Alt+↑ / ↓ Ctrl+Alt+↓` |
+| 9 | **Formatear** | `Ctrl+Shift+I` | Renombrar símbolo `F2` · Comentar línea `Ctrl+/` · Comentario de bloque `Shift+Alt+A` · Formatear selección `Ctrl+K → Ctrl+F` · Ajuste de línea `Alt+Z` · Quitar espacios finales `Ctrl+K → Ctrl+X` | — |
+| 10 | **Mover línea** | `Alt+↓` | Mover arriba `Alt+↑` · Duplicar abajo `Shift+Alt+↓` · Borrar línea `Ctrl+Shift+K` · Línea debajo `Ctrl+Enter` · Línea encima `Ctrl+Shift+Enter` · Seleccionar línea `Ctrl+L` | `↑ Alt+↑ / ↓ Alt+↓` |
+| 11 | **Cerrar editor** | `Ctrl+W` | Reabrir `Ctrl+Shift+T` · Cerrar otros `Ctrl+Alt+T` · Anclar pestaña `Ctrl+K → Shift+Enter` · Mover a grupo derecho `Ctrl+K → Ctrl+→` · Foco al editor `Ctrl+1` | — |
+
+### Obsidian
+
+| Hora | Acción | Atajo | Sub-opciones (aleja más el mouse) | Rueda del mouse |
+|---|---|---|---|---|
+| 12 | **Ir a nota** | `Ctrl+O` | Paleta `Ctrl+P` · Nota nueva `Ctrl+N` · Nota diaria `Ctrl+Alt+7` · Marcadores `Ctrl+Alt+6` · Reabrir pestaña `Ctrl+Alt+R` · Plantilla `Ctrl+Alt+8` | — |
+| 1 | **Buscar en el vault** | `Ctrl+Shift+F` | En esta nota `Ctrl+F` · Reemplazar `Ctrl+H` · Etiquetas `Ctrl+Alt+5` | — |
+| 2 | **Seleccionar línea** | `Inicio → Shift+Fin` | Copiar línea `Inicio → Shift+Fin → Ctrl+C` · Cortar línea `Inicio → Shift+Fin → Ctrl+X` · Borrar línea `Ctrl+D` · Duplicar línea `Inicio → Shift+Fin → Ctrl+C → Fin → Enter → Ctrl+V` · Pegar sin formato `Ctrl+Shift+V` · Seleccionar todo `Ctrl+A` | `↑ Ctrl+Alt+↑ / ↓ Ctrl+Alt+↓` |
+| 3 | **Insertar tabla** | `Ctrl+Alt+T` | Callout `Ctrl+Alt+L` · Bloque de código `Ctrl+Alt+B` · Fórmula `Ctrl+Alt+M` · Enlace [[ ]] `Ctrl+Alt+I` · Cita `Ctrl+Shift+9` · Línea horizontal `- → - → -` | — |
+| 4 | **Negrita** | `Ctrl+B` | Cursiva `Ctrl+I` · Resaltar `Ctrl+Alt+H` · Código `Ctrl+Alt+K` · Tachado `Ctrl+Alt+X` · Enlace `Ctrl+K` · Limpiar formato `Ctrl+Alt+C` | — |
+| 5 | **Encabezado H2** | `Ctrl+Alt+2` | H1 `Ctrl+Alt+1` · H3 `Ctrl+Alt+3` · H4 `Ctrl+Alt+4` · Texto normal `Ctrl+Alt+0` | — |
+| 6 | **Tarea** | `Ctrl+Enter` | Viñetas `Ctrl+Alt+U` · Numerada `Ctrl+Alt+N` · Lista a tarea `Ctrl+Alt+J` · Sangrar `Tab` · Quitar sangría `Shift+Tab` | — |
+| 7 | **Lectura / edición** | `Ctrl+E` | Modo fuente `Ctrl+Alt+E` · Ancho legible `Ctrl+Alt+Y` · Panel izquierdo `Ctrl+Alt+V` · Panel derecho `Ctrl+Alt+G` · Plegar todo `Ctrl+Alt+,` · Desplegar todo `Ctrl+Alt+.` | `↑ Ctrl+Alt+[ / ↓ Ctrl+Alt+]` |
+| 8 | **Pestaña nueva** | `Ctrl+T` | Cerrar `Ctrl+W` · Reabrir `Ctrl+Alt+R` · Última `Ctrl+9` · Fijar `Ctrl+Alt+P` · Cerrar otras `Ctrl+Alt+O` | `↑ Ctrl+Shift+Tab / ↓ Ctrl+Tab` |
+| 9 | **Dividir a la derecha** | `Ctrl+Alt+D` | Dividir abajo `Ctrl+Alt+S` · Cerrar panel `Ctrl+Alt+W` | — |
+| 10 | **Backlinks** | `Ctrl+Alt+Q` | Grafo `Ctrl+G` · Grafo local `Ctrl+Alt+Z` · Enlaces salientes `Ctrl+Alt+9` · Esquema `Ctrl+Alt+A` | — |
+| 11 | **Repasar esta nota (SR)** | `Ctrl+Alt+4` | Repasar todas `Ctrl+Alt+3` · Cola de repaso `Ctrl+Alt+2` · Siguiente nota a repasar `Ctrl+Alt+1` | — |
 
 ## ⚙️ Cómo cambiar cosas
 
@@ -425,7 +526,7 @@ Estas acciones están a la vez en el anillo y en un botón. Es duplicar esfuerzo
 | WhatsApp | `Ctrl+Alt+Shift+]` | Chat siguiente (hora 1) | Atrás ↓ |
 | WhatsApp | `Ctrl+Alt+Shift+P` | Fijar chat (hora 2) | Adelante ↑ |
 | WhatsApp | `Ctrl+Alt+Shift+M` | Silenciar chat (hora 3) | Adelante ← |
-| WhatsApp | `Ctrl+Alt+E` | Archivar chat (hora 4) | Adelante ↓ |
+| WhatsApp | `Ctrl+Alt+Shift+E` | Archivar chat (hora 4) | Adelante ↓ |
 | WhatsApp | `Ctrl+Alt+Shift+U` | Marcar no leído (hora 5) | Adelante → |
 | WhatsApp | `Ctrl+Alt+Shift+[` | Chat anterior (hora 8) | Atrás ↑ |
 | WhatsApp | `Ctrl+Alt+/` | Buscar chats (hora 9) | Gestos clic |
@@ -459,8 +560,8 @@ Estas acciones están a la vez en el anillo y en un botón. Es duplicar esfuerzo
 | Dolphin | `F2` | Renombrar (hora 1) | Atrás ← |
 | Dolphin | `F3` | Dividir vista (hora 2) | Gestos ↑ |
 | Dolphin | `Ctrl+T` | Nueva pestaña (hora 4) | Adelante ↑ |
-| Dolphin | `Ctrl+Shift+Tab` | Pestaña anterior (hora 4) | Adelante ← |
-| Dolphin | `Ctrl+Tab` | Pestaña siguiente (hora 4) | Adelante → |
+| Dolphin | `Ctrl+Re Pág` | Pestaña anterior (hora 4) | Adelante ← |
+| Dolphin | `Ctrl+Av Pág` | Pestaña siguiente (hora 4) | Adelante → |
 | Dolphin | `Ctrl+W` | Cerrar pestaña (hora 4) | Adelante ↓ |
 | Dolphin | `Alt+.` | Mostrar ocultos (hora 5) | Gestos ↓ |
 | Dolphin | `Alt+↑` | Carpeta superior (hora 6) | Atrás ↓ |
@@ -484,13 +585,11 @@ Estas acciones están a la vez en el anillo y en un botón. Es duplicar esfuerzo
 | Fotos | `F7` | Copiar a… (hora 11) | Adelante ← |
 | Fotos | `Ctrl+Alt+M` | Mover a… (hora 11) | Adelante → |
 | Fotos | `Ctrl+Alt+N` | Abrir en otra ventana (hora 11) | Atrás ↓ |
-| VS Code | `Ctrl+W` | Cerrar editor (hora 10) | Adelante ↓ |
 
 ### Por revisar
 - **WhatsApp · Archivar chat**: dos fuentes dicen `Ctrl+Alt+E` y otras `Ctrl+Alt+Shift+E`; comprueba cuál funciona.
 - **Telegram · Carpetas 1 a 4** (`Ctrl+1…4`): en Telegram también fijan chats; si chocan, usa Carpeta siguiente.
 - **Brave · Duplicar pestaña**: es la combinación `Ctrl+L` y `Alt+Enter`; si no te gusta, quítala.
-- **Terminal y VS Code** no tienen perfil de gestos; usan los globales.
 - **Gestos globales antiguos** (portapapeles, YouTube, terminal, archivos, WhatsApp): se quitaron de Gestos. Siguen en teclado: `Super+V`, `Super+Alt+Q`, `Super+Enter`, `Super+E`, `Super+Alt+W`.
 
 ### Ideas
