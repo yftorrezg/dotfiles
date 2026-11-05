@@ -120,5 +120,11 @@
     <Action name="toggle_thumbnailbar" shortcut="Ctrl+B; T"/>
     <Action name="toggle_sidebar" shortcut="F4; I"/>
     <Action name="view_toggle_spotlightmode" shortcut="S"/>
+    <Action name="file_save" shortcut="Ctrl+S"/>
+    <Action name="mirror" shortcut="M"/>
+    <Action name="file_open_in_new_window" shortcut="Ctrl+Alt+N"/>
+    <Action name="file_open_containing_folder" shortcut="Ctrl+Alt+O"/>
+    <Action name="file_copy_to" shortcut="F7"/>
+    <Action name="file_move_to" shortcut="Ctrl+Alt+M"/>
 </ActionProperties>
 </gui>

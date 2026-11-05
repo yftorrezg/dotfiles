@@ -5,7 +5,7 @@ SideBarPage=operations
 
 [ImageView]
 BackgroundColorMode=Dark
-MouseWheelBehavior=MouseWheelBehavior::Browse
+MouseWheelBehavior=MouseWheelBehavior::Zoom
 ThumbnailSplitterSizes=764,220
 
 [MainWindow]

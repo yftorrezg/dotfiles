@@ -113,13 +113,13 @@ source = "custom"
 path = "/usr/share/noctalia/assets/noctalia-wallpaper.png"
 
 [wallpaper.last]
-path = "/home/yafer/Imágenes/Wallpapers/Oscuros/vertical/ciudad-futurista.jpg"
+path = "/home/yafer/Imágenes/Wallpapers/Oscuros/luffy-gear5-luna.png"
 
 [wallpaper.monitors.DP-1]
-path = "/home/yafer/Imágenes/Wallpapers/Oscuros/cyberpunk-sakura.jpg"
+path = "/home/yafer/Imágenes/Wallpapers/Oscuros/luffy-gear5-luna.png"
 
 [wallpaper.monitors.HDMI-A-1]
-path = "/home/yafer/Imágenes/Wallpapers/Oscuros/vertical/ciudad-futurista.jpg"
+path = "/home/yafer/Imágenes/Wallpapers/Oscuros/vertical/luffy-oscuro-vertical.png"
 
 [wallpaper.monitors.eDP-1]
-path = "/home/yafer/Imágenes/Wallpapers/Oscuros/cyberpunk-sakura.jpg"
+path = "/home/yafer/Imágenes/Wallpapers/Oscuros/luffy-gear5-luna.png"

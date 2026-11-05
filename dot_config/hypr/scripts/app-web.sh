@@ -24,7 +24,12 @@ case "$1" in
     tiktok)    url="https://www.tiktok.com/";        clase="^brave-www\.tiktok\.com__";    ws=1 ;;
     drive)     url="https://drive.google.com/";      clase="^brave-drive\.google\.com__";  ws="" ;;
     code)      url="";                               clase="^(code|Code|code-oss)$";       ws="" ;;
-    *) echo "uso: $0 <youtube|whatsapp|telegram|facebook|instagram|tiktok|drive|code>" >&2; exit 1 ;;
+    # (04/11/2026) IAs: las llama el MX Master 4 (botón superior + gesto). Libres: enfocan la del escritorio actual o abren una nueva.
+    gemini)    url="https://gemini.google.com/";     clase="^brave-gemini\.google\.com__";  ws="" ;;
+    chatgpt)   url="https://chatgpt.com/";           clase="^brave-chatgpt\.com__";        ws="" ;;
+    claude)    url="https://claude.ai/";             clase="^brave-claude\.ai__";          ws="" ;;
+    deepseek)  url="https://chat.deepseek.com/";     clase="^brave-chat\.deepseek\.com__"; ws="" ;;
+    *) echo "uso: $0 <youtube|whatsapp|telegram|facebook|instagram|tiktok|drive|code|gemini|chatgpt|claude|deepseek>" >&2; exit 1 ;;
 esac
 
 despachar() { hyprctl dispatch "$1" >/dev/null; }
