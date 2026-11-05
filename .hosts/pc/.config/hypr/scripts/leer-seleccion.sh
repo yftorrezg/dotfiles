@@ -66,6 +66,8 @@ if [ -n "$TEXT_FILE" ]; then
     TEXT=$(cat -- "$TEXT_FILE" 2>/dev/null)
 else
     WIN_CLASS=$(hyprctl activewindow -j 2>/dev/null | jq -r '[.class // empty, .initialClass // empty, .title // empty] | join(" ")')
+    # Solo la clase: WIN_CLASS incluye también el título y el case de terminales nunca coincidiría.
+    WIN_APP_CLASS=$(hyprctl activewindow -j 2>/dev/null | jq -r '.class // empty')
     SUMMARY_TEXT_FILE="${XDG_RUNTIME_DIR:-/run/user/$(id -u)}/resumidor-seleccion.txt"
     SUMMARY_PID_FILE="${XDG_RUNTIME_DIR:-/run/user/$(id -u)}/resumidor-seleccion.pid"
     SUMMARY_PID=$(cat -- "$SUMMARY_PID_FILE" 2>/dev/null)
@@ -96,7 +98,7 @@ if [ -z "$TEXT_FILE" ] && [ -z "$(echo "$TEXT" | tr -d '[:space:]')" ]; then
     # Para que siga siendo UN solo atajo, se simula Ctrl+C (wtype) y se lee el
     # portapapeles normal. Se excluyen terminales: ahí Ctrl+C no copia, manda
     # SIGINT y podría cortar un proceso corriendo (por ejemplo, Claude Code).
-    case "$WIN_CLASS" in
+    case "$WIN_APP_CLASS" in
         kitty|Alacritty|alacritty|foot|footclient|wezterm|org.wezfurlong.wezterm|kate|konsole|org.kde.konsole|gnome-terminal|gnome-terminal-server|terminator|tilix|contour|xterm|urxvt|st|wterm)
             TEXT=$(wl-paste --no-newline 2>/dev/null)
             ;;
