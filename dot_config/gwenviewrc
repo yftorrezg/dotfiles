@@ -11,26 +11,26 @@ ThumbnailSplitterSizes=765,219
 MenuBar=Disabled
 
 [Recent Files]
-File1[$e]=$HOME/GoogleDrive/Uni/Taller1/proyecto/WhatsApp Image 2026-10-07 at 7.11.39 PM.jpeg
-File10[$e]=$HOME/GoogleDrive/Uni/Base3/practicas/WhatsApp Image 2026-08-27 at 5.39.01 PM.jpeg
-File2[$e]=mtp:/S24 Ultra de Fer/Almacenamiento interno/DCIM/Collage/20260819_164727.jpg
-File3[$e]=mtp:/S24 Ultra de Fer/Almacenamiento interno/DCIM/Collage/20260720_125402.jpg
-File4[$e]=mtp:/S24 Ultra de Fer/Almacenamiento interno/DCIM/Collage/20260720_124736.jpg
-File5[$e]=$HOME/Compartido-VM/PROGRAMAS ALUMNOS/adobe/mastercito-x/autodesk/disenio-cad.png
-File6[$e]=$HOME/GoogleDrive/Uni/Base3/practicas/WhatsApp Image 2026-08-27 at 4.46.59 PM.jpeg
-File7[$e]=$HOME/GoogleDrive/Uni/Base3/practicas/WhatsApp Image 2026-08-27 at 5.20.38 PM.jpeg
-File8[$e]=$HOME/GoogleDrive/Uni/Base3/practicas/WhatsApp Image 2026-08-27 at 5.26.43 PM.jpeg
-File9[$e]=$HOME/GoogleDrive/Uni/Base3/practicas/WhatsApp Image 2026-08-27 at 5.30.26 PM.jpeg
-Name1[$e]=WhatsApp Image 2026-10-07 at 7.11.39 PM.jpeg
-Name10[$e]=WhatsApp Image 2026-08-27 at 5.39.01 PM.jpeg
-Name2[$e]=20260819_164727.jpg
-Name3[$e]=20260720_125402.jpg
-Name4[$e]=20260720_124736.jpg
-Name5[$e]=disenio-cad.png
-Name6[$e]=WhatsApp Image 2026-08-27 at 4.46.59 PM.jpeg
-Name7[$e]=WhatsApp Image 2026-08-27 at 5.20.38 PM.jpeg
-Name8[$e]=WhatsApp Image 2026-08-27 at 5.26.43 PM.jpeg
-Name9[$e]=WhatsApp Image 2026-08-27 at 5.30.26 PM.jpeg
+File1[$e]=$HOME/Compartido-VM/PROGRAMAS ALUMNOS/adobe/mastercito-x/autodesk/disenio-cad.png
+File10[$e]=$HOME/Vídeos/Capturas de YouTube/Claude Code- Curso completo desde cero en 3 horas (2026)/0010.webp
+File2[$e]=$HOME/GoogleDrive/Uni/Base3/practicas/WhatsApp Image 2026-08-27 at 4.46.59 PM.jpeg
+File3[$e]=$HOME/GoogleDrive/Uni/Base3/practicas/WhatsApp Image 2026-08-27 at 5.20.38 PM.jpeg
+File4[$e]=$HOME/GoogleDrive/Uni/Base3/practicas/WhatsApp Image 2026-08-27 at 5.26.43 PM.jpeg
+File5[$e]=$HOME/GoogleDrive/Uni/Base3/practicas/WhatsApp Image 2026-08-27 at 5.30.26 PM.jpeg
+File6[$e]=$HOME/GoogleDrive/Uni/Base3/practicas/WhatsApp Image 2026-08-27 at 5.39.01 PM.jpeg
+File7[$e]=$HOME/Vídeos/Capturas de YouTube/Claude Code- Curso completo desde cero en 3 horas (2026)/0001.webp
+File8[$e]=$HOME/Vídeos/Capturas de YouTube/Claude Code- Curso completo desde cero en 3 horas (2026)/0008.webp
+File9[$e]=$HOME/Vídeos/Capturas de YouTube/Claude Code- Curso completo desde cero en 3 horas (2026)/0009.webp
+Name1[$e]=disenio-cad.png
+Name10[$e]=0010.webp
+Name2[$e]=WhatsApp Image 2026-08-27 at 4.46.59 PM.jpeg
+Name3[$e]=WhatsApp Image 2026-08-27 at 5.20.38 PM.jpeg
+Name4[$e]=WhatsApp Image 2026-08-27 at 5.26.43 PM.jpeg
+Name5[$e]=WhatsApp Image 2026-08-27 at 5.30.26 PM.jpeg
+Name6[$e]=WhatsApp Image 2026-08-27 at 5.39.01 PM.jpeg
+Name7[$e]=0001.webp
+Name8[$e]=0008.webp
+Name9[$e]=0009.webp
 
 [SideBar]
 InformationSplitterSizes=209,246
