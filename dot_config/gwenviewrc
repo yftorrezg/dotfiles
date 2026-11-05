@@ -1,40 +1,41 @@
 [General]
 BackgroundColorMode=DocumentView::Dark
 LastUsedVersion=210800
+SideBarPage=operations
 
 [ImageView]
 BackgroundColorMode=Dark
 MouseWheelBehavior=MouseWheelBehavior::Browse
-ThumbnailSplitterSizes=765,219
+ThumbnailSplitterSizes=764,220
 
 [MainWindow]
 MenuBar=Disabled
 
 [Recent Files]
-File1[$e]=$HOME/Compartido-VM/PROGRAMAS ALUMNOS/adobe/mastercito-x/autodesk/disenio-cad.png
-File10[$e]=$HOME/Vídeos/Capturas de YouTube/Claude Code- Curso completo desde cero en 3 horas (2026)/0010.webp
-File2[$e]=$HOME/GoogleDrive/Uni/Base3/practicas/WhatsApp Image 2026-08-27 at 4.46.59 PM.jpeg
-File3[$e]=$HOME/GoogleDrive/Uni/Base3/practicas/WhatsApp Image 2026-08-27 at 5.20.38 PM.jpeg
-File4[$e]=$HOME/GoogleDrive/Uni/Base3/practicas/WhatsApp Image 2026-08-27 at 5.26.43 PM.jpeg
-File5[$e]=$HOME/GoogleDrive/Uni/Base3/practicas/WhatsApp Image 2026-08-27 at 5.30.26 PM.jpeg
-File6[$e]=$HOME/GoogleDrive/Uni/Base3/practicas/WhatsApp Image 2026-08-27 at 5.39.01 PM.jpeg
-File7[$e]=$HOME/Vídeos/Capturas de YouTube/Claude Code- Curso completo desde cero en 3 horas (2026)/0001.webp
-File8[$e]=$HOME/Vídeos/Capturas de YouTube/Claude Code- Curso completo desde cero en 3 horas (2026)/0008.webp
-File9[$e]=$HOME/Vídeos/Capturas de YouTube/Claude Code- Curso completo desde cero en 3 horas (2026)/0009.webp
-Name1[$e]=disenio-cad.png
-Name10[$e]=0010.webp
-Name2[$e]=WhatsApp Image 2026-08-27 at 4.46.59 PM.jpeg
-Name3[$e]=WhatsApp Image 2026-08-27 at 5.20.38 PM.jpeg
-Name4[$e]=WhatsApp Image 2026-08-27 at 5.26.43 PM.jpeg
-Name5[$e]=WhatsApp Image 2026-08-27 at 5.30.26 PM.jpeg
-Name6[$e]=WhatsApp Image 2026-08-27 at 5.39.01 PM.jpeg
-Name7[$e]=0001.webp
-Name8[$e]=0008.webp
-Name9[$e]=0009.webp
+File1[$e]=$HOME/Vídeos/Capturas de YouTube/Claude Code- Curso completo desde cero en 3 horas (2026)/0015.webp
+File10[$e]=$HOME/Vídeos/Capturas de YouTube/Claude Code- Curso completo desde cero en 3 horas (2026)/0027.webp
+File2[$e]=$HOME/Vídeos/Capturas de YouTube/Claude Code- Curso completo desde cero en 3 horas (2026)/0016.webp
+File3[$e]=$HOME/Vídeos/Capturas de YouTube/Claude Code- Curso completo desde cero en 3 horas (2026)/0017.webp
+File4[$e]=$HOME/Vídeos/Capturas de YouTube/Claude Code- Curso completo desde cero en 3 horas (2026)/0018.webp
+File5[$e]=$HOME/Vídeos/Capturas de YouTube/Claude Code- Curso completo desde cero en 3 horas (2026)/0019.webp
+File6[$e]=$HOME/Vídeos/Capturas de YouTube/Claude Code- Curso completo desde cero en 3 horas (2026)/0020.webp
+File7[$e]=$HOME/Vídeos/Capturas de YouTube/Claude Code- Curso completo desde cero en 3 horas (2026)/0021.webp
+File8[$e]=$HOME/Vídeos/Capturas de YouTube/Claude Code- Curso completo desde cero en 3 horas (2026)/0022.webp
+File9[$e]=$HOME/Vídeos/Capturas de YouTube/Claude Code- Curso completo desde cero en 3 horas (2026)/0023.webp
+Name1[$e]=0015.webp
+Name10[$e]=0027.webp
+Name2[$e]=0016.webp
+Name3[$e]=0017.webp
+Name4[$e]=0018.webp
+Name5[$e]=0019.webp
+Name6[$e]=0020.webp
+Name7[$e]=0021.webp
+Name8[$e]=0022.webp
+Name9[$e]=0023.webp
 
 [SideBar]
-InformationSplitterSizes=209,246
-SideBarSplitterSizes=253,876
+InformationSplitterSizes=192,225
+SideBarSplitterSizes=271,764
 
 [ThumbnailView]
 ThumbnailSize=360
