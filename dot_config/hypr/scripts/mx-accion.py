@@ -3,7 +3,7 @@
 
 Lo llama Solaar (~/.config/solaar/rules.yaml, generado por mx-reglas.py) con un evento
 "<boton>-<dir>":
-    boton: rueda  superior  gestos  atras  adelante  haptico        (+ "pulgar-izq" / "pulgar-der")
+    boton: rueda  superior  gestos  atras  adelante        (+ "pulgar-izq" / "pulgar-der")
     dir:   click  arriba  abajo  izq  der
 
 Por qué un script y no reglas de Solaar por app: la condición "Process" de Solaar no
@@ -11,8 +11,9 @@ funciona en Wayland/Hyprland. Aquí preguntamos a Hyprland cuál es la ventana a
 (hyprctl) y mandamos la tecla con ydotool.
 
 Esquema (chuleta completa: SUPER+SHIFT+C → "MX Master 4"):
-    GLOBALES (igual en todo el sistema): rueda = pantalla · superior = ventanas · gestos = lanzadores
-    DE LA APP (cambian según el programa): atras = navegar · adelante = pestañas/ver · haptico = acciones
+    GLOBALES (igual en todo el sistema): rueda = pantalla · superior = IAs
+    DE LA APP (cambian según el programa): gestos = acciones · atras = navegar · adelante = pestañas/ver
+El panel háptico NO pasa por aquí: abre el anillo radial (anillo.py, perfiles en anillo_apps.py).
 
 Para cambiar algo: edita PERFILES. Cada botón es una lista de 5 acciones, en el orden
 [click, arriba, abajo, izq, der]. None = hereda la acción del perfil "global". Una acción es:
@@ -20,7 +21,7 @@ Para cambiar algo: edita PERFILES. Cada botón es una lista de 5 acciones, en el
     ("click", "middle|back|forward") -> clic nativo del mouse (ydotool)
     ("cmd", ["prog", "arg"])       -> ejecuta un comando
     ("rueda-libre",)               -> alterna la rueda entre carraca y giro libre
-Probar sin mover el mouse:  MX_CLASE=mpv python3 mx-accion.py haptico-arriba
+Probar sin mover el mouse:  MX_CLASE=mpv python3 mx-accion.py gestos-arriba
 """
 import json
 import os
@@ -55,11 +56,9 @@ PERFILES = {
         "rueda":    ["super+shift+s",   "super+f",         "super+q",       "super+ctrl+left", "super+ctrl+right"],
         # captura al portapapeles · pantalla completa · cerrar ventana · escritorio anterior · siguiente
         "superior": ["esc",             web("gemini"),     web("chatgpt"),  web("claude"),     web("deepseek")],
-        "gestos":   ["super+v",         web("youtube"),    "super+return",  "super+e",         "super+alt+w"],
-        # portapapeles · YouTube · terminal · archivos · WhatsApp
         "atras":    [ATRAS,             "home",            "end",           "alt+left",        "alt+right"],
         "adelante": [ADELANTE,          "ctrl+t",          "ctrl+w",        "ctrl+shift+tab",  "ctrl+tab"],
-        "haptico":  ["playpause",       "volumeup",        "volumedown",    "prevsong",        "nextsong"],
+        "gestos":    ["playpause",       "volumeup",        "volumedown",    "prevsong",        "nextsong"],
         "pulgar":   ["volumedown", "volumeup"],
     },
     # Brave (ventana normal con pestañas)
@@ -68,7 +67,7 @@ PERFILES = {
         # atrás · seleccionar todo · Enter · copiar · pegar
         "adelante": ["alt+right",       "ctrl+l",          "ctrl+d",        "f5",              "ctrl+f"],
         # adelante · barra de direcciones · añadir a marcadores · recargar · buscar en la página
-        "haptico":  ["ctrl+shift+t",    "ctrl+t",          "ctrl+w",        "ctrl+shift+a",    ("cmd", ["brave", UDEMY])],
+        "gestos":    ["ctrl+shift+t",    "ctrl+t",          "ctrl+w",        "ctrl+shift+a",    ("cmd", ["brave", UDEMY])],
         # reabrir pestaña · nueva · cerrar · buscar pestaña · curso de estudio (Udemy)
         "pulgar":   ["ctrl+pageup", "ctrl+pagedown"],
     },
@@ -78,7 +77,7 @@ PERFILES = {
         # esc · chat anterior · chat siguiente · esc · buscar
         "adelante": ["ctrl+alt+n",      "ctrl+alt+shift+p", "ctrl+alt+e",   "ctrl+alt+shift+m", "ctrl+alt+shift+u"],
         # chat nuevo · fijar · archivar · silenciar · marcar no leído
-        "haptico":  ["ctrl+alt+slash",  "ctrl+alt+p",      None,            None,              None],
+        "gestos":    ["ctrl+alt+slash",  "ctrl+alt+p",      None,            None,              None],
         "pulgar":   ["ctrl+alt+shift+[", "ctrl+alt+shift+]"],
     },
     # mpv (cursos): usa tus atajos de ~/.config/mpv/input.conf
@@ -87,7 +86,7 @@ PERFILES = {
         # video anterior (MBTN_BACK) · +30 s · -30 s · -10 s · +10 s
         "adelante": [ADELANTE,          "e",               "w",             "d",               "a"],
         # video siguiente (MBTN_FORWARD) · velocidad 2x · 1.5x · +0.1 · -0.1
-        "haptico":  ["space",           "b",               "n",             "tab",             "h"],
+        "gestos":    ["space",           "b",               "n",             "tab",             "h"],
         # pausa/play · marca · ir a marca · lista de videos (uosc/items) · panel de notas
         "pulgar":   ["left", "right"],                       # -5 s / +5 s
     },
@@ -97,7 +96,7 @@ PERFILES = {
         # deshacer · miniaturas · abrir en nueva ventana · copiar · abrir carpeta contenedora
         "adelante": ["ctrl+s",          "s",               "m",             "f7",              "ctrl+alt+m"],
         # guardar · modo foco · reflejar · copiar a... · mover a...
-        "haptico":  ["x",               "r",               "c",             "q",               "e"],
+        "gestos":    ["x",               "r",               "c",             "q",               "e"],
         # papelera · redimensionar · recortar · rotar izquierda · rotar derecha
         "pulgar":   ["a", "d"],                              # foto anterior / siguiente
     },
@@ -106,7 +105,7 @@ PERFILES = {
         "atras":    ["alt+left",        "f6",              "alt+up",        "f2",              "ctrl+d"],
         # atrás · barra de direcciones · carpeta superior · renombrar · duplicar
         "adelante": ["alt+right",       "ctrl+t",          "ctrl+w",        "ctrl+shift+tab",  "ctrl+tab"],
-        "haptico":  ["ctrl+shift+n",    "f3",              "alt+period",    "ctrl+alt+n",      "ctrl+alt+t"],
+        "gestos":    ["ctrl+shift+n",    "f3",              "alt+period",    "ctrl+alt+n",      "ctrl+alt+t"],
         # carpeta nueva · dividir vista · mostrar ocultos · ordenar por nombre · ordenar por tipo
         "pulgar":   ["ctrl+minus", "ctrl+equal"],            # iconos más chicos / más grandes
     },
