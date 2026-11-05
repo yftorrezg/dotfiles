@@ -17,3 +17,4 @@
 - [Escritorios vivos, temas 4K y modo claro](escritorios-vivos-tema.md) — temas = 5 fondos (uno por escritorio), Galería/Descubrir, 12 esquemas de color, widgets, chuletas SUPER+SHIFT+C, transiciones.
 - [Modo enfoque SUPER+ALT+N](modo-enfoque-super-alt-n.md) — todo negro sin widgets/barra/dock + hora chiquita; flag enfoque que respeta escritorios-vivos.
 - [Cursor y estelas en el selector](cursor-estela-selector.md) — pestaña Cursor de SUPER+SHIFT+A, Llama-Oscura/Brasa; sin atajos nuevos.
+- [Anillo radial háptico MX Master 4](anillo-radial-haptico.md) — anillo.py lee botón por hidraw, GSK, 12 acciones por app en anillo_apps.py.
