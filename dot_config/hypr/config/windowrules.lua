@@ -123,3 +123,7 @@ hl.window_rule({ match = { class = "^(estudiar\\.centro)$" }, float = true, cent
 
 hl.window_rule({ match = { class = "^(descargar-menu)$" }, float = true, center = true, size = { 540, 330 } })
 
+
+-- Anillo radial del MX Master 4 (scripts/anillo.py): sin animación del compositor (la hace el propio
+-- anillo, así no hay retraso al abrir/cerrar) y vidrio esmerilado detrás del velo oscuro.
+hl.layer_rule({ name = "anillo", match = { namespace = "^anillo$" }, no_anim = true, blur = true, ignore_alpha = 0.3 })
