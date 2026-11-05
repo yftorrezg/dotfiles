@@ -85,18 +85,19 @@ Tres botones son **globales** (hacen lo mismo en todo el sistema) y tres **cambi
 📌 Nota: Solaar debe estar corriendo (arranca solo con Hyprland). No guarda perfiles por app en Wayland; por eso el script mira la ventana activa.
 
 ## 🎯 Anillo radial (panel háptico)
-Mantén el panel háptico → aparece un anillo de **12 acciones del programa con foco** → mueve hacia una (el mouse vibra) → suelta.
+**Toca** el panel háptico → aparece un anillo con **12 acciones del programa con foco** y se queda abierto →
+mueve el mouse hacia una (vibra al cambiar) → **clic** o vuelve a **tocar** el panel.
 
 | Gesto | Qué hace |
 |---|---|
-| Soltar sobre una burbuja | Ejecuta esa acción |
-| Soltar en el centro | Cancela |
+| Toque + mover + clic (o otro toque) | Ejecuta esa acción |
+| Mantener + apuntar + soltar | Lo mismo, más rápido (si mantuviste más de 0,35 s) |
+| Clic en el centro, clic derecho o 10 s quieto | Cierra |
 | Burbuja con puntito | Tiene sub-opciones: aleja más el mouse en esa dirección y salen en un arco |
-| Toque corto | El anillo queda abierto: elige con clic (clic en el centro = cerrar) |
 | Rueda sobre una burbuja | Su ajuste: volumen, zoom, pestañas, velocidad, chat siguiente… |
 | Rueda en el centro | Volumen (en cualquier programa) |
-| SUPER+ALT+O (mantener) | Lo mismo desde el teclado |
+| SUPER+ALT+O | Lo mismo desde el teclado |
 
+🎨 Colores = tipo de acción: 🔴 cerrar/borrar · 🟢 nuevo · 🟡 buscar · 🔵 moverse · 🟣 multimedia · 🟠 capturas · 🩷 editar/formato · 🩵 vistas/ventanas.
 Perfiles: Sistema (global) · Brave · YouTube (+ Video Speed Controller) · WhatsApp · Telegram · mpv · Dolphin · Fotos (Gwenview) · Terminal (kitty) · VS Code.
 💡 Para cambiar qué hay en cada uno: `~/.config/hypr/scripts/anillo_apps.py` (y `python3 anillo-tests.py` para comprobar).
-

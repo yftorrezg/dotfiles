@@ -29,13 +29,9 @@ def ok(cond, msg):
 
 
 def iconos_disponibles():
-    nombres = set()
-    for base in ("/usr/share/icons/Papirus", "/usr/share/icons/Adwaita"):
-        for raiz, _, archivos in os.walk(base):
-            for a in archivos:
-                if a.endswith("-symbolic.svg"):
-                    nombres.add(a[:-len("-symbolic.svg")])
-    return nombres
+    import json
+    with open(anillo.MAPA_ICONOS) as f:
+        return set(json.load(f))
 
 
 def teclas(accion):
@@ -67,6 +63,7 @@ iconos = iconos_disponibles()
 for p in [apps.GLOBAL] + apps.PERFILES:
     n = p["nombre"]
     secs = p["sectores"]
+    ok(p["logo"] in iconos, f"{n}: logo inexistente {p['logo']!r}")
     ok(len(secs) == 12, f"{n}: {len(secs)} sectores (deben ser 12)")
     ok(sum(1 for s in secs if s["sub"]) >= 4, f"{n}: menos de 4 sectores con sub-opciones")
     for s in secs:

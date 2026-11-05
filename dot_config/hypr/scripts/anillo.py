@@ -1,13 +1,14 @@
 #!/usr/bin/env python3
 """anillo.py — anillo radial del MX Master 4 (como el "Actions Ring" de Logi Options+, pero por programa).
 
-Mantienes el panel háptico → aparece un anillo de 12 burbujas bajo el cursor con las acciones del programa
-que tiene el foco → mueves el mouse hacia una (el mouse vibra al cambiar) → sueltas y se ejecuta.
-Las burbujas con un puntito tienen sub-opciones: aleja más el mouse en esa dirección y salen en un arco.
-  · soltar en el centro = cancelar          · toque corto = queda abierto; eliges con click (click en el centro cierra)
-  · rueda sobre una burbuja = su ajuste (volumen, zoom, pestañas…) · rueda en el centro = volumen
+TOCA el panel háptico → aparece un anillo de 12 acciones del programa con foco y se queda abierto →
+mueve el mouse hacia una (el mouse vibra al cambiar) → CLICK (o vuelve a tocar el panel) y se ejecuta.
+  · Las burbujas con un puntito tienen sub-opciones: aleja más el mouse en esa dirección y salen en un arco.
+  · Click en el centro, click derecho o 10 s sin moverte = cerrar.
+  · Rápido para expertos: MANTÉN el panel, apunta y suelta (si lo mantuviste más de 0,35 s, soltar ejecuta).
+  · Rueda sobre una burbuja = su ajuste (volumen, zoom, pestañas…) · rueda en el centro = volumen.
 
-Qué hay en cada programa: anillo_apps.py.
+Qué hay en cada programa: anillo_apps.py. Iconos: fuente Tabler de Noctalia (se carga sola).
 
     anillo.py --demonio     servicio (autostart). Lee el botón háptico directo del mouse (hidraw, HID++)
     anillo.py abrir|soltar|cancelar    control manual (atajo SUPER+ALT+O)
@@ -29,6 +30,10 @@ if __name__ == "__main__" and len(sys.argv) > 1 and sys.argv[1] in ("abrir", "so
         sys.exit(1)
     sys.exit(0)
 
+FUENTE_ICONOS = "/usr/share/noctalia/assets/fonts/noctalia-tabler.ttf"
+MAPA_ICONOS = "/usr/share/noctalia/assets/fonts/tabler.json"
+FAMILIA_ICONOS = "noctalia-tabler-icons"
+
 # ---- Geometría (px lógicos) ------------------------------------------------------------------------
 N = 12
 PASO = 360 / N
@@ -37,12 +42,12 @@ RB = 30             # radio de burbuja
 R2 = 236            # centro → sub-opciones
 RS = 23             # radio de sub-opción
 SUB_PASO = 25       # grados entre sub-opciones
-HUB = 56            # disco central
-ZONA_MUERTA = 34    # dentro = cancelar
+HUB = 58            # disco central
+ZONA_MUERTA = 36    # dentro = nada elegido
 UMBRAL_SUB = (R1 + R2) / 2 + 6
-LADO = int(2 * (R2 + RS * 1.35 + 30))
-TOQUE_S = 0.28
-AUTOCIERRE_S = 8
+LADO = int(2 * (R2 + RS * 1.35 + 34))
+MANTENER_S = 0.35   # mantenido más que esto + algo elegido → soltar ejecuta; si no, queda abierto
+AUTOCIERRE_S = 10
 ONDA_ABRIR, ONDA_CAMBIO, ONDA_SUB, ONDA_EJECUTAR = 0, 4, 0x1B, 7   # formas de onda HID++ del motor háptico
 CID_HAPTICO = 0x01A0
 
@@ -75,6 +80,15 @@ def seleccion(dx, dy, sectores, sub_abierto):
     return int((a + PASO / 2) // PASO) % N, None
 
 
+def hex_rgb(c):
+    c = c.lstrip("#")
+    return int(c[0:2], 16) / 255, int(c[2:4], 16) / 255, int(c[4:6], 16) / 255
+
+
+def mezclar(a, b, t):
+    return tuple(x + (y - x) * t for x, y in zip(a, b))
+
+
 def _log(msg):
     try:
         p = os.path.expanduser("~/.local/state/mx-accion.log")
@@ -103,11 +117,19 @@ def ease_out(t):
     return 1 - (1 - t) ** 3
 
 
-def color_sector(tono, i, claro=0.0):
-    import colorsys
-    h = ((tono + i * PASO) % 360) / 360
-    r, g, b = colorsys.hls_to_rgb(h, 0.47 + 0.16 * claro, 0.62 + 0.1 * claro)
-    return r, g, b
+def cargar_iconos():
+    """{nombre: carácter} de la fuente Tabler y la registra en fontconfig solo para este proceso."""
+    import ctypes
+    import json
+    try:
+        fc = ctypes.CDLL("libfontconfig.so.1")
+        fc.FcConfigAppFontAddFile.argtypes = [ctypes.c_void_p, ctypes.c_char_p]
+        fc.FcConfigAppFontAddFile(None, FUENTE_ICONOS.encode())
+        with open(MAPA_ICONOS) as f:
+            return {k: chr(int(v["codepoint"][2:], 16)) for k, v in json.load(f).items()}
+    except Exception as e:
+        _log(f"iconos: {e}")
+        return {}
 
 
 # ---- El mouse: botón háptico + motor, por HID++ directo ----------------------------------------------
@@ -201,9 +223,7 @@ class Mouse:
             except OSError:
                 pass
         self.fd = None
-        if self.pulsado:
-            self.pulsado = False
-            self.al_soltar()
+        self.pulsado = False
 
     def _vigilar(self):
         if self.fd is None:
@@ -255,13 +275,15 @@ def demonio():
     import subprocess
     import threading
 
+    iconos = cargar_iconos()           # antes de que Pango cree su mapa de fuentes
+
     import gi
     gi.require_version("Gtk", "4.0")
     gi.require_version("Gdk", "4.0")
     gi.require_version("Gsk", "4.0")
     gi.require_version("Graphene", "1.0")
     gi.require_version("Gtk4LayerShell", "1.0")
-    from gi.repository import Gdk, GLib, GObject, Graphene, Gsk, Gtk, Pango
+    from gi.repository import Gdk, GLib, Graphene, Gsk, Gtk, Pango
     from gi.repository import Gtk4LayerShell as LS
 
     import anillo_apps as apps
@@ -311,12 +333,12 @@ def demonio():
     threading.Thread(target=trabajador, daemon=True).start()
 
     # -- utilidades de dibujo --
+    # Ojo: Graphene.Rect().init(...) encadenado devuelve una copia que PyGObject puede liberar → basura.
     def rgba(r, g, b, a=1.0):
         c = Gdk.RGBA()
-        c.red, c.green, c.blue, c.alpha = r, g, b, a
+        c.red, c.green, c.blue, c.alpha = r, g, b, max(0.0, min(1.0, a))
         return c
 
-    # Ojo: Graphene.Rect().init(...) encadenado devuelve una copia que PyGObject puede liberar → basura.
     def punto(x, y):
         p = Graphene.Point()
         p.init(x, y)
@@ -340,26 +362,12 @@ def demonio():
             out.append(s)
         return out
 
-    temas = []
-    for nombre in ("Papirus-Dark", "Adwaita"):
-        t = Gtk.IconTheme.new()
-        t.set_theme_name(nombre)
-        temas.append(t)
-    cache_iconos = {}
+    def sombra(col, radio):
+        s = Gsk.Shadow()
+        s.color, s.dx, s.dy, s.radius = col, 0, 0, radio
+        return s
 
-    def icono(nombre, tam):
-        clave = (nombre, tam)
-        if clave not in cache_iconos:
-            p = None
-            for t in temas:
-                if t.has_icon(nombre + "-symbolic"):
-                    p = t.lookup_icon(nombre + "-symbolic", None, tam, 2, Gtk.TextDirection.NONE,
-                                      Gtk.IconLookupFlags(0))
-                    break
-            cache_iconos[clave] = p
-        return cache_iconos[clave]
-
-    BLANCO = rgba(1, 1, 1, 1)
+    OSCURO = (0.07, 0.07, 0.10)
 
     class Lienzo(Gtk.Widget):
         __gtype_name__ = "AnilloLienzo"
@@ -367,63 +375,81 @@ def demonio():
         def __init__(self, anillo):
             super().__init__()
             self.a = anillo
-            self.fuentes = {}
+            self.cache = {}
 
-        def fuente(self, desc):
-            if desc not in self.fuentes:
-                self.fuentes[desc] = Pango.FontDescription.from_string(desc)
-            return self.fuentes[desc]
+        def _layout(self, txt, desc, ancho=None, absoluto=None):
+            clave = (txt, desc, ancho, absoluto)
+            lay = self.cache.get(clave)
+            if lay is None:
+                lay = self.create_pango_layout(txt)
+                fd = Pango.FontDescription.from_string(desc)
+                if absoluto:
+                    fd.set_absolute_size(absoluto * Pango.SCALE)
+                lay.set_font_description(fd)
+                if ancho:
+                    lay.set_width(int(ancho * Pango.SCALE))
+                    lay.set_alignment(Pango.Alignment.CENTER)
+                    lay.set_wrap(Pango.WrapMode.WORD_CHAR)
+                    lay.set_ellipsize(Pango.EllipsizeMode.END)
+                    lay.set_height(-2)
+                if len(self.cache) > 600:
+                    self.cache.clear()
+                self.cache[clave] = lay
+            return lay
 
         def texto(self, snap, txt, desc, cx, cy, ancho, color):
-            lay = self.create_pango_layout(txt)
-            lay.set_font_description(self.fuente(desc))
-            lay.set_width(int(ancho * Pango.SCALE))
-            lay.set_alignment(Pango.Alignment.CENTER)
-            lay.set_wrap(Pango.WrapMode.WORD_CHAR)
-            lay.set_ellipsize(Pango.EllipsizeMode.END)
-            lay.set_height(-2)
+            lay = self._layout(txt, desc, ancho)
             _, alto = lay.get_pixel_size()
             snap.save()
             snap.translate(punto(cx - ancho / 2, cy - alto / 2))
             snap.append_layout(lay, color)
             snap.restore()
 
-        def dibujar_icono(self, snap, nombre, x, y, tam, alfa):
-            p = icono(nombre, tam)
-            if p is None:
+        def glifo(self, snap, nombre, x, y, tam, color, brillo=None, radio=0.0):
+            ch = iconos.get(nombre)
+            if not ch:
                 return
+            tam = max(6, int(round(tam)))
+            lay = self._layout(ch, FAMILIA_ICONOS, None, tam)
+            tinta, _ = lay.get_pixel_extents()
             snap.save()
-            snap.translate(punto(x - tam / 2, y - tam / 2))
-            p.snapshot_symbolic(snap, tam, tam, [rgba(1, 1, 1, alfa)])
+            snap.translate(punto(x - tinta.x - tinta.width / 2, y - tinta.y - tinta.height / 2))
+            if brillo is not None and radio > 0.5:
+                snap.push_shadow([sombra(brillo, radio)])
+                snap.append_layout(lay, color)
+                snap.pop()
+            else:
+                snap.append_layout(lay, color)
             snap.restore()
 
-        def burbuja(self, snap, x, y, r, col, hv, alfa, nombre_icono, tam_icono, con_sub, ang, osc=1.0):
-            cr, cg, cb = (v * osc for v in col)
+        def burbuja(self, snap, x, y, r, col, hv, alfa, icono, tam_icono, con_sub, ang, osc=1.0):
+            """Estilo neón: vidrio oscuro + aro de color brillante; elegida = se enciende entera."""
             c = circ(x, y, r)
+            vivo = mezclar(col, (1, 1, 1), 0.25 * hv)
             snap.push_opacity(alfa)
-            snap.append_outset_shadow(c, rgba(0, 0, 0, 0.45), 0, 4, 0, 12)
-            if hv > 0.01:
-                snap.append_outset_shadow(c, rgba(cr, cg, cb, 0.85 * hv), 0, 0, 2 * hv, 22 * hv)
+            snap.append_outset_shadow(c, rgba(0, 0, 0, 0.55), 0, 5, 0, 14)
+            snap.append_outset_shadow(c, rgba(*col, (0.30 + 0.55 * hv) * osc), 0, 0, 1 + 3 * hv, 9 + 20 * hv)
             snap.push_rounded_clip(c)
-            k = 0.22 + 0.25 * hv
-            claro = rgba(cr + (1 - cr) * k, cg + (1 - cg) * k, cb + (1 - cb) * k, 1)
+            arriba = mezclar(mezclar(OSCURO, col, 0.16), col, 0.80 * hv)
+            abajo = mezclar(mezclar((0.03, 0.03, 0.05), col, 0.06), tuple(v * 0.7 for v in col), 0.80 * hv)
             snap.append_linear_gradient(rect(x - r, y - r, 2 * r, 2 * r), punto(x, y - r), punto(x, y + r),
-                                        paradas((0, claro), (1, rgba(cr * 0.82, cg * 0.82, cb * 0.82, 1))))
-            # brillo de vidrio arriba
-            snap.append_radial_gradient(rect(x - r, y - r, 2 * r, 2 * r), punto(x - r * 0.25, y - r * 0.55),
-                                        r * 0.9, r * 0.6, 0, 1,
-                                        paradas((0, rgba(1, 1, 1, 0.28)), (1, rgba(1, 1, 1, 0))))
+                                        paradas((0, rgba(*arriba, 0.97)), (1, rgba(*abajo, 0.97))))
+            snap.append_radial_gradient(rect(x - r, y - r, 2 * r, 2 * r), punto(x, y - r * 0.55),
+                                        r * 0.95, r * 0.55, 0, 1,
+                                        paradas((0, rgba(1, 1, 1, 0.10 + 0.12 * hv)), (1, rgba(1, 1, 1, 0))))
             snap.pop()
-            w = 1.2 + 1.3 * hv
-            bc = rgba(1, 1, 1, 0.16 + 0.6 * hv)
-            snap.append_border(c, [w] * 4, [bc] * 4)
-            self.dibujar_icono(snap, nombre_icono, x, y, tam_icono, 0.75 + 0.25 * osc)
+            ancho = 2.0 + 1.0 * hv
+            snap.append_border(c, [ancho] * 4, [rgba(*vivo, (0.55 + 0.45 * hv) * (0.5 + 0.5 * osc))] * 4)
+            color_ic = mezclar(mezclar(col, (1, 1, 1), 0.15), (1, 1, 1), hv)
+            self.glifo(snap, icono, x, y, tam_icono, rgba(*color_ic, 0.55 + 0.45 * osc),
+                       rgba(*col, 0.9), 5 + 4 * (1 - hv))
             if con_sub:  # puntito = tiene sub-opciones (como en Logi Options+)
                 a = math.radians(ang)
-                px, py = x + (r + 6) * math.sin(a), y - (r + 6) * math.cos(a)
-                pc = circ(px, py, 3.6)
+                px, py = x + (r + 7) * math.sin(a), y - (r + 7) * math.cos(a)
+                pc = circ(px, py, 3.4)
+                snap.append_outset_shadow(pc, rgba(*col, 0.9), 0, 0, 0, 6)
                 snap.push_rounded_clip(pc)
-                snap.append_color(rgba(1, 1, 1, 0.92), rect(px - 4, py - 4, 8, 8))
+                snap.append_color(rgba(*vivo, 1), rect(px - 4, py - 4, 8, 8))
                 snap.pop()
             snap.pop()
 
@@ -434,34 +460,34 @@ def demonio():
             cx, cy = LADO / 2, LADO / 2
             t_ab = a.t_abre
             fade = ease_out(t_ab * 1.6) * (1 - ease_out(a.t_cierre))
-            escala = 0.92 + 0.08 * ease_out(t_ab) - 0.06 * a.t_cierre
+            escala = 0.90 + 0.10 * ease_out_back(t_ab, 1.2) - 0.07 * a.t_cierre
             snap.save()
             snap.translate(punto(cx, cy))
             snap.scale(escala, escala)
             snap.translate(punto(-cx, -cy))
             snap.push_opacity(max(0.0, fade))
+            ac = a.acento
 
-            # velo circular que crece cuando hay sub-opciones
+            # velo circular (con desenfoque del compositor detrás) que crece con las sub-opciones
             rv = a.r_velo
             snap.append_radial_gradient(rect(cx - rv, cy - rv, 2 * rv, 2 * rv), punto(cx, cy), rv, rv, 0, 1,
-                                        paradas((0, rgba(0.03, 0.03, 0.06, 0.82)),
-                                                (0.80, rgba(0.03, 0.03, 0.06, 0.70)),
+                                        paradas((0, rgba(0.03, 0.03, 0.06, 0.94)),
+                                                (0.82, rgba(0.03, 0.03, 0.06, 0.88)),
                                                 (1, rgba(0.03, 0.03, 0.06, 0))))
             # haz de luz desde el centro hacia la selección
             if a.haz > 0.01:
-                hr, hg, hb = a.col_haz
-                rb = R2 + RS + 12 if a.sub_vis is not None and a.t_sub > 0.2 else R1 + RB + 16
+                rb = R2 + RS + 14 if a.sub_vis is not None and a.t_sub > 0.2 else R1 + RB + 18
                 snap.push_rounded_clip(circ(cx, cy, rb))
+                hc = a.col_haz
                 snap.append_conic_gradient(rect(cx - rb, cy - rb, 2 * rb, 2 * rb), punto(cx, cy), a.ang_haz - 20,
-                                           paradas((0, rgba(hr, hg, hb, 0)), (20 / 360, rgba(hr, hg, hb, 0.42 * a.haz)),
-                                                   (40 / 360, rgba(hr, hg, hb, 0)), (1, rgba(hr, hg, hb, 0))))
+                                           paradas((0, rgba(*hc, 0)), (20 / 360, rgba(*hc, 0.38 * a.haz)),
+                                                   (40 / 360, rgba(*hc, 0)), (1, rgba(*hc, 0))))
                 snap.pop()
-            # pista fina del anillo
-            snap.append_border(circ(cx, cy, R1), [1.2] * 4, [rgba(1, 1, 1, 0.07)] * 4)
+            # pistas finas
+            snap.append_border(circ(cx, cy, R1), [1.0] * 4, [rgba(*ac, 0.10)] * 4)
 
             secs = a.sectores
-            orden = sorted(range(N), key=lambda i: a.hv[i])
-            for i in orden:
+            for i in sorted(range(N), key=lambda i: a.hv[i]):
                 ti = ease_out_back((t_ab * 0.24 - i * 0.011) / 0.17)
                 if ti <= 0:
                     continue
@@ -470,54 +496,57 @@ def demonio():
                 d = R1 * (0.55 + 0.45 * ti)
                 x, y = cx + d * math.sin(rad), cy - d * math.cos(rad)
                 hv = a.hv[i]
-                osc = 1.0 - 0.38 * a.foco * (1 - hv)
-                r = RB * (0.35 + 0.65 * ti) * (1 + 0.24 * hv + 0.12 * a.flash[i])
-                self.burbuja(snap, x, y, r, a.colores[i], hv, min(1.0, ti * 1.5),
-                             secs[i]["icono"], int(22 * (1 + 0.14 * hv)), bool(secs[i]["sub"]), ang, osc)
+                osc = 1.0 - 0.45 * a.foco * (1 - hv)
+                r = RB * (0.35 + 0.65 * ti) * (1 + 0.22 * hv + 0.14 * a.flash[i])
+                self.burbuja(snap, x, y, r, a.colores[i], hv, min(1.0, ti * 1.5), secs[i]["icono"],
+                             23 * (1 + 0.12 * hv), bool(secs[i]["sub"]), ang, osc)
 
             # sub-opciones en arco exterior
             p = a.sub_vis
             if p is not None and a.t_sub > 0.01:
                 subs = secs[p]["sub"]
+                pr = math.radians(p * PASO)
                 for k, ang in enumerate(angulos_sub(p, len(subs))):
                     tk = ease_out_back((a.t_sub * 0.2 - k * 0.018) / 0.14)
                     if tk <= 0:
                         continue
                     rad = math.radians(ang)
-                    pr = math.radians(p * PASO)
-                    d = R1 + (R2 - R1) * tk
-                    x = cx + (R1 * math.sin(pr)) * (1 - tk) + d * math.sin(rad) * tk
-                    y = cy - (R1 * math.cos(pr)) * (1 - tk) - d * math.cos(rad) * tk
+                    x = cx + R1 * math.sin(pr) * (1 - tk) + R2 * math.sin(rad) * tk
+                    y = cy - R1 * math.cos(pr) * (1 - tk) - R2 * math.cos(rad) * tk
                     hv = a.hv_sub[k] if k < len(a.hv_sub) else 0
                     r = RS * (0.4 + 0.6 * tk) * (1 + 0.26 * hv)
-                    col = color_sector(a.tono, p, 0.35 + 0.5 * hv)
-                    self.burbuja(snap, x, y, r, col, hv, min(1.0, tk * 1.4), subs[k]["icono"],
-                                 int(17 * (1 + 0.15 * hv)), False, ang)
+                    self.burbuja(snap, x, y, r, hex_rgb(subs[k]["color"]), hv, min(1.0, tk * 1.4),
+                                 subs[k]["icono"], 18 * (1 + 0.12 * hv), False, ang)
 
-            # centro
-            hc = circ(cx, cy, HUB * (0.7 + 0.3 * ease_out(t_ab * 1.3)))
-            snap.append_outset_shadow(hc, rgba(0, 0, 0, 0.55), 0, 6, 0, 26)
-            snap.push_rounded_clip(hc)
+            # centro: logo de la app (o la acción elegida) con brillo
+            hcirc = circ(cx, cy, HUB * (0.7 + 0.3 * ease_out(t_ab * 1.3)))
+            snap.append_outset_shadow(hcirc, rgba(0, 0, 0, 0.6), 0, 6, 0, 28)
+            snap.append_outset_shadow(hcirc, rgba(*ac, 0.35), 0, 0, 0, 18)
+            snap.push_rounded_clip(hcirc)
             snap.append_linear_gradient(rect(cx - HUB, cy - HUB, 2 * HUB, 2 * HUB), punto(cx, cy - HUB),
                                         punto(cx, cy + HUB),
-                                        paradas((0, rgba(0.16, 0.16, 0.21, 0.97)), (1, rgba(0.07, 0.07, 0.1, 0.97))))
+                                        paradas((0, rgba(*mezclar((0.13, 0.13, 0.18), ac, 0.10), 0.98)),
+                                                (1, rgba(0.05, 0.05, 0.08, 0.98))))
             snap.pop()
-            ac = color_sector(a.tono, 0, 0.3)
-            snap.append_border(hc, [1.4] * 4, [rgba(*ac, 0.55)] * 4)
-            elegido = a.elegido()
-            if elegido:
-                self.dibujar_icono(snap, elegido["icono"], cx, cy - 15, 24, 1)
-                self.texto(snap, elegido["nombre"], "Sans Bold 9", cx, cy + 16, HUB * 1.62, BLANCO)
+            snap.append_border(hcirc, [1.8] * 4, [rgba(*ac, 0.75)] * 4)
+            el = a.elegido()
+            if el:
+                col = hex_rgb(el["color"])
+                self.glifo(snap, el["icono"], cx, cy - 14, 28, rgba(*mezclar(col, (1, 1, 1), 0.2)),
+                           rgba(*col, 0.9), 8)
+                self.texto(snap, el["nombre"], "Sans Bold 9", cx, cy + 18, HUB * 1.62, rgba(1, 1, 1, 0.95))
             else:
-                self.texto(snap, a.nombre_app, "Sans Bold 10.5", cx, cy - 7, HUB * 1.7, rgba(*ac, 1))
-                self.texto(snap, "×  soltar = salir", "Sans 7.5", cx, cy + 13, HUB * 1.7, rgba(1, 1, 1, 0.55))
+                self.glifo(snap, a.logo, cx, cy - 12, 34, rgba(*mezclar(ac, (1, 1, 1), 0.15)), rgba(*ac, 0.95), 10)
+                pista = "clic = elegir" if a.toque else a.nombre_app
+                self.texto(snap, pista, "Sans Bold 8.5", cx, cy + 22, HUB * 1.7, rgba(*mezclar(ac, (1, 1, 1), 0.4)))
             # indicador que orbita el centro
             if a.haz > 0.01:
                 ra = math.radians(a.ang_haz)
-                ix, iy = cx + (HUB + 7) * math.sin(ra), cy - (HUB + 7) * math.cos(ra)
-                ic = circ(ix, iy, 3.2)
+                ix, iy = cx + (HUB + 8) * math.sin(ra), cy - (HUB + 8) * math.cos(ra)
+                ic = circ(ix, iy, 3.4)
+                snap.append_outset_shadow(ic, rgba(*a.col_haz, a.haz), 0, 0, 0, 7)
                 snap.push_rounded_clip(ic)
-                snap.append_color(rgba(*a.col_haz, a.haz), rect(ix - 4, iy - 4, 8, 8))
+                snap.append_color(rgba(*mezclar(a.col_haz, (1, 1, 1), 0.4), a.haz), rect(ix - 4, iy - 4, 8, 8))
                 snap.pop()
             snap.pop()
             snap.restore()
@@ -528,9 +557,7 @@ def demonio():
             self.cerrando = False
             self.tick_id = None
             self.monitor = None
-            self.sectores = apps.GLOBAL["sectores"]
-            self.tono = apps.GLOBAL["tono"]
-            self.nombre_app = ""
+            self._cargar(apps.GLOBAL)
             self._reset()
             w = Gtk.Window()
             self.win = w
@@ -564,6 +591,13 @@ def demonio():
             rueda.connect("scroll", self.al_rodar)
             self.lienzo.add_controller(rueda)
 
+        def _cargar(self, perfil):
+            self.sectores = perfil["sectores"]
+            self.nombre_app = perfil["nombre"]
+            self.logo = perfil["logo"]
+            self.acento = hex_rgb(perfil["acento"])
+            self.colores = [hex_rgb(s["color"]) for s in self.sectores]
+
         def _reset(self):
             self.sel = self.sub = None
             self.sub_abierto = None
@@ -578,8 +612,9 @@ def demonio():
             self.haz = 0.0
             self.ang_haz = 0.0
             self.col_haz = (1, 1, 1)
-            self.r_velo = R1 + RB + 40
+            self.r_velo = R1 + RB + 44
             self.toque = False
+            self.ignorar_soltar = False
             self.ax = self.ay = LADO / 2
             self.t0 = self.actividad = time.time()
 
@@ -590,11 +625,19 @@ def demonio():
             return s["sub"][self.sub] if self.sub is not None else s
 
         # -- abrir / cerrar --
-        def abrir(self):
+        def pulsar(self):
+            """Botón háptico (o SUPER+ALT+O) pulsado."""
             if self.visible and not self.cerrando:
-                self.toque = False            # pulsó otra vez en modo toque: vuelve a "mantener y soltar"
-                self.t0 = self.actividad = time.time()
+                # ya estaba abierto (modo toque): este toque confirma lo elegido, o cierra
+                self.ignorar_soltar = True
+                if self.elegido():
+                    self.ejecutar()
+                else:
+                    self.cerrar()
                 return
+            self.abrir()
+
+        def abrir(self):
             try:
                 cur = hypr("cursorpos")
                 mons = hypr("monitors")
@@ -606,7 +649,7 @@ def demonio():
                 perfil = next((p for p in apps.PERFILES if p["nombre"] == os.environ["ANILLO_APP"]), apps.GLOBAL)
             else:
                 perfil = apps.perfil_para(act.get("class", ""), act.get("title", ""))
-            mon = None
+            mon, mw, mh = None, 0, 0
             for m in mons:
                 w, h = m["width"] / m["scale"], m["height"] / m["scale"]
                 if m.get("transform", 0) % 2:
@@ -620,10 +663,7 @@ def demonio():
             if self.visible:                  # estaba cerrándose: ocultar ya
                 self._ocultar()
             self._reset()
-            self.sectores = perfil["sectores"]
-            self.tono = perfil["tono"]
-            self.nombre_app = perfil["nombre"]
-            self.colores = [color_sector(self.tono, i) for i in range(N)]
+            self._cargar(perfil)
             px, py = cur["x"] - mon["x"], cur["y"] - mon["y"]
             izq = int(min(max(px - LADO / 2, 0), mw - LADO))
             arr = int(min(max(py - LADO / 2, 0), mh - LADO))
@@ -659,13 +699,17 @@ def demonio():
                 self.tick_id = None
 
         def soltar(self):
-            if not self.visible or self.cerrando:
+            """Botón soltado: si lo mantuvo y apuntó a algo, ejecuta; si fue un toque, queda abierto."""
+            if self.ignorar_soltar:
+                self.ignorar_soltar = False
                 return
-            if self.sel is None and not self.toque and time.time() - self.t0 < TOQUE_S:
-                self.toque = True             # toque corto: queda abierto para elegir con click
+            if not self.visible or self.cerrando or self.toque:
+                return
+            if time.time() - self.t0 >= MANTENER_S and self.elegido():
+                self.ejecutar()
+            else:
+                self.toque = True
                 self.actividad = time.time()
-                return
-            self.ejecutar()
 
         def ejecutar(self):
             el = self.elegido()
@@ -680,6 +724,8 @@ def demonio():
 
         # -- eventos --
         def al_mover(self, _c, x, y):
+            if prueba and os.environ.get("ANILLO_DEPURAR"):
+                print(f"mover x={x:.0f} y={y:.0f} ancla={self.ax:.0f},{self.ay:.0f}", flush=True)
             self.actividad = time.time()
             if self.cerrando:
                 return
@@ -696,7 +742,7 @@ def demonio():
                     self.sub_abierto = None
 
         def al_clic(self, g, _n, _x, _y):
-            if g.get_current_button() == 1 and self.sel is not None:
+            if g.get_current_button() == 1 and self.elegido():
                 self.ejecutar()
             else:
                 self.cerrar()
@@ -722,7 +768,7 @@ def demonio():
             dt = 0.016 if self._t is None else min(0.05, t - self._t)
             self._t = t
             k = min(1.0, dt * 18)
-            self.t_abre = min(1.0, self.t_abre + dt / 0.24) if self.t_abre < 1 else 1.0
+            self.t_abre = min(1.0, self.t_abre + dt / 0.24)
             if self.cerrando:
                 self.t_cierre = min(1.0, self.t_cierre + dt / 0.13)
                 if self.t_cierre >= 1.0:
@@ -735,8 +781,7 @@ def demonio():
                 self.hv[i] += (obj - self.hv[i]) * k
                 self.flash[i] *= max(0.0, 1 - dt * 7)
             for j in range(len(self.hv_sub)):
-                obj = 1.0 if self.sub == j else 0.0
-                self.hv_sub[j] += (obj - self.hv_sub[j]) * k
+                self.hv_sub[j] += ((1.0 if self.sub == j else 0.0) - self.hv_sub[j]) * k
             self.foco += ((1.0 if self.sel is not None else 0.0) - self.foco) * k
             # sub-opciones: entra la nueva cuando la anterior ya salió
             if self.sub_abierto != self.sub_vis:
@@ -746,18 +791,18 @@ def demonio():
                     self.hv_sub = [0.0] * 8
             elif self.sub_vis is not None:
                 self.t_sub = min(1.0, self.t_sub + dt / 0.2)
-            r_obj = (R2 + RS + 40) if self.sub_vis is not None else (R1 + RB + 40)
+            r_obj = (R2 + RS + 44) if self.sub_vis is not None else (R1 + RB + 44)
             self.r_velo += (r_obj - self.r_velo) * k
             # haz de luz
-            if self.sel is not None:
+            el = self.elegido()
+            if el is not None:
                 ang_obj = (angulos_sub(self.sel, len(self.sectores[self.sel]["sub"]))[self.sub]
                            if self.sub is not None else self.sel * PASO)
                 if self.haz < 0.02:
                     self.ang_haz = ang_obj
                 self.ang_haz = (self.ang_haz + dif_ang(ang_obj, self.ang_haz) * min(1.0, dt * 22)) % 360
-                obj_col = color_sector(self.tono, self.sel, 0.4)
-                self.col_haz = tuple(c + (o - c) * k for c, o in zip(self.col_haz, obj_col))
-            self.haz += ((1.0 if self.sel is not None else 0.0) - self.haz) * k
+                self.col_haz = mezclar(self.col_haz, hex_rgb(el["color"]), k)
+            self.haz += ((1.0 if el is not None else 0.0) - self.haz) * k
             widget.queue_draw()
             return GLib.SOURCE_CONTINUE
 
@@ -783,7 +828,7 @@ def demonio():
             return False
         GLib.timeout_add(300, abrir_prueba)
     else:
-        raton = Mouse(GLib, lambda: anillo.abrir(), lambda: anillo.soltar())
+        raton = Mouse(GLib, lambda: anillo.pulsar(), lambda: anillo.soltar())
         try:
             os.unlink(SOCK)
         except OSError:
@@ -796,14 +841,13 @@ def demonio():
             try:
                 while True:
                     cmd = srv.recv(64).decode().strip()
-                    {"abrir": anillo.abrir, "soltar": anillo.soltar, "cancelar": anillo.cerrar}.get(cmd, lambda: 0)()
+                    {"abrir": anillo.pulsar, "soltar": anillo.soltar, "cancelar": anillo.cerrar}.get(cmd, lambda: 0)()
             except BlockingIOError:
                 pass
             return True
         GLib.io_add_watch(srv.fileno(), GLib.IO_IN, recibir)
         _log("servicio listo")
 
-    GObject  # noqa: B018  (import usado por el subclassing de Gtk.Widget)
     try:
         GLib.MainLoop().run()
     except KeyboardInterrupt:
