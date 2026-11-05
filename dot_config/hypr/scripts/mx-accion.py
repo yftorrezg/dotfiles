@@ -46,6 +46,10 @@ def web(sitio):
     return ("cmd", ["bash", APPWEB, sitio])
 
 
+# Abre (o enfoca) las dos IAs; la última (ChatGPT) queda con el foco.
+GEMINI_Y_CHATGPT = ("cmd", ["bash", "-c", f"bash {APPWEB} gemini; sleep 0.4; bash {APPWEB} chatgpt"])
+
+
 UDEMY = ("https://www.udemy.com/course/curso-de-raspberry-pi-3-model-b-con-python-iot-y-domotica-d/"
          "learn/lecture/22949520#overview")
 
@@ -55,7 +59,8 @@ PERFILES = {
         #            click              arriba             abajo            izq                der
         "rueda":    ["super+shift+s",   "super+f",         "super+q",       "super+ctrl+left", "super+ctrl+right"],
         # captura al portapapeles · pantalla completa · cerrar ventana · escritorio anterior · siguiente
-        "superior": ["esc",             web("gemini"),     web("chatgpt"),  web("claude"),     web("deepseek")],
+        "superior": ["esc",             GEMINI_Y_CHATGPT,  "super+alt+z",   web("claude"),     web("deepseek")],
+        # Esc · Gemini + ChatGPT (las 2) · dictado (hyprwhspr) · Claude · DeepSeek
         "atras":    [ATRAS,             "home",            "end",           "alt+left",        "alt+right"],
         "adelante": [ADELANTE,          "ctrl+t",          "ctrl+w",        "ctrl+shift+tab",  "ctrl+tab"],
         "gestos":    ["playpause",       "volumeup",        "volumedown",    "prevsong",        "nextsong"],

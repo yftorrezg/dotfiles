@@ -41,7 +41,7 @@ NOMBRES = {
     G: {
         "rueda": ["Captura al portapapeles", "Pantalla completa", "Cerrar ventana", "Escritorio anterior",
                   "Escritorio siguiente"],
-        "superior": ["Esc", "Gemini", "ChatGPT", "Claude", "DeepSeek"],
+        "superior": ["Esc", "Gemini + ChatGPT (las 2)", "Dictado (SUPER+ALT+Z)", "Claude", "DeepSeek"],
         "gestos": ["Play / pausa", "Volumen +", "Volumen −", "Pista anterior", "Pista siguiente"],
         "atras": ["Atrás (nativo)", "Inicio", "Fin", "Atrás", "Adelante"],
         "adelante": ["Adelante (nativo)", "Nueva pestaña", "Cerrar pestaña", "Pestaña anterior", "Pestaña siguiente"],

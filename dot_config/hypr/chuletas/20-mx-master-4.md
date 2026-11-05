@@ -30,7 +30,7 @@ Sirve para Rueda, Superior, Gestos, Atrás y Adelante. Cada uno tiene **5 accion
 | Botón | Clic | ↑ Arriba | ↓ Abajo | ← Izquierda | → Derecha |
 |---|---|---|---|---|---|
 | Rueda | Captura al portapapeles `Super+Shift+S` | Pantalla completa `Super+F` | Cerrar ventana `Super+Q` | Escritorio anterior `Super+Ctrl+←` | Escritorio siguiente `Super+Ctrl+→` |
-| Superior | Esc | Gemini | ChatGPT | Claude | DeepSeek |
+| Superior | Esc | Gemini + ChatGPT (las 2) | Dictado (SUPER+ALT+Z) | Claude | DeepSeek |
 
 📌 Nota: las IAs se abren como ventana de app de Brave; si ya está abierta, la enfoca en vez de abrir otra.
 
