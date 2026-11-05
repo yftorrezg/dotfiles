@@ -5,10 +5,12 @@ Saca emojis (no aportan nada al escucharlos) y reemplaza URLs completas y
 rutas de archivo por una frase corta ("este enlace" / "esta ruta") en vez de
 deletrear cada segmento — leer un dominio o un path largo carácter por
 carácter no ayuda a entender, solo confirma que ahí había un link/una ruta.
-Borra también la actividad de herramientas de Claude y OpenCode que aparece en
-la terminal (resúmenes "Ran 3 shell commands", llamadas como "Web Search(...)"
-o "Fetch(...)", resultados "└ Did 1 search in 8s", comandos "$ ..." con su
-salida, "+ Thought · 11.9s"): no es contenido de la respuesta.
+Borra también lo que Claude y OpenCode muestran entre medio de la respuesta:
+resúmenes de herramientas ("Ran 3 shell commands", "Searched for 1 pattern"),
+llamadas y resultados de herramientas ("● Web Search(...)", "└ Did 1 search in
+8s"), pensamientos ("+ Thought · 11.9s"), tiempos de turno ("Cooked for 50s"),
+pistas ("· summary", "ctrl+o to expand"), tu prompt ("❯ ...") y los comandos
+"$ ..." con su salida. El listado completo está en _TOOL_LINE_RE.
 Corre primero en el pipeline para operar sobre el texto "crudo", antes de que
 las reglas de sed conviertan las barras en pausas.
 """
@@ -51,25 +53,46 @@ def _replace_path(match):
     return path
 
 
-_TOOL_ACTIVITY_RE = re.compile(
+_TOOL_LINE_RE = re.compile(
     r"[ \t]*(?:"
-    r"Ran \d+ shell commands?\b"
-    r"|[→←✱%◈][ \t]*(?:Explored|Read|Searched|Edit|Edited|Write|Wrote|Fetched|WebFetch|Web ?Search|Exa|Glob|Grep|List|Listed|Task)\b"
-    r"|[+✻✢✳∴][ \t]*(?:Thought|Thinking)\b"
-    r"|[●⏺][ \t]*(?:Web ?Search|Web ?Fetch|Fetch|Search|Bash|Read|Write|Edit|MultiEdit|Update|Grep|Glob|LS|List|Task|TodoWrite|NotebookEdit)\("
-    r"|\$ (?!\d)"
+    # resúmenes de grupo: "Ran 3 shell commands", "Searched for 1 pattern, read 1 file", "→ Explored: 2 reads"
+    r"[→←●⏺]?[ \t]*(?:Ran|Running) \d+ shell commands?\b"
+    r"|[→←●⏺]?[ \t]*(?:Searched|Searching|searched|searching) for \d+ patterns?\b"
+    r"|[→←●⏺]?[ \t]*(?:Read|Reading|Listed|Listing) \d+ (?:files?|directory|directories)\b"
+    r"|[→←●⏺]?[ \t]*(?:Explored|Exploring):"
+    # llamadas a herramientas: "● Web Search(...)", "⏺ Bash(ls)", "● Fetch(https://...)"
+    r"|[●⏺][ \t]*(?:Web Search|[A-Za-z_][A-Za-z0-9_]*)\("
+    # herramientas de OpenCode: "→ Read src/a.ts", "← Edit src/a.ts"
+    r"|[→←✱%◈][ \t]*(?:Read|Write|Edit|Glob|Grep|List|WebFetch|WebSearch|Exa|Task|Todos?)\b"
+    # pensamiento: "+ Thought · 11.9s", "- Thought", "+ Thinking: ...", "✻ Thinking…"
+    r"|[+\-][ \t]*Thought(?:[ \t]*·|[ \t\r]*$)"
+    r"|[+\-✻✢✳∴][ \t]*Thinking(?::|…)"
+    # tiempo de turno "* Cooked for 50s · done 3:37 a. m.", indicadores de carga "✻ Pondering…"
+    r"|[*✻✢✳∴·•]?[ \t]*(?:Baked|Brewed|Churned|Cogitated|Cooked|Crunched|Sautéed|Worked) for \d"
+    r"|[✻✢✳✶∴][ \t]*[A-Z][a-z]+…"
+    # prompt del usuario en Claude y menús: "❯ sigue con la fase 3"
+    r"|❯[ \t]"
+    # resultados de herramientas: "└ Did 1 search in 8s", "⎿ Allowed by auto mode", "Received 31.8KB (200 OK)"
     r"|[└⎿╰⎣][ \t]"
-    r"|Allowed by\b"
-    r"|Did \d+ \w+ in \d+(?:\.\d+)?s\b"
-    r"|Received \d[\d.]*[ \t]?[KMGT]?B\b"
+    r"|(?:Allowed by|Did \d+ \w+ in \d+(?:\.\d+)?s|Received \d[\d.]*[ \t]?[KMGT]?B)\b"
+    r"|…[ \t]*\+\d+ lines?"
     r"|\(\d+ earlier lines?\)"
+    # comandos de OpenCode: "$ python3 - <<'EOF'" (su salida la saltea _strip_tool_activity)
+    r"|\$ (?!\d)"
+    # pie de mensaje de OpenCode: "▣ Build · modelo · 3.2s"
+    r"|▣"
     r")"
 )
+# Pistas dentro de una línea de estado: "✻ Thinking… (esc to interrupt)".
+_HINT_RE = re.compile(r"to interrupt|ctrl\+o to expand|\? for shortcuts")
+# Pista al final de un bloque colapsado de Claude: "a. · summary".
+_SUMMARY_HINT_RE = re.compile(r"[ \t]*·[ \t]*summar(?:y|ized)\b.*")
 
 
 # Un bloque de herramienta sigue hasta la primera línea de texto sin sangría; uno de
 # comando ($ ...), hasta la siguiente línea en blanco.
 def _strip_tool_activity(text):
+    text = _SUMMARY_HINT_RE.sub("", text)
     kept = []
     mode = None
     for line in text.split("\n"):
@@ -79,7 +102,7 @@ def _strip_tool_activity(text):
                 continue
             mode = None
             continue
-        if _TOOL_ACTIVITY_RE.match(line):
+        if _TOOL_LINE_RE.match(line) or _HINT_RE.search(line):
             mode = "shell" if line.lstrip().startswith("$") else "tool"
             continue
         if mode == "tool" and (blank or line[:1].isspace()):

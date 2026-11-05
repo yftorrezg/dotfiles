@@ -286,35 +286,35 @@ Cada tabla es el anillo de ese programa. «Atajo» es lo que se ejecuta; si pone
 
 | Hora | Acción | Atajo | Sub-opciones (aleja más el mouse) | Rueda del mouse |
 |---|---|---|---|---|
-| 12 | **Play / pausa** | `Espacio` | — | — |
-| 1 | **+10 s** | `Ctrl+→` | — | `↑ → / ↓ ←` |
-| 2 | **Velocidad 2x** | `E` | Velocidad 1.5x `W` · +0.1 `D` · -0.1 `A` · Velocidad normal `Retroceso` | `↑ D / ↓ A` |
-| 3 | **Pantalla completa** | `F` | — | — |
-| 4 | **Poner marca** | `B` | Ir a la marca `N` · Capítulos y marcas `Shift+C` · Marca siguiente `Re Pág` · Marca anterior `Av Pág` | — |
-| 5 | **Lista de videos** | `Tab` | — | — |
-| 6 | **-10 s** | `Ctrl+←` | — | — |
-| 7 | **Notas** | `H` | — | — |
-| 8 | **Siguiente video** | `Shift+N` | Video anterior `Shift+P` | — |
-| 9 | **Saltos** | `Alt+→` | +30 s `Alt+→` · -30 s `Alt+←` · Deshacer salto `Ctrl+Z` · Al inicio `Inicio` | — |
-| 10 | **Captura** | `S` | — | `↑ ↑ / ↓ ↓` |
-| 11 | **Abrir archivo** | `Ctrl+O` | — | — |
+| 12 | **Nueva nota** | `Ctrl+N` | — | — |
+| 1 | **Menú de marcas** | `Shift+B` | Capítulos y marcas `Shift+C` · Marca siguiente `Re Pág` · Marca anterior `Av Pág` | — |
+| 2 | **Deshacer salto** | `Ctrl+Z` | — | — |
+| 3 | **Bucle A-B** | `C` | Últimos 15 s `Ctrl+C` · Bucles guardados `Shift+L` | — |
+| 4 | **Velocidad 1×** | `R` | — | — |
+| 5 | **Cuadro a cuadro** | `.` | Cuadro atrás `,` | — |
+| 6 | **Captura** | `S` | Sin subtítulos `Shift+S` | — |
+| 7 | **Abrir carpeta / curso** | `Alt+C` | Carpeta actual `Alt+Shift+C` | — |
+| 8 | **Subtítulos** | `Shift+J` | Mostrar / ocultar `Shift+V` | — |
+| 9 | **Pantalla completa** | `F` | Estadísticas `Ctrl+I` | — |
+| 10 | **Siguiente video** | `Shift+N` | Video anterior `Shift+P` | — |
+| 11 | **Salir recordando** | `Ctrl+Q` | Salir sin recordar `Ctrl+Shift+Q` | — |
 
 ### Dolphin
 
 | Hora | Acción | Atajo | Sub-opciones (aleja más el mouse) | Rueda del mouse |
 |---|---|---|---|---|
-| 12 | **Carpeta nueva** | `Ctrl+Shift+N` | — | — |
-| 1 | **Renombrar** | `F2` | — | — |
-| 2 | **Dividir vista** | `F3` | — | — |
-| 3 | **Buscar** | `Ctrl+F` | Filtrar `Ctrl+I` | — |
-| 4 | **Nueva pestaña** | `Ctrl+T` | Pestaña anterior `Ctrl+Re Pág` · Pestaña siguiente `Ctrl+Av Pág` · Cerrar pestaña `Ctrl+W` | `↑ Ctrl+Re Pág / ↓ Ctrl+Av Pág` |
-| 5 | **Vista** | `Ctrl+1` | Iconos `Ctrl+1` · Compacta `Ctrl+2` · Detalles `Ctrl+3` · Mostrar ocultos `Alt+.` | `↑ Ctrl+= / ↓ Ctrl+-` |
-| 6 | **Carpeta superior** | `Alt+↑` | — | — |
-| 7 | **Atrás** | `Alt+←` | Adelante `Alt+→` | — |
-| 8 | **Ordenar por nombre** | `Ctrl+Alt+N` | Ordenar por tipo `Ctrl+Alt+T` | — |
+| 12 | **Buscar** | `Ctrl+F` | Filtrar esta carpeta `Ctrl+I` · Buscar una acción `Ctrl+Alt+I` | — |
+| 1 | **Invertir selección** | `Ctrl+Shift+A` | Seleccionar todo `Ctrl+A` | — |
+| 2 | **Panel de información** | `F11` | Panel de lugares `F9` · Árbol de carpetas `F7` · Vistas previas `F12` | — |
+| 3 | **Vista detalles** | `Ctrl+3` | Iconos `Ctrl+1` · Compacta `Ctrl+2` | — |
+| 4 | **Copiar ruta** | `Ctrl+Alt+C` | Copiar al otro panel `Shift+F5` · Mover al otro panel `Shift+F6` | — |
+| 5 | **Propiedades** | `Alt+Enter` | — | — |
+| 6 | **A la papelera** | `Supr` | — | — |
+| 7 | **Ventana nueva** | `Ctrl+N` | — | — |
+| 8 | **Reabrir pestaña** | `Ctrl+Shift+T` | — | — |
 | 9 | **Terminal aquí** | `Alt+Shift+F4` | — | — |
-| 10 | **Barra de direcciones** | `Ctrl+L` | — | — |
-| 11 | **A la papelera** | `Supr` | Deshacer `Ctrl+Z` · Duplicar `Ctrl+D` · Propiedades `Alt+Enter` | — |
+| 10 | **Deshacer** | `Ctrl+Z` | — | — |
+| 11 | **Menú del archivo** | `Menu` | — | — |
 
 ### Fotos
 
@@ -543,33 +543,6 @@ Estas acciones están a la vez en el anillo y en un botón. Es duplicar esfuerzo
 | Brave | `Alt+→` | Adelante (hora 8) | Adelante clic |
 | Brave | `Ctrl+Shift+A` | Buscar pestaña (hora 9) | Gestos ← |
 | Brave | `Ctrl+L` | Barra de direcciones (hora 10) | Adelante ↑ |
-| mpv | `Espacio` | Play / pausa (hora 12) | Gestos clic |
-| mpv | `Ctrl+→` | +10 s (hora 1) | Atrás → |
-| mpv | `E` | Velocidad 2x (hora 2) | Adelante ↑ |
-| mpv | `W` | Velocidad 1.5x (hora 2) | Adelante ↓ |
-| mpv | `D` | +0.1 (hora 2) | Adelante ← |
-| mpv | `A` | -0.1 (hora 2) | Adelante → |
-| mpv | `B` | Poner marca (hora 4) | Gestos ↑ |
-| mpv | `N` | Ir a la marca (hora 4) | Gestos ↓ |
-| mpv | `Tab` | Lista de videos (hora 5) | Gestos ← |
-| mpv | `Ctrl+←` | -10 s (hora 6) | Atrás ← |
-| mpv | `H` | Notas (hora 7) | Gestos → |
-| mpv | `Alt+→` | Saltos (hora 9) | Atrás ↑ |
-| mpv | `Alt+←` | -30 s (hora 9) | Atrás ↓ |
-| Dolphin | `Ctrl+Shift+N` | Carpeta nueva (hora 12) | Gestos clic |
-| Dolphin | `F2` | Renombrar (hora 1) | Atrás ← |
-| Dolphin | `F3` | Dividir vista (hora 2) | Gestos ↑ |
-| Dolphin | `Ctrl+T` | Nueva pestaña (hora 4) | Adelante ↑ |
-| Dolphin | `Ctrl+Re Pág` | Pestaña anterior (hora 4) | Adelante ← |
-| Dolphin | `Ctrl+Av Pág` | Pestaña siguiente (hora 4) | Adelante → |
-| Dolphin | `Ctrl+W` | Cerrar pestaña (hora 4) | Adelante ↓ |
-| Dolphin | `Alt+.` | Mostrar ocultos (hora 5) | Gestos ↓ |
-| Dolphin | `Alt+↑` | Carpeta superior (hora 6) | Atrás ↓ |
-| Dolphin | `Alt+←` | Atrás (hora 7) | Atrás clic |
-| Dolphin | `Alt+→` | Adelante (hora 7) | Adelante clic |
-| Dolphin | `Ctrl+Alt+N` | Ordenar por nombre (hora 8) | Gestos ← |
-| Dolphin | `Ctrl+Alt+T` | Ordenar por tipo (hora 8) | Gestos → |
-| Dolphin | `Ctrl+D` | Duplicar (hora 11) | Atrás → |
 | Fotos | `E` | Rotar derecha (hora 1) | Gestos → |
 | Fotos | `C` | Recortar (hora 2) | Gestos ↓ |
 | Fotos | `X` | A la papelera (hora 5) | Gestos clic |
