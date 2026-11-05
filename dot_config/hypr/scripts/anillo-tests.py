@@ -82,6 +82,48 @@ ok(apps.perfil_para("brave-web.whatsapp.com__-Default", "")["nombre"] == "WhatsA
 ok(apps.perfil_para("org.telegram.desktop", "")["nombre"] == "Telegram", "Telegram")
 ok(apps.perfil_para("loquesea", "")["nombre"] == "Sistema", "global")
 
+
+# -- anti-rebote del panel: ráfaga pulsar/soltar/pulsar/soltar = UN solo pulsar y UN solo soltar --
+class GLibFalso:
+    def __init__(self):
+        self.timers, self.n = {}, 0
+
+    def timeout_add(self, ms, f):
+        self.n += 1
+        self.timers[self.n] = f
+        return self.n
+
+    def source_remove(self, i):
+        self.timers.pop(i, None)
+
+    def disparar(self):
+        for i, f in list(self.timers.items()):
+            self.timers.pop(i, None)
+            f()
+
+
+def paquete(m, pulsado):
+    d = bytearray(20)
+    d[0], d[2], d[3] = 0x11, m.f_rep, 0x00
+    if pulsado:
+        d[4], d[5] = anillo.CID_HAPTICO >> 8, anillo.CID_HAPTICO & 0xFF
+    return bytes(d)
+
+
+eventos = []
+m = object.__new__(anillo.Mouse)
+m.GLib = GLibFalso()
+m.al_pulsar, m.al_soltar = (lambda: eventos.append("P")), (lambda: eventos.append("S"))
+m.f_rep, m.f_wds, m.pulsado, m.timer_soltar = 13, 14, False, None
+for estado in (True, False, True, False, True, False, True):   # rebote del sensor
+    m._procesar(paquete(m, estado))
+ok(eventos == ["P"], f"rebote: antes de soltar de verdad solo debe haber un P, hubo {eventos}")
+m._procesar(paquete(m, False))
+m.GLib.disparar()
+ok(eventos == ["P", "S"], f"rebote: tras soltar debe quedar P,S, quedó {eventos}")
+m._procesar(paquete(m, True))
+ok(eventos == ["P", "S", "P"], "un toque nuevo después sí vale")
+
 if fallos:
     print("\n".join("✗ " + f for f in fallos))
     print(f"\n{len(fallos)} fallos")

@@ -96,6 +96,7 @@ mueve el mouse hacia una (vibra al cambiar) → **clic** o vuelve a **tocar** el
 | Burbuja con puntito | Tiene sub-opciones: aleja más el mouse en esa dirección y salen en un arco |
 | Rueda sobre una burbuja | Su ajuste: volumen, zoom, pestañas, velocidad, chat siguiente… |
 | Rueda en el centro | Volumen (en cualquier programa) |
+| Rebote del panel | El sensor de fuerza del panel manda varios pulsar/soltar por toque; el anillo los absorbe (140 ms) |
 | SUPER+ALT+O | Lo mismo desde el teclado |
 
 🎨 Colores = tipo de acción: 🔴 cerrar/borrar · 🟢 nuevo · 🟡 buscar · 🔵 moverse · 🟣 multimedia · 🟠 capturas · 🩷 editar/formato · 🩵 vistas/ventanas.

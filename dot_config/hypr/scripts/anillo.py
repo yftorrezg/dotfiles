@@ -37,18 +37,20 @@ FAMILIA_ICONOS = "noctalia-tabler-icons"
 # ---- Geometría (px lógicos) ------------------------------------------------------------------------
 N = 12
 PASO = 360 / N
-R1 = 150            # centro → burbujas
-RB = 30             # radio de burbuja
-R2 = 236            # centro → sub-opciones
-RS = 23             # radio de sub-opción
+R1 = 168            # centro → burbujas
+RB = 34             # radio de burbuja
+R2 = 258            # centro → sub-opciones
+RS = 26             # radio de sub-opción
+ANCHO_TXT = 108     # ancho máximo del texto junto a cada burbuja
 SUB_PASO = 25       # grados entre sub-opciones
 HUB = 58            # disco central
 ZONA_MUERTA = 36    # dentro = nada elegido
 UMBRAL_SUB = (R1 + R2) / 2 + 6
-LADO = int(2 * (R2 + RS * 1.35 + 34))
+LADO = int(2 * max(R2 + RS * 1.35 + 34, R1 + RB + 10 + ANCHO_TXT + 12))
+REBOTE_S = 0.14     # el sensor de fuerza del panel rebota: un soltar solo vale si no vuelve a pulsar en este tiempo
 MANTENER_S = 0.35   # mantenido más que esto + algo elegido → soltar ejecuta; si no, queda abierto
 AUTOCIERRE_S = 10
-ONDA_ABRIR, ONDA_CAMBIO, ONDA_SUB, ONDA_EJECUTAR = 0, 4, 0x1B, 7   # formas de onda HID++ del motor háptico
+ONDA_CAMBIO, ONDA_SUB, ONDA_EJECUTAR = 4, 0x1B, 7   # formas de onda HID++ del motor háptico
 CID_HAPTICO = 0x01A0
 
 
@@ -144,6 +146,7 @@ class Mouse:
         self.disp = 0xFF
         self.f_hap = self.f_rep = self.f_wds = None
         self.pulsado = False
+        self.timer_soltar = None
         self.ultimo = 0.0
         GLib.timeout_add_seconds(3, self._vigilar)
         self.conectar()
@@ -224,6 +227,9 @@ class Mouse:
                 pass
         self.fd = None
         self.pulsado = False
+        if self.timer_soltar:
+            self.GLib.source_remove(self.timer_soltar)
+            self.timer_soltar = None
 
     def _vigilar(self):
         if self.fd is None:
@@ -249,12 +255,23 @@ class Mouse:
             return
         if d[2] == self.f_rep and d[3] >> 4 == 0:      # divertedButtonsEvent: CIDs pulsados ahora
             cids = {(d[4 + 2 * k] << 8) | d[5 + 2 * k] for k in range(4)}
-            p = CID_HAPTICO in cids
-            if p != self.pulsado:
-                self.pulsado = p
-                (self.al_pulsar if p else self.al_soltar)()
+            if CID_HAPTICO in cids:
+                if self.timer_soltar:                    # volvió a pulsar enseguida: era rebote, ignorar
+                    self.GLib.source_remove(self.timer_soltar)
+                    self.timer_soltar = None
+                elif not self.pulsado:
+                    self.pulsado = True
+                    self.al_pulsar()
+            elif self.pulsado and not self.timer_soltar:
+                self.timer_soltar = self.GLib.timeout_add(int(REBOTE_S * 1000), self._soltar_real)
         elif d[2] == self.f_wds:                        # se reconectó: volver a desviar el botón
             self.GLib.timeout_add(400, lambda: (self._desviar(), False)[1])
+
+    def _soltar_real(self):
+        self.timer_soltar = None
+        self.pulsado = False
+        self.al_soltar()
+        return False
 
     def pulso(self, onda, min_gap=0.03):
         ahora = time.time()
@@ -422,6 +439,31 @@ def demonio():
                 snap.append_layout(lay, color)
             snap.restore()
 
+        def etiqueta(self, snap, txt, x, y, r, ang, col, hv, alfa):
+            """Nombre de la acción pegado a la burbuja, hacia fuera del anillo."""
+            if alfa < 0.03:
+                return
+            lay = self._layout(txt, "Sans Bold 9.5", ANCHO_TXT)
+            lay.set_alignment(Pango.Alignment.LEFT if math.sin(math.radians(ang)) > 0.3
+                              else Pango.Alignment.RIGHT if math.sin(math.radians(ang)) < -0.3
+                              else Pango.Alignment.CENTER)
+            tw, th = lay.get_pixel_size()
+            sa, ca = math.sin(math.radians(ang)), -math.cos(math.radians(ang))
+            if abs(sa) > 0.3:
+                tx = x + r + 9 if sa > 0 else x - r - 9 - ANCHO_TXT
+                ty = y - th / 2
+            else:
+                tx = x - ANCHO_TXT / 2
+                ty = y - r - 7 - th if ca < 0 else y + r + 7
+            snap.save()
+            snap.translate(punto(tx, ty))
+            snap.push_opacity(alfa)
+            snap.push_shadow([sombra(rgba(0, 0, 0, 0.95), 3), sombra(rgba(0, 0, 0, 0.7), 7)])
+            snap.append_layout(lay, rgba(*mezclar((0.86, 0.88, 0.93), col, 0.55 * hv + 0.15), 1))
+            snap.pop()
+            snap.pop()
+            snap.restore()
+
         def burbuja(self, snap, x, y, r, col, hv, alfa, icono, tam_icono, con_sub, ang, osc=1.0):
             """Estilo neón: vidrio oscuro + aro de color brillante; elegida = se enciende entera."""
             c = circ(x, y, r)
@@ -499,7 +541,11 @@ def demonio():
                 osc = 1.0 - 0.45 * a.foco * (1 - hv)
                 r = RB * (0.35 + 0.65 * ti) * (1 + 0.22 * hv + 0.14 * a.flash[i])
                 self.burbuja(snap, x, y, r, a.colores[i], hv, min(1.0, ti * 1.5), secs[i]["icono"],
-                             23 * (1 + 0.12 * hv), bool(secs[i]["sub"]), ang, osc)
+                             29 * (1 + 0.12 * hv), bool(secs[i]["sub"]), ang, osc)
+                # los nombres se apartan cuando salen sub-opciones (para no taparlas)
+                vis = ease_out(t_ab * 1.4 - 0.3) * (1 - 0.92 * max(a.t_sub, 0.0) * (0 if i == a.sub_vis else 1)) \
+                    * (1 - 0.6 * a.t_sub * (1 if i == a.sub_vis else 0)) * (1 - ease_out(a.t_cierre))
+                self.etiqueta(snap, secs[i]["nombre"], x, y, r, ang, a.colores[i], hv, vis)
 
             # sub-opciones en arco exterior
             p = a.sub_vis
@@ -516,7 +562,9 @@ def demonio():
                     hv = a.hv_sub[k] if k < len(a.hv_sub) else 0
                     r = RS * (0.4 + 0.6 * tk) * (1 + 0.26 * hv)
                     self.burbuja(snap, x, y, r, hex_rgb(subs[k]["color"]), hv, min(1.0, tk * 1.4),
-                                 subs[k]["icono"], 18 * (1 + 0.12 * hv), False, ang)
+                                 subs[k]["icono"], 22 * (1 + 0.12 * hv), False, ang)
+                    if hv > 0.5:   # nombre de la sub-opción elegida, junto a ella
+                        self.etiqueta(snap, subs[k]["nombre"], x, y, r, ang, hex_rgb(subs[k]["color"]), hv, hv)
 
             # centro: logo de la app (o la acción elegida) con brillo
             hcirc = circ(cx, cy, HUB * (0.7 + 0.3 * ease_out(t_ab * 1.3)))
@@ -532,7 +580,7 @@ def demonio():
             el = a.elegido()
             if el:
                 col = hex_rgb(el["color"])
-                self.glifo(snap, el["icono"], cx, cy - 14, 28, rgba(*mezclar(col, (1, 1, 1), 0.2)),
+                self.glifo(snap, el["icono"], cx, cy - 15, 32, rgba(*mezclar(col, (1, 1, 1), 0.2)),
                            rgba(*col, 0.9), 8)
                 self.texto(snap, el["nombre"], "Sans Bold 9", cx, cy + 18, HUB * 1.62, rgba(1, 1, 1, 0.95))
             else:
@@ -612,7 +660,7 @@ def demonio():
             self.haz = 0.0
             self.ang_haz = 0.0
             self.col_haz = (1, 1, 1)
-            self.r_velo = R1 + RB + 44
+            self.r_velo = R1 + RB + 50
             self.toque = False
             self.ignorar_soltar = False
             self.ax = self.ay = LADO / 2
@@ -683,7 +731,6 @@ def demonio():
             if self.tick_id is None:
                 self._t = None
                 self.tick_id = self.lienzo.add_tick_callback(self.tick)
-            raton.pulso(ONDA_ABRIR, 0)
             _log(f"abrir {perfil['nombre']} ({act.get('class', '')})")
 
         def cerrar(self):
@@ -791,7 +838,7 @@ def demonio():
                     self.hv_sub = [0.0] * 8
             elif self.sub_vis is not None:
                 self.t_sub = min(1.0, self.t_sub + dt / 0.2)
-            r_obj = (R2 + RS + 44) if self.sub_vis is not None else (R1 + RB + 44)
+            r_obj = (R2 + RS + 50) if self.sub_vis is not None else (R1 + RB + 50)
             self.r_velo += (r_obj - self.r_velo) * k
             # haz de luz
             el = self.elegido()
