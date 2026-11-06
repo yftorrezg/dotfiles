@@ -124,6 +124,8 @@ def generar(tema):
             else:
                 nuevos = [(t, xh, yh, ms, pintar(im, tema, 0.15)) for (t, xh, yh, ms, im) in cuadros]
             escribir_xcursor(dest, nuevos)
+    # formato hyprcursor: sin él Hyprland dibuja Bibata en kitty/Brave/Dolphin
+    subprocess.run([str(Path(__file__).with_name("cursor-a-hyprcursor.py")), str(destino), "--forzar"])
     print("listo", destino)
 
 

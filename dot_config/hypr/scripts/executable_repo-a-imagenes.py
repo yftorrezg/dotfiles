@@ -592,8 +592,13 @@ def main():
     ap.add_argument("--si", action="store_true", help="no frenar si salen muchas imágenes")
     ap.add_argument("--lineas", type=int, default=42)
     ap.add_argument("--columnas", type=int, default=100)
+    ap.add_argument("--tamano", type=int, default=22, help="tamaño de letra en px")
+    ap.add_argument("--movil", action="store_true",
+                    help="para leer en el celular: 60 columnas, letra 30 px, 30 líneas por imagen")
     ap.add_argument("--max-imagenes", type=int, default=400)
     a = ap.parse_args()
+    if a.movil:
+        a.columnas, a.tamano, a.lineas = 60, 30, 30
     que = {x.strip() for x in a.que.split(",")}
     p = lambda *x: print(*x, flush=True)  # noqa: E731
 
@@ -607,7 +612,7 @@ def main():
             return 1
         # imágenes de los .md: se piden después de leerlos; primero lo que hay que leer
         o.traer(cod + mds)
-        r = Renderizador(a.columnas)
+        r = Renderizador(a.columnas, a.tamano)
         trabajo = []  # (archivo, rel, lineas, rangos)
         if "codigo" in que or "tarjetas" in que:
             for rel in cod:

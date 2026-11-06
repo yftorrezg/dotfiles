@@ -123,6 +123,8 @@ extras
 [ "${SIN_IA:-0}" = 1 ] || python3 "$SCRIPTS/rehacer-sin-ia.py" "$CURSO/capturas" || true
 python3 "$SCRIPTS/cuadernillo.py" --indice "$CURSO/capturas"
 python3 "$SCRIPTS/todas-las-capturas.py" "$CURSO/capturas" || true
+# código y PDF que entrega el curso → imágenes en orden de clase + codigo-del-curso.md
+python3 "$SCRIPTS/codigo-curso-a-imagenes.py" "$CURSO" || true
 MSG="$HECHAS de $TOTAL clases con apuntes."
 [ "$SALTEADAS" -gt 0 ] && MSG="$MSG $SALTEADAS no disponibles."
 [ ${#FALLARON[@]} -gt 0 ] && MSG="$MSG Fallaron: ${FALLARON[*]}"

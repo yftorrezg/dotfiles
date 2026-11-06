@@ -1024,9 +1024,9 @@ class Selector(Gtk.ApplicationWindow):
         real = item["id"]
         if real == "auto":
             real = "Bibata-Modern-Classic" if self.modo == "light" else "Bibata-Modern-Ice"
-        for args in (["hyprctl", "setcursor", real, os.environ.get("XCURSOR_SIZE", "24")],
-                     ["gsettings", "set", "org.gnome.desktop.interface", "cursor-theme", real]):
-            subprocess.Popen(args, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        # también genera el formato hyprcursor si falta (si no, kitty/Brave/Dolphin muestran Bibata)
+        subprocess.Popen([str(Path(__file__).with_name("cursor-a-hyprcursor.py")), "--aplicar", real],
+                         stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
         self.marcar_actual({c[0] for c in CURSORES}, item["id"])
         self.decir(f"{item['icono']} Cursor {item['nombre']} aplicado · mueve el ratón para verlo")
 

@@ -327,9 +327,9 @@ class App(Gtk.Application):
             pass
         for args in (["kwriteconfig6", "--file", "kdeglobals", "--group", "Icons", "--key", "Theme", tema],
                      ["gsettings", "set", "org.gnome.desktop.interface", "icon-theme", tema],
-                     # cursor: blanco sobre oscuro, negro sobre claro (se ve siempre)
-                     ["hyprctl", "setcursor", cursor, os.environ.get("XCURSOR_SIZE", "24")],
-                     ["gsettings", "set", "org.gnome.desktop.interface", "cursor-theme", cursor]):
+                     # cursor: blanco sobre oscuro, negro sobre claro (se ve siempre);
+                     # --aplicar genera el formato hyprcursor si falta y lo pone en todas partes
+                     [str(Path(__file__).with_name("cursor-a-hyprcursor.py")), "--aplicar", cursor]):
             subprocess.Popen(args, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 
     def al_cambiar_estilo(self):
