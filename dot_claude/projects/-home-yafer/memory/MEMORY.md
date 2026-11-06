@@ -18,3 +18,4 @@
 - [Modo enfoque SUPER+ALT+N](modo-enfoque-super-alt-n.md) — todo negro sin widgets/barra/dock + hora chiquita; flag enfoque que respeta escritorios-vivos.
 - [Cursor y estelas en el selector](cursor-estela-selector.md) — pestaña Cursor de SUPER+SHIFT+A, Llama-Oscura/Brasa; necesitan formato hyprcursor (cursor-a-hyprcursor.py).
 - [Anillo radial háptico MX Master 4](anillo-radial-haptico.md) — anillo.py lee botón por hidraw, GSK, 12 acciones por app en anillo_apps.py.
+- [Skill chuletas y plan de auditoría](chuletas-skill-auditoria.md) — crear/auditar hojas ejecutando el código; SQL auditado 05-11; siguen PL/SQL, IoT, nube, robótica; BD3 y Robótica 2.
