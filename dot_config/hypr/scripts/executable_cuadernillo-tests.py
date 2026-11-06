@@ -348,5 +348,38 @@ if shutil.which("bwrap") and shutil.which("node"):
     prueba("verificar: deja la correcta", q2["respuesta"] == "1" and q2.get("verificada"), str(q2))
     prueba("verificar: no toca las otras", "verificada" not in q3)
 
+# ---- formato v3 (06/11/2026) + mejorar-apuntes.py
+prueba("v3: salidas de varias líneas en orden", c._coincide("4\n101", "4 y luego 101") and not c._coincide("4\n101", "101 y 4")
+       and c._coincide("750\n1000", "750 y luego 1000.") and not c._coincide("1", "1.5") and not c._coincide("1", "11"))
+prueba("v3: tope de palabras según duración", (c.tope_palabras(60), c.tope_palabras(49 * 60), c.n_vocabulario(60), c.n_vocabulario(3 * 3600)) == (150, 1220, 3, 10))
+d = tempfile.mkdtemp()
+dv3 = {"objetivos": ["escribir un JOIN"], "conceptos": [{"termino": "JOIN", "definicion": "une tablas"}],
+       "vocabulario": [{"en": "database", "suena": "déita-beis", "es": "base de datos"}],
+       "secciones": [{"inicio": "0:00", "titulo": "A", "puntos": ["p"],
+                      "comparativa": {"titulo": "INNER vs LEFT", "columnas": ["", "INNER", "LEFT"], "filas": [["sin pareja", "no sale", "sale con NULL"]]}}],
+       "practica": [{"nivel": "🟢", "enunciado": "Une A y B", "pista": "usa ON", "solucion": "SELECT *\nFROM a JOIN b ON a.id = b.id;"}],
+       "errores_comunes": []}
+md = c.armar(d, "Clase v3", [("0001.webp", 5.0, True, 1.0)], {}, dv3, 60)
+prueba("v3: objetivos, comparativa, solución plegada", "Al terminar podrás" in md and "| sin pareja | no sale | sale con NULL |" in md
+       and "[!success]- ✅ Solución" in md and "  > FROM a JOIN b" in md)
+prueba("v3: glosario y vocabulario plegados", "> [!abstract]- 1 términos de la clase" in md and "> | **database** | déita-beis |" in md)
+shutil.rmtree(d)
+mj = cargar("mj", "mejorar-apuntes.py")
+datos_m = {"secciones": [{"titulo": "A", "codigo": "x = 1", "puntos": ["viejo"]}, {"titulo": "B", "puntos": ["b"]}],
+           "practica": ["viejo"], "errores_comunes": ["viejo"]}
+corto_m = {"preguntas": [{"pregunta": "¿vieja?", "respuesta": "r"}]}
+nuevo_m = {"objetivos": ["o"], "secciones": [{"i": 0, "porque": "pq", "codigo": "NO SE TOCA", "puntos": ["n1", "n2"]},
+                                              {"i": 7, "porque": "fuera de rango"}, {"i": "x"}],
+           "practica": [{"enunciado": f"e{k}"} for k in range(3)], "errores_comunes": [{"error": "e"}, {"error": "f"}],
+           "corto": {"preguntas": [{"pregunta": f"¿{k}?", "respuesta": "r"} for k in range(3)], "pretest": [{"pregunta": "¿pt?", "respuesta": "r"}]}}
+dm, cm = mj.fusionar(datos_m, corto_m, nuevo_m, 300)
+prueba("mejorar: mete lo nuevo sin tocar el código", dm["secciones"][0]["codigo"] == "x = 1" and dm["secciones"][0]["porque"] == "pq"
+       and dm["secciones"][0]["puntos"] == ["n1", "n2"] and dm["secciones"][0]["puntos_antes"] == ["viejo"]
+       and "porque" not in dm["secciones"][1] and dm["formato"] == c.FORMATO)
+prueba("mejorar: reemplaza práctica/errores/preguntas y pone pretest", len(dm["practica"]) == 3 and len(dm["errores_comunes"]) == 2
+       and [q["pregunta"] for q in cm["preguntas"]] == ["¿0?", "¿1?", "¿2?"] and cm["pretest"][0]["pregunta"] == "¿pt?")
+prueba("mejorar: respuesta pobre no borra lo que había", mj.fusionar({"secciones": [{"t": 1}], "practica": ["a"]},
+       {"preguntas": [{"pregunta": "p", "respuesta": "r"}]}, {"secciones": [], "practica": [], "corto": {"preguntas": []}}, 3600)[0]["practica"] == ["a"])
+
 print("\nTODO OK" if all(res) else "\nHAY PRUEBAS QUE FALLAN")
 raise SystemExit(0 if all(res) else 1)

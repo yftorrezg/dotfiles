@@ -63,7 +63,18 @@ def n_diagramas(segundos):
     return max(1, min(6, round(segundos / 60 / 20)))
 
 
-FORMATO = 2  # versión del formato de apuntes.md (v2: sin transcripción adentro, ejemplos, diagramas, errores con arreglo)
+def n_vocabulario(segundos):
+    """Términos en inglés: 3 hasta 10."""
+    return max(3, min(10, round(3 + segundos / 60 / 15)))
+
+
+def tope_palabras(segundos):
+    """Palabras de TODOS los "puntos" juntos: ~25 por minuto de video (mín. 150). Con lo demás (código,
+    ejemplos, por qué) los apuntes quedan en ~1/3 del tiempo del video."""
+    return int(max(150, round(25 * segundos / 60, -1)))
+
+
+FORMATO = 3  # v3: + objetivos, comparativas, solución de ejercicios, vocabulario; v2 del formato de apuntes.md (v2: sin transcripción adentro, ejemplos, diagramas, errores con arreglo)
 SISTEMA = ("Eres un profesor experto en Ingeniería en Ciencias de la Computación y un programador senior que "
            "enseña con el tiempo justo: claro, exacto y sin relleno. Respondes exactamente en el formato pedido. "
            "Nunca inventas código, APIs, salidas ni datos: lo que no sale de la clase o no es un hecho técnico "
@@ -367,6 +378,7 @@ Duración: {duracion}
 {transcripcion}{pantallas}
 Responde SOLO con un objeto JSON válido (sin ``` ni texto extra) con esta forma:
 {{
+  "objetivos": ["2 a 4 cosas que el alumno PUEDE HACER al terminar (verbo de acción: escribir, explicar, depurar, elegir entre...)"],
   "resumen": ["3 a 6 ideas clave de toda la clase, una frase cada una"],
   "conceptos": [{{"termino": "nombre", "definicion": "1 frase clara"}}],
   "secciones": [
@@ -377,9 +389,10 @@ Responde SOLO con un objeto JSON válido (sin ``` ni texto extra) con esta forma
       "codigo": "el código clave de la sección (hasta ~25 líneas), el REAL de la clase. Si no tiene código, cadena vacía",
       "linea_a_linea": ["`fragmento de una línea del código` → qué hace y por qué (solo las líneas que no son obvias; 0 a 6)"],
       "ejemplo": {{"enunciado": "caso concreto", "pasos": ["paso a paso: valores de las variables / qué pasa en cada paso"], "salida": "resultado final"}},
-      "diagrama": "diagrama mermaid (flowchart, sequenceDiagram, classDiagram, erDiagram o stateDiagram) o cadena vacía"}}
+      "diagrama": "diagrama mermaid (flowchart, sequenceDiagram, classDiagram, erDiagram o stateDiagram) o cadena vacía",
+      "comparativa": {{"titulo": "X vs Y: cuándo usar cuál", "columnas": ["", "X", "Y"], "filas": [["criterio", "...", "..."]]}}}}
   ],
-  "practica": ["EXACTAMENTE {n_ejer} ejercicios, de fácil a difícil, con el formato: 'enunciado concreto — 💡 Pista: ...'"],
+  "practica": [{{"nivel": "🟢 | 🟡 | 🔴", "enunciado": "ejercicio concreto", "pista": "una pista que no regale la respuesta", "solucion": "la solución (código corto o pasos)"}}],
   "errores_comunes": [{{"error": "el error o la trampa", "porque": "por qué pasa / qué síntoma da", "arreglo": "cómo se evita o corrige"}}],
   "corto": {{
     "idea": "la idea central de la clase en UNA frase",
@@ -392,7 +405,8 @@ Responde SOLO con un objeto JSON válido (sin ``` ni texto extra) con esta forma
                     "lenguaje": "solo si trae código", "codigo": "solo en que-imprime / error: código AUTOCONTENIDO (hasta ~12 líneas: con las definiciones que use y que imprima con console.log / print)",
                     "respuesta": "respuesta corta"}}],
     "pretest": [{{"pregunta": "pregunta DISTINTA de las de 'preguntas'", "respuesta": "respuesta corta"}}]
-  }}
+  }},
+  "vocabulario": [{{"en": "término técnico en inglés", "suena": "pronunciación escrita a la española (database → déita-beis)", "es": "qué significa"}}]
 }}
 
 Reglas:
@@ -403,6 +417,11 @@ Reglas:
 - "codigo": usa el del texto de pantalla (corrigiendo errores de lectura e indentación) o el "CÓDIGO DE ESTA CLASE (exacto)" si está. Nunca código inventado que no se vio.
 - "ejemplo": SOLO en las secciones donde el profe resuelve o ejecuta algo (o donde hay código con una entrada concreta); en las demás, null. La traza sale de lo que pasa en la clase o de ejecutar mentalmente ESE código: valores reales, nada inventado.
 - "diagrama": como máximo {n_diag} en toda la clase, solo donde un dibujo aclara más que el texto (flujo de un algoritmo, request/response, arquitectura, relaciones entre tablas o clases, estados, capas de una red). Mermaid válido: ids sin espacios, textos con espacios entre comillas, sin paréntesis sueltos dentro de [ ].
+- "practica": EXACTAMENTE {n_ejer} ejercicios de fácil (🟢) a difícil (🔴), que se resuelvan con lo de esta clase; la "solucion" debe ser correcta y comprobable.
+- "comparativa": solo en las secciones donde la clase contrasta dos o más opciones (let/const/var, INNER/LEFT JOIN, lista/tupla, SGD/Adam...); si no, null.
+- "objetivos": concretos y verificables, nada genérico ("entender X" no vale; "escribir una función que..." sí).
+- Presupuesto: los "puntos" de TODAS las secciones suman como máximo {tope} palabras (un tema por punto, sin repetir lo que ya muestra el código).
+- "vocabulario": EXACTAMENTE {n_voc} términos en inglés que se usan en la clase (los que aparecen en código, documentación o mensajes de error), con su pronunciación escrita a la española, nunca en IPA.
 - "errores_comunes": EXACTAMENTE {n_err}: los que se mencionan o se cometen en la clase, y si faltan, errores clásicos REALES de este tema que comete quien está aprendiendo, marcados "(extra)". Nunca un "error" sacado de una mala transcripción.
 - "corto" es una hoja de repaso MUCHO más corta (3-5 minutos de lectura): "chuleta" 4 a 12 filas con lo más usado en la práctica; "codigo" 0 a 3 fragmentos que resumen la clase; "mapa" 3 a 8 bloques que agrupen las secciones.
 - "preguntas": EXACTAMENTE {n_preg}, repartidas por TODO el video (al menos una por cada bloque del "mapa"). Mezcla de tipos: ~40 % "porque" (por qué / qué pasa si / cuándo conviene), ~30 % "que-imprime" (código real de la clase con su salida exacta; en clases sin código, "¿qué resultado da...?"), ~20 % "error" (código o situación con un error: ¿cuál es y cómo se arregla?), ~10 % "definicion". De entender, no de memorizar nombres.
@@ -425,7 +444,8 @@ MOTOR = os.environ.get("APUNTES_MOTOR", "claude")
 # Los "opencode/...-free" (Zen) no sirven desde la CLI ("free tier can only be used from within OpenCode"), pero
 # opencode-go/longcat-2.5-preview-free sí funciona y no gastó la ventana de Go (estaba al 100 %).
 MODELOS_OPENCODE = [m.strip() for m in os.environ.get(
-    "APUNTES_MODELO_OPENCODE", "opencode-go/deepseek-v4-flash,opencode-go/glm-5.3-flash,opencode-go/longcat-2.5-preview-free",
+    # 06/11/2026: deepseek-v4-flash y longcat ya no existen en OpenCode Go (fallaban en silencio)
+    "APUNTES_MODELO_OPENCODE", "opencode-go/deepseek-v4.1-flash,opencode-go/gpt-6-luna,opencode-go/claude-haiku-5-5,opencode-go/glm-5.3-flash",
 ).split(",") if m.strip()]
 MODELO_OPENCODE = MODELOS_OPENCODE[0] if MODELOS_OPENCODE else ""
 
@@ -494,6 +514,7 @@ def pedir_a_claude(titulo, duracion, cues, pantallas, codigo=""):
                  + "\n\n".join(f"[{hms(t)}]\n{txt}" for t, txt in pantallas) + "\n>>>\n")
     prompt = PROMPT.format(titulo=titulo, duracion=hms(duracion), n_preg=n_preguntas(duracion), n_pre=n_pretest(duracion),
                            n_ejer=n_ejercicios(duracion), n_err=n_errores(duracion), n_diag=n_diagramas(duracion),
+                           n_voc=n_vocabulario(duracion), tope=tope_palabras(duracion),
                            transcripcion=transcripcion,
                            pantallas=extra + (f"\nMaterial que entrega el curso (recursos.py):\n<<<\n{codigo}\n>>>\n" if codigo else ""))
     for intento in range(2):
@@ -553,6 +574,19 @@ def _salida_real(ri, codigo, lang, previos):
     return None
 
 
+def _coincide(real, respuesta):
+    """¿La respuesta de la IA dice la salida real? Varias líneas valen si aparecen todas EN ORDEN
+    ("4 y luego 101" = "4\\n101")."""
+    r_ia = _normal(respuesta)
+    pos = 0
+    for linea in [_normal(x) for x in str(real).split("\n") if x.strip()]:
+        m = re.compile(r"(?<![\w.])" + re.escape(linea) + r"(?!\w|\.\d)").search(r_ia, pos)
+        if not m:
+            return False
+        pos = m.end()
+    return True
+
+
 def verificar_salidas(datos):
     """Las preguntas "¿qué imprime?" de JS/Python se ejecutan de verdad: si la salida real no es la que dijo
     la IA, se corrige la respuesta (nada inventado). Marca q["verificada"]=True cuando la salida es real."""
@@ -576,8 +610,7 @@ def verificar_salidas(datos):
             if real is None or not real.strip():
                 continue
             q["verificada"] = True
-            r_ia = _normal(q.get("respuesta", ""))
-            if not (r_ia == _normal(real) or re.search(r"(?<![\w.])" + re.escape(_normal(real)) + r"(?![\w.])", r_ia)):
+            if not _coincide(real, q.get("respuesta", "")):
                 q["respuesta_ia"] = q.get("respuesta", "")
                 q["respuesta"] = f"`{real}`" if "\n" not in real else "\n" + real
     except Exception as e:  # la verificación nunca debe romper los apuntes
@@ -692,6 +725,36 @@ def marcar_opencode_agotado():
         pass
 
 
+CODEX = os.environ.get("APUNTES_CODEX", "1") != "0"
+CODEX_MODELO = os.environ.get("APUNTES_CODEX_MODELO", "")  # "" = el de la cuenta
+TIMEOUT_CODEX = int(os.environ.get("APUNTES_TIMEOUT_CODEX", "300"))
+
+
+def llamar_codex(prompt):
+    """Respuesta de `codex exec` (sin herramientas: sandbox de solo lectura, sesión efímera), o None."""
+    exe = shutil.which("codex") or os.path.expanduser("~/.local/bin/codex")
+    if not CODEX or not os.path.exists(exe):
+        return None
+    import tempfile
+    with tempfile.TemporaryDirectory(prefix="codex-apuntes-") as tmp:
+        salida = os.path.join(tmp, "respuesta.txt")
+        cmd = [exe, "exec", "--skip-git-repo-check", "--sandbox", "read-only", "--ephemeral", "-C", tmp,
+               "-o", salida] + (["-m", CODEX_MODELO] if CODEX_MODELO else []) + ["-"]
+        try:
+            r = subprocess.run(cmd, input=SISTEMA + "\n\n" + prompt, capture_output=True, text=True, timeout=TIMEOUT_CODEX)
+        except (OSError, subprocess.TimeoutExpired):
+            print("  (Codex no respondió a tiempo)", file=sys.stderr)
+            return None
+        try:
+            texto = open(salida, encoding="utf-8").read().strip()
+        except OSError:
+            texto = ""
+        if r.returncode != 0 or not texto:
+            print(f"  (Codex falló: {(r.stderr or '').strip().splitlines()[-1:] or r.returncode})", file=sys.stderr)
+            return None
+        return texto
+
+
 def consultar_ia(prompt, modelo=None):
     """Texto de la respuesta del motor configurado (APUNTES_MOTOR=claude|opencode), o None.
     Con claude espera a que se renueve la cuota; el modelo es APUNTES_MODELO salvo que se
@@ -716,6 +779,9 @@ def consultar_ia(prompt, modelo=None):
                     return texto
                 print(f"  (Claude {RESPALDO} no disponible: sigo con OpenCode)", file=sys.stderr)
             texto = None if opencode_enfriando() else llamar_opencode(prompt, max_espera=0)
+            if texto is not None:
+                return texto
+            texto = llamar_codex(prompt)  # último respaldo: la cuota de ChatGPT (Codex CLI)
             if texto is not None:
                 return texto
         return llamar_opencode(prompt) if not RESPALDO else None
@@ -767,6 +833,9 @@ def armar(carpeta, titulo, capturas, subs, datos, duracion, recursos_md=""):
     if enlaces:
         L += ["> " + " · ".join(enlaces)]
     L += [""]
+    objetivos = [o for o in (datos or {}).get("objetivos") or [] if _txt(o)]
+    if objetivos:
+        L += ["## 🎯 Al terminar podrás", ""] + [f"- [ ] {_txt(o)}" for o in objetivos] + [""]
     if datos and datos.get("resumen") and not hay_resumen:  # el resumen ya está en resumen.md: no se repite
         L += ["## 🎯 En 30 segundos", ""] + [f"- {p}" for p in datos["resumen"]] + [""]
     L += ["## 🗂️ Índice", ""]
@@ -794,6 +863,7 @@ def armar(carpeta, titulo, capturas, subs, datos, duracion, recursos_md=""):
         diag = _mermaid(s.get("diagrama"))
         if diag:
             L += ["```mermaid", diag, "```", ""]
+        L += _tabla_comparativa(s.get("comparativa"))
         ej = s.get("ejemplo")
         if isinstance(ej, dict) and (ej.get("pasos") or ej.get("salida")):
             L += [f"> [!example] 🧪 Ejemplo resuelto: {_txt(ej.get('enunciado'))}"]
@@ -836,6 +906,14 @@ def armar(carpeta, titulo, capturas, subs, datos, duracion, recursos_md=""):
         if datos.get("practica"):
             L += ["## 🏋️ Para practicar", ""]
             for e in datos["practica"]:
+                if isinstance(e, dict):  # v2.1: nivel + pista + solución, ambas plegadas (primero intentarlo solo)
+                    L += [f"- [ ] {_txt(e.get('nivel'))} {_txt(e.get('enunciado'))}".replace("[ ]  ", "[ ] ")]
+                    if _txt(e.get("pista")):
+                        L += ["  > [!hint]- 💡 Pista", f"  > {_txt(e['pista'])}"]
+                    sol = str(e.get("solucion") or "").strip("\n")
+                    if sol.strip():
+                        L += ["  > [!success]- ✅ Solución"] + [f"  > {x}" for x in sol.split("\n")]
+                    continue
                 txt = _txt(e)
                 if " — 💡 Pista:" in txt:  # la pista plegada: primero intentarlo solo
                     enun, pista = txt.split(" — 💡 Pista:", 1)
@@ -846,15 +924,37 @@ def armar(carpeta, titulo, capturas, subs, datos, duracion, recursos_md=""):
             if any(str(x.get("lenguaje", "")).lower() in ("js", "javascript", "python", "py") for x in secciones):
                 L += ["> Con el botón **Práctica** de SUPER+I salen ejercicios con tests (JS/Python).", ""]
         if datos.get("conceptos"):
-            L += ["## 🧠 Glosario", "", "| Concepto | Qué es |", "|---|---|"]
-            L += [f"| **{_celda(c.get('termino', ''))}** | {_celda(c.get('definicion', ''))} |"
-                  for c in datos["conceptos"] if isinstance(c, dict)]
+            conc = [c for c in datos["conceptos"] if isinstance(c, dict)]
+            # material de consulta: plegado (no se lee de corrido, se abre cuando hace falta)
+            L += ["## 🧠 Glosario", "", f"> [!abstract]- {len(conc)} términos de la clase", "> | Concepto | Qué es |", "> |---|---|"]
+            L += [f"> | **{_celda(c.get('termino', ''))}** | {_celda(c.get('definicion', ''))} |" for c in conc]
+            L += [""]
+        voc = [v for v in datos.get("vocabulario") or [] if isinstance(v, dict) and _txt(v.get("en"))]
+        if voc:
+            L += ["## 🇬🇧 Vocabulario", "", f"> [!abstract]- {len(voc)} términos en inglés (con pronunciación)",
+                  "> | English | Suena | Español |", "> |---|---|---|"]
+            L += [f"> | **{_celda(v.get('en'))}** | {_celda(v.get('suena'))} | {_celda(v.get('es'))} |" for v in voc]
             L += [""]
     else:
         L += ["> [!info] Apuntes sin resumen de IA (solo capturas y transcripción)", ""]
     L += [f"<!-- formato v{FORMATO} -->", ""]
     escribir_transcripcion(carpeta, titulo, secciones, voz, idioma_txt, duracion)
     return "\n".join(L)
+
+
+def _tabla_comparativa(c):
+    """{titulo, columnas, filas} → tabla Markdown (2-5 columnas), o [] si no sirve."""
+    if not isinstance(c, dict):
+        return []
+    cols = [_celda(x) for x in c.get("columnas") or []]
+    filas = [f for f in c.get("filas") or [] if isinstance(f, list) and f]
+    if not 2 <= len(cols) <= 5 or not filas:
+        return []
+    L = [f"**⚖️ {_txt(c.get('titulo'))}**", "", "| " + " | ".join(cols) + " |", "|" + "---|" * len(cols)]
+    for f in filas:
+        f = [_celda(x) for x in f][:len(cols)]
+        L += ["| " + " | ".join(f + [""] * (len(cols) - len(f))) + " |"]
+    return L + [""]
 
 
 def _txt(x):
@@ -1051,6 +1151,7 @@ def main():
             datos = pedir_a_claude(titulo, duracion, subs_para_claude(carpeta, subs), pantallas, codigo_curso)
         if datos:
             corto = datos.pop("corto", None)
+            datos["formato"] = FORMATO  # mejorar-apuntes.py salta las que ya tienen el formato actual
             with open(os.path.join(carpeta, ".apuntes-ia.json"), "w", encoding="utf-8") as f:
                 json.dump(datos, f, ensure_ascii=False, indent=1)
             if isinstance(corto, dict) and corto.get("esencial"):
