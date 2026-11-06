@@ -48,14 +48,18 @@ Reglas:
 - "chuleta": 4 a 12 filas, lo más usado en la práctica (en clases sin código, las definiciones o pasos clave).
 - "codigo": 0 a 3 fragmentos, los que resumen la clase; sale del código de los apuntes (no inventes APIs).
 - "mapa": 3 a 8 bloques que agrupen las secciones; "inicio" es el de la primera sección del bloque.
-- "preguntas": 3 a 6, de entender (por qué / qué pasa si), no de memorizar nombres.
+- "preguntas": EXACTAMENTE {n_preg}, de entender (por qué / qué pasa si / qué imprime / dónde está el error), no de memorizar nombres.
 - Si agregas algo que no está en los apuntes, márcalo con "(extra)".
 - Todo en español; términos técnicos en su forma original."""
 
 
 def pedir_a_claude(titulo, duracion, datos):
     apuntes = {k: datos.get(k) for k in ("resumen", "conceptos", "secciones", "errores_comunes")}
-    prompt = PROMPT.format(titulo=titulo, duracion=duracion,
+    try:
+        n_preg = cu.n_preguntas(cu.a_segundos(duracion))
+    except (ValueError, TypeError):
+        n_preg = 5
+    prompt = PROMPT.format(titulo=titulo, duracion=duracion, n_preg=n_preg,
                            apuntes=json.dumps(apuntes, ensure_ascii=False, indent=1))
     for intento in range(2):
         texto = cu.consultar_ia(prompt)  # espera si se agotó la cuota de Claude
@@ -74,6 +78,9 @@ def celda(texto):
     return str(texto).replace("|", "\\|").replace("\n", " ")
 
 
+ICONO_TIPO = {"porque": "🤔 ", "que-imprime": "🖨️ ", "error": "🐞 ", "definicion": "📖 "}
+
+
 def armar(titulo, duracion, corto):
     L = [f"# ⚡ Repaso rápido: {titulo}", ""]
     L += [f"> ⏱️ **Duración:** {duracion} · 📓 **Versión completa:** [apuntes.md](apuntes.md)", ""]
@@ -90,13 +97,29 @@ def armar(titulo, duracion, corto):
         for c in codigos:
             L += [f"**{c.get('titulo', '')}**", "", f"```{c.get('lenguaje') or ''}",
                   str(c["codigo"]).strip("\n"), "```", ""]
-    if corto.get("mapa"):
+    diag = cu._mermaid(corto.get("diagrama"))
+    if corto.get("mapa") or diag:
         L += ["## 🗺️ Mapa de la clase", ""]
-        L += [f"- `{m.get('inicio', '')}` {m.get('tema', '')}" for m in corto["mapa"]] + [""]
+        if diag:
+            L += ["```mermaid", diag, "```", ""]
+        L += [f"- `{m.get('inicio', '')}` {m.get('tema', '')}" for m in corto.get("mapa") or []] + [""]
     if corto.get("preguntas"):
         L += ["## 🔁 Autoevaluación", "", "*Respondé de memoria y después abrí la respuesta.*", ""]
         for k, q in enumerate(corto["preguntas"], 1):
-            L += [f"> [!question]- {k}. {q.get('pregunta', '')}", f"> {q.get('respuesta', '')}", ""]
+            if not isinstance(q, dict):
+                continue
+            icono = ICONO_TIPO.get(q.get("tipo"), "")
+            L += [f"> [!question]- {k}. {icono}{cu._txt(q.get('pregunta', ''))}"]
+            if str(q.get("codigo") or "").strip():
+                L += [">", f"> ```{q.get('lenguaje') or ''}"] + [f"> {x}" for x in str(q["codigo"]).strip("\n").split("\n")] + ["> ```", ">"]
+            resp = str(q.get("respuesta", "")).strip("\n")
+            if "\n" in resp:
+                L += ["> **Respuesta:**", "> ```"] + [f"> {x}" for x in resp.split("\n")] + ["> ```"]
+            else:
+                L += [f"> **Respuesta:** {resp}"]
+            if q.get("verificada"):
+                L += ["> *✔ salida comprobada ejecutando el código*"]
+            L += [""]
     return "\n".join(L)
 
 

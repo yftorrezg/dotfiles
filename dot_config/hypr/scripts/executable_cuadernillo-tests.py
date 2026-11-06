@@ -303,5 +303,50 @@ prueba("mas-preguntas: resumen.md rehecho con las nuevas", "¿N0?" in open(os.pa
 prueba("mas-preguntas: ya completa = nada pendiente", mp.pendientes(d) == [])
 shutil.rmtree(d)
 
+# ---- formato v2 (05/11/2026): sin transcripción adentro, ejemplos, diagramas, errores con arreglo
+prueba("v2: cantidades según duración",
+       (c.n_ejercicios(5 * 60), c.n_ejercicios(150 * 60), c.n_errores(5 * 60), c.n_errores(150 * 60),
+        c.n_diagramas(5 * 60), c.n_diagramas(150 * 60)) == (3, 10, 2, 8, 1, 6))
+prueba("v2: el prompt pide las cantidades", all(x in c.PROMPT for x in ("{n_ejer}", "{n_err}", "{n_diag}", "{n_pre}", "{n_preg}")))
+d = tempfile.mkdtemp()
+datos_v2 = {"resumen": ["r1"], "conceptos": [{"termino": "closure", "definicion": "función | que recuerda"}],
+            "secciones": [{"inicio": "0:00", "titulo": "Intro", "porque": "para qué", "puntos": ["p1"],
+                           "lenguaje": "js", "codigo": "let a = 1;\nconsole.log(a + 1);",
+                           "linea_a_linea": ["`let a = 1` → declara"],
+                           "ejemplo": {"enunciado": "a=1", "pasos": ["a vale 1", "imprime 2"], "salida": "2"},
+                           "diagrama": "flowchart LR\n  A[\"entrada\"] --> B[\"salida\"]"},
+                          {"inicio": "0:01:00", "titulo": "Final", "puntos": ["p2"], "ejemplo": None,
+                           "diagrama": "esto no es mermaid"}],
+            "practica": ["Haz X — 💡 Pista: usa Y", "Haz Z"],
+            "errores_comunes": [{"error": "olvidar let", "porque": "global", "arreglo": "usar let"}, "texto viejo"]}
+subs_v2 = {"es": [(1.0, 3.0, "hola"), (70.0, 72.0, "chau")]}
+md = c.armar(d, "Clase v2", [("0001.webp", 5.0, True, 1.0)], subs_v2, datos_v2, 120)
+tr_md = open(os.path.join(d, "transcripcion.md")).read() if os.path.exists(os.path.join(d, "transcripcion.md")) else ""
+prueba("v2: la voz del profe va a transcripcion.md (no adentro)", "hola" in tr_md and "chau" in tr_md and "hola" not in md
+       and "Lo que dice el profe" in md, md[:300])
+prueba("v2: ejemplo resuelto, línea a línea y diagrama", "Ejemplo resuelto" in md and "Línea a línea" in md
+       and md.count("```mermaid") == 1)
+prueba("v2: errores con arreglo + compatibles con texto", "❌ **olvidar let**" in md and "✅ usar let" in md and "- texto viejo" in md)
+prueba("v2: pista plegada y glosario escapado", "[!hint]-" in md and "función \\| que recuerda" in md)
+prueba("v2: sin resumen.md muestra 'En 30 segundos'; con resumen.md no", "En 30 segundos" in md and
+       (open(os.path.join(d, "resumen.md"), "w").write("x") and "En 30 segundos" not in
+        c.armar(d, "Clase v2", [("0001.webp", 5.0, True, 1.0)], subs_v2, datos_v2, 120)))
+prueba("v2: marca de formato", f"<!-- formato v{c.FORMATO} -->" in md)
+shutil.rmtree(d)
+
+# ---- ¿qué imprime?: la salida se comprueba ejecutando el código (nada inventado)
+if shutil.which("bwrap") and shutil.which("node"):
+    import subprocess as _sp
+    importlib.reload(_sp)  # la prueba de mas-preguntas dejó subprocess.run reemplazado
+    dv = {"secciones": [{"titulo": "t"}], "corto": {"preguntas": [
+        {"tipo": "que-imprime", "lenguaje": "javascript", "codigo": "console.log(1 + '1')", "respuesta": "2"},
+        {"tipo": "que-imprime", "lenguaje": "python", "codigo": "print(3 // 2)", "respuesta": "1"},
+        {"tipo": "porque", "pregunta": "¿por qué?", "respuesta": "x"}]}}
+    c.verificar_salidas(dv)
+    q1, q2, q3 = dv["corto"]["preguntas"]
+    prueba("verificar: corrige la salida inventada", q1["respuesta"] == "`11`" and q1.get("verificada") and q1["respuesta_ia"] == "2", str(q1))
+    prueba("verificar: deja la correcta", q2["respuesta"] == "1" and q2.get("verificada"), str(q2))
+    prueba("verificar: no toca las otras", "verificada" not in q3)
+
 print("\nTODO OK" if all(res) else "\nHAY PRUEBAS QUE FALLAN")
 raise SystemExit(0 if all(res) else 1)

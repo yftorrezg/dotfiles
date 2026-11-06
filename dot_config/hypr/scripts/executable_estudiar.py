@@ -9,7 +9,7 @@
     estudiar.py --repasar     abre en Obsidian el tarjetas.md con más para repasar (sin ventana)
 
 El flujo de cada clase:
-  1. 🤔 Pre-test "¿Ya lo sabés?": 3 preguntas de la clase. Pensás, mostrás la respuesta
+  1. 🤔 Pre-test "¿Ya lo sabés?": 3 a 10 preguntas de la clase (según la duración). Pensás, mostrás la respuesta
      (Espacio) y te autoevaluás (1 = la sabía, 2 = no). 3/3 → la marcás como sabida y pasás a
      la siguiente sin verla. Así no perdés tiempo en lo que ya dominás.
   2. 📚 Estudiar: idea central + mapa de la clase a la vista, y botones grandes para ver el
@@ -222,8 +222,11 @@ def preguntas_pretest(clase, n=None):
     primera, del medio y última, así cubren toda la clase); si faltan, conceptos de los apuntes
     como '¿Qué es X?' (los de definición más larga: los triviales no sirven para decidir)."""
     corto = leer_json(os.path.join(clase, ".resumen-ia.json"))
+    # formato v2: "pretest" son preguntas propias (distintas de las tarjetas: si no, el pre-test mide si
+    # recordás la tarjeta y no si entendés la clase). Clases viejas: las preguntas del resumen.
+    fuente = ((corto.get("pretest") or corto.get("preguntas")) or []) if isinstance(corto, dict) else []
     preg = [(_texto(p.get("pregunta")), _texto(p.get("respuesta")))
-            for p in (corto.get("preguntas") or []) if isinstance(p, dict)] if isinstance(corto, dict) else []
+            for p in fuente if isinstance(p, dict)]
     preg = [p for p in preg if p[0] and p[1]]
     n = n or n_pretest(duracion_clase(clase))
     if len(preg) > n:

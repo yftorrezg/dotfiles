@@ -176,6 +176,9 @@ def _como_pregunta(quiero):
     return f"¿Cómo {q}?"
 
 
+SECCION_TIPO = {"que-imprime": "🖨️ ¿Qué imprime?", "error": "🐞 Encuentra el error"}
+
+
 def juntar(corto, largo):
     """[(sección, pregunta, respuesta)] sin duplicados ni tarjetas vacías/triviales."""
     tarjetas, vistas, respuestas = [], set(), set()
@@ -191,7 +194,15 @@ def juntar(corto, largo):
 
     for q in (corto or {}).get("preguntas") or []:
         if isinstance(q, dict):
-            poner("🔁 Preguntas de la clase", q.get("pregunta"), q.get("respuesta"))
+            preg, resp = _txt(q.get("pregunta")), _txt(q.get("respuesta"))
+            codigo = str(q.get("codigo") or "").strip("\n")
+            if codigo.strip():  # "¿qué imprime?" / "encuentra el error": el código va en el frente
+                preg = f"{preg}\n```{_txt(q.get('lenguaje'))}\n{codigo}\n```"
+            if codigo.strip() and "\n" in resp and "```" not in resp:  # salida de varias líneas
+                resp = f"```\n{resp.strip(chr(10))}\n```"
+            if q.get("verificada"):
+                resp += "\n*✔ salida comprobada ejecutando el código*"
+            poner(SECCION_TIPO.get(q.get("tipo"), "🔁 Preguntas de la clase"), preg, resp)
     for c in (largo or {}).get("conceptos") or []:
         if isinstance(c, dict) and len(_txt(c.get("definicion"))) >= 15:
             poner("📖 Conceptos", f"¿Qué es **{_txt(c.get('termino'))}**?", c.get("definicion"))

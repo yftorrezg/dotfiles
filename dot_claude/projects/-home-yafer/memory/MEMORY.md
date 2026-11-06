@@ -3,7 +3,7 @@
 - [Responder en español](idioma-espanol.md) — el usuario siempre quiere respuestas en español.
 - [Migración a laptops](migracion-laptops.md) — ThinkPad migrada 05-10 (escala 1, gb extd); PC fusionada en chezmoi el 06-10; paquete Drive 06-10.
 - [Quiere aprender, no solo soluciones](quiere-aprender-no-solo-soluciones.md) — perfil CS/IA, explicar el porqué; "modo profesor" = pistas.
-- [Auto-captura y apuntes de cursos](auto-captura-cursos.md) — SUPER+ALT+S/Y/A, cuadernillo, capturas clave (OCR), Whisper GPU, rehacer-con-voz, pruebas, guía.
+- [Auto-captura y apuntes de cursos](auto-captura-cursos.md) — SUPER+ALT+S/Y/A, cuadernillo (formato v2 05-11: transcripcion.md aparte, ejemplos, mermaid, que-imprime verificadas), código del curso en imágenes, Whisper, pruebas, guía.
 - [Gwenview oscuro y atajos](gwenview-tema-atajos.md) — fix esquema noctalia, plantilla qt Noctalia, atajos A/D/Q/E/C/X/F/W/T/I/S.
 - [Ahorro de cuota](ahorro-cuota.md) — qué gasta la cuota (sesiones largas con Opus), caveman no conviene
 - [Sync PC↔laptop](dotfiles-sync.md) — chezmoi + dotsync, repo yftorrezg/dotfiles; leer CLAUDE.md del repo antes de tocar config.
@@ -16,5 +16,5 @@
 - [Celular con scrcpy](celular-scrcpy.md) — tecla Celular del XL (sustituyó Notas de videos) → celular.sh; Alt = atajos scrcpy.
 - [Escritorios vivos, temas 4K y modo claro](escritorios-vivos-tema.md) — temas = 5 fondos (uno por escritorio), Galería/Descubrir, 12 esquemas de color, widgets, chuletas SUPER+SHIFT+C (24 hojas, 21-24 = agentes IA), transiciones.
 - [Modo enfoque SUPER+ALT+N](modo-enfoque-super-alt-n.md) — todo negro sin widgets/barra/dock + hora chiquita; flag enfoque que respeta escritorios-vivos.
-- [Cursor y estelas en el selector](cursor-estela-selector.md) — pestaña Cursor de SUPER+SHIFT+A, Llama-Oscura/Brasa; sin atajos nuevos.
+- [Cursor y estelas en el selector](cursor-estela-selector.md) — pestaña Cursor de SUPER+SHIFT+A, Llama-Oscura/Brasa; necesitan formato hyprcursor (cursor-a-hyprcursor.py).
 - [Anillo radial háptico MX Master 4](anillo-radial-haptico.md) — anillo.py lee botón por hidraw, GSK, 12 acciones por app en anillo_apps.py.

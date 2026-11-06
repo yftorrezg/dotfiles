@@ -39,13 +39,35 @@ CAPTURAS_A_LA_VISTA = 4   # capturas visibles por sección si no hay esenciales 
 
 
 def n_preguntas(segundos):
-    """Preguntas de autoevaluación/tarjetas según la duración: 3 (video corto) hasta 25 (3 h o más)."""
+    """Preguntas de autoevaluación/tarjetas según la duración: 3 (video corto) hasta 25 (desde ~1 h 50)."""
     return max(3, min(25, round(3 + segundos / 60 / 5)))
 
 
 def n_pretest(segundos):
-    """Preguntas del pre-test (SUPER+I): 3 hasta 10."""
+    """Preguntas del pre-test (SUPER+I): 3 hasta 10 (desde ~1 h 45)."""
     return max(3, min(10, round(3 + segundos / 60 / 15)))
+
+
+def n_ejercicios(segundos):
+    """Ejercicios de "Para practicar": 3 (corta) hasta 10 (desde ~1 h 20)."""
+    return max(3, min(10, round(2 + segundos / 60 / 10)))
+
+
+def n_errores(segundos):
+    """Errores comunes: 2 hasta 8 (desde ~1 h 30)."""
+    return max(2, min(8, round(2 + segundos / 60 / 15)))
+
+
+def n_diagramas(segundos):
+    """Tope de diagramas mermaid: 1 cada ~20 min (máx. 6). Es un tope: solo si de verdad aclaran."""
+    return max(1, min(6, round(segundos / 60 / 20)))
+
+
+FORMATO = 2  # versión del formato de apuntes.md (v2: sin transcripción adentro, ejemplos, diagramas, errores con arreglo)
+SISTEMA = ("Eres un profesor experto en Ingeniería en Ciencias de la Computación y un programador senior que "
+           "enseña con el tiempo justo: claro, exacto y sin relleno. Respondes exactamente en el formato pedido. "
+           "Nunca inventas código, APIs, salidas ni datos: lo que no sale de la clase o no es un hecho técnico "
+           "comprobable y estándar, no lo escribes; lo que agregas por tu cuenta lo marcas \"(extra)\".")
 TOLERANCIA_SUPERADA = 120  # pedazos de fila sin cubrir tolerados (~2 líneas: mouse, un número que cambió)
 
 
@@ -333,8 +355,11 @@ def leer_pantallas(carpeta, capturas, cada=240, maximo=60):
 
 
 # --------------------------------------------------------------------- IA ----
-PROMPT = """Eres un profesor experto que arma APUNTES DE ESTUDIO en español a partir de la transcripción de una clase en video.
-El alumno quiere estudiar RÁPIDO: lo importante, completo pero sin relleno. Nada de "en este video el profe dice...": escribe directo el contenido (qué es, cómo funciona, por qué, cómo se usa).
+PROMPT = """Arma APUNTES DE ESTUDIO en español de una clase en video (área: programación / ciencias de la computación).
+El alumno estudia con poco tiempo: los apuntes deben leerse en ~1/4 de lo que dura el video SIN perder lo que
+importa (cada variable, parámetro o línea de código que se explica). Escribe directo el contenido (qué es, cómo
+funciona, por qué, cómo se usa); nada de "en este video el profe dice...". No repitas lo mismo en dos lugares:
+cada idea va UNA vez, en la sección donde se explica.
 
 Clase: {titulo}
 Duración: {duracion}
@@ -342,33 +367,47 @@ Duración: {duracion}
 {transcripcion}{pantallas}
 Responde SOLO con un objeto JSON válido (sin ``` ni texto extra) con esta forma:
 {{
-  "resumen": ["5 a 8 ideas clave de toda la clase, una frase cada una"],
-  "conceptos": [{{"termino": "nombre", "definicion": "1-2 frases claras"}}],
+  "resumen": ["3 a 6 ideas clave de toda la clase, una frase cada una"],
+  "conceptos": [{{"termino": "nombre", "definicion": "1 frase clara"}}],
   "secciones": [
     {{"inicio": "h:mm:ss", "titulo": "tema de la sección (corto)",
-      "puntos": ["3 a 7 puntos esenciales: qué se hace, por qué, detalles técnicos que importan"],
-      "lenguaje": "lenguaje del código (python, javascript, bash, ...) o cadena vacía",
-      "codigo": "el código clave de la sección, corto (hasta ~25 líneas). Usa el código REAL del texto de pantalla cuando exista (corrigiendo errores de lectura e indentación). Si la sección no tiene código, cadena vacía"}}
+      "porque": "UNA línea: para qué sirve esto / qué problema resuelve",
+      "puntos": ["2 a 6 puntos esenciales (máx. ~25 palabras cada uno): qué se hace, por qué, detalles técnicos que importan"],
+      "lenguaje": "lenguaje del código (python, javascript, sql, bash, ...) o cadena vacía",
+      "codigo": "el código clave de la sección (hasta ~25 líneas), el REAL de la clase. Si no tiene código, cadena vacía",
+      "linea_a_linea": ["`fragmento de una línea del código` → qué hace y por qué (solo las líneas que no son obvias; 0 a 6)"],
+      "ejemplo": {{"enunciado": "caso concreto", "pasos": ["paso a paso: valores de las variables / qué pasa en cada paso"], "salida": "resultado final"}},
+      "diagrama": "diagrama mermaid (flowchart, sequenceDiagram, classDiagram, erDiagram o stateDiagram) o cadena vacía"}}
   ],
-  "practica": ["3 a 6 ejercicios concretos para practicar lo de la clase, de fácil a difícil"],
-  "errores_comunes": ["0 a 5 errores o trampas típicas que se mencionan (si no hay, lista vacía)"],
+  "practica": ["EXACTAMENTE {n_ejer} ejercicios, de fácil a difícil, con el formato: 'enunciado concreto — 💡 Pista: ...'"],
+  "errores_comunes": [{{"error": "el error o la trampa", "porque": "por qué pasa / qué síntoma da", "arreglo": "cómo se evita o corrige"}}],
   "corto": {{
     "idea": "la idea central de la clase en UNA frase",
     "esencial": ["4 a 8 cosas que hay que llevarse, una frase corta cada una"],
     "chuleta": [{{"quiero": "qué quiero hacer (corto)", "como": "cómo se hace: comando, función o sintaxis en `código`"}}],
     "codigo": [{{"titulo": "para qué sirve", "lenguaje": "javascript, python, bash...", "codigo": "hasta ~12 líneas"}}],
+    "diagrama": "UN diagrama mermaid que muestre cómo se conectan las piezas de toda la clase, o cadena vacía",
     "mapa": [{{"inicio": "h:mm:ss", "tema": "bloque grande de la clase (corto)"}}],
-    "preguntas": [{{"pregunta": "pregunta para autoevaluarse", "respuesta": "respuesta corta"}}]
+    "preguntas": [{{"tipo": "porque | que-imprime | error | definicion", "pregunta": "pregunta para autoevaluarse",
+                    "lenguaje": "solo si trae código", "codigo": "solo en que-imprime / error: código AUTOCONTENIDO (hasta ~12 líneas: con las definiciones que use y que imprima con console.log / print)",
+                    "respuesta": "respuesta corta"}}],
+    "pretest": [{{"pregunta": "pregunta DISTINTA de las de 'preguntas'", "respuesta": "respuesta corta"}}]
   }}
 }}
 
 Reglas:
 - Secciones = temas reales de la clase (una cada 5-15 minutos aprox.; en videos cortos, menos), en orden, cubriendo TODO el video. "inicio" debe ser una marca de tiempo que aparezca en la transcripción o en el texto de pantalla.
-- 6 a 12 conceptos (hasta 20 si la clase dura más de 1 hora). Términos técnicos en su forma original (backpropagation, tensor, loss...) con la explicación en español.
+- "conceptos" = glosario corto: 4 a 10 términos (hasta 15 si dura más de 1 hora), en su forma original (backpropagation, closure, JOIN...) con la explicación en español. No repitas su definición en los puntos.
 - Corrige errores obvios de la transcripción automática (nombres de funciones, términos técnicos).
-- Si agregas algo que NO se dice ni se ve en la clase (un complemento útil), márcalo con "(extra)" al final del punto.
-- "corto" es una hoja de repaso MUCHO más corta (3-5 minutos de lectura): "chuleta" 4 a 12 filas con lo más usado en la práctica; "codigo" 0 a 3 fragmentos que resumen la clase; "mapa" 3 a 8 bloques que agrupen las secciones; "preguntas" EXACTAMENTE {n_preg}, repartidas por TODO el video (al menos una por cada bloque del "mapa", y más en las partes largas), de entender (por qué / qué pasa si), no de memorizar nombres.
-- Si hay "CÓDIGO DE ESTA CLASE (exacto)", es el código que entregó el profe: el "codigo" de las secciones y del repaso debe salir de ahí, tal cual (nombres, valores), en el orden en que se explica en la clase.
+- Si agregas algo que NO se dice ni se ve en la clase (un complemento útil), márcalo con "(extra)" al final.
+- "codigo": usa el del texto de pantalla (corrigiendo errores de lectura e indentación) o el "CÓDIGO DE ESTA CLASE (exacto)" si está. Nunca código inventado que no se vio.
+- "ejemplo": SOLO en las secciones donde el profe resuelve o ejecuta algo (o donde hay código con una entrada concreta); en las demás, null. La traza sale de lo que pasa en la clase o de ejecutar mentalmente ESE código: valores reales, nada inventado.
+- "diagrama": como máximo {n_diag} en toda la clase, solo donde un dibujo aclara más que el texto (flujo de un algoritmo, request/response, arquitectura, relaciones entre tablas o clases, estados, capas de una red). Mermaid válido: ids sin espacios, textos con espacios entre comillas, sin paréntesis sueltos dentro de [ ].
+- "errores_comunes": EXACTAMENTE {n_err}: los que se mencionan o se cometen en la clase, y si faltan, errores clásicos REALES de este tema que comete quien está aprendiendo, marcados "(extra)". Nunca un "error" sacado de una mala transcripción.
+- "corto" es una hoja de repaso MUCHO más corta (3-5 minutos de lectura): "chuleta" 4 a 12 filas con lo más usado en la práctica; "codigo" 0 a 3 fragmentos que resumen la clase; "mapa" 3 a 8 bloques que agrupen las secciones.
+- "preguntas": EXACTAMENTE {n_preg}, repartidas por TODO el video (al menos una por cada bloque del "mapa"). Mezcla de tipos: ~40 % "porque" (por qué / qué pasa si / cuándo conviene), ~30 % "que-imprime" (código real de la clase con su salida exacta; en clases sin código, "¿qué resultado da...?"), ~20 % "error" (código o situación con un error: ¿cuál es y cómo se arregla?), ~10 % "definicion". De entender, no de memorizar nombres.
+- "pretest": EXACTAMENTE {n_pre} preguntas de diagnóstico, distintas de "preguntas", para saber si el alumno ya domina la clase antes de verla.
+- Si hay "CÓDIGO DE ESTA CLASE (exacto)", es el código que entregó el profe: el "codigo" de las secciones, de los ejemplos y del repaso debe salir de ahí, tal cual (nombres, valores), en el orden en que se explica en la clase.
 - Si hay "PROYECTO TERMINADO", es más avanzado que esta clase: úsalo solo para corregir errores del OCR y nombres; NO pongas código que todavía no se escribió en esta clase.
 - Si hay "LECTURA DEL CURSO", es parte de la clase: inclúyela en los apuntes (resumen, conceptos y una sección propia).
 - Todo en español, conciso, preciso."""
@@ -453,7 +492,9 @@ def pedir_a_claude(titulo, duracion, cues, pantallas, codigo=""):
         extra = ("\nTexto leído de la PANTALLA (OCR, puede tener errores de lectura) en algunos momentos;"
                  " sirve para el código exacto y los datos que se ven:\n<<<\n"
                  + "\n\n".join(f"[{hms(t)}]\n{txt}" for t, txt in pantallas) + "\n>>>\n")
-    prompt = PROMPT.format(titulo=titulo, duracion=hms(duracion), n_preg=n_preguntas(duracion), transcripcion=transcripcion,
+    prompt = PROMPT.format(titulo=titulo, duracion=hms(duracion), n_preg=n_preguntas(duracion), n_pre=n_pretest(duracion),
+                           n_ejer=n_ejercicios(duracion), n_err=n_errores(duracion), n_diag=n_diagramas(duracion),
+                           transcripcion=transcripcion,
                            pantallas=extra + (f"\nMaterial que entrega el curso (recursos.py):\n<<<\n{codigo}\n>>>\n" if codigo else ""))
     for intento in range(2):
         texto = consultar_ia(prompt)
@@ -461,11 +502,86 @@ def pedir_a_claude(titulo, duracion, cues, pantallas, codigo=""):
             datos = json.loads(texto[texto.index("{"):texto.rindex("}") + 1])
             # los modelos débiles a veces mandan secciones sin título: se reintenta en vez de romper el armado
             if datos.get("secciones") and all(isinstance(x, dict) and x.get("titulo") for x in datos["secciones"]):
+                verificar_salidas(datos)
                 return datos
         except (ValueError, TypeError, json.JSONDecodeError):
             pass
         print(f"  (respuesta de Claude inválida, intento {intento + 1})", file=sys.stderr)
     return None
+
+
+_ri = None
+
+
+def _repo_img():
+    """repo-a-imagenes.py (ejecutar() en bwrap: sin red, sin /home, 5 s). Se carga solo si hace falta."""
+    global _ri
+    if _ri is None:
+        sp = importlib.util.spec_from_file_location("repo_img", os.path.join(AQUI, "repo-a-imagenes.py"))
+        _ri = importlib.util.module_from_spec(sp)
+        sp.loader.exec_module(_ri)
+    return _ri
+
+
+def _normal(t):
+    return re.sub(r"\s+", " ", str(t)).strip().strip("`").strip()
+
+
+def _salida_real(ri, codigo, lang, previos):
+    """Salida real de `codigo` (o None). Si usa funciones de la clase, se antepone solo el código de las
+    secciones que las definen; una expresión suelta sin print/console.log se prueba también impresa."""
+    if ri.NO_EJECUTAR.search(re.sub(r"(//|#).*", "", codigo)):
+        return None
+    impr = "console.log" if lang == "js" else "print"
+    cands = [codigo]
+    if "\n" not in codigo and impr not in codigo and not re.match(r"\s*(let|const|var|def|class|function|import)\b", codigo):
+        cands.append(f"{impr}({codigo.rstrip(';').strip()})")
+    usados = set(re.findall(r"\b([A-Za-z_]\w*)\s*\(", codigo))
+    ctx = "\n".join(p for p in previos if any(re.search(r"\b" + re.escape(u) + r"\b\s*[=(]", p) for u in usados)
+                    and not ri.NO_EJECUTAR.search(re.sub(r"(//|#).*", "", p)))
+    for contexto in ([""] + ([ctx] if ctx else [])):
+        ok0, out0 = ri.ejecutar(contexto, lang) if contexto else (True, "")
+        if not ok0:
+            continue
+        for c in cands:
+            ok, out = ri.ejecutar((contexto + "\n" + c) if contexto else c, lang)
+            if ok and out.startswith(out0):
+                out = out[len(out0):].strip("\n")
+                out = re.sub(r"\nundefined$", "", out) if lang == "js" and c is not codigo else out
+                if out.strip() and out.strip() != "undefined":
+                    return out
+    return None
+
+
+def verificar_salidas(datos):
+    """Las preguntas "¿qué imprime?" de JS/Python se ejecutan de verdad: si la salida real no es la que dijo
+    la IA, se corrige la respuesta (nada inventado). Marca q["verificada"]=True cuando la salida es real."""
+    corto = datos.get("corto") if isinstance(datos.get("corto"), dict) else {}
+    try:
+        ri = None
+        for q in corto.get("preguntas") or []:
+            if not isinstance(q, dict) or q.get("tipo") != "que-imprime" or not str(q.get("codigo", "")).strip():
+                continue
+            lang = str(q.get("lenguaje", "")).lower()
+            if lang not in ("js", "javascript", "node", "py", "python", "python3"):
+                continue
+            ri = ri or _repo_img()
+            lang = "js" if lang in ("js", "javascript", "node") else "py"
+            if lang == "js" and not shutil.which("node"):
+                continue
+            previos = [str(x.get("codigo")) for x in datos.get("secciones") or []
+                       if isinstance(x, dict) and str(x.get("codigo") or "").strip()
+                       and (str(x.get("lenguaje", "")).lower() in ("js", "javascript", "node")) == (lang == "js")]
+            real = _salida_real(ri, str(q["codigo"]).strip(), lang, previos)
+            if real is None or not real.strip():
+                continue
+            q["verificada"] = True
+            r_ia = _normal(q.get("respuesta", ""))
+            if not (r_ia == _normal(real) or re.search(r"(?<![\w.])" + re.escape(_normal(real)) + r"(?![\w.])", r_ia)):
+                q["respuesta_ia"] = q.get("respuesta", "")
+                q["respuesta"] = f"`{real}`" if "\n" not in real else "\n" + real
+    except Exception as e:  # la verificación nunca debe romper los apuntes
+        print(f"  (no se pudieron verificar las salidas: {e})", file=sys.stderr)
 
 
 TIMEOUT_OC = int(os.environ.get("APUNTES_TIMEOUT_OC", "150"))  # s por llamada a OpenCode antes de darla por colgada
@@ -594,8 +710,7 @@ def consultar_ia(prompt, modelo=None):
             if RESPALDO:
                 extra = ["--effort", RESPALDO_EFFORT] if RESPALDO_EFFORT else []
                 cmd = [ruta_claude(), "-p", "--output-format", "json", "--tools", "", "--strict-mcp-config",
-                       "--no-session-persistence", "--system-prompt",
-                       "Eres un asistente que responde exactamente en el formato pedido.", "--model", RESPALDO] + extra
+                       "--no-session-persistence", "--system-prompt", SISTEMA, "--model", RESPALDO] + extra
                 texto = llamar_claude(cmd, prompt, max_espera=0, timeout=TIMEOUT_CLAUDE)
                 if texto is not None:
                     return texto
@@ -605,8 +720,7 @@ def consultar_ia(prompt, modelo=None):
                 return texto
         return llamar_opencode(prompt) if not RESPALDO else None
     cmd = [ruta_claude(), "-p", "--output-format", "json", "--tools", "", "--strict-mcp-config",
-           "--no-session-persistence", "--system-prompt",
-           "Eres un asistente que responde exactamente en el formato pedido."]
+           "--no-session-persistence", "--system-prompt", SISTEMA]
     m = MODELO if modelo is None else modelo
     if m:
         cmd += ["--model", m]
@@ -641,16 +755,20 @@ def armar(carpeta, titulo, capturas, subs, datos, duracion, recursos_md=""):
     for k, s in enumerate(secciones):
         s["fin"] = secciones[k + 1]["ini"] if k + 1 < len(secciones) else duracion + 1
 
+    voz = [(t, p) for t, p in parrafos(cues_es)]
+    hay_resumen = os.path.exists(os.path.join(carpeta, "resumen.md"))
+    hay_voz = bool(voz)
+
     L = [f"# 📓 {titulo}", ""]
     L += [f"> ⏱️ **Duración:** {hms(duracion)} · 📸 **Capturas:** {len(esenciales) or len(importantes)} a la vista "
-          f"({len(importantes)} clave de {len(capturas)}) · 📚 **Secciones:** {len(secciones)}", ""]
-    if datos:
-        L += ["## 🎯 Resumen de la clase", ""]
-        L += [f"- {p}" for p in datos.get("resumen", [])] + [""]
-        if datos.get("conceptos"):
-            L += ["## 🧠 Conceptos clave", "", "| Concepto | Qué es |", "|---|---|"]
-            L += [f"| **{c.get('termino', '')}** | {c.get('definicion', '')} |" for c in datos["conceptos"]]
-            L += [""]
+          f"({len(importantes)} clave de {len(capturas)}) · 📚 **Secciones:** {len(secciones)}"]
+    enlaces = (["⚡ [Repaso rápido](resumen.md)"] if hay_resumen else []) + \
+              ([f"🗣️ [Lo que dice el profe](transcripcion.md) ({idioma_txt})"] if hay_voz else [])
+    if enlaces:
+        L += ["> " + " · ".join(enlaces)]
+    L += [""]
+    if datos and datos.get("resumen") and not hay_resumen:  # el resumen ya está en resumen.md: no se repite
+        L += ["## 🎯 En 30 segundos", ""] + [f"- {p}" for p in datos["resumen"]] + [""]
     L += ["## 🗂️ Índice", ""]
     L += [f"{k + 1}. [{s['titulo']}](#{k + 1}-{ancla(s['titulo'])}) · `{hms(s['ini'])}`" for k, s in enumerate(secciones)]
     L += ["", "---", ""]
@@ -658,12 +776,31 @@ def armar(carpeta, titulo, capturas, subs, datos, duracion, recursos_md=""):
         L += [recursos_md, "---", ""]
 
     for k, s in enumerate(secciones):
-        L += [f"## {k + 1}. {s['titulo']}", "", f"⏱️ `{hms(s['ini'])} – {hms(min(s['fin'], duracion))}`", ""]
+        L += [f"## {k + 1}. {s['titulo']}", ""]
+        cab = f"⏱️ `{hms(s['ini'])} – {hms(min(s['fin'], duracion))}`"
+        if hay_voz and any(s["ini"] <= t < s["fin"] for t, _ in voz):
+            cab += f" · 🗣️ [lo que dice el profe](transcripcion.md#{k + 1}-{ancla(s['titulo'])})"
+        L += [cab, ""]
+        if _txt(s.get("porque")):
+            L += [f"> 💡 {_txt(s['porque'])}", ""]
         L += [f"- {p}" for p in s.get("puntos", [])]
         if s.get("puntos"):
             L += [""]
-        if s.get("codigo", "").strip():
-            L += [f"```{s.get('lenguaje') or ''}", s["codigo"].strip("\n"), "```", ""]
+        if str(s.get("codigo") or "").strip():
+            L += [f"```{s.get('lenguaje') or ''}", str(s["codigo"]).strip("\n"), "```", ""]
+            lal = [x for x in (s.get("linea_a_linea") or []) if _txt(x)]
+            if lal:
+                L += ["> [!tip]- 🔍 Línea a línea"] + [f"> - {_txt(x)}" for x in lal] + [""]
+        diag = _mermaid(s.get("diagrama"))
+        if diag:
+            L += ["```mermaid", diag, "```", ""]
+        ej = s.get("ejemplo")
+        if isinstance(ej, dict) and (ej.get("pasos") or ej.get("salida")):
+            L += [f"> [!example] 🧪 Ejemplo resuelto: {_txt(ej.get('enunciado'))}"]
+            L += [f"> {n}. {_txt(x)}" for n, x in enumerate(ej.get("pasos") or [], 1)]
+            if _txt(ej.get("salida")):
+                L += [f"> **➜ Resultado:** {_txt(ej['salida'])}"]
+            L += [""]
         caps = [c for c in importantes if s["ini"] <= c[1] < s["fin"]]
         if caps:
             # a la vista: las esenciales de la sección (la mitad de las clave); si no hay, la última
@@ -680,22 +817,83 @@ def armar(carpeta, titulo, capturas, subs, datos, duracion, recursos_md=""):
                 for c in resto:
                     L += [f"> ![⏱️ {hms(c[1])}]({c[0]})", f"> *⏱️ {hms(c[1])}*", ">"]
                 L += [""]
-        texto = [(t, p) for t, p in parrafos(cues_es) if s["ini"] <= t < s["fin"]]
-        if texto:
-            L += [f"> [!quote]- 🗣️ Lo que dice el profe ({idioma_txt})"]
-            for t, p in texto:
-                L += [f"> `{hms(t)}` {p}", ">"]
-            L += [""]
         L += ["---", ""]
 
     if datos:
-        if datos.get("errores_comunes"):
-            L += ["## ⚠️ Errores comunes", ""] + [f"- {e}" for e in datos["errores_comunes"]] + [""]
+        errores = [e for e in datos.get("errores_comunes") or [] if e]
+        if errores:
+            L += ["## ⚠️ Errores comunes", ""]
+            for e in errores:
+                if isinstance(e, dict):
+                    L += [f"- ❌ **{_txt(e.get('error'))}**"]
+                    if _txt(e.get("porque")):
+                        L += [f"  - 💥 {_txt(e['porque'])}"]
+                    if _txt(e.get("arreglo")):
+                        L += [f"  - ✅ {_txt(e['arreglo'])}"]
+                else:
+                    L += [f"- {_txt(e)}"]
+            L += [""]
         if datos.get("practica"):
-            L += ["## 🏋️ Para practicar", ""] + [f"- [ ] {e}" for e in datos["practica"]] + [""]
+            L += ["## 🏋️ Para practicar", ""]
+            for e in datos["practica"]:
+                txt = _txt(e)
+                if " — 💡 Pista:" in txt:  # la pista plegada: primero intentarlo solo
+                    enun, pista = txt.split(" — 💡 Pista:", 1)
+                    L += [f"- [ ] {enun.strip()}", f"  > [!hint]- 💡 Pista", f"  > {pista.strip()}"]
+                else:
+                    L += [f"- [ ] {txt}"]
+            L += [""]
+            if any(str(x.get("lenguaje", "")).lower() in ("js", "javascript", "python", "py") for x in secciones):
+                L += ["> Con el botón **Práctica** de SUPER+I salen ejercicios con tests (JS/Python).", ""]
+        if datos.get("conceptos"):
+            L += ["## 🧠 Glosario", "", "| Concepto | Qué es |", "|---|---|"]
+            L += [f"| **{_celda(c.get('termino', ''))}** | {_celda(c.get('definicion', ''))} |"
+                  for c in datos["conceptos"] if isinstance(c, dict)]
+            L += [""]
     else:
         L += ["> [!info] Apuntes sin resumen de IA (solo capturas y transcripción)", ""]
+    L += [f"<!-- formato v{FORMATO} -->", ""]
+    escribir_transcripcion(carpeta, titulo, secciones, voz, idioma_txt, duracion)
     return "\n".join(L)
+
+
+def _txt(x):
+    return re.sub(r"\s*\n\s*", " ", str(x)).strip() if x is not None else ""
+
+
+def _celda(x):
+    return _txt(x).replace("|", "\\|")
+
+
+def _mermaid(texto):
+    """Diagrama mermaid limpio (sin ```), o "" si no parece mermaid."""
+    t = str(texto or "").strip()
+    t = re.sub(r"^```(mermaid)?\s*|\s*```$", "", t).strip()
+    primera = t.split("\n", 1)[0].strip().split(" ")[0] if t else ""
+    validos = ("flowchart", "graph", "sequenceDiagram", "classDiagram", "erDiagram", "stateDiagram",
+               "stateDiagram-v2", "mindmap", "timeline", "gantt", "pie", "journey")
+    return t if primera in validos and "\n" in t else ""
+
+
+def escribir_transcripcion(carpeta, titulo, secciones, voz, idioma_txt, duracion):
+    """transcripcion.md: lo que dice el profe, por sección (fuera de apuntes.md: era ~70 % de sus palabras)."""
+    ruta = os.path.join(carpeta, "transcripcion.md")
+    if not voz:
+        return
+    L = [f"# 🗣️ Lo que dice el profe: {titulo}", "",
+         f"> ⏱️ {hms(duracion)} · idioma: {idioma_txt} · 📓 [Volver a los apuntes](apuntes.md)", ""]
+    for k, s in enumerate(secciones):
+        texto = [(t, p) for t, p in voz if s["ini"] <= t < s["fin"]]
+        if not texto:
+            continue
+        L += [f"## {k + 1}. {s['titulo']}", ""]
+        for t, p in texto:
+            L += [f"`{hms(t)}` {p}", ""]
+    try:
+        with open(ruta, "w", encoding="utf-8") as f:
+            f.write("\n".join(L))
+    except OSError as e:
+        print(f"  (no se pudo escribir transcripcion.md: {e})", file=sys.stderr)
 
 
 def ancla(titulo):
