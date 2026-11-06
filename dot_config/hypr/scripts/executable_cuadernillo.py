@@ -31,6 +31,7 @@ from progreso import reportar  # barrita de progreso (no hace nada si no se pidi
 import capturas_clave as cc  # estado final de cada cosa (OCR + píxeles): las capturas importantes
 import transcribir as tr     # Whisper en la GPU para los videos sin subtítulos
 import recursos as rec_curso  # código del profe, lecturas y enlaces que trae el curso
+import apuntes_politica as editorial
 spec = importlib.util.spec_from_file_location("ac", os.path.join(AQUI, "auto-captura.py"))
 ac = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(ac)
@@ -85,11 +86,12 @@ def tope_palabras(segundos):
     return int(max(60, round(25 * segundos / 60, -1)))
 
 
-FORMATO = 4  # v4: relevancia ⭐🔸💤, comentarios 👉 en el código, intuición, tope de lectura; v3: + objetivos, comparativas, solución de ejercicios, vocabulario; v2 del formato de apuntes.md (v2: sin transcripción adentro, ejemplos, diagramas, errores con arreglo)
-SISTEMA = ("Eres un profesor experto en Ingeniería en Ciencias de la Computación y un programador senior que "
-           "enseña con el tiempo justo: claro, exacto y sin relleno. Respondes exactamente en el formato pedido. "
-           "Nunca inventas código, APIs, salidas ni datos: lo que no sale de la clase o no es un hecho técnico "
-           "comprobable y estándar, no lo escribes; lo que agregas por tu cuenta lo marcas \"(extra)\".")
+FORMATO = 5  # v4: relevancia ⭐🔸💤, comentarios 👉 en el código, intuición, tope de lectura; v3: + objetivos, comparativas, solución de ejercicios, vocabulario; v2 del formato de apuntes.md (v2: sin transcripción adentro, ejemplos, diagramas, errores con arreglo)
+SISTEMA = ("Eres un docente experto en la disciplina de la clase. Priorizas precisión, comprensión y práctica. "
+           "Usas la transcripción y el código original como evidencia; adaptas ejemplos, diagramas y tareas "
+           "al nivel y a la materia. No inventas APIs, métodos, resultados, citas ni mediciones. "
+           "Separas el contenido del curso de los complementos. No afirmas verificar algo que no comprobaste.")
+
 TOLERANCIA_SUPERADA = 120  # pedazos de fila sin cubrir tolerados (~2 líneas: mouse, un número que cambió)
 
 
@@ -170,6 +172,7 @@ def leer_srt(texto):
 
 def buscar_subtitulos(carpeta, video):
     """Devuelve {"es": cues, "en": cues} con lo que encuentre."""
+    video = video or editorial.resolver_video(carpeta)
     subs = {}
     candidatos = {"es": [], "en": []}
     import glob
@@ -183,9 +186,10 @@ def buscar_subtitulos(carpeta, video):
     for idioma, rutas in candidatos.items():
         for r in rutas:
             if os.path.isfile(r):
-                subs[idioma] = leer_srt(open(r, encoding="utf-8", errors="replace").read())
+                with open(r, encoding="utf-8", errors="replace") as archivo_sub:
+                    subs[idioma] = leer_srt(archivo_sub.read())
                 break
-    if video and os.path.isfile(video):
+    if video and os.path.isfile(video) and not subs:
         for idioma, codigo in (("es", "spa"), ("en", "eng")):
             if idioma in subs:
                 continue
@@ -377,77 +381,8 @@ def leer_pantallas(carpeta, capturas, cada=240, maximo=60):
 
 
 # --------------------------------------------------------------------- IA ----
-PROMPT = """Arma APUNTES DE ESTUDIO en español de una clase en video (área: programación / ciencias de la computación).
-El alumno estudia con poco tiempo: los apuntes deben leerse en ~1/4 de lo que dura el video SIN perder lo que
-importa (cada variable, parámetro o línea de código que se explica). Escribe directo el contenido (qué es, cómo
-funciona, por qué, cómo se usa); nada de "en este video el profe dice...". No repitas lo mismo en dos lugares:
-cada idea va UNA vez, en la sección donde se explica.
-
-Clase: {titulo}
-Duración: {duracion}
-
-{transcripcion}{pantallas}
-Responde SOLO con un objeto JSON válido (sin ``` ni texto extra) con esta forma:
-{{
-  "sin_contenido": false,
-  "objetivos": ["2 a 4 cosas que el alumno PUEDE HACER al terminar (verbo de acción: escribir, explicar, depurar, elegir entre...)"],
-  "resumen": ["3 a 6 ideas clave de toda la clase, una frase cada una"],
-  "conceptos": [{{"termino": "nombre", "definicion": "1 frase clara"}}],
-  "secciones": [
-    {{"inicio": "h:mm:ss", "titulo": "tema de la sección (corto)",
-      "relevancia": "diario | a-veces | raro  (diario = clave: se usa seguido O es base para entender lo que sigue)",
-      "porque": "UNA línea: el beneficio concreto o el problema que evita (no repitas el título); si no hay nada útil, cadena vacía",
-      "puntos": ["1 a 5 puntos (máx. ~20 palabras cada uno), ~20 palabras por cada minuto de la sección: lo que hay que retener, con los términos clave en **negrita**"],
-      "lenguaje": "lenguaje del código (python, javascript, sql, bash, ...) o cadena vacía",
-      "codigo": "el código clave de la sección (hasta ~25 líneas), el REAL de la clase. Si no tiene código, cadena vacía",
-      "linea_a_linea": ["comentarios para el código: '`fragmento EXACTO de una línea del código` → por qué (máx. 12 palabras)'; solo en código de 3+ líneas y solo lo no obvio; 0 a 6"],
-      "intuicion": "solo en el concepto MÁS difícil de la clase: la idea con una analogía, 2-3 frases; en las demás secciones cadena vacía",
-      "ejemplo": {{"enunciado": "caso concreto", "pasos": ["paso a paso: valores de las variables / qué pasa en cada paso"], "salida": "resultado final"}},
-      "diagrama": "diagrama mermaid (flowchart, sequenceDiagram, classDiagram, erDiagram o stateDiagram) o cadena vacía",
-      "comparativa": {{"titulo": "X vs Y: cuándo usar cuál", "columnas": ["", "X", "Y"], "filas": [["criterio", "...", "..."]]}}}}
-  ],
-  "practica": [{{"nivel": "🟢 | 🟡 | 🔴", "enunciado": "ejercicio concreto", "pista": "una pista que no regale la respuesta", "solucion": "la solución (código corto o pasos)"}}],
-  "errores_comunes": [{{"error": "el error o la trampa", "porque": "por qué pasa / qué síntoma da", "arreglo": "cómo se evita o corrige"}}],
-  "corto": {{
-    "idea": "la idea central de la clase en UNA frase",
-    "esencial": ["4 a 8 cosas que hay que llevarse, una frase corta cada una"],
-    "chuleta": [{{"quiero": "qué quiero hacer (corto)", "como": "cómo se hace: comando, función o sintaxis en `código`"}}],
-    "codigo": [{{"titulo": "para qué sirve", "lenguaje": "javascript, python, bash...", "codigo": "hasta ~12 líneas"}}],
-    "diagrama": "UN diagrama mermaid que muestre cómo se conectan las piezas de toda la clase, o cadena vacía",
-    "mapa": [{{"inicio": "h:mm:ss", "tema": "bloque grande de la clase (corto)"}}],
-    "preguntas": [{{"tipo": "porque | que-imprime | error | definicion", "pregunta": "pregunta para autoevaluarse",
-                    "lenguaje": "solo si trae código", "codigo": "solo en que-imprime / error: código AUTOCONTENIDO (hasta ~12 líneas: con las definiciones que use y que imprima con console.log / print)",
-                    "respuesta": "respuesta corta"}}],
-    "pretest": [{{"pregunta": "pregunta DISTINTA de las de 'preguntas'", "respuesta": "respuesta corta"}}]
-  }},
-  "vocabulario": [{{"en": "término técnico en inglés", "suena": "pronunciación escrita a la española (database → déita-beis)", "es": "qué significa"}}]
-}}
-
-Reglas:
-- Secciones = temas reales de la clase (una cada 5-15 minutos aprox.; en videos cortos, menos), en orden, cubriendo TODO el video. "inicio" debe ser una marca de tiempo que aparezca en la transcripción o en el texto de pantalla.
-- "conceptos" = glosario corto: 4 a 10 términos (hasta 15 si dura más de 1 hora), en su forma original (backpropagation, closure, JOIN...) con la explicación en español. No repitas su definición en los puntos.
-- Corrige errores obvios de la transcripción automática (nombres de funciones, términos técnicos).
-- Si agregas algo que NO se dice ni se ve en la clase (un complemento útil), márcalo con "(extra)" al final.
-- "codigo": usa el del texto de pantalla (corrigiendo errores de lectura e indentación) o el "CÓDIGO DE ESTA CLASE (exacto)" si está. Nunca código inventado que no se vio.
-- "relevancia": "diario" = CLAVE: se usa seguido en el trabajo real o es la base para entender lo que viene (en una clase de teoría, el concepto central es "diario"); "a-veces" = útil en casos concretos; "raro" = histórico, obsoleto, de nicho o un desvío del tema (basta saber que existe). Sé honesto y equilibrado: lo central de la clase es "diario", lo accesorio no.
-- Los apuntes NO reemplazan al video (el alumno también lo ve): no narres, deja solo lo que hay que retener. Sin relleno ni frases vacías.
-- "ejemplo": SOLO en las secciones donde el profe resuelve o ejecuta algo (o donde hay código con una entrada concreta); en las demás, null. La traza sale de lo que pasa en la clase o de ejecutar mentalmente ESE código: valores reales, nada inventado.
-- "diagrama": {rango_diag} en toda la clase, donde un dibujo aclara más que el texto (flujo de un algoritmo, request/response, arquitectura, relaciones entre tablas o clases, estados, capas de una red). Mermaid válido: ids sin espacios, textos con espacios entre comillas, sin paréntesis sueltos dentro de [ ]. Si tiene más de 5 cajas usa vertical (flowchart TD) para que se lea en pantalla angosta; el salto de línea es un salto real, no "\\n".
-- "practica": EXACTAMENTE {n_ejer} ejercicios de fácil (🟢) a difícil (🔴), que se resuelvan con lo de esta clase y se parezcan a lo que se hace en el trabajo real; la "solucion" es correcta, con el código COMENTADO (por qué de cada paso) o los pasos explicados.
-- "comparativa": solo si la sección dura 3+ minutos y el alumno tiene que ELEGIR entre opciones (let/const/var, INNER/LEFT JOIN, lista/tupla, SGD/Adam...), con datos que NO estén ya en los puntos; si no, null.
-- "objetivos": concretos y verificables, nada genérico ("entender X" no vale; "escribir una función que..." sí).
-- "sin_contenido": true SOLO si la clase no enseña nada técnico (bienvenida, presentación del curso o del profe, despedida, certificado, anuncios, "qué veremos"). Entonces: 1 sola sección con 1-2 puntos, y "objetivos", "practica", "errores_comunes", "vocabulario" y "pretest" vacíos ([]), 1-2 "preguntas"; ignora los EXACTAMENTE de arriba. Si enseña algo técnico, aunque sea corto, va false.
-- Con EXACTAMENTE 0 en "practica", "errores_comunes", "vocabulario" o "pretest": lista vacía [].
-- Presupuesto: los "puntos" de TODAS las secciones suman como máximo {tope} palabras (un tema por punto, sin repetir lo que ya muestra el código).
-- "vocabulario": EXACTAMENTE {n_voc} términos en inglés que se usan en la clase (los que aparecen en código, documentación o mensajes de error), con su pronunciación escrita a la española, nunca en IPA.
-- "errores_comunes": EXACTAMENTE {n_err}: errores que de verdad comete un programador con esto, con su síntoma concreto (mensaje de error o comportamiento raro) en "porque". Primero los de la clase; si faltan, clásicos REALES del tema marcados "(extra)". Nunca uno sacado de una mala transcripción ni uno trivial.
-- "corto" es una hoja de repaso MUCHO más corta (3-5 minutos de lectura): "chuleta" 4 a 12 filas con lo más usado en la práctica; "codigo" 0 a 3 fragmentos que resumen la clase; "mapa" 3 a 8 bloques que agrupen las secciones.
-- "preguntas": EXACTAMENTE {n_preg}, repartidas por TODO el video (al menos una por cada bloque del "mapa"). Mezcla de tipos: ~40 % "porque" (por qué / qué pasa si / cuándo conviene), ~30 % "que-imprime" (código real de la clase con su salida exacta; en clases sin código, "¿qué resultado da...?"), ~20 % "error" (código o situación con un error: ¿cuál es y cómo se arregla?), ~10 % "definicion". De entender, no de memorizar nombres.
-- "pretest": EXACTAMENTE {n_pre} preguntas de diagnóstico, distintas de "preguntas", para saber si el alumno ya domina la clase antes de verla.
-- Si hay "CÓDIGO DE ESTA CLASE (exacto)", es el código que entregó el profe: el "codigo" de las secciones, de los ejemplos y del repaso debe salir de ahí, tal cual (nombres, valores), en el orden en que se explica en la clase.
-- Si hay "PROYECTO TERMINADO", es más avanzado que esta clase: úsalo solo para corregir errores del OCR y nombres; NO pongas código que todavía no se escribió en esta clase.
-- Si hay "LECTURA DEL CURSO", es parte de la clase: inclúyela en los apuntes (resumen, conceptos y una sección propia).
-- Todo en español, conciso, preciso."""
+with open(os.path.join(AQUI, "apuntes-prompt-v5.txt"), encoding="utf-8") as _prompt:
+    PROMPT = _prompt.read()
 
 # Modelo para los apuntes: Sonnet gasta bastante menos cuota que el modelo por defecto de la
 # cuenta y resume muy bien. Para un curso difícil: APUNTES_MODELO=opus (o "" = el de la cuenta).
@@ -813,15 +748,13 @@ def consultar_ia(prompt, modelo=None):
 
 # ----------------------------------------------------------------- armado ----
 def armar(carpeta, titulo, capturas, subs, datos, duracion, recursos_md=""):
+    datos = editorial.revisar_apis(datos)
+    recursos_md = editorial.recursos_sin_imagenes(recursos_md)
     cues_es = subs.get("es") or subs.get("en") or []
     idioma_txt = "español" if subs.get("es") else ("inglés" if subs.get("en") else None)
-    importantes = [c for c in capturas if c[2]]
-    esenciales = set()
-    if os.environ.get("CAPTURAS_CLAVE") != "0":
-        try:  # las deja capturas_clave.esenciales() al elegir las importantes
-            esenciales = set(open(os.path.join(carpeta, cc.ESENCIALES), encoding="utf-8").read().splitlines()[1:])
-        except OSError:
-            pass
+    importantes, motivos = editorial.imagenes_esenciales(datos, capturas)
+    esenciales = {c[0] for c in importantes}
+    datos = dict(datos, _motivos_capturas=motivos) if datos else datos
 
     if datos:
         secciones = []
@@ -932,13 +865,14 @@ def _armar_md(titulo, capturas, datos, duracion, recursos_md, secciones, importa
     la práctica · 3 = también los errores después del 3.º (lo ⭐ nunca se pliega)."""
     hay_voz = bool(voz)
     L = [f"# 📓 {titulo}", ""]
-    L += [f"> ⏱️ **Duración:** {hms(duracion)} · 📸 **Capturas:** {len(esenciales) or len(importantes)} a la vista "
-          f"({len(importantes)} clave de {len(capturas)}) · 📚 **Secciones:** {len(secciones)}"]
+    L += [f"> ⏱️ **Duración:** {hms(duracion)} · 📚 **Secciones:** {len(secciones)} · Imágenes: {len(importantes)}"]
     enlaces = (["⚡ [Repaso rápido](resumen.md)"] if hay_resumen else []) + \
               ([f"🗣️ [Lo que dice el profe](transcripcion.md) ({idioma_txt})"] if hay_voz else [])
     if enlaces:
         L += ["> " + " · ".join(enlaces)]
     L += [""]
+    for aviso in (datos or {}).get("_revision_api") or []:
+        L += ["> [!warning] Revisar compatibilidad", "> " + aviso, ""]
     if (datos or {}).get("sin_contenido"):  # bienvenida / despedida / anuncio: apenas nada
         for s in secciones:
             L += [f"- {p}" for p in (s.get("puntos") or [])[:2]]
@@ -1021,7 +955,7 @@ def _armar_md(titulo, capturas, datos, duracion, recursos_md, secciones, importa
                 elegidas = {caps[-1][0]} | {c[0] for c in sorted(caps[:-1], key=lambda c: -c[3])[:CAPTURAS_A_LA_VISTA - 1]}
             for c in caps:
                 if c[0] in elegidas:
-                    L += [f"![⏱️ {hms(c[1])}]({c[0]})", f"*⏱️ {hms(c[1])}*", ""]
+                    L += [f"![⏱️ {hms(c[1])}]({c[0]})", f"*{(datos or {}).get('_motivos_capturas', {}).get(c[0], hms(c[1]))}*", ""]
             resto = [c for c in caps if c[0] not in elegidas]
             if resto:
                 L += [f"> [!example]- 📸 Más capturas de esta sección ({len(resto)})"]
@@ -1055,6 +989,7 @@ def _armar_md(titulo, capturas, datos, duracion, recursos_md, secciones, importa
                     if _txt(e.get("pista")):
                         P += ["  > [!hint]- 💡 Pista", f"  > {_txt(e['pista'])}"]
                     sol = str(e.get("solucion") or "").strip("\n")
+                    sol = editorial.solucion_markdown(sol, secciones)
                     if sol.strip():
                         P += ["  > [!success]- ✅ Solución"] + [f"  > {x}" for x in sol.split("\n")]
                     continue
@@ -1280,7 +1215,8 @@ def main():
     if capitulos:
         codigo_curso += ("\n--- CAPÍTULOS DEL VIDEO (los puso el autor: úsalos como las secciones, con estos tiempos) ---\n"
                          + "\n".join(f"[{hms(t)}] {n}" for t, n in capitulos) + "\n")
-    duracion = max([capturas[-1][1]] + [c[1] for v in subs.values() for c in v[-1:]])
+    duracion = max([capturas[-1][1], editorial.duracion_guardada(carpeta)] + [c[1] for v in subs.values() for c in v[-1:]])
+    editorial.registrar_fuentes(carpeta, a.video, duracion)
 
     datos = None
     try:
