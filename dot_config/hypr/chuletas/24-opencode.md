@@ -407,10 +407,19 @@ opencode run --format json "Lista los comentarios TODO"
 
 ## 🇬🇧 Vocabulario
 
-🇬🇧 **leader key** /ˈliː.dər/ — tecla líder · **command palette** /ˈpæl.ət/ — paleta de comandos · **which-key** — "¿qué tecla?"
-🇬🇧 **to steer** — corregir el rumbo · **to queue** — encolar · **stash** — guardado temporal
-🇬🇧 **variant** /ˈveə.ri.ənt/ — variante · **provider** /prəˈvaɪ.dər/ — proveedor · **child session** — sesión hija
-🇬🇧 **effect: allow / ask / deny** — permitir / preguntar / negar · **last match wins** — gana la última coincidencia
-🇬🇧 **hunk** /hʌŋk/ — bloque de cambios de un diff · **to revert** — revertir · **reviewed** — revisado
-🇬🇧 Frase útil: "Switch to the plan agent and outline the steps first." — Cambia al agente plan y resume primero los pasos.
-🇬🇧 Frase útil: "Use the explore subagent to find where tokens are validated." — Usa el subagente explore para encontrar dónde se validan los tokens.
+| English | Suena | Español |
+|---|---|---|
+| leader key | líder ki | tecla líder |
+| command palette | kománd pálet | paleta de comandos |
+| which-key | uích-ki | "¿qué tecla?" (panel de ayuda) |
+| to steer / to queue | tu stíir / tu kiú | corregir el rumbo / encolar |
+| stash | stash | guardado temporal |
+| variant | vérient | variante |
+| provider | prováider | proveedor |
+| child session | cháild séshon | sesión hija |
+| allow / ask / deny | aláu / ask / dinái | permitir / preguntar / negar |
+| last match wins | last mach uíns | gana la última coincidencia |
+| hunk | jank | bloque de cambios de un diff |
+| to revert / reviewed | tu rivért / riviúd | revertir / revisado |
+| "Switch to the plan agent and outline the steps first." | suích tu de plan éiyent and áutlain de steps ferst | Cambia al agente plan y resume primero los pasos |
+| "Use the explore subagent to find where tokens are validated." | iús di eksplór sáb-éiyent tu fáind uér tóukens ar válideited | Usa el subagente explore para encontrar dónde se validan los tokens |

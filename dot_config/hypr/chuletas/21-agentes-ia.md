@@ -201,10 +201,20 @@ Verificar --> Implementar : ❌ falla
 
 ## 🇬🇧 Vocabulario
 
-🇬🇧 **agent** /ˈeɪ.dʒənt/ — agente · **prompt** /prɒmpt/ — pedido o instrucción · **context window** — ventana de contexto
-🇬🇧 **to steer** /stɪər/ — corregir el rumbo · **to queue** /kjuː/ — poner en cola · **to interrupt** — interrumpir
-🇬🇧 **approval** /əˈpruː.vəl/ — aprobación · **sandbox** — entorno aislado · **to bypass** — saltarse
-🇬🇧 **to compact** — compactar · **to fork** — bifurcar · **to resume** /rɪˈzjuːm/ — retomar · **transcript** — transcripción
-🇬🇧 **headless** — sin interfaz · **subagent** — subagente · **worktree** — copia de trabajo de git
-🇬🇧 Frase útil: "Don't change anything yet, just explain how this works." — No cambies nada todavía, solo explica cómo funciona.
-🇬🇧 Frase útil: "Run the tests and show me the output." — Corre los tests y muéstrame la salida.
+| English | Suena | Español |
+|---|---|---|
+| agent / coding agent | éiyent / kóding éiyent | agente / agente de código |
+| prompt | prompt | pedido o instrucción |
+| context window | kóntekst uíndou | ventana de contexto |
+| to steer | tu stíir | corregir el rumbo |
+| to queue / queued | tu kiú / kiúd | poner en cola / en cola |
+| approval / to approve | apruval / tu aprúv | aprobación / aprobar |
+| sandbox | sándboks | entorno aislado |
+| to bypass | tu báipas | saltarse |
+| to compact | tu kompákt | compactar (resumir) |
+| to fork / to resume | tu fork / tu risiúm | bifurcar / retomar |
+| transcript | tránskript | transcripción |
+| headless | jédles | sin interfaz |
+| subagent / worktree | sáb-éiyent / uérk-tri | subagente / copia de trabajo de git |
+| "Don't change anything yet, just explain how this works." | dóunt chéinch énizing iét, yast ekspléin jáu dis uérks | No cambies nada todavía, solo explica cómo funciona |
+| "Run the tests and show me the output." | ran de tests and shóu mi di áutput | Corre los tests y muéstrame la salida |

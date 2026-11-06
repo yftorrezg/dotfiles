@@ -396,10 +396,18 @@ codex mcp login nombre   # OAuth
 
 ## 🇬🇧 Vocabulario
 
-🇬🇧 **to steer** /stɪər/ — corregir el rumbo · **queue** /kjuː/ — cola · **turn** — turno (un pedido y su trabajo)
-🇬🇧 **reasoning effort** — esfuerzo de razonamiento · **approval policy** — política de aprobación
-🇬🇧 **sandbox** — caja de arena, entorno aislado · **workspace** — carpeta de trabajo · **full access** — acceso total
-🇬🇧 **rollout** — registro de la sesión · **side conversation** — conversación al margen · **keymap** — mapa de teclas
-🇬🇧 **uncommitted changes** — cambios sin commit · **base branch** — rama base
-🇬🇧 Frase útil: "Review my uncommitted changes and list issues by severity." — Revisa mis cambios sin commit y lista los problemas por gravedad.
-🇬🇧 Frase útil: "Keep the public API unchanged." — No cambies la API pública.
+| English | Suena | Español |
+|---|---|---|
+| to steer | tu stíir | corregir el rumbo |
+| queue / turn | kiú / tern | cola / turno (un pedido y su trabajo) |
+| reasoning effort | rísoning éfort | esfuerzo de razonamiento |
+| approval policy | apruval pólisi | política de aprobación |
+| sandbox / workspace | sándboks / uérk-spéis | entorno aislado / carpeta de trabajo |
+| full access | ful ákses | acceso total |
+| rollout | róul-aut | registro de la sesión |
+| side conversation | said konverséishon | conversación al margen |
+| keymap | kí-map | mapa de teclas |
+| uncommitted changes | ankomíted chéinyes | cambios sin commit |
+| base branch | beis branch | rama base |
+| "Review my uncommitted changes and list issues by severity." | riviú mai ankomíted chéinyes and list íshus bai sevériti | Revisa mis cambios sin commit y lista los problemas por gravedad |
+| "Keep the public API unchanged." | kip de páblik ei-pi-ái anchéinchd | No cambies la API pública |

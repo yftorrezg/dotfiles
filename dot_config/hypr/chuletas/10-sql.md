@@ -109,7 +109,7 @@ Todo `SELECT` es una combinación de unas pocas operaciones sobre conjuntos. Con
 
 💡 Consejo: para practicar sin instalar nada escribe `sqlite3 universidad.db` en la terminal. Dentro: `.tables`, `.schema alumnos`, `.mode table`, `.headers on`, `.nullvalue NULL` y `.quit`.
 
-⚠️ Cuidado: las palabras clave no distinguen mayúsculas (`select` = `SELECT`), pero los textos sí pueden hacerlo: en PostgreSQL `'Ana' = 'ana'` es falso. Los textos van con comillas **simples**; las dobles son para nombres de columnas (`"Mi Columna"`).
+⚠️ Cuidado: las palabras clave no distinguen mayúsculas (`select` = `SELECT`), pero los textos sí pueden hacerlo: en PostgreSQL y SQLite `'Ana' = 'ana'` es falso, pero en MySQL, con su collation por defecto (`utf8mb4_0900_ai_ci`: *ci* = case-insensitive), es verdadero. Los textos van con comillas **simples**; las dobles son para nombres de columnas (`"Mi Columna"`).
 
 🇬🇧 **relation** /riléishon/ = relación · **tuple** /túpol/ = tupla · **declarative** /diklárativ/ = declarativo · **set** /set/ = conjunto · **null** /nal/ = nulo
 
@@ -275,7 +275,7 @@ Las **restricciones** (constraints) son reglas que el SGBD hace cumplir **siempr
 |---|---|---|
 | `PRIMARY KEY` | Único + no nulo | `id INTEGER PRIMARY KEY` |
 | `FOREIGN KEY` | El valor existe en otra tabla | `REFERENCES cursos(id)` |
-| `UNIQUE` | No se repite | `email TEXT UNIQUE` |
+| `UNIQUE` | No se repite (varios NULL sí; en PostgreSQL 15+ `UNIQUE NULLS NOT DISTINCT` lo impide) | `email TEXT UNIQUE` |
 | `NOT NULL` | Obligatorio | `nombre TEXT NOT NULL` |
 | `CHECK` | Cumple una condición | `CHECK (nota BETWEEN 0 AND 100)` |
 | `DEFAULT` | Valor si no se indica | `DEFAULT 4` |
@@ -298,7 +298,7 @@ Las **restricciones** (constraints) son reglas que el SGBD hace cumplir **siempr
 |---|---|---|
 | Autoincremental | Pequeño, rápido, ordenado | Revela cuántos registros hay; difícil al unir bases |
 | UUID v4 (aleatorio) | Único global, se genera en la app | 16 bytes, desordena el índice B-tree |
-| UUID v7 (ordenado por tiempo) | Único global y ordenado | Revela la fecha de creación |
+| UUID v7 (ordenado por tiempo; PostgreSQL 18 trae `uuidv7()`) | Único global y ordenado | Revela la fecha de creación |
 
 ### ✅ Ejemplo resuelto: la base rechaza datos malos
 
@@ -403,6 +403,17 @@ Viola la **1FN**: una celda tiene una lista. Para saber quién lleva BD hay que 
 ```
 
 Ya es 1FN, pero mira la anomalía real al cambiar el docente de BD en una sola fila:
+
+::: desplegable 🧪 Crear esta tabla para probarlo tú
+```sql
+CREATE TABLE inscripcion_1fn (alumno TEXT, ciudad TEXT, departamento TEXT, curso TEXT, docente TEXT,
+                              PRIMARY KEY (alumno, curso));
+INSERT INTO inscripcion_1fn VALUES
+    ('Ana Quispe',  'El Alto',     'La Paz',     'BD',        'Ing. Vargas'),
+    ('Ana Quispe',  'El Alto',     'La Paz',     'Cálculo I', 'Lic. Gutiérrez'),
+    ('Luis Mamani', 'Quillacollo', 'Cochabamba', 'BD',        'Ing. Vargas');
+```
+:::
 
 ```sql
 UPDATE inscripcion_1fn SET docente = 'Ing. Rocha'
@@ -1478,7 +1489,8 @@ COMMIT;                                    -- 4) si todo está bien
 
 ```sql
 INSERT INTO notas (alumno_id, curso_id, nota) VALUES (3, 1, 77)
-ON CONFLICT (alumno_id, curso_id) DO UPDATE SET nota = excluded.nota;
+ON CONFLICT (alumno_id, curso_id) DO UPDATE SET nota = excluded.nota
+RETURNING alumno_id, curso_id, nota;
 -- Sofía ya tenía fila (nota NULL): se actualizó en vez de dar error
 
 INSERT INTO alumnos (nombre, ciudad, edad) VALUES ('Rosa Condori', 'Oruro', 20)
@@ -1573,14 +1585,15 @@ COMMIT;
 
 BEGIN;                                              -- Luis intenta mandar 999
 UPDATE cuentas SET saldo = saldo + 999 WHERE id = 1;
-UPDATE cuentas SET saldo = saldo - 999 WHERE id = 2;   -- viola el CHECK
+-- la siguiente viola el CHECK (Luis solo tiene 300)
+UPDATE cuentas SET saldo = saldo - 999 WHERE id = 2;
 ROLLBACK;                                           -- deshace TAMBIÉN el +999 de Ana
 
 SELECT titular, saldo FROM cuentas;
 ```
 
 ```text
-Error near line 15: CHECK constraint failed: saldo >= 0
+Error near line 16: CHECK constraint failed: saldo >= 0
 +---------+-------+
 | titular | saldo |
 +---------+-------+
@@ -1590,6 +1603,8 @@ Error near line 15: CHECK constraint failed: saldo >= 0
 ```
 
 El segundo `UPDATE` falló por el `CHECK`, pero el primero (+999 a Ana) ya se había aplicado **dentro** de la transacción; el `ROLLBACK` lo deshizo. Sin transacción, Ana habría ganado 999 Bs. de la nada. En código real, atrapas la excepción y haces `ROLLBACK`.
+
+⚠️ Cuidado: comprobado en este PC con `sqlite3` 3.54: si una sentencia **falla** y tiene un comentario `--` al final de **su misma línea**, la terminal de sqlite3 se salta la sentencia siguiente. Aquí se saltaría justo el `ROLLBACK` y Ana se quedaría con 1299 Bs. Por eso el comentario va en su propia línea. Es un problema del programa `sqlite3`, no de SQL: en Python o en PostgreSQL no pasa.
 
 - `SAVEPOINT p1;` :: Punto intermedio dentro de la transacción
 - `ROLLBACK TO p1;` :: Deshace solo hasta ese punto
@@ -1968,14 +1983,18 @@ Si guardas `clave TEXT` con la clave real, quien robe la base (por inyección, u
 ```python
 import hashlib, hmac, os
 
+# Mínimo recomendado por OWASP para scrypt: N=2^17 (128 MiB), r=8, p=1.
+# maxmem hace falta: sin él, Python da "memory limit exceeded" (su tope por defecto es 32 MiB).
+SCRYPT = dict(n=2**17, r=8, p=1, maxmem=2**28)
+
 def hashear(clave):
     sal = os.urandom(16)                                  # sal distinta por usuario
-    h = hashlib.scrypt(clave.encode(), salt=sal, n=2**14, r=8, p=1)
+    h = hashlib.scrypt(clave.encode(), salt=sal, **SCRYPT)
     return sal.hex() + "$" + h.hex()                      # esto se guarda en la BD
 
 def verificar(clave, guardado):
     sal_hex, h_hex = guardado.split("$")
-    h = hashlib.scrypt(clave.encode(), salt=bytes.fromhex(sal_hex), n=2**14, r=8, p=1)
+    h = hashlib.scrypt(clave.encode(), salt=bytes.fromhex(sal_hex), **SCRYPT)
     return hmac.compare_digest(h.hex(), h_hex)            # comparación en tiempo constante
 
 g1, g2 = hashear("cambia_esto"), hashear("cambia_esto")
@@ -1989,6 +2008,15 @@ Misma clave, mismo hash? False        <- la sal hace único cada hash
 Login correcto: True
 Login con otra: False
 ```
+
+| Algoritmo | Parámetros mínimos (OWASP Password Storage Cheat Sheet) |
+|---|---|
+| argon2id (el preferido) | m = 19 MiB, t = 2, p = 1 |
+| scrypt | N = 2^17 (128 MiB), r = 8, p = 1 |
+| bcrypt | factor de trabajo ≥ 10; solo usa los primeros 72 bytes de la clave |
+| PBKDF2-HMAC-SHA256 | 600 000 iteraciones |
+
+💡 Consejo: medido en este PC, un hash scrypt con esos parámetros tarda ~0,5 s. Ese medio segundo no molesta a quien inicia sesión, pero a un atacante que prueba millones de claves lo frena muchísimo.
 
 ⚠️ Cuidado: **MD5 y SHA-256 "a secas" NO son para contraseñas**: son rápidos, y rápido es lo que quiere un atacante probando miles de millones de claves por segundo. Usa **argon2id**, **bcrypt** o **scrypt**. En la práctica, usa la librería de tu framework en vez de implementarlo tú.
 
@@ -2099,7 +2127,16 @@ dir: abajo
 3 Copiar datos viejos -> 4 Leer de la nueva -> 5 Borrar la vieja
 ```
 
-⚠️ Cuidado: en PostgreSQL, `ALTER TABLE` puede tomar un bloqueo que **frena todas las lecturas y escrituras** de esa tabla. Añadir una columna `NOT NULL` con valor por defecto, crear un índice sin `CONCURRENTLY` o cambiar el tipo reescribe la tabla. Prueba la migración con datos del tamaño de producción y pon `lock_timeout`.
+⚠️ Cuidado: en PostgreSQL, `ALTER TABLE` toma un bloqueo que **frena todas las lecturas y escrituras** de esa tabla mientras dura. Lo que lo hace largo es **reescribir** la tabla, y eso depende del cambio (medido en PostgreSQL 18 con 100 000 filas, mirando si cambia el archivo de la tabla):
+
+| Cambio | ¿Reescribe la tabla? |
+|---|---|
+| `ADD COLUMN ... NOT NULL DEFAULT true` (valor constante) | **No** (desde PostgreSQL 11): es casi instantáneo |
+| `ADD COLUMN ... DEFAULT random()` (valor volátil) | **Sí** |
+| `ALTER COLUMN ... TYPE bigint` | **Sí** |
+| `CREATE INDEX` sin `CONCURRENTLY` | No reescribe, pero **bloquea las escrituras** mientras se construye |
+
+Prueba la migración con datos del tamaño de producción y pon `lock_timeout` para que, si no consigue el bloqueo rápido, falle en vez de dejar a todos esperando.
 
 ### 💾 Backups: lo que no se prueba no existe
 
@@ -2160,7 +2197,7 @@ SQL Server : ecosistema Microsoft — .NET, empresas, BI
 
 💡 Consejo: aprende con SQLite y pasa a PostgreSQL para proyectos serios: el 90 % del SQL de esta hoja funciona igual. Todo lo específico de PostgreSQL en esta hoja está indicado como tal (`ILIKE`, `RETURNING`, `FILTER`, `DISTINCT ON`, `JSONB`, `EXPLAIN ANALYZE`, `CONCURRENTLY`, `pgvector`).
 
-- `docker run -d --name pg -e POSTGRES_PASSWORD=cambia_esto -p 5432:5432 postgres:16` :: Levantar PostgreSQL para practicar
+- `docker run -d --name pg -e POSTGRES_PASSWORD=cambia_esto -p 5432:5432 postgres:18` :: Levantar PostgreSQL para practicar (18 = versión estable en noviembre de 2026)
 - `psql -h localhost -U postgres` :: Conectarse
 - `\l` / `\c base` / `\dt` / `\d tabla` / `\q` :: psql: bases, cambiar, tablas, estructura, salir
 
@@ -2666,7 +2703,8 @@ SELECT LOWER(email) AS email, COUNT(*) AS veces, GROUP_CONCAT(id) AS ids
 FROM alumnos WHERE email IS NOT NULL
 GROUP BY LOWER(email) HAVING COUNT(*) > 1;
 
--- Prevenir (en una base limpia): índice único sobre la expresión
+-- Prevenir: índice único sobre la expresión. Primero arregla los duplicados:
+-- con duplicados presentes, crear el índice falla con el mismo error de abajo.
 CREATE UNIQUE INDEX ux_alumnos_email_lower ON alumnos(LOWER(email));
 ```
 ```text
@@ -2675,7 +2713,7 @@ CREATE UNIQUE INDEX ux_alumnos_email_lower ON alumnos(LOWER(email));
 +-------------+-------+-----+
 | ana@umsa.bo |     2 | 6,1 |
 +-------------+-------+-----+
--- con el índice único ya creado, el INSERT falla:
+-- con el índice ya creado (en una base sin duplicados), repetir el INSERT falla:
 Error near line 2: UNIQUE constraint failed: index 'ux_alumnos_email_lower'
 ```
 :::

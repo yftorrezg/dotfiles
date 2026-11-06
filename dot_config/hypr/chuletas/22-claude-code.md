@@ -509,10 +509,19 @@ Actívalo en `/config` → Editor mode (o `"editorMode": "vim"`).
 
 ## 🇬🇧 Vocabulario
 
-🇬🇧 **to rewind** /riːˈwaɪnd/ — rebobinar · **checkpoint** — punto de control · **to stash** — guardar para luego
-🇬🇧 **to compact** — compactar · **effort** /ˈef.ət/ — esfuerzo · **thinking** — razonamiento · **fast mode** — modo rápido
-🇬🇧 **to allow / to deny** /dɪˈnaɪ/ — permitir / negar · **permission prompt** — ventana de permiso
-🇬🇧 **hook** — gancho (script automático) · **matcher** — filtro de herramientas · **scope** /skəʊp/ — alcance
-🇬🇧 **background** — segundo plano · **to attach / to detach** — conectarse / soltarse · **queued** /kjuːd/ — en cola
-🇬🇧 Frase útil: "Enter plan mode and propose a plan first." — Entra en modo plan y propón un plan primero.
-🇬🇧 Frase útil: "Use a subagent to search the codebase so you keep your context clean." — Usa un subagente para buscar y así mantienes limpio tu contexto.
+| English | Suena | Español |
+|---|---|---|
+| to rewind | tu ri-uáind | rebobinar |
+| checkpoint | chékpoint | punto de control |
+| to stash | tu stash | guardar para luego |
+| effort / thinking | éfort / zínking | esfuerzo / razonamiento |
+| fast mode | fast móud | modo rápido |
+| to allow / to deny | tu aláu / tu dinái | permitir / negar |
+| permission prompt | permíshon prompt | ventana de permiso |
+| hook / matcher | juk / máchér | gancho (script automático) / filtro |
+| scope | skóup | alcance |
+| background | bákgraund | segundo plano |
+| to attach / to detach | tu atách / tu ditách | conectarse / soltarse |
+| queued | kiúd | en cola |
+| "Enter plan mode and propose a plan first." | énter plan móud and propóus a plan ferst | Entra en modo plan y propón un plan primero |
+| "Use a subagent so you keep your context clean." | iús a sáb-éiyent sou iú kip ior kóntekst klin | Usa un subagente para mantener limpio tu contexto |
