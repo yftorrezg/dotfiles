@@ -97,6 +97,15 @@ local modalMatches = {
 }
 for _, m in ipairs(modalMatches) do hl.window_rule({ match = m, float = true }) end
 
+-- KIO/Ark: deja el diálogo de contraseña visible y evita que el progreso lo tape.
+hl.window_rule({
+    name            = "kio-progress-unstack",
+    match           = { title = "^(File Operation Progress|Progress Dialog|.*[Pp]rogress.*|.*[Pp]rogres.*)$" },
+    float           = true,
+    move            = { "monitor_w * 0.5 - window_w * 0.5", "monitor_h * 0.06" },
+    no_initial_focus = true,
+})
+
 -- Ignore maximize requests from all apps. You'll probably like this.
 hl.window_rule({
     name  = "suppress-maximize-events",

@@ -74,7 +74,7 @@ def tope_palabras(segundos):
     return int(max(150, round(25 * segundos / 60, -1)))
 
 
-FORMATO = 3  # v3: + objetivos, comparativas, solución de ejercicios, vocabulario; v2 del formato de apuntes.md (v2: sin transcripción adentro, ejemplos, diagramas, errores con arreglo)
+FORMATO = 4  # v4: relevancia ⭐🔸💤, comentarios 👉 en el código, intuición, tope de lectura; v3: + objetivos, comparativas, solución de ejercicios, vocabulario; v2 del formato de apuntes.md (v2: sin transcripción adentro, ejemplos, diagramas, errores con arreglo)
 SISTEMA = ("Eres un profesor experto en Ingeniería en Ciencias de la Computación y un programador senior que "
            "enseña con el tiempo justo: claro, exacto y sin relleno. Respondes exactamente en el formato pedido. "
            "Nunca inventas código, APIs, salidas ni datos: lo que no sale de la clase o no es un hecho técnico "
@@ -383,11 +383,13 @@ Responde SOLO con un objeto JSON válido (sin ``` ni texto extra) con esta forma
   "conceptos": [{{"termino": "nombre", "definicion": "1 frase clara"}}],
   "secciones": [
     {{"inicio": "h:mm:ss", "titulo": "tema de la sección (corto)",
-      "porque": "UNA línea: para qué sirve esto / qué problema resuelve",
-      "puntos": ["2 a 6 puntos esenciales (máx. ~25 palabras cada uno): qué se hace, por qué, detalles técnicos que importan"],
+      "relevancia": "diario | a-veces | raro  (diario = clave: se usa seguido O es base para entender lo que sigue)",
+      "porque": "UNA línea: el beneficio concreto o el problema que evita (no repitas el título); si no hay nada útil, cadena vacía",
+      "puntos": ["1 a 5 puntos (máx. ~20 palabras cada uno), ~20 palabras por cada minuto de la sección: lo que hay que retener, con los términos clave en **negrita**"],
       "lenguaje": "lenguaje del código (python, javascript, sql, bash, ...) o cadena vacía",
       "codigo": "el código clave de la sección (hasta ~25 líneas), el REAL de la clase. Si no tiene código, cadena vacía",
-      "linea_a_linea": ["`fragmento de una línea del código` → qué hace y por qué (solo las líneas que no son obvias; 0 a 6)"],
+      "linea_a_linea": ["comentarios para el código: '`fragmento EXACTO de una línea del código` → por qué (máx. 12 palabras)'; solo en código de 3+ líneas y solo lo no obvio; 0 a 6"],
+      "intuicion": "solo en el concepto MÁS difícil de la clase: la idea con una analogía, 2-3 frases; en las demás secciones cadena vacía",
       "ejemplo": {{"enunciado": "caso concreto", "pasos": ["paso a paso: valores de las variables / qué pasa en cada paso"], "salida": "resultado final"}},
       "diagrama": "diagrama mermaid (flowchart, sequenceDiagram, classDiagram, erDiagram o stateDiagram) o cadena vacía",
       "comparativa": {{"titulo": "X vs Y: cuándo usar cuál", "columnas": ["", "X", "Y"], "filas": [["criterio", "...", "..."]]}}}}
@@ -415,14 +417,16 @@ Reglas:
 - Corrige errores obvios de la transcripción automática (nombres de funciones, términos técnicos).
 - Si agregas algo que NO se dice ni se ve en la clase (un complemento útil), márcalo con "(extra)" al final.
 - "codigo": usa el del texto de pantalla (corrigiendo errores de lectura e indentación) o el "CÓDIGO DE ESTA CLASE (exacto)" si está. Nunca código inventado que no se vio.
+- "relevancia": "diario" = CLAVE: se usa seguido en el trabajo real o es la base para entender lo que viene (en una clase de teoría, el concepto central es "diario"); "a-veces" = útil en casos concretos; "raro" = histórico, obsoleto, de nicho o un desvío del tema (basta saber que existe). Sé honesto y equilibrado: lo central de la clase es "diario", lo accesorio no.
+- Los apuntes NO reemplazan al video (el alumno también lo ve): no narres, deja solo lo que hay que retener. Sin relleno ni frases vacías.
 - "ejemplo": SOLO en las secciones donde el profe resuelve o ejecuta algo (o donde hay código con una entrada concreta); en las demás, null. La traza sale de lo que pasa en la clase o de ejecutar mentalmente ESE código: valores reales, nada inventado.
 - "diagrama": como máximo {n_diag} en toda la clase, solo donde un dibujo aclara más que el texto (flujo de un algoritmo, request/response, arquitectura, relaciones entre tablas o clases, estados, capas de una red). Mermaid válido: ids sin espacios, textos con espacios entre comillas, sin paréntesis sueltos dentro de [ ].
-- "practica": EXACTAMENTE {n_ejer} ejercicios de fácil (🟢) a difícil (🔴), que se resuelvan con lo de esta clase; la "solucion" debe ser correcta y comprobable.
-- "comparativa": solo en las secciones donde la clase contrasta dos o más opciones (let/const/var, INNER/LEFT JOIN, lista/tupla, SGD/Adam...); si no, null.
+- "practica": EXACTAMENTE {n_ejer} ejercicios de fácil (🟢) a difícil (🔴), que se resuelvan con lo de esta clase y se parezcan a lo que se hace en el trabajo real; la "solucion" es correcta, con el código COMENTADO (por qué de cada paso) o los pasos explicados.
+- "comparativa": solo si la sección dura 3+ minutos y el alumno tiene que ELEGIR entre opciones (let/const/var, INNER/LEFT JOIN, lista/tupla, SGD/Adam...), con datos que NO estén ya en los puntos; si no, null.
 - "objetivos": concretos y verificables, nada genérico ("entender X" no vale; "escribir una función que..." sí).
 - Presupuesto: los "puntos" de TODAS las secciones suman como máximo {tope} palabras (un tema por punto, sin repetir lo que ya muestra el código).
 - "vocabulario": EXACTAMENTE {n_voc} términos en inglés que se usan en la clase (los que aparecen en código, documentación o mensajes de error), con su pronunciación escrita a la española, nunca en IPA.
-- "errores_comunes": EXACTAMENTE {n_err}: los que se mencionan o se cometen en la clase, y si faltan, errores clásicos REALES de este tema que comete quien está aprendiendo, marcados "(extra)". Nunca un "error" sacado de una mala transcripción.
+- "errores_comunes": EXACTAMENTE {n_err}: errores que de verdad comete un programador con esto, con su síntoma concreto (mensaje de error o comportamiento raro) en "porque". Primero los de la clase; si faltan, clásicos REALES del tema marcados "(extra)". Nunca uno sacado de una mala transcripción ni uno trivial.
 - "corto" es una hoja de repaso MUCHO más corta (3-5 minutos de lectura): "chuleta" 4 a 12 filas con lo más usado en la práctica; "codigo" 0 a 3 fragmentos que resumen la clase; "mapa" 3 a 8 bloques que agrupen las secciones.
 - "preguntas": EXACTAMENTE {n_preg}, repartidas por TODO el video (al menos una por cada bloque del "mapa"). Mezcla de tipos: ~40 % "porque" (por qué / qué pasa si / cuándo conviene), ~30 % "que-imprime" (código real de la clase con su salida exacta; en clases sin código, "¿qué resultado da...?"), ~20 % "error" (código o situación con un error: ¿cuál es y cómo se arregla?), ~10 % "definicion". De entender, no de memorizar nombres.
 - "pretest": EXACTAMENTE {n_pre} preguntas de diagnóstico, distintas de "preguntas", para saber si el alumno ya domina la clase antes de verla.
@@ -825,6 +829,94 @@ def armar(carpeta, titulo, capturas, subs, datos, duracion, recursos_md=""):
     hay_resumen = os.path.exists(os.path.join(carpeta, "resumen.md"))
     hay_voz = bool(voz)
 
+    presupuesto = presupuesto_lectura(duracion)
+    for nivel in range(4):  # si se pasa del presupuesto se pliega lo menos importante, de a poco
+        md = _armar_md(titulo, capturas, datos, duracion, recursos_md, secciones, importantes, esenciales,
+                       voz, idioma_txt, hay_resumen, nivel)
+        if palabras_a_la_vista(md) <= presupuesto:
+            break
+    escribir_transcripcion(carpeta, titulo, secciones, voz, idioma_txt, duracion)
+    return md
+
+
+# los valores del JSON siguen siendo diario/a-veces/raro (compatibles); lo que se muestra dice IMPORTANCIA:
+# en teoría (backprop, complejidad) algo es "clave" aunque no se escriba todos los días
+REL = {"diario": "⭐ **Clave**", "a-veces": "🔸 **Útil**", "raro": "💤 **De paso**"}
+
+
+def presupuesto_lectura(segundos):
+    """Palabras A LA VISTA (lo plegado no cuenta): ~35 % del video a 200 palabras/min, mín. 350."""
+    return max(350, int(70 * segundos / 60))
+
+
+def palabras_a_la_vista(md):
+    """Palabras que se leen de corrido: sin bloques plegados ([!x]-), imágenes ni rótulos de minuto."""
+    n, plegado = 0, False
+    for l in md.split("\n"):
+        if re.match(r"\s*> \[!\w+\]-", l):
+            plegado = True
+            continue
+        if plegado and re.match(r"\s*>", l):
+            continue
+        plegado = False
+        # rótulos y navegación (minutos, enlaces, cabecera): se miran, no se leen
+        if l.startswith(("![", "*⏱️", "<!--", "⏱️", "> ⏱️", "> ⚡", "> 🗣️", "---")):
+            continue
+        n += len(l.split())
+    return n
+
+
+COMENTARIO = {**dict.fromkeys(("python", "py", "bash", "sh", "shell", "zsh", "fish", "yaml", "yml", "toml", "r", "ruby",
+                               "rb", "dockerfile", "makefile", "perl", "powershell", "ps1", "ini", "conf"), ("#", "")),
+              **dict.fromkeys(("sql", "plsql", "mysql", "postgresql", "lua", "haskell"), ("--", "")),
+              **dict.fromkeys(("html", "xml", "vue", "svelte", "markdown", "md"), ("<!--", " -->")),
+              **dict.fromkeys(("css", "scss", "sass", "less"), ("/*", " */"))}
+SIN_COMENTARIOS = {"", "text", "txt", "json", "plaintext", "console", "output", "csv"}
+
+
+def _comentar(codigo, lenguaje, lal):
+    """Mete cada explicación "`fragmento` → por qué" como comentario 👉 en la línea del código que la tiene
+    (el código del profe no cambia: solo se agregan comentarios, marcados con 👉). Devuelve (código, sobrantes)."""
+    lang = str(lenguaje or "").lower().strip()
+    if lang in SIN_COMENTARIOS:
+        return codigo, [_txt(x) for x in lal if _txt(x)]
+    abre, cierra = COMENTARIO.get(lang, ("//", ""))
+    lineas, sobran = codigo.split("\n"), []
+    for item in lal:
+        t = _txt(item)
+        m = re.match(r"`([^`]+)`\s*(?:→|->|:|—|-)\s*(.+)", t)
+        if not m:
+            sobran.append(t) if t else None
+            continue
+        frag, expl = m.group(1).strip(), m.group(2).strip().rstrip(".")
+        idx = next((k for k, l in enumerate(lineas) if frag in l and "👉" not in l), None)
+        if idx is None and len(frag) > 12:
+            idx = next((k for k, l in enumerate(lineas) if frag[:12] in l and "👉" not in l), None)
+        if idx is None:
+            sobran.append(t)
+            continue
+        com = f"{abre} 👉 {expl}{cierra}"
+        if len(lineas[idx]) + len(com) + 2 <= 100:
+            lineas[idx] = f"{lineas[idx]}  {com}"
+        else:  # línea larga: el comentario va arriba, con la misma sangría
+            sangria = re.match(r"\s*", lineas[idx]).group(0)
+            lineas.insert(idx, f"{sangria}{com}")
+    return "\n".join(lineas), sobran
+
+
+def _repite(comp, puntos):
+    """¿La tabla comparativa solo repite lo que ya dicen los puntos?"""
+    celdas = [_txt(x) for f in (comp or {}).get("filas") or [] if isinstance(f, list) for x in f[1:]]
+    texto = " ".join(_txt(p) for p in puntos or []).lower()
+    pal = [w for c in celdas for w in re.findall(r"\w{4,}", c.lower())]
+    return bool(pal) and sum(1 for w in pal if w in texto) / len(pal) >= 0.6
+
+
+def _armar_md(titulo, capturas, datos, duracion, recursos_md, secciones, importantes, esenciales,
+              voz, idioma_txt, hay_resumen, nivel):
+    """nivel 0 = todo a la vista · 1 = pliega lo 💤 y el índice · 2 = también ejemplos/comparativas de lo 🔸 y
+    la práctica · 3 = también los errores después del 3.º (lo ⭐ nunca se pliega)."""
+    hay_voz = bool(voz)
     L = [f"# 📓 {titulo}", ""]
     L += [f"> ⏱️ **Duración:** {hms(duracion)} · 📸 **Capturas:** {len(esenciales) or len(importantes)} a la vista "
           f"({len(importantes)} clave de {len(capturas)}) · 📚 **Secciones:** {len(secciones)}"]
@@ -833,40 +925,71 @@ def armar(carpeta, titulo, capturas, subs, datos, duracion, recursos_md=""):
     if enlaces:
         L += ["> " + " · ".join(enlaces)]
     L += [""]
-    objetivos = [o for o in (datos or {}).get("objetivos") or [] if _txt(o)]
+    objetivos = [o for o in (datos or {}).get("objetivos") or [] if _txt(o)][:3]
     if objetivos:
-        L += ["## 🎯 Al terminar podrás", ""] + [f"- [ ] {_txt(o)}" for o in objetivos] + [""]
+        L += ["## 🎯 Al terminar podrás", ""] + [f"- [ ] {_txt(o)}" for o in objetivos][:3 if nivel < 3 else 2] + [""]
     if datos and datos.get("resumen") and not hay_resumen:  # el resumen ya está en resumen.md: no se repite
         L += ["## 🎯 En 30 segundos", ""] + [f"- {p}" for p in datos["resumen"]] + [""]
-    L += ["## 🗂️ Índice", ""]
-    L += [f"{k + 1}. [{s['titulo']}](#{k + 1}-{ancla(s['titulo'])}) · `{hms(s['ini'])}`" for k, s in enumerate(secciones)]
-    L += ["", "---", ""]
+    if len(secciones) >= 4:  # navegación, no lectura: plegado
+        L += [f"> [!summary]- 🗂️ Índice ({len(secciones)} temas)"]
+        L += [f"> {k + 1}. [{s['titulo']}](#{k + 1}-{ancla(s['titulo'])}) · `{hms(s['ini'])}`" for k, s in enumerate(secciones)]
+        L += [""]
+    L += ["---", ""]
     if recursos_md:
         L += [recursos_md, "---", ""]
 
     for k, s in enumerate(secciones):
+        dur = min(s["fin"], duracion) - s["ini"]
+        rel = str(s.get("relevancia") or "").strip().lower()
         L += [f"## {k + 1}. {s['titulo']}", ""]
         cab = f"⏱️ `{hms(s['ini'])} – {hms(min(s['fin'], duracion))}`"
         if hay_voz and any(s["ini"] <= t < s["fin"] for t, _ in voz):
             cab += f" · 🗣️ [lo que dice el profe](transcripcion.md#{k + 1}-{ancla(s['titulo'])})"
         L += [cab, ""]
-        if _txt(s.get("porque")):
-            L += [f"> 💡 {_txt(s['porque'])}", ""]
-        L += [f"- {p}" for p in s.get("puntos", [])]
+        porque = _txt(s.get("porque"))
+        if (rel in REL or porque) and not (dur < 90 and nivel >= 2 and rel != "diario"):
+            L += ["> " + " — ".join(x for x in (REL.get(rel, ""), porque) if x), ""]
+        plegar = (rel == "raro" and nivel >= 1)
+        cuerpo = []
+        # presupuesto de la sección según lo que dura: los puntos que se pasan van plegados (no se pierden)
+        tope = max(30, 20 * dur / 60) * (1.5, 1.2, 1.0, 0.8)[nivel] * (1.3 if rel == "diario" else 1.0)
+        vis, mas, usadas = [], [], 0
+        for p in (s.get("puntos") or []):
+            n = len(_txt(p).split())
+            (vis if (not vis or usadas + n <= tope) and len(vis) < 5 else mas).append(p)
+            usadas += n if p in vis else 0
+        cuerpo += [f"- {p}" for p in vis]
+        if mas:
+            cuerpo += [f"> [!note]- ➕ {len(mas)} punto{'s' if len(mas) > 1 else ''} más"] + [f"> - {p}" for p in mas]
         if s.get("puntos"):
-            L += [""]
+            cuerpo += [""]
+        sobran = []
         if str(s.get("codigo") or "").strip():
-            L += [f"```{s.get('lenguaje') or ''}", str(s["codigo"]).strip("\n"), "```", ""]
             lal = [x for x in (s.get("linea_a_linea") or []) if _txt(x)]
-            if lal:
-                L += ["> [!tip]- 🔍 Línea a línea"] + [f"> - {_txt(x)}" for x in lal] + [""]
+            codigo, sobran = _comentar(str(s["codigo"]).strip("\n"), s.get("lenguaje"), lal)
+            cuerpo += [f"```{s.get('lenguaje') or ''}", codigo, "```", ""]
+        if plegar:
+            L += ["> [!note]- 💤 Ver el detalle"] + [f"> {x}" if x else ">" for x in cuerpo] + [""]
+        else:
+            L += cuerpo
+        if sobran:
+            L += ["> [!tip]- 🔍 Más detalle del código"] + [f"> - {x}" for x in sobran] + [""]
+        if _txt(s.get("intuicion")):
+            L += [f"> [!abstract] 🧠 La idea", f"> {_txt(s['intuicion'])}", ""]
         diag = _mermaid(s.get("diagrama"))
         if diag:
             L += ["```mermaid", diag, "```", ""]
-        L += _tabla_comparativa(s.get("comparativa"))
+        comp = s.get("comparativa")
+        if dur >= 180 and not _repite(comp, s.get("puntos")):
+            tabla = _tabla_comparativa(comp)
+            if tabla and (plegar or (nivel >= 2 and rel != "diario")):
+                L += ["> [!info]- ⚖️ Comparativa"] + [f"> {x}" for x in tabla] + [""]
+            else:
+                L += tabla
         ej = s.get("ejemplo")
         if isinstance(ej, dict) and (ej.get("pasos") or ej.get("salida")):
-            L += [f"> [!example] 🧪 Ejemplo resuelto: {_txt(ej.get('enunciado'))}"]
+            marca = "-" if (plegar or (nivel >= 2 and rel != "diario")) else ""
+            L += [f"> [!example]{marca} 🧪 Ejemplo resuelto: {_txt(ej.get('enunciado'))}"]
             L += [f"> {n}. {_txt(x)}" for n, x in enumerate(ej.get("pasos") or [], 1)]
             if _txt(ej.get("salida")):
                 L += [f"> **➜ Resultado:** {_txt(ej['salida'])}"]
@@ -892,35 +1015,41 @@ def armar(carpeta, titulo, capturas, subs, datos, duracion, recursos_md=""):
     if datos:
         errores = [e for e in datos.get("errores_comunes") or [] if e]
         if errores:
-            L += ["## ⚠️ Errores comunes", ""]
-            for e in errores:
-                if isinstance(e, dict):
-                    L += [f"- ❌ **{_txt(e.get('error'))}**"]
-                    if _txt(e.get("porque")):
-                        L += [f"  - 💥 {_txt(e['porque'])}"]
-                    if _txt(e.get("arreglo")):
-                        L += [f"  - ✅ {_txt(e['arreglo'])}"]
-                else:
-                    L += [f"- {_txt(e)}"]
+            def linea_error(e):
+                if not isinstance(e, dict):
+                    return f"- {_txt(e)}"
+                por = f" *({_txt(e.get('porque'))})*" if _txt(e.get("porque")) else ""
+                arr = f" → ✅ {_txt(e.get('arreglo'))}" if _txt(e.get("arreglo")) else ""
+                return f"- ❌ **{_txt(e.get('error'))}**{arr}{por}"
+            corte = {0: len(errores), 1: len(errores), 2: 3, 3: 2}[nivel]
+            vis, resto = errores[:corte], errores[corte:]
+            L += ["## ⚠️ Errores comunes", ""] + [linea_error(e) for e in vis]
+            if resto:
+                L += ["", f"> [!warning]- {len(resto)} errores más"] + [f"> {linea_error(e)}" for e in resto]
             L += [""]
         if datos.get("practica"):
-            L += ["## 🏋️ Para practicar", ""]
+            P = []
             for e in datos["practica"]:
-                if isinstance(e, dict):  # v2.1: nivel + pista + solución, ambas plegadas (primero intentarlo solo)
-                    L += [f"- [ ] {_txt(e.get('nivel'))} {_txt(e.get('enunciado'))}".replace("[ ]  ", "[ ] ")]
+                if isinstance(e, dict):  # nivel + pista + solución, ambas plegadas (primero intentarlo solo)
+                    P += [f"- [ ] {_txt(e.get('nivel'))} {_txt(e.get('enunciado'))}".replace("[ ]  ", "[ ] ")]
                     if _txt(e.get("pista")):
-                        L += ["  > [!hint]- 💡 Pista", f"  > {_txt(e['pista'])}"]
+                        P += ["  > [!hint]- 💡 Pista", f"  > {_txt(e['pista'])}"]
                     sol = str(e.get("solucion") or "").strip("\n")
                     if sol.strip():
-                        L += ["  > [!success]- ✅ Solución"] + [f"  > {x}" for x in sol.split("\n")]
+                        P += ["  > [!success]- ✅ Solución"] + [f"  > {x}" for x in sol.split("\n")]
                     continue
                 txt = _txt(e)
-                if " — 💡 Pista:" in txt:  # la pista plegada: primero intentarlo solo
+                if " — 💡 Pista:" in txt:
                     enun, pista = txt.split(" — 💡 Pista:", 1)
-                    L += [f"- [ ] {enun.strip()}", f"  > [!hint]- 💡 Pista", f"  > {pista.strip()}"]
+                    P += [f"- [ ] {enun.strip()}", "  > [!hint]- 💡 Pista", f"  > {pista.strip()}"]
                 else:
-                    L += [f"- [ ] {txt}"]
-            L += [""]
+                    P += [f"- [ ] {txt}"]
+            L += ["## 🏋️ Para practicar", ""]
+            if nivel >= 2:  # la práctica se HACE, no se lee: plegada no cuenta como lectura
+                L += [f"> [!todo]- {len(datos['practica'])} ejercicios con pista y solución"] + \
+                     [f"> {x}" for x in P] + [""]
+            else:
+                L += P + [""]
             if any(str(x.get("lenguaje", "")).lower() in ("js", "javascript", "python", "py") for x in secciones):
                 L += ["> Con el botón **Práctica** de SUPER+I salen ejercicios con tests (JS/Python).", ""]
         if datos.get("conceptos"):
@@ -938,7 +1067,6 @@ def armar(carpeta, titulo, capturas, subs, datos, duracion, recursos_md=""):
     else:
         L += ["> [!info] Apuntes sin resumen de IA (solo capturas y transcripción)", ""]
     L += [f"<!-- formato v{FORMATO} -->", ""]
-    escribir_transcripcion(carpeta, titulo, secciones, voz, idioma_txt, duracion)
     return "\n".join(L)
 
 

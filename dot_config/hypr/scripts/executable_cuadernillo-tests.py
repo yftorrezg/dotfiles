@@ -324,8 +324,8 @@ md = c.armar(d, "Clase v2", [("0001.webp", 5.0, True, 1.0)], subs_v2, datos_v2, 
 tr_md = open(os.path.join(d, "transcripcion.md")).read() if os.path.exists(os.path.join(d, "transcripcion.md")) else ""
 prueba("v2: la voz del profe va a transcripcion.md (no adentro)", "hola" in tr_md and "chau" in tr_md and "hola" not in md
        and "Lo que dice el profe" in md, md[:300])
-prueba("v2: ejemplo resuelto, línea a línea y diagrama", "Ejemplo resuelto" in md and "Línea a línea" in md
-       and md.count("```mermaid") == 1)
+prueba("v2: ejemplo resuelto, comentario 👉 en el código y diagrama", "Ejemplo resuelto" in md
+       and "let a = 1;  // 👉 declara" in md and md.count("```mermaid") == 1)
 prueba("v2: errores con arreglo + compatibles con texto", "❌ **olvidar let**" in md and "✅ usar let" in md and "- texto viejo" in md)
 prueba("v2: pista plegada y glosario escapado", "[!hint]-" in md and "función \\| que recuerda" in md)
 prueba("v2: sin resumen.md muestra 'En 30 segundos'; con resumen.md no", "En 30 segundos" in md and
@@ -359,7 +359,7 @@ dv3 = {"objetivos": ["escribir un JOIN"], "conceptos": [{"termino": "JOIN", "def
                       "comparativa": {"titulo": "INNER vs LEFT", "columnas": ["", "INNER", "LEFT"], "filas": [["sin pareja", "no sale", "sale con NULL"]]}}],
        "practica": [{"nivel": "🟢", "enunciado": "Une A y B", "pista": "usa ON", "solucion": "SELECT *\nFROM a JOIN b ON a.id = b.id;"}],
        "errores_comunes": []}
-md = c.armar(d, "Clase v3", [("0001.webp", 5.0, True, 1.0)], {}, dv3, 60)
+md = c.armar(d, "Clase v3", [("0001.webp", 5.0, True, 1.0)], {}, dv3, 400)
 prueba("v3: objetivos, comparativa, solución plegada", "Al terminar podrás" in md and "| sin pareja | no sale | sale con NULL |" in md
        and "[!success]- ✅ Solución" in md and "  > FROM a JOIN b" in md)
 prueba("v3: glosario y vocabulario plegados", "> [!abstract]- 1 términos de la clase" in md and "> | **database** | déita-beis |" in md)
@@ -380,6 +380,31 @@ prueba("mejorar: reemplaza práctica/errores/preguntas y pone pretest", len(dm["
        and [q["pregunta"] for q in cm["preguntas"]] == ["¿0?", "¿1?", "¿2?"] and cm["pretest"][0]["pregunta"] == "¿pt?")
 prueba("mejorar: respuesta pobre no borra lo que había", mj.fusionar({"secciones": [{"t": 1}], "practica": ["a"]},
        {"preguntas": [{"pregunta": "p", "respuesta": "r"}]}, {"secciones": [], "practica": [], "corto": {"preguntas": []}}, 3600)[0]["practica"] == ["a"])
+
+# ---- formato v4 (06/11/2026): relevancia, comentarios 👉, tope de lectura
+cod, sob = c._comentar("x = 1\ny = x + 1\nprint(y)", "python", ["`y = x + 1` → suma", "`no existe` → nada", "sin formato"])
+prueba("v4: comentario 👉 en la línea justa, el código no cambia", cod.split("\n") == ["x = 1", "y = x + 1  # 👉 suma", "print(y)"]
+       and sob == ["`no existe` → nada", "sin formato"])
+cod, _ = c._comentar("SELECT *\nFROM t;", "sql", ["`FROM t` → la tabla"])
+prueba("v4: comentario según el lenguaje (SQL --, JSON ninguno)", "FROM t;  -- 👉 la tabla" in cod
+       and c._comentar('{"a": 1}', "json", ["`\"a\"` → x"])[0] == '{"a": 1}')
+largo = "x" * 95
+cod, _ = c._comentar("  " + largo, "js", ["`xxxx` → va arriba"])
+prueba("v4: línea larga → comentario arriba con su sangría", cod.split("\n")[0] == "  // 👉 va arriba")
+prueba("v4: tabla que repite los puntos se descarta", c._repite({"filas": [["c", "cinco dólares entrada", "veinticinco salida"]]},
+       ["entrada cinco dólares, salida veinticinco"]) and not c._repite({"filas": [["c", "memoria compartida"]]}, ["otra cosa"]))
+d = tempfile.mkdtemp()
+dv4 = {"secciones": [{"inicio": "0:00", "titulo": "Diario", "relevancia": "diario", "porque": "lo usas siempre", "puntos": ["p " * 30]},
+                     {"inicio": "0:05:00", "titulo": "Raro", "relevancia": "raro", "puntos": ["viejo " * 120],
+                      "ejemplo": {"enunciado": "e", "pasos": ["paso " * 40], "salida": "s"}}],
+       "practica": [{"enunciado": "haz " * 40, "solucion": "x"}] * 4}
+md = c.armar(d, "Clase v4", [("0001.webp", 5.0, True, 1.0)], {}, dv4, 300)
+prueba("v4: insignias de relevancia", "⭐ **Clave** — lo usas siempre" in md and "💤 **De paso**" in md)
+prueba("v4: se pasa del tope → pliega primero lo 💤, nunca lo ⭐", c.palabras_a_la_vista(md) <= c.presupuesto_lectura(300)
+       and "> [!note]- 💤 Ver el detalle" in md and ("p " * 30).strip() in md, str(c.palabras_a_la_vista(md)))
+md0 = c.armar(d, "Clase v4", [("0001.webp", 5.0, True, 1.0)], {}, dv4, 7200)
+prueba("v4: clase larga con lugar → todo a la vista", "💤 Ver el detalle" not in md0 and "[!todo]-" not in md0)
+shutil.rmtree(d)
 
 print("\nTODO OK" if all(res) else "\nHAY PRUEBAS QUE FALLAN")
 raise SystemExit(0 if all(res) else 1)
