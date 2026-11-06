@@ -39,39 +39,50 @@ CAPTURAS_A_LA_VISTA = 4   # capturas visibles por sección si no hay esenciales 
 
 
 def n_preguntas(segundos):
-    """Preguntas de autoevaluación/tarjetas según la duración: 3 (video corto) hasta 25 (desde ~1 h 50)."""
-    return max(3, min(25, round(3 + segundos / 60 / 5)))
+    """Preguntas de autoevaluación/tarjetas: 1 (video de menos de 1 min), 2 (menos de 2), de ahí 3 hasta 40 (~3 h)."""
+    m = segundos / 60
+    return 1 if m < 1 else 2 if m < 2 else max(3, min(40, round(3 + m / 5)))
 
 
 def n_pretest(segundos):
-    """Preguntas del pre-test (SUPER+I): 3 hasta 10 (desde ~1 h 45)."""
-    return max(3, min(10, round(3 + segundos / 60 / 15)))
+    """Preguntas del pre-test (SUPER+I): 0 en menos de 3 min (no tiene sentido), si no 3 hasta 10 (~1 h 45)."""
+    m = segundos / 60
+    return 0 if m < 3 else max(3, min(10, round(3 + m / 15)))
 
 
 def n_ejercicios(segundos):
-    """Ejercicios de "Para practicar": 3 (corta) hasta 10 (desde ~1 h 20)."""
-    return max(3, min(10, round(2 + segundos / 60 / 10)))
+    """Ejercicios de "Para practicar": 0 (menos de 2 min), 1 (menos de 5), 2 (menos de 10), de ahí 3 hasta 10."""
+    m = segundos / 60
+    return 0 if m < 2 else 1 if m < 5 else 2 if m < 10 else max(3, min(14, round(2 + m / 10)))
 
 
 def n_errores(segundos):
-    """Errores comunes: 2 hasta 8 (desde ~1 h 30)."""
-    return max(2, min(8, round(2 + segundos / 60 / 15)))
+    """Errores comunes: 0 (menos de 2 min), 1 (menos de 5), 2 (menos de 10), de ahí 2 hasta 8."""
+    m = segundos / 60
+    return 0 if m < 2 else 1 if m < 5 else max(2, min(10, round(2 + m / 15)))
 
 
 def n_diagramas(segundos):
-    """Tope de diagramas mermaid: 1 cada ~20 min (máx. 6). Es un tope: solo si de verdad aclaran."""
+    """Tope de diagramas mermaid: 1 cada ~20 min (1 a 6)."""
     return max(1, min(6, round(segundos / 60 / 20)))
+
+
+def rango_diagramas(segundos):
+    """Texto para el prompt: en clases largas se piden al menos la mitad del tope (si no, la IA no dibuja ninguno)."""
+    hi = n_diagramas(segundos)
+    lo = hi // 2 if segundos >= 40 * 60 else 0
+    return (f"entre {lo} y {hi}" if lo else f"como máximo {hi}")
 
 
 def n_vocabulario(segundos):
     """Términos en inglés: 3 hasta 10."""
-    return max(3, min(10, round(3 + segundos / 60 / 15)))
+    return 0 if segundos < 180 else max(3, min(10, round(3 + segundos / 60 / 15)))
 
 
 def tope_palabras(segundos):
     """Palabras de TODOS los "puntos" juntos: ~25 por minuto de video (mín. 150). Con lo demás (código,
     ejemplos, por qué) los apuntes quedan en ~1/3 del tiempo del video."""
-    return int(max(150, round(25 * segundos / 60, -1)))
+    return int(max(60, round(25 * segundos / 60, -1)))
 
 
 FORMATO = 4  # v4: relevancia ⭐🔸💤, comentarios 👉 en el código, intuición, tope de lectura; v3: + objetivos, comparativas, solución de ejercicios, vocabulario; v2 del formato de apuntes.md (v2: sin transcripción adentro, ejemplos, diagramas, errores con arreglo)
@@ -378,6 +389,7 @@ Duración: {duracion}
 {transcripcion}{pantallas}
 Responde SOLO con un objeto JSON válido (sin ``` ni texto extra) con esta forma:
 {{
+  "sin_contenido": false,
   "objetivos": ["2 a 4 cosas que el alumno PUEDE HACER al terminar (verbo de acción: escribir, explicar, depurar, elegir entre...)"],
   "resumen": ["3 a 6 ideas clave de toda la clase, una frase cada una"],
   "conceptos": [{{"termino": "nombre", "definicion": "1 frase clara"}}],
@@ -420,10 +432,12 @@ Reglas:
 - "relevancia": "diario" = CLAVE: se usa seguido en el trabajo real o es la base para entender lo que viene (en una clase de teoría, el concepto central es "diario"); "a-veces" = útil en casos concretos; "raro" = histórico, obsoleto, de nicho o un desvío del tema (basta saber que existe). Sé honesto y equilibrado: lo central de la clase es "diario", lo accesorio no.
 - Los apuntes NO reemplazan al video (el alumno también lo ve): no narres, deja solo lo que hay que retener. Sin relleno ni frases vacías.
 - "ejemplo": SOLO en las secciones donde el profe resuelve o ejecuta algo (o donde hay código con una entrada concreta); en las demás, null. La traza sale de lo que pasa en la clase o de ejecutar mentalmente ESE código: valores reales, nada inventado.
-- "diagrama": como máximo {n_diag} en toda la clase, solo donde un dibujo aclara más que el texto (flujo de un algoritmo, request/response, arquitectura, relaciones entre tablas o clases, estados, capas de una red). Mermaid válido: ids sin espacios, textos con espacios entre comillas, sin paréntesis sueltos dentro de [ ].
+- "diagrama": {rango_diag} en toda la clase, donde un dibujo aclara más que el texto (flujo de un algoritmo, request/response, arquitectura, relaciones entre tablas o clases, estados, capas de una red). Mermaid válido: ids sin espacios, textos con espacios entre comillas, sin paréntesis sueltos dentro de [ ]. Si tiene más de 5 cajas usa vertical (flowchart TD) para que se lea en pantalla angosta; el salto de línea es un salto real, no "\\n".
 - "practica": EXACTAMENTE {n_ejer} ejercicios de fácil (🟢) a difícil (🔴), que se resuelvan con lo de esta clase y se parezcan a lo que se hace en el trabajo real; la "solucion" es correcta, con el código COMENTADO (por qué de cada paso) o los pasos explicados.
 - "comparativa": solo si la sección dura 3+ minutos y el alumno tiene que ELEGIR entre opciones (let/const/var, INNER/LEFT JOIN, lista/tupla, SGD/Adam...), con datos que NO estén ya en los puntos; si no, null.
 - "objetivos": concretos y verificables, nada genérico ("entender X" no vale; "escribir una función que..." sí).
+- "sin_contenido": true SOLO si la clase no enseña nada técnico (bienvenida, presentación del curso o del profe, despedida, certificado, anuncios, "qué veremos"). Entonces: 1 sola sección con 1-2 puntos, y "objetivos", "practica", "errores_comunes", "vocabulario" y "pretest" vacíos ([]), 1-2 "preguntas"; ignora los EXACTAMENTE de arriba. Si enseña algo técnico, aunque sea corto, va false.
+- Con EXACTAMENTE 0 en "practica", "errores_comunes", "vocabulario" o "pretest": lista vacía [].
 - Presupuesto: los "puntos" de TODAS las secciones suman como máximo {tope} palabras (un tema por punto, sin repetir lo que ya muestra el código).
 - "vocabulario": EXACTAMENTE {n_voc} términos en inglés que se usan en la clase (los que aparecen en código, documentación o mensajes de error), con su pronunciación escrita a la española, nunca en IPA.
 - "errores_comunes": EXACTAMENTE {n_err}: errores que de verdad comete un programador con esto, con su síntoma concreto (mensaje de error o comportamiento raro) en "porque". Primero los de la clase; si faltan, clásicos REALES del tema marcados "(extra)". Nunca uno sacado de una mala transcripción ni uno trivial.
@@ -518,7 +532,7 @@ def pedir_a_claude(titulo, duracion, cues, pantallas, codigo=""):
                  + "\n\n".join(f"[{hms(t)}]\n{txt}" for t, txt in pantallas) + "\n>>>\n")
     prompt = PROMPT.format(titulo=titulo, duracion=hms(duracion), n_preg=n_preguntas(duracion), n_pre=n_pretest(duracion),
                            n_ejer=n_ejercicios(duracion), n_err=n_errores(duracion), n_diag=n_diagramas(duracion),
-                           n_voc=n_vocabulario(duracion), tope=tope_palabras(duracion),
+                           n_voc=n_vocabulario(duracion), tope=tope_palabras(duracion), rango_diag=rango_diagramas(duracion),
                            transcripcion=transcripcion,
                            pantallas=extra + (f"\nMaterial que entrega el curso (recursos.py):\n<<<\n{codigo}\n>>>\n" if codigo else ""))
     for intento in range(2):
@@ -845,8 +859,8 @@ REL = {"diario": "⭐ **Clave**", "a-veces": "🔸 **Útil**", "raro": "💤 **D
 
 
 def presupuesto_lectura(segundos):
-    """Palabras A LA VISTA (lo plegado no cuenta): ~35 % del video a 200 palabras/min, mín. 350."""
-    return max(350, int(70 * segundos / 60))
+    """Palabras A LA VISTA (lo plegado no cuenta): ~35 % del video a 200 palabras/min, mín. 120."""
+    return max(120, int(70 * segundos / 60))
 
 
 def palabras_a_la_vista(md):
@@ -925,7 +939,11 @@ def _armar_md(titulo, capturas, datos, duracion, recursos_md, secciones, importa
     if enlaces:
         L += ["> " + " · ".join(enlaces)]
     L += [""]
-    objetivos = [o for o in (datos or {}).get("objetivos") or [] if _txt(o)][:3]
+    if (datos or {}).get("sin_contenido"):  # bienvenida / despedida / anuncio: apenas nada
+        for s in secciones:
+            L += [f"- {p}" for p in (s.get("puntos") or [])[:2]]
+        return "\n".join(L + ["", f"<!-- formato v{FORMATO} -->", ""])
+    objetivos = [o for o in (datos or {}).get("objetivos") or [] if _txt(o)][:3] if duracion >= 180 else []
     if objetivos:
         L += ["## 🎯 Al terminar podrás", ""] + [f"- [ ] {_txt(o)}" for o in objetivos][:3 if nivel < 3 else 2] + [""]
     if datos and datos.get("resumen") and not hay_resumen:  # el resumen ya está en resumen.md: no se repite
@@ -992,7 +1010,7 @@ def _armar_md(titulo, capturas, datos, duracion, recursos_md, secciones, importa
             L += [f"> [!example]{marca} 🧪 Ejemplo resuelto: {_txt(ej.get('enunciado'))}"]
             L += [f"> {n}. {_txt(x)}" for n, x in enumerate(ej.get("pasos") or [], 1)]
             if _txt(ej.get("salida")):
-                L += [f"> **➜ Resultado:** {_txt(ej['salida'])}"]
+                L += [">", f"> **➜ Resultado:** {_txt(ej['salida'])}"]
             L += [""]
         caps = [c for c in importantes if s["ini"] <= c[1] < s["fin"]]
         if caps:
@@ -1013,7 +1031,9 @@ def _armar_md(titulo, capturas, datos, duracion, recursos_md, secciones, importa
         L += ["---", ""]
 
     if datos:
-        errores = [e for e in datos.get("errores_comunes") or [] if e]
+        # clases cortas: se muestra solo lo que les toca (lo demás queda en el JSON), aunque se hayan hecho con más
+        tope_l = 0 if duracion < 120 else 1 if duracion < 300 else 2 if duracion < 600 else None
+        errores = [e for e in datos.get("errores_comunes") or [] if e][:tope_l]
         if errores:
             def linea_error(e):
                 if not isinstance(e, dict):
@@ -1027,9 +1047,9 @@ def _armar_md(titulo, capturas, datos, duracion, recursos_md, secciones, importa
             if resto:
                 L += ["", f"> [!warning]- {len(resto)} errores más"] + [f"> {linea_error(e)}" for e in resto]
             L += [""]
-        if datos.get("practica"):
+        if (datos.get("practica") or [])[:tope_l]:
             P = []
-            for e in datos["practica"]:
+            for e in datos["practica"][:tope_l]:
                 if isinstance(e, dict):  # nivel + pista + solución, ambas plegadas (primero intentarlo solo)
                     P += [f"- [ ] {_txt(e.get('nivel'))} {_txt(e.get('enunciado'))}".replace("[ ]  ", "[ ] ")]
                     if _txt(e.get("pista")):
@@ -1046,20 +1066,20 @@ def _armar_md(titulo, capturas, datos, duracion, recursos_md, secciones, importa
                     P += [f"- [ ] {txt}"]
             L += ["## 🏋️ Para practicar", ""]
             if nivel >= 2:  # la práctica se HACE, no se lee: plegada no cuenta como lectura
-                L += [f"> [!todo]- {len(datos['practica'])} ejercicios con pista y solución"] + \
+                L += [f"> [!todo]- {len(datos['practica'][:tope_l])} ejercicios con pista y solución"] + \
                      [f"> {x}" for x in P] + [""]
             else:
                 L += P + [""]
             if any(str(x.get("lenguaje", "")).lower() in ("js", "javascript", "python", "py") for x in secciones):
                 L += ["> Con el botón **Práctica** de SUPER+I salen ejercicios con tests (JS/Python).", ""]
-        if datos.get("conceptos"):
+        if datos.get("conceptos") and duracion >= 180:
             conc = [c for c in datos["conceptos"] if isinstance(c, dict)]
             # material de consulta: plegado (no se lee de corrido, se abre cuando hace falta)
             L += ["## 🧠 Glosario", "", f"> [!abstract]- {len(conc)} términos de la clase", "> | Concepto | Qué es |", "> |---|---|"]
             L += [f"> | **{_celda(c.get('termino', ''))}** | {_celda(c.get('definicion', ''))} |" for c in conc]
             L += [""]
         voc = [v for v in datos.get("vocabulario") or [] if isinstance(v, dict) and _txt(v.get("en"))]
-        if voc:
+        if voc and duracion >= 180:
             L += ["## 🇬🇧 Vocabulario", "", f"> [!abstract]- {len(voc)} términos en inglés (con pronunciación)",
                   "> | English | Suena | Español |", "> |---|---|---|"]
             L += [f"> | **{_celda(v.get('en'))}** | {_celda(v.get('suena'))} | {_celda(v.get('es'))} |" for v in voc]
@@ -1096,6 +1116,8 @@ def _celda(x):
 def _mermaid(texto):
     """Diagrama mermaid limpio (sin ```), o "" si no parece mermaid."""
     t = str(texto or "").strip()
+    if "\n" not in t and "\\n" in t:  # la IA a veces escapa de más: "a\\nb" literal en vez de salto de línea
+        t = t.replace("\\n", "\n")
     t = re.sub(r"^```(mermaid)?\s*|\s*```$", "", t).strip()
     primera = t.split("\n", 1)[0].strip().split(" ")[0] if t else ""
     validos = ("flowchart", "graph", "sequenceDiagram", "classDiagram", "erDiagram", "stateDiagram",
