@@ -41,3 +41,4 @@ windows/
 .config/qt5ct/colors/noctalia.conf
 .config/qt6ct/colors/noctalia.conf
 .local/share/color-schemes/noctalia.colors
+**/__pycache__
