@@ -318,7 +318,8 @@ datos_v2 = {"resumen": ["r1"], "conceptos": [{"termino": "closure", "definicion"
                            "lenguaje": "js", "codigo": "let a = 1;\nconsole.log(a + 1);",
                            "linea_a_linea": ["`let a = 1` → declara"],
                            "ejemplo": {"enunciado": "a=1", "pasos": ["a vale 1", "imprime 2"], "salida": "2"},
-                           "diagrama": "flowchart LR\n  A[\"entrada\"] --> B[\"salida\"]"},
+                           "relevancia": "diario",
+                           "diagrama": "flowchart LR\n  A[\"entrada\"] --> B{\"¿válida?\"}\n  B -->|sí| C[\"salida\"]\n  B -->|no| D[\"error\"]"},
                           {"inicio": "0:01:00", "titulo": "Final", "puntos": ["p2"], "ejemplo": None,
                            "diagrama": "esto no es mermaid"}],
             "practica": ["Haz X — 💡 Pista: usa Y", "Haz Z"],
@@ -363,7 +364,10 @@ dv3 = {"objetivos": ["escribir un JOIN"], "conceptos": [{"termino": "JOIN", "def
                       "comparativa": {"titulo": "INNER vs LEFT", "columnas": ["", "INNER", "LEFT"], "filas": [["sin pareja", "no sale", "sale con NULL"]]}}],
        "practica": [{"nivel": "🟢", "enunciado": "Une A y B", "pista": "usa ON", "solucion": "SELECT *\nFROM a JOIN b ON a.id = b.id;"}],
        "errores_comunes": []}
-md = c.armar(d, "Clase v3", [("0001.webp", 5.0, True, 1.0)], {}, dv3, 400)
+md_corta = c.armar(d, "Clase v3", [("0001.webp", 5.0, True, 1.0)], {}, dv3, 400)
+prueba("v6: clase de <10 min sin objetivos, glosario ni vocabulario", "Al terminar podrás" not in md_corta
+       and "Glosario" not in md_corta and "Vocabulario" not in md_corta)
+md = c.armar(d, "Clase v3", [("0001.webp", 5.0, True, 1.0)], {}, dv3, 700)
 prueba("v3: objetivos, comparativa, solución plegada", "Al terminar podrás" in md and "| sin pareja | no sale | sale con NULL |" in md
        and "[!success]- ✅ Solución" in md and "  > FROM a JOIN b" in md)
 prueba("v3: glosario y vocabulario plegados", "> [!abstract]- 1 términos de la clase" in md and "> | **database** | déita-beis |" in md)
@@ -446,8 +450,32 @@ m1 = c.armar(d, "Corta", [("0001.webp", 5.0, True, 1.0)], {}, dc, 84)
 m2 = c.armar(d, "Media", [("0001.webp", 5.0, True, 1.0)], {}, dc, 240)
 m3 = c.armar(d, "Larga", [("0001.webp", 5.0, True, 1.0)], {}, dc, 1200)
 prueba("cortas ya hechas: se muestra solo lo que les toca", "ej1" not in m1 and "Errores" not in m1 and "Glosario" not in m1
-       and "ej1" in m2 and "ej2" not in m2 and "e2" not in m2 and "Glosario" in m2 and "ej3" in m3 and "e3" in m3)
+       and "ej1" in m2 and "ej2" not in m2 and "e2" not in m2 and "Glosario" not in m2 and "Glosario" in m3 and "ej3" in m3 and "e3" in m3)
 shutil.rmtree(d)
+
+
+# ---- formato v6 (07/11/2026): menos andamiaje, diagramas que explican, primero recuerda, soluciones comprobadas
+prueba("v6: diagrama de 2 cajas (lista dibujada) no se muestra", not c._diagrama_vale('flowchart LR\n A --> B', "diario", 600))
+prueba("v6: diagrama con decisión en sección ⭐ sí", c._diagrama_vale('flowchart TD\n A --> B{"¿x?"}\n B -->|sí| C\n B -->|no| D', "diario", 60))
+prueba("v6: diagrama en sección 🔸 de 1 min no", not c._diagrama_vale('flowchart TD\n A --> B\n B --> C\n C --> D\n D --> E', "a-veces", 60))
+prueba("v6: marcas largas → (extra)", c._etiquetas_cortas("x (complemento; no verificado externamente) y (Ejemplo adicional) z")
+       == "x *(extra)* y *(extra)* z")
+dq = {"secciones": [{"inicio": "0:00", "titulo": "T", "puntos": ["p"]}],
+      "corto": {"idea": "i", "preguntas": [{"tipo": "definicion", "pregunta": "¿Qué es X?", "respuesta": "Y"},
+                                           {"tipo": "porque", "pregunta": "¿Por qué Z?", "respuesta": "W"}]}}
+mq = c.armar(d, "Q", [], {}, dq, 400)
+prueba("v6: 'Antes de leer' con preguntas y respuesta plegada (≥5 min)", "Antes de leer" in mq and "¿Por qué Z?" in mq
+       and "[!success]- Respuesta" in mq and mq.index("¿Por qué Z?") < mq.index("¿Qué es X?"))
+prueba("v6: clase de 3 min sin 'Antes de leer'", "Antes de leer" not in c.armar(d, "Q", [], {}, dq, 180))
+dp = {"practica": [{"enunciado": "a", "solucion": "```javascript\nconsole.log(1 + 1);\n```"},
+                   {"enunciado": "b", "solucion": "```python\nprint(no_existe)\n```"},
+                   {"enunciado": "c", "solucion": "```javascript\ndocument.body.innerHTML = 1;\n```"},
+                   {"enunciado": "d", "solucion": "texto sin código"}]}
+c.verificar_practica(dp)
+if __import__("shutil").which("bwrap"):
+    prueba("v6: práctica — la que corre queda comprobada y la rota marcada", dp["practica"][0].get("verificada") is True
+           and dp["practica"][1].get("verificada") is False, str(dp["practica"][:2]))
+prueba("v6: práctica — navegador o texto no se marcan", "verificada" not in dp["practica"][2] and "verificada" not in dp["practica"][3])
 
 print("\nTODO OK" if all(res) else "\nHAY PRUEBAS QUE FALLAN")
 raise SystemExit(0 if all(res) else 1)

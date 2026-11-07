@@ -86,7 +86,7 @@ def tope_palabras(segundos):
     return int(max(60, round(25 * segundos / 60, -1)))
 
 
-FORMATO = 5  # v4: relevancia ⭐🔸💤, comentarios 👉 en el código, intuición, tope de lectura; v3: + objetivos, comparativas, solución de ejercicios, vocabulario; v2 del formato de apuntes.md (v2: sin transcripción adentro, ejemplos, diagramas, errores con arreglo)
+FORMATO = 6  # v6: menos andamiaje en clases cortas, diagramas solo si explican, "primero recuerda", soluciones comprobadas, "(extra)"; v5: cero imágenes; v4: relevancia ⭐🔸💤, comentarios 👉 en el código, intuición, tope de lectura; v3: + objetivos, comparativas, solución de ejercicios, vocabulario; v2 del formato de apuntes.md (v2: sin transcripción adentro, ejemplos, diagramas, errores con arreglo)
 SISTEMA = ("Eres un docente experto en la disciplina de la clase. Priorizas precisión, comprensión y práctica. "
            "Usas la transcripción y el código original como evidencia; adaptas ejemplos, diagramas y tareas "
            "al nivel y a la materia. No inventas APIs, métodos, resultados, citas ni mediciones. "
@@ -479,6 +479,7 @@ def pedir_a_claude(titulo, duracion, cues, pantallas, codigo=""):
             # los modelos débiles a veces mandan secciones sin título: se reintenta en vez de romper el armado
             if datos.get("secciones") and all(isinstance(x, dict) and x.get("titulo") for x in datos["secciones"]):
                 verificar_salidas(datos)
+                verificar_practica(datos)
                 return datos
         except (ValueError, TypeError, json.JSONDecodeError):
             pass
@@ -540,6 +541,34 @@ def _coincide(real, respuesta):
             return False
         pos = m.end()
     return True
+
+
+def verificar_practica(datos):
+    """Las soluciones de práctica con código JS/Python se ejecutan (bwrap, sin red): e["verificada"] = True si
+    corren sin error, False si fallan por un error propio (sintaxis, nombre, tipo), sin marcar si dependen del
+    navegador o de entrada del usuario."""
+    try:
+        ri = None
+        for e in datos.get("practica") or []:
+            if not isinstance(e, dict):
+                continue
+            sol = str(e.get("solucion") or "")
+            m = re.search(r"```(js|javascript|node|py|python|python3)\s*\n(.*?)```", sol, re.S | re.I)
+            if not m:
+                continue
+            lang = "js" if m.group(1).lower() in ("js", "javascript", "node") else "python"
+            codigo = m.group(2)
+            ri = ri or _repo_img()
+            if ri.NO_EJECUTAR.search(re.sub(r"(//|#).*", "", codigo)):
+                continue
+            ok, out = ri.ejecutar(codigo, lang)
+            if ok:
+                e["verificada"] = True
+            elif re.search(r"SyntaxError|ReferenceError|TypeError|NameError|IndentationError|AttributeError", out or ""):
+                e["verificada"] = False
+                e["error_ejecucion"] = (out or "").strip().splitlines()[-1][:200]
+    except Exception as ex:  # nunca rompe los apuntes
+        print(f"  (no se pudo comprobar la práctica: {ex})", file=sys.stderr)
 
 
 def verificar_salidas(datos):
@@ -879,12 +908,13 @@ def _armar_md(titulo, capturas, datos, duracion, recursos_md, secciones, importa
         for s in secciones:
             L += [f"- {p}" for p in (s.get("puntos") or [])[:2]]
         return "\n".join(L + ["", f"<!-- formato v{FORMATO} -->", ""])
-    objetivos = [o for o in (datos or {}).get("objetivos") or [] if _txt(o)][:3] if duracion >= 180 else []
+    L += _primero_recuerda(datos, duracion)
+    objetivos = [o for o in (datos or {}).get("objetivos") or [] if _txt(o)][:3] if duracion >= 600 else []
     if objetivos:
         L += ["## 🎯 Al terminar podrás", ""] + [f"- [ ] {_txt(o)}" for o in objetivos][:3 if nivel < 3 else 2] + [""]
     if datos and datos.get("resumen") and not hay_resumen:  # el resumen ya está en resumen.md: no se repite
         L += ["## 🎯 En 30 segundos", ""] + [f"- {p}" for p in datos["resumen"]] + [""]
-    if len(secciones) >= 4:  # navegación, no lectura: plegado
+    if len(secciones) >= 4 and duracion >= 900:  # navegación, no lectura: plegado (en clases cortas sobra)
         L += [f"> [!summary]- 🗂️ Índice ({len(secciones)} temas)"]
         L += [f"> {k + 1}. [{s['titulo']}](#{k + 1}-{ancla(s['titulo'])}) · `{hms(s['ini'])}`" for k, s in enumerate(secciones)]
         L += [""]
@@ -892,6 +922,7 @@ def _armar_md(titulo, capturas, datos, duracion, recursos_md, secciones, importa
     if recursos_md:
         L += [recursos_md, "---", ""]
 
+    n_diag = [0]
     for k, s in enumerate(secciones):
         dur = min(s["fin"], duracion) - s["ini"]
         rel = str(s.get("relevancia") or "").strip().lower()
@@ -901,8 +932,8 @@ def _armar_md(titulo, capturas, datos, duracion, recursos_md, secciones, importa
             cab += f" · 🗣️ [lo que dice el profe](transcripcion.md#{k + 1}-{ancla(s['titulo'])})"
         L += [cab, ""]
         porque = _txt(s.get("porque"))
-        if (rel in REL or porque) and not (dur < 90 and nivel >= 2 and rel != "diario"):
-            L += ["> " + " — ".join(x for x in (REL.get(rel, ""), porque) if x), ""]
+        if rel in ("diario", "raro"):  # ⭐ y 💤 orientan; "🔸 Útil" en cada sección era ruido
+            L += ["> " + " — ".join(x for x in (REL[rel], porque if rel == "diario" else "") if x), ""]
         plegar = (rel == "raro" and nivel >= 1)
         cuerpo = []
         # presupuesto de la sección según lo que dura: los puntos que se pasan van plegados (no se pierden)
@@ -931,7 +962,8 @@ def _armar_md(titulo, capturas, datos, duracion, recursos_md, secciones, importa
         if _txt(s.get("intuicion")):
             L += [f"> [!abstract] 🧠 La idea", f"> {_txt(s['intuicion'])}", ""]
         diag = _mermaid(s.get("diagrama"))
-        if diag:
+        if diag and _diagrama_vale(diag, rel, dur) and n_diag[0] < (1 if duracion < 1200 else n_diagramas(duracion)):
+            n_diag[0] += 1
             L += ["```mermaid", diag, "```", ""]
         comp = s.get("comparativa")
         if dur >= 180 and not _repite(comp, s.get("puntos")):
@@ -993,7 +1025,9 @@ def _armar_md(titulo, capturas, datos, duracion, recursos_md, secciones, importa
                     sol = str(e.get("solucion") or "").strip("\n")
                     sol = editorial.solucion_markdown(sol, secciones)
                     if sol.strip():
-                        P += ["  > [!success]- ✅ Solución"] + [f"  > {x}" for x in sol.split("\n")]
+                        rot = {True: "✅ Solución (comprobada: se ejecutó sin errores)",
+                               False: "⚠️ Solución (NO pasó al ejecutarla: revísala)"}.get(e.get("verificada"), "✅ Solución")
+                        P += [f"  > [!success]- {rot}"] + [f"  > {x}" for x in sol.split("\n")]
                     continue
                 txt = _txt(e)
                 if " — 💡 Pista:" in txt:
@@ -1010,14 +1044,14 @@ def _armar_md(titulo, capturas, datos, duracion, recursos_md, secciones, importa
                 L += P + [""]
             if any(str(x.get("lenguaje", "")).lower() in ("js", "javascript", "python", "py") for x in secciones):
                 L += ["> Con el botón **Práctica** de SUPER+I salen ejercicios con tests (JS/Python).", ""]
-        if datos.get("conceptos") and duracion >= 180:
+        if datos.get("conceptos") and duracion >= 600:
             conc = [c for c in datos["conceptos"] if isinstance(c, dict)]
             # material de consulta: plegado (no se lee de corrido, se abre cuando hace falta)
             L += ["## 🧠 Glosario", "", f"> [!abstract]- {len(conc)} términos de la clase", "> | Concepto | Qué es |", "> |---|---|"]
             L += [f"> | **{_celda(c.get('termino', ''))}** | {_celda(c.get('definicion', ''))} |" for c in conc]
             L += [""]
         voc = [v for v in datos.get("vocabulario") or [] if isinstance(v, dict) and _txt(v.get("en"))]
-        if voc and duracion >= 180:
+        if voc and duracion >= 600:
             L += ["## 🇬🇧 Vocabulario", "", f"> [!abstract]- {len(voc)} términos en inglés (con pronunciación)",
                   "> | English | Suena | Español |", "> |---|---|---|"]
             L += [f"> | **{_celda(v.get('en'))}** | {_celda(v.get('suena'))} | {_celda(v.get('es'))} |" for v in voc]
@@ -1025,7 +1059,39 @@ def _armar_md(titulo, capturas, datos, duracion, recursos_md, secciones, importa
     else:
         L += ["> [!info] Apuntes sin resumen de IA (solo capturas y transcripción)", ""]
     L += [f"<!-- formato v{FORMATO} -->", ""]
-    return "\n".join(L)
+    return _etiquetas_cortas("\n".join(L))
+
+
+def _etiquetas_cortas(md):
+    """"(complemento; no verificado externamente)" / "(ejemplo adicional)" → "*(extra)*" (la marca larga era ruido)."""
+    md = re.sub(r"\((?:[Cc]omplemento|[Aa]mpliación)[^)]{0,40}no verificad[oa][^)]{0,30}\)", "*(extra)*", md)
+    return re.sub(r"\((?:[Ee]jemplo|[Ee]jercicio) adicional\)", "*(extra)*", md)
+
+
+def _diagrama_vale(diag, rel, dur):
+    """Un diagrama se muestra si explica algo: sección ⭐ o de 3+ min, y al menos 4 nodos con una decisión
+    o 4 flechas (una cadena de 3 cajas es una lista dibujada)."""
+    flechas = len(re.findall(r"-->|-\.->|==>|--\s*\"", diag))
+    decision = bool(re.search(r"\{[^}]+\}", diag)) or diag.lstrip().startswith(("sequenceDiagram", "classDiagram", "erDiagram", "stateDiagram"))
+    return (rel == "diario" or dur >= 180) and (flechas >= 4 or (decision and flechas >= 3))
+
+
+def _primero_recuerda(datos, duracion):
+    """Antes de leer: 2-3 preguntas para responder SIN mirar (respuesta plegada). Recordar fija más que releer."""
+    if not datos or duracion < 300:
+        return []
+    corto = datos.get("corto") if isinstance(datos.get("corto"), dict) else {}
+    qs = [q for q in corto.get("preguntas") or [] if isinstance(q, dict) and _txt(q.get("pregunta"))]
+    qs = sorted(qs, key=lambda q: q.get("tipo") == "definicion")[:3 if duracion >= 600 else 2]
+    if not qs:
+        return []
+    L = ["> [!question] 🧠 Antes de leer: respóndete sin mirar"]
+    for q in qs:
+        L += [f"> - {_txt(q['pregunta'])}"]
+        if str(q.get("codigo") or "").strip():
+            L += [f">   ```{q.get('lenguaje') or ''}"] + [f">   {x}" for x in str(q["codigo"]).strip().split("\n")] + [">   ```"]
+        L += [f">   > [!success]- Respuesta", f">   > {_txt(q.get('respuesta'))}"]
+    return L + [""]
 
 
 def _tabla_comparativa(c):
