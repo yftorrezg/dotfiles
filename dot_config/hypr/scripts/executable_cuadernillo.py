@@ -1001,7 +1001,8 @@ def _armar_md(titulo, capturas, datos, duracion, recursos_md, secciones, importa
                     P += [f"- [ ] {txt}"]
             L += ["## 🏋️ Para practicar", ""]
             if nivel >= 2:  # la práctica se HACE, no se lee: plegada no cuenta como lectura
-                L += [f"> [!todo]- {len(datos['practica'][:tope_l])} ejercicios con pista y solución"] + \
+                n_p = len(datos['practica'][:tope_l])
+                L += [f"> [!todo]- {n_p} ejercicio{'s' if n_p != 1 else ''} con pista y solución"] + \
                      [f"> {x}" for x in P] + [""]
             else:
                 L += P + [""]
