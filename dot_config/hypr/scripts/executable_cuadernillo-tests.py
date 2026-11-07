@@ -36,6 +36,10 @@ yt = ("1\n00:00:01,000 --> 00:00:03,000\nhola a todos\n\n"
       "2\n00:00:03,000 --> 00:00:05,000\nhola a todos\nhoy vamos a ver\n\n"
       "3\n00:00:05,000 --> 00:00:07,000\nhoy vamos a ver\nredes <b>neuronales</b>\n")
 cues = c.leer_srt(yt)
+_sinpunt = [(i * 3.0, i * 3.0 + 3, "palabra suelta sin punto " + str(i)) for i in range(100)]  # 5 min sin puntuación
+_pp = c.parrafos(_sinpunt, cada=30)
+prueba("párrafos: subtítulos automáticos SIN puntuación se cortan por tiempo (no uno solo a 0:02)",
+       len(_pp) >= 5 and _pp[1][0] >= 30 and _pp[-1][0] > 200, f"{len(_pp)} párrafos")
 prueba("subtítulos de YouTube sin repetir", [x[2] for x in cues] == ["hola a todos", "hoy vamos a ver", "redes neuronales"],
        str([x[2] for x in cues]))
 vtt = ("WEBVTT\nKind: captions\nLanguage: es\n\n"

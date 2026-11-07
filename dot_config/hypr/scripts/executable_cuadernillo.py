@@ -211,7 +211,9 @@ def parrafos(cues, cada=45):
         if t0 is None:
             t0 = a
         actual.append(t)
-        if a - t0 >= cada and re.search(r"[.?!]$", t):
+        # los subtítulos automáticos de YouTube no llevan puntuación: sin el corte por tiempo (cada + 15 s)
+        # toda la clase quedaba en UN párrafo a 0:02 y la IA perdía los tiempos
+        if a - t0 >= cada and (re.search(r"[.?!]$", t) or a - t0 >= cada + 15):
             out.append((t0, " ".join(actual)))
             actual, t0 = [], None
     if actual:
