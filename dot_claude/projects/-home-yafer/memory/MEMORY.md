@@ -20,3 +20,4 @@
 - [Anillo radial háptico MX Master 4](anillo-radial-haptico.md) — anillo.py lee botón por hidraw, GSK, 12 acciones por app en anillo_apps.py.
 - [Skill chuletas y plan de auditoría](chuletas-skill-auditoria.md) — crear/auditar hojas ejecutando el código; SQL auditado 05-11; siguen PL/SQL, IoT, nube, robótica; BD3 y Robótica 2.
 - [Regeneración de apuntes v5 (06/11)](regeneracion-apuntes-v5-nov06.md) — bóveda migrada sin imágenes, colas A/B con IA, bug parrafos() arreglado, cómo reanudar.
+- [Auditoría de imágenes 07/11](auditoria-capturas-imagenes-nov07.md) — 4 carpetas = enlaces duros; 23,5 GB liberables; plan pendiente de aprobación.
