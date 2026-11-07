@@ -467,17 +467,24 @@ def pedir_a_claude(titulo, duracion, cues, pantallas, codigo=""):
         extra = ("\nTexto leído de la PANTALLA (OCR, puede tener errores de lectura) en algunos momentos;"
                  " sirve para el código exacto y los datos que se ven:\n<<<\n"
                  + "\n\n".join(f"[{hms(t)}]\n{txt}" for t, txt in pantallas) + "\n>>>\n")
-    prompt = PROMPT.format(titulo=titulo, duracion=hms(duracion), n_preg=n_preguntas(duracion), n_pre=n_pretest(duracion),
-                           n_ejer=n_ejercicios(duracion), n_err=n_errores(duracion), n_diag=n_diagramas(duracion),
-                           n_voc=n_vocabulario(duracion), tope=tope_palabras(duracion), rango_diag=rango_diagramas(duracion),
-                           transcripcion=transcripcion,
+    lig = es_ligera(titulo, duracion)
+    if lig:  # bienvenida / instalación / despedida / clase muy corta: apunte mínimo
+        cant = dict(n_preg=1, n_pre=0, n_ejer=0, n_err=0, n_diag=0, n_voc=0, tope=60, rango_diag="ninguno")
+    else:
+        cant = dict(n_preg=n_preguntas(duracion), n_pre=n_pretest(duracion), n_ejer=n_ejercicios(duracion),
+                    n_err=n_errores(duracion), n_diag=n_diagramas(duracion), n_voc=n_vocabulario(duracion),
+                    tope=tope_palabras(duracion), rango_diag=rango_diagramas(duracion))
+    prompt = PROMPT.format(titulo=titulo, duracion=hms(duracion), **cant, transcripcion=transcripcion,
                            pantallas=extra + (f"\nMaterial que entrega el curso (recursos.py):\n<<<\n{codigo}\n>>>\n" if codigo else ""))
+    prompt += REGLA_LIGERA if lig else ""
     for intento in range(2):
         texto = consultar_ia(prompt)
         try:
             datos = json.loads(texto[texto.index("{"):texto.rindex("}") + 1])
             # los modelos débiles a veces mandan secciones sin título: se reintenta en vez de romper el armado
             if datos.get("secciones") and all(isinstance(x, dict) and x.get("titulo") for x in datos["secciones"]):
+                if lig:
+                    aplicar_ligera(datos)
                 verificar_salidas(datos)
                 verificar_practica(datos)
                 return datos
@@ -541,6 +548,44 @@ def _coincide(real, respuesta):
             return False
         pos = m.end()
     return True
+
+
+# ------------------------------------------------------- clases ligeras ---
+# Decisión del usuario (07/11/2026): bienvenidas, introducciones al curso, instalaciones y despedidas
+# "con ver el video recordaré" → apunte mínimo (1 sección, pasos/comandos clave), sin ejercicios ni glosario.
+LIGERA = re.compile(r"bienvenid|presentaci[oó]n|introducci[oó]n al curso|despedid|cierre|conclusi[oó]n|certificad|requisitos"
+                    r"|material(es)? del curso|qu[eé] vas a aprender|agradecim|pr[oó]ximos pasos|siguientes pasos"
+                    r"|instalaci[oó]n|instalando|instalar |configuraci[oó]n del entorno|preparaci[oó]n del entorno"
+                    r"|welcome|goodbye|\bsetup\b|\binstall", re.I)
+SEG_LIGERA = 150  # más cortas que esto: siempre ligeras
+REGLA_LIGERA = """
+
+CLASE LIGERA (bienvenida, introducción, instalación, despedida o clase muy corta): el alumno ya verá el video y lo recordará.
+- UNA sola sección con 1 a 3 puntos MUY breves (qué se hace / qué se necesita).
+- Si es una instalación o configuración: lista corta de los pasos y comandos clave EXACTOS (en un bloque de código si hay comandos).
+- Sin ejercicios, sin errores comunes, sin glosario ni vocabulario, sin diagramas, sin comparativas, sin ejemplos resueltos.
+- corto.pretest vacío; 1 pregunta como máximo. Si no hay nada que rescatar, usa "sin_contenido".
+"""
+
+
+def titulo_propio(nombre):
+    """Título de la clase sin la sección: "02 Instalación… - 05 Visual Studio Code" → "05 Visual Studio Code"."""
+    return (nombre or "").rsplit(" - ", 1)[-1]
+
+
+def es_ligera(titulo, duracion=0):
+    return bool(duracion and duracion < SEG_LIGERA) or bool(LIGERA.search(titulo_propio(titulo)))
+
+
+def aplicar_ligera(datos):
+    """Deja en el JSON solo lo que le toca a una clase ligera (aunque la IA haya mandado más)."""
+    for k in ("practica", "errores_comunes", "vocabulario", "conceptos"):
+        datos[k] = []
+    datos["secciones"] = (datos.get("secciones") or [])[:1]
+    for s in datos["secciones"]:
+        s["diagrama"], s["comparativa"], s["ejemplo"] = "", None, None
+    (datos.get("corto") or {}).pop("pretest", None)
+    datos["ligera"] = True
 
 
 def verificar_practica(datos):

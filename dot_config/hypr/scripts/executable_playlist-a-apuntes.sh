@@ -125,6 +125,10 @@ python3 "$SCRIPTS/cuadernillo.py" --indice "$CURSO/capturas"
 python3 "$SCRIPTS/todas-las-capturas.py" "$CURSO/capturas" || true
 # código y PDF que entrega el curso → imágenes en orden de clase + codigo-del-curso.md
 python3 "$SCRIPTS/codigo-curso-a-imagenes.py" "$CURSO" || true
+# mapa por módulo (MAPA.md): solo en cursos largos (30+ clases), 1 llamada corta por módulo
+if [ "$(find "$CURSO/capturas" -mindepth 2 -maxdepth 2 -name .apuntes-ia.json 2>/dev/null | wc -l)" -ge 30 ]; then
+    python3 "$SCRIPTS/mapa-curso.py" "$CURSO" || true
+fi
 MSG="$HECHAS de $TOTAL clases con apuntes."
 [ "$SALTEADAS" -gt 0 ] && MSG="$MSG $SALTEADAS no disponibles."
 [ ${#FALLARON[@]} -gt 0 ] && MSG="$MSG Fallaron: ${FALLARON[*]}"

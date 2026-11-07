@@ -477,5 +477,13 @@ if __import__("shutil").which("bwrap"):
            and dp["practica"][1].get("verificada") is False, str(dp["practica"][:2]))
 prueba("v6: práctica — navegador o texto no se marcan", "verificada" not in dp["practica"][2] and "verificada" not in dp["practica"][3])
 
+prueba("v6: clase ligera por título propio (no por la sección) o por durar <2:30",
+       c.es_ligera("01 Introducción - 04 Instalaciones iniciales.") and c.es_ligera("03 Hooks - 01 Bienvenida")
+       and not c.es_ligera("02 Instalación y consumo de tokens - 05 Visual Studio Code") and c.es_ligera("Variables", 100)
+       and not c.es_ligera("Variables", 900))
+_dl = {"secciones": [{"titulo": "a", "diagrama": "x"}, {"titulo": "b"}], "practica": [1], "corto": {"pretest": [1]}}
+c.aplicar_ligera(_dl)
+prueba("v6: ligera deja 1 sección, sin práctica/diagrama/pretest", len(_dl["secciones"]) == 1 and _dl["practica"] == []
+       and not _dl["secciones"][0]["diagrama"] and "pretest" not in _dl["corto"])
 print("\nTODO OK" if all(res) else "\nHAY PRUEBAS QUE FALLAN")
 raise SystemExit(0 if all(res) else 1)
