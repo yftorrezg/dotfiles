@@ -24,6 +24,9 @@ AQUI = os.path.dirname(os.path.abspath(__file__))
 RAIZ = os.environ.get("NOTAS_RAIZ") or os.path.expanduser("~/Vídeos/Notas de videos")
 BOVEDA = os.path.dirname(RAIZ)  # raíz de la bóveda de Obsidian (para los enlaces ![[...]])
 CLASES = os.environ.get("NOTAS_CLASES") or os.path.expanduser("~/Vídeos/Capturas de YouTube")
+MAPA_PY = os.environ.get("MAPA_PY") or os.path.expanduser("~/.config/hypr/scripts/mapa-tras-borrar.py")
+LEER_SH = os.environ.get("LEER_SH") or os.path.expanduser("~/.config/hypr/scripts/leer-seleccion.sh")
+MODAL_SH = os.path.join(AQUI, "modal-toggle.sh")
 TARJETAS_PY = os.environ.get("TARJETAS_PY") or os.path.expanduser("~/.config/hypr/scripts/tarjetas.py")
 TIPOS = {"?": ("duda", "❓"), "!": ("clave", "🔑"), "p": ("practicar", "🛠️")}
 MAX_INTERVALO = 60  # días
@@ -425,7 +428,7 @@ def lista_reproduccion():
         out.append({"i": i, "nombre": nombre, "ruta": normalizar(ruta),
                     "cap": os.path.basename(os.path.dirname(ruta)),  # capítulo (carpeta): el panel lo usa de título
                     "actual": bool(e.get("current")), "dur": duracion(ruta),
-                    "imp": normalizar(ruta) in imps})
+                    "marcas": marcas_de(imps, normalizar(ruta))})
     return out
 
 
@@ -493,6 +496,7 @@ def duracion(ruta):
 IMPORTANTES = os.environ.get("NOTAS_IMPORTANTES") or os.path.expanduser("~/.local/share/mpv-panel/importantes.json")
 EXT_VIDEO = {"3g2", "3gp", "avi", "flv", "m2ts", "m4v", "mkv", "mov", "mp4", "mpeg", "mpg", "ogv", "ts", "webm", "wmv"}
 EXT_SUBS = {"srt", "vtt", "ass"}
+MARCAS = ("imp", "dudo", "sabido")
 MARCAS_CURSO = ("Apuntes", "capturas", "capturas-clave")  # las mismas que usa curso.lua
 CARPETAS_CLAVE = ("capturas-clave", "capturas-esenciales", "codigo-en-imagenes")
 WATCH_LATER = os.path.expanduser("~/.local/state/mpv/watch_later")
@@ -504,23 +508,37 @@ def _alnum(t):
 
 
 def importantes():
-    """{ruta del video: {"curso": raíz, "cuando": fecha}}"""
+    """{ruta del video: {"curso": raíz, "marcas": ["imp"|"dudo"|"sabido"]}} (las entradas viejas sin 'marcas' eran 'imp')."""
     return leer_json(IMPORTANTES, {})
 
 
-def alternar_importante(ruta):
-    """Marca / desmarca el video como importante; devuelve el estado nuevo."""
+def marcas_de(d, ruta):
+    e = d.get(ruta)
+    return [] if not e else list(e.get("marcas", ["imp"]))
+
+
+def alternar_marca(ruta, marca):
+    """Pone / quita una marca. 'sabido' y 'dudo' (no lo entendí) se excluyen entre sí. Devuelve las marcas nuevas."""
+    if marca not in MARCAS:
+        return None
     with _gest_candado:
         d = importantes()
-        if ruta in d:
-            del d[ruta]
-            ahora = False
+        ms = marcas_de(d, ruta)
+        if marca in ms:
+            ms.remove(marca)
         else:
-            d[ruta] = {"curso": raiz_curso(ruta), "cuando": datetime.date.today().isoformat()}
-            ahora = True
+            ms.append(marca)
+            if marca == "sabido" and "dudo" in ms:
+                ms.remove("dudo")
+            if marca == "dudo" and "sabido" in ms:
+                ms.remove("sabido")
+        if ms:
+            d[ruta] = {"curso": raiz_curso(ruta), "marcas": ms}
+        else:
+            d.pop(ruta, None)
         os.makedirs(os.path.dirname(IMPORTANTES), exist_ok=True)
         escribir_json(IMPORTANTES, d)
-        return ahora
+        return ms
 
 
 def quitar_importante(ruta):
@@ -647,7 +665,11 @@ def borrar_video(i, con_apuntes):
             if not a_papelera(f):
                 borrados["capturas"] += 1
         if a["clase"] and a["mapa"]:
-            _quitar_de_mapa(a["mapa"], a["clase"])
+            _quitar_de_mapa(a["mapa"], a["clase"])  # al instante; después se recompone entero (sin IA)
+            if os.path.isfile(MAPA_PY):
+                subprocess.Popen([sys.executable, MAPA_PY, os.path.dirname(a["mapa"]), a["clase"]],
+                                 stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, stdin=subprocess.DEVNULL,
+                                 start_new_session=True)
         if a["slug"]:
             with _candado:
                 idx = indice()
@@ -793,20 +815,197 @@ def _clave_natural(s):
     return [int(x) if x.isdigit() else x for x in re.split(r"(\d+)", s.casefold())]
 
 
-def solo_importantes(i_ref):
-    """Reemplaza la lista de mpv por los videos importantes del curso del item i_ref (en orden natural)."""
+def reproducir_filtro(i_ref, filtro):
+    """Reemplaza la lista de mpv por los videos del curso que cumplen el filtro (imp | dudo | sabido | pend = sin 'sabido')."""
     ref = next((x for x in lista_reproduccion() if x["i"] == i_ref), None)
     if not ref:
         return {"ok": False, "error": "sin lista"}
-    raiz = raiz_curso(ref["ruta"])
-    marcados = sorted((r for r in importantes() if raiz_curso(r) == raiz and os.path.isfile(r)), key=_clave_natural)
-    if not marcados:
-        return {"ok": False, "error": "no hay videos importantes en este curso"}
-    ipc("loadfile", marcados[0], "replace")
-    for r in marcados[1:]:
+    raiz, d = raiz_curso(ref["ruta"]), importantes()
+    if filtro == "pend":
+        elegidos = [x["ruta"] for x in lista_reproduccion() if "sabido" not in marcas_de(d, x["ruta"])]
+    elif filtro in MARCAS:
+        elegidos = sorted((r for r in d if filtro in marcas_de(d, r) and raiz_curso(r) == raiz and os.path.isfile(r)),
+                          key=_clave_natural)
+    else:
+        return {"ok": False, "error": "filtro desconocido"}
+    if not elegidos:
+        return {"ok": False, "error": "no hay videos con esa marca en este curso"}
+    ipc("loadfile", elegidos[0], "replace")
+    for r in elegidos[1:]:
         ipc("loadfile", r, "append")
     enfocar_mpv()
-    return {"ok": True, "n": len(marcados)}
+    return {"ok": True, "n": len(elegidos)}
+
+
+# ---------- apuntes y tarjetas de la clase (tecla i) ----------
+def parsear_tarjetas(md):
+    """[{sec, q, a}] desde tarjetas.md: pregunta, una línea con «?» sola, respuesta; bloques separados por línea en blanco."""
+    res, sec, bloque, cod = [], "", [], False
+
+    def cerrar():
+        nonlocal bloque
+        if bloque:
+            lin = [l.strip() for l in bloque]
+            if "?" in lin:
+                k = lin.index("?")
+                q, a = "\n".join(bloque[:k]).strip(), "\n".join(bloque[k + 1:]).strip()
+                if q and a:
+                    res.append({"sec": sec, "q": q, "a": a})
+            elif len(bloque) == 1 and "::" in bloque[0]:
+                q, a = (x.strip() for x in bloque[0].split("::", 1))
+                if q and a:
+                    res.append({"sec": sec, "q": q, "a": a})
+        bloque = []
+
+    for l in md.split("\n"):
+        if l.lstrip().startswith("```"):
+            cod = not cod
+        if not cod and l.startswith("#"):
+            cerrar()
+            if l.startswith("## "):
+                sec = l[3:].strip()
+            continue
+        if not cod and not l.strip():
+            cerrar()
+            continue
+        if not cod and re.match(r"^\*.*\*$", l.strip()):
+            continue  # la nota en cursiva del encabezado
+        bloque.append(l)
+    cerrar()
+    return res
+
+
+def _leer_texto(ruta):
+    try:
+        with open(ruta, encoding="utf-8") as f:
+            return f.read()
+    except OSError:
+        return None
+
+
+def datos_clase(i):
+    item = item_de_lista(i)
+    if not item:
+        return None
+    a = apuntes_de(item["ruta"])
+    base = a["dir"]
+    md = _leer_texto(os.path.join(base, "apuntes.md")) if base else None
+    res = _leer_texto(os.path.join(base, "resumen.md")) if base else None
+    tj = _leer_texto(os.path.join(base, "tarjetas.md")) if base else None
+    return {"i": i, "nombre": item["nombre"], "clase": a["clase"], "dur": item["dur"], "actual": item["actual"],
+            "apuntes": md, "resumen": res, "tarjetas": parsear_tarjetas(tj) if tj else [],
+            "notas": a["notas"], "marcas": marcas_de(importantes(), item["ruta"])}
+
+
+def indice_actual():
+    return next((x["i"] for x in lista_reproduccion() if x["actual"]), None)
+
+
+def leer_en_voz_alta(texto):
+    """Lee el texto con la voz que el usuario eligió (leer-seleccion.sh); si ya está leyendo, lo corta."""
+    if not os.path.isfile(LEER_SH):
+        return False
+    tmp = os.path.join(os.environ.get("XDG_RUNTIME_DIR", "/tmp"), f"leer-apuntes-{os.getpid()}.txt")
+    with open(tmp, "w", encoding="utf-8") as f:
+        f.write(texto)
+    subprocess.Popen(["bash", LEER_SH, "--texto-archivo", tmp], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
+                     stdin=subprocess.DEVNULL, start_new_session=True)
+    return True
+
+
+def parar_lectura():
+    if os.path.isfile(LEER_SH):
+        subprocess.Popen(["bash", LEER_SH, "--stop"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
+                         stdin=subprocess.DEVNULL, start_new_session=True)
+
+
+_pausa_modal = {"puse": False}
+
+
+def pausa_modal(on):
+    """El modal pausa el video al abrirse y lo reanuda al cerrarse (solo si lo pausó él)."""
+    if on:
+        if ipc("get_property", "pause") is False:
+            ipc("set_property", "pause", True)
+            _pausa_modal["puse"] = True
+    elif _pausa_modal["puse"]:
+        _pausa_modal["puse"] = False
+        ipc("set_property", "pause", False)
+
+
+def abrir_modal(vista, i=None):
+    q = f"?v={vista}" + (f"&i={int(i)}" if i is not None else "")
+    subprocess.Popen(["bash", MODAL_SH, "abrir", q], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
+                     stdin=subprocess.DEVNULL, start_new_session=True)
+
+
+def cerrar_modal():
+    subprocess.Popen(["bash", MODAL_SH, "cerrar"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
+                     stdin=subprocess.DEVNULL, start_new_session=True)
+
+
+# ---------- detectar intro y final comparando con otros videos del curso ----------
+FPS_DET, SEG_DET, LADO = 2, 60, 32
+
+
+def _frames(ruta, del_final):
+    args = ["ffmpeg", "-v", "error", "-an"] + (["-sseof", f"-{SEG_DET}"] if del_final else []) + ["-i", ruta] + \
+           ([] if del_final else ["-t", str(SEG_DET)]) + \
+           ["-vf", f"fps={FPS_DET},scale={LADO}:{LADO},format=gray", "-f", "rawvideo", "-"]
+    try:
+        out = subprocess.run(args, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, timeout=180).stdout
+    except subprocess.SubprocessError:
+        return []
+    n = LADO * LADO
+    return [out[k:k + n] for k in range(0, len(out) - n + 1, n)]
+
+
+def _dif(a, b):
+    return sum(abs(x - y) for x, y in zip(a, b)) / len(a)
+
+
+def _prefijo_comun(a, b, umbral=7.0):
+    n = 0
+    for x, y in zip(a, b):
+        if _dif(x, y) > umbral:
+            break
+        n += 1
+    return n
+
+
+def detectar_cortes(i):
+    """Sugiere cuánto quitar al principio y al final: lo que se repite igual al empezar/terminar otros videos del curso."""
+    item = item_de_lista(i)
+    if not item:
+        return {"ok": False, "error": "video no encontrado"}
+    dur = duracion(item["ruta"]) or 0
+    todos = [x for x in lista_reproduccion() if x["i"] != i and os.path.isfile(x["ruta"])]
+    mismo = [x for x in todos if os.path.dirname(x["ruta"]) == os.path.dirname(item["ruta"])]
+    otros = (mismo + [x for x in todos if x not in mismo])
+    # los vecinos primero (mismo capítulo); entre 4 y 7 videos de comparación
+    otros = sorted(otros, key=lambda x: abs(x["i"] - i))[:7]
+    if len(otros) < 2:
+        return {"ok": False, "error": "hacen falta al menos 2 videos más en la lista para comparar"}
+    res = {"ok": True, "ini": 0.0, "fin": 0.0, "comparados": len(otros), "coinc_ini": 0, "coinc_fin": 0, "dur": dur}
+    for lado, final in (("ini", False), ("fin", True)):
+        mio = _frames(item["ruta"], final)
+        if final:
+            mio = mio[::-1]
+        largos = []
+        for x in otros:
+            f = _frames(x["ruta"], final)
+            if final:
+                f = f[::-1]
+            largos.append(_prefijo_comun(mio, f))
+        buenos = sorted(l for l in largos if l >= 3 * FPS_DET // 2)  # al menos ~1,5 s iguales
+        res["coinc_" + lado] = len(buenos)
+        if len(buenos) * 2 >= len(otros):  # lo comparte la mayoría
+            seg = buenos[len(buenos) // 2] / FPS_DET  # mediana
+            if seg < SEG_DET - 1:  # si llega al tope no es una intro: es una plantilla fija
+                res[lado] = round(seg + (0.3 if not final else 0.2), 1)
+    if dur and res["fin"]:
+        res["fin_en"] = round(max(0.0, dur - res["fin"]), 1)
+    return res
 
 
 # ---------- HTTP ----------
@@ -860,6 +1059,20 @@ class H(BaseHTTPRequestHandler):
             except ValueError:
                 info = None
             return self._json(info or {"error": "video no encontrado"}, 200 if info else 404)
+        if u.path == "/modal.html":
+            return self._archivo(os.path.join(AQUI, "modal.html"), "text/html; charset=utf-8")
+        if u.path == "/api/clase":
+            try:
+                i = int(q["i"][0]) if "i" in q else indice_actual()
+                datos = datos_clase(i) if i is not None else None
+            except (ValueError, IndexError):
+                datos = None
+            return self._json(datos or {"error": "no hay video"}, 200 if datos else 404)
+        if u.path == "/api/detectar-cortes":
+            try:
+                return self._json(detectar_cortes(int(q["i"][0])))
+            except (ValueError, KeyError):
+                return self._json({"ok": False, "error": "falta i"})
         if u.path == "/api/recorte-estado":
             return self._json(estado_recorte())
         if u.path == "/mini":
@@ -901,19 +1114,38 @@ class H(BaseHTTPRequestHandler):
             ok = ipc("playlist-play-index", int(d["i"])) is not None
             enfocar_mpv()
             return self._json({"ok": ok})
-        if p == "/api/importante":
+        if p == "/api/marca":
             item = item_de_lista(int(d["i"]))
-            if not item:
-                return self._json({"ok": False})
-            return self._json({"ok": True, "imp": alternar_importante(item["ruta"])})
+            ms = item and alternar_marca(item["ruta"], d.get("marca"))
+            return self._json({"ok": ms is not None and bool(item), "marcas": ms or []})
         if p == "/api/borrar-video":
             return self._json(borrar_video(int(d["i"]), bool(d.get("apuntes"))))
         if p == "/api/recortar":
             return self._json(iniciar_recorte(int(d["i"]), d.get("ini"), d.get("fin")))
-        if p == "/api/solo-importantes":
-            return self._json(solo_importantes(int(d["i"])))
+        if p == "/api/reproducir-filtro":
+            return self._json(reproducir_filtro(int(d["i"]), d.get("filtro", "")))
         if p == "/api/curso-completo":
             return self._json({"ok": ipc("script-message", "curso-completo") is not None})
+        if p == "/api/leer":
+            return self._json({"ok": leer_en_voz_alta(str(d.get("texto", "")))})
+        if p == "/api/parar-lectura":
+            parar_lectura()
+            return self._json({"ok": True})
+        if p == "/api/modal":
+            abrir_modal(d.get("vista", "apuntes"), d.get("i"))
+            return self._json({"ok": True})
+        if p == "/api/cerrar-modal":
+            parar_lectura()
+            pausa_modal(False)
+            cerrar_modal()
+            enfocar_mpv()
+            return self._json({"ok": True})
+        if p == "/api/pausa":
+            pausa_modal(bool(d.get("on")))
+            return self._json({"ok": True})
+        if p == "/api/borrar-actual":  # tecla Delete: video + apuntes, sin preguntar
+            i = indice_actual()
+            return self._json(borrar_video(i, True) if i is not None else {"ok": False, "error": "no hay video"})
         if p == "/api/abrir":
             video, t = d["video"], float(d.get("t", 0))
             if ipc("get_property", "pid") is not None:
