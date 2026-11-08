@@ -1342,6 +1342,9 @@ def _limpiar_punto(p):
         return None
     t = re.sub(r"\s*\((?:[^()]*?)(?:\bOCR\b|lectura|no verificad|la captura)(?:[^()]*?)\)", "", t)
     t = re.sub(r"[,;:]?\s*(?:porque\s+)?en pantalla solo se ley[oó] con OCR\.?", ".", t)
+    t2 = re.sub(r"\b[Ee]n (?:la|esta|una) captura,?\s*", "", t)  # "en la captura, el error…" → "el error…"
+    if t2 != t:
+        t = re.sub(r"(^|[:.]\s+)([a-záéíóú])", lambda m: m.group(1) + m.group(2).upper(), t2)
     return None if META_ARMADO.search(t) else t.strip()
 
 

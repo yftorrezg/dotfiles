@@ -54,22 +54,22 @@ URL="https://www.youtube.com/watch?v=vid00000001&list=PLprueba"
 # 1) Primera corrida
 bash "$SCRIPTS/playlist-a-apuntes.sh" "$URL" > "$T/log1" 2>&1
 C1=$?
-[ -d "$CURSO/capturas" ] && bien "carpeta del curso: $(basename "$CURSO")" || { falla "no está $CURSO"; ls -R "$T/salida"; }
+[ -d "$CURSO/Apuntes" ] && bien "carpeta del curso: $(basename "$CURSO")" || { falla "no está $CURSO"; ls -R "$T/salida"; }
 for d in "001 - Intro al curso" "003 - Hooks- useState-useEffect" "005 - Video con bloqueo" "006 - Final"; do
-    if [ -f "$CURSO/capturas/$d/apuntes.md" ] && [ -f "$CURSO/capturas/$d/0001.webp" ] \
-        && [ -f "$CURSO/capturas/$d/.minutos.tsv" ] && [ -f "$CURSO/capturas/$d/.youtube-id" ]; then
-        bien "$d: capturas + .minutos.tsv + apuntes.md"
+    if [ -f "$CURSO/Apuntes/$d/apuntes.md" ] && ls "$CURSO/capturas-clave/"*"$d"* >/dev/null 2>&1 \
+        && [ -f "$CURSO/Apuntes/$d/.minutos.tsv" ] && [ -f "$CURSO/Apuntes/$d/.youtube-id" ]; then
+        bien "$d: apuntes.md + .minutos.tsv + sus capturas en capturas-clave/"
     else
-        falla "$d incompleta: $(ls -A "$CURSO/capturas/$d" 2>&1 | tr '\n' ' ')"
+        falla "$d incompleta: $(ls -A "$CURSO/Apuntes/$d" 2>&1 | tr '\n' ' ')"
     fi
-    ls "$CURSO/capturas/$d"/video.* >/dev/null 2>&1 && falla "$d: no se borró el video"
+    ls "$CURSO/Apuntes/$d"/video.* >/dev/null 2>&1 && falla "$d: no se borró el video"
 done
-[ -e "$CURSO/capturas/002 - [Private video]" ] && falla "se creó carpeta del video privado" || bien "privado salteado"
+[ -e "$CURSO/Apuntes/002 - [Private video]" ] && falla "se creó carpeta del video privado" || bien "privado salteado"
 grep -q "No disponible" "$T/log1" && bien "log avisa el no disponible" || falla "no avisa el privado"
-[ -f "$CURSO/capturas/004 - Video que se cae/apuntes.md" ] && falla "004 no debería tener apuntes" || bien "004 falló sin frenar el resto"
+[ -f "$CURSO/Apuntes/004 - Video que se cae/apuntes.md" ] && falla "004 no debería tener apuntes" || bien "004 falló sin frenar el resto"
 grep -q "Fallaron: 004" "$T/log1" && bien "resumen: 'Fallaron: 004'" || falla "resumen sin 'Fallaron: 004': $(tail -1 "$T/log1")"
 grep -q "frenó la descarga (vez 1)" "$T/log1" && bien "bloqueo de YouTube: esperó y reintentó 005" || falla "no reintentó 005"
-N=$(grep -c "apuntes.md>" "$CURSO/capturas/INDICE.md" 2>/dev/null)
+N=$(grep -c "apuntes.md>" "$CURSO/Apuntes/INDICE.md" 2>/dev/null)
 [ "$N" = 4 ] && bien "INDICE.md con 4 clases" || falla "INDICE.md con '$N' clases"
 [ $C1 -eq 0 ] || falla "código de salida $C1"
 
@@ -80,10 +80,10 @@ bash "$SCRIPTS/playlist-a-apuntes.sh" "https://www.youtube.com/playlist?list=PLp
 [ "$(grep -c 'se saltea' "$T/log2")" = 5 ] && bien "relanzar: 4 hechas + privado salteados" || { falla "relanzar:"; grep "=====\|saltea" "$T/log2"; }
 DESCARGAS=$(grep -v -e --flat-playlist -e --skip-download "$T/llamadas" | grep -c .)
 [ "$DESCARGAS" = 1 ] && bien "relanzar: solo reintentó bajar 004" || falla "relanzar bajó $DESCARGAS videos"
-[ -e "$CURSO/capturas/001 - Course intro (traducido)" ] && falla "título traducido creó otra carpeta" || bien "título cambiado: reconoce la clase por .youtube-id"
+[ -e "$CURSO/Apuntes/001 - Course intro (traducido)" ] && falla "título traducido creó otra carpeta" || bien "título cambiado: reconoce la clase por .youtube-id"
 
 # 3) MAX_VIDEOS y lock
-rm -f -- "$CURSO"/capturas/006\ -\ Final/apuntes.md
+rm -f -- "$CURSO"/Apuntes/006\ -\ Final/apuntes.md
 MAX_VIDEOS=3 bash "$SCRIPTS/playlist-a-apuntes.sh" "$URL" > "$T/log3" 2>&1
 grep -q "\[3/3\]" "$T/log3" && ! grep -q "006" "$T/log3" && bien "MAX_VIDEOS=3 procesa solo 3" || falla "MAX_VIDEOS"
 ( exec 9>"$T/playlist-a-apuntes.lock"; flock 9; sleep 3 ) & sleep 0.5
@@ -91,9 +91,9 @@ bash "$SCRIPTS/playlist-a-apuntes.sh" "$URL" > "$T/log4" 2>&1
 [ $? -eq 1 ] && bien "lock: una segunda playlist a la vez no arranca" || falla "lock no funcionó"
 wait
 
-# 4) video-a-capturas.sh solo (sin DESTINO) sigue guardando donde siempre
+# 4) video-a-capturas.sh solo (sin DESTINO): <carpeta>/Apuntes/<nombre>/ (v10)
 bash "$SCRIPTS/video-a-capturas.sh" "$T/video.mp4" > "$T/log5" 2>&1
-[ -f "$T/capturas/video/apuntes.md" ] && bien "video-a-capturas.sh sin DESTINO: <carpeta>/capturas/<nombre>/" || falla "video-a-capturas por defecto"
+[ -f "$T/Apuntes/video/apuntes.md" ] && bien "video-a-capturas.sh sin DESTINO: <carpeta>/Apuntes/<nombre>/" || falla "video-a-capturas por defecto"
 
 # 5) YouTube bloquea siempre: reintenta 3 veces y corta (código 2) sin marcar el resto como fallado
 printf '%s\n' $'1\tvid0000000X\t18\tBloqueado' $'2\tvid00000006\t18\tNo llega' $'TITULO\tOtro curso\t2' > "$T/listado"
