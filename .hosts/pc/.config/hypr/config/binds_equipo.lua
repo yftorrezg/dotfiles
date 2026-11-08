@@ -22,7 +22,7 @@ local function switchVirtualDesktop(i)
         if output ~= "" then
             local mon = hl.get_monitor(output)
             if mon then
-                mon:set_workspace({ workspace = (slot - 1) * NUM_WPM + i })
+                mon:set_workspace((slot - 1) * NUM_WPM + i)
             end
         end
     end

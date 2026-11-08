@@ -448,6 +448,13 @@ class App(Gtk.Application):
         return False
 
     def estado_inicial(self):
+        # Marca de modo enfoque huerfana (el PC se apago con el modo activo): sin esto los fondos nunca cambian.
+        try:
+            pid = int(ENFOQUE.read_text().strip())
+            if "modo-enfoque" not in Path(f"/proc/{pid}/cmdline").read_text():
+                ENFOQUE.unlink(missing_ok=True)
+        except (OSError, ValueError):
+            ENFOQUE.unlink(missing_ok=True)
         try:
             ws = hypr_json("activeworkspace")
             self.actual = self.clave_de(ws["id"], ws["name"])

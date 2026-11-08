@@ -29,7 +29,7 @@ from gi.repository import Gdk, Gio, GLib, Gtk  # noqa: E402
 from gi.repository import Gtk4LayerShell as LS  # noqa: E402
 
 FLAG = Path.home() / ".local/state/escritorios-vivos/enfoque"
-PRINCIPAL = "DP-3"   # monitor del reloj; si no existe (laptop), el primero que haya
+PRINCIPAL = "DP-2"   # monitor del reloj; si no existe (laptop), el primero que haya
 CSS = """
 window.enfoque-negro { background: #000000; }
 window.enfoque-reloj { background: transparent; }

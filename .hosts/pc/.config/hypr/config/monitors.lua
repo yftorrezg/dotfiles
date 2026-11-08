@@ -59,6 +59,8 @@ local specs, order = parse_nwg_monitors(nwg_path)
 
 if specs then
     for _, name in ipairs(order) do
+        -- DisplayPort: usar el nombre real detectado (MONITOR1) aunque el conector cambie
+        if name:match("^DP%-%d+$") then specs[name].output = MONITOR1 end
         hl.monitor(specs[name])
     end
 else
@@ -74,7 +76,7 @@ else
 
     -- yodoit horizontal, a la derecha del vertical (alineado arriba con el vertical)
     hl.monitor({
-        output    = "DP-3",
+        output    = MONITOR1,
         mode      = "1920x1080@60",
         position  = "1080x0",
         scale     = "1",
