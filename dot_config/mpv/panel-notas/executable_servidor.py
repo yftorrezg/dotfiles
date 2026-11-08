@@ -392,10 +392,18 @@ def enfocar_mpv():
                      stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 
 
+_ultimo_push = {"v": None}
+VERSION = os.path.getmtime(os.path.abspath(__file__))
+
+
 def estado():
     v = video_actual()
     if not v:
+        _ultimo_push["v"] = None
         return {"mpv": False}
+    if _filtro["f"] and _ultimo_push["v"] is None:  # mpv se reabrió: vuelve a decirle el filtro activo
+        empujar_filtro()
+    _ultimo_push["v"] = v
     slug = indice().get(v)
     version = 0
     if slug:
@@ -1077,6 +1085,8 @@ class H(BaseHTTPRequestHandler):
             return self._json(repaso_pendiente())
         if u.path == "/api/filtro":
             return self._json({"filtro": _filtro["f"]})
+        if u.path == "/api/version":
+            return self._json({"v": VERSION})
         if u.path == "/api/lista":
             return self._json(lista_reproduccion())
         if u.path == "/api/borrar-info":
@@ -1148,6 +1158,10 @@ class H(BaseHTTPRequestHandler):
             else:
                 enfocar_mpv()
             return self._json({"ok": ok})
+        if p == "/api/reiniciar":  # lo pide panel-toggle.sh cuando el código del servidor cambió
+            self._json({"ok": True})
+            threading.Timer(0.3, lambda: os._exit(0)).start()
+            return
         if p == "/api/filtro":
             f = d.get("filtro", "")
             _filtro["f"] = f if f in MARCAS + ("pend",) else ""

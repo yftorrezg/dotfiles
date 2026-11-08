@@ -19,6 +19,11 @@ fi
 mpv_addr=$(hyprctl activewindow -j | jq -r 'select(.class=="mpv") | .address // empty')
 
 # servidor del panel (se queda en segundo plano; se apaga solo tras 20 min sin uso)
+ver_arch=$(stat -c %Y "$DIR/servidor.py")
+ver_run=$(curl -fs --max-time 1 "${URL}api/version" | jq -r '.v // 0 | floor' 2>/dev/null)
+if [[ -n $ver_run && $ver_run != "$ver_arch" ]]; then   # servidor viejo (se actualizó el código): reiniciarlo
+    curl -fs --max-time 1 -X POST "${URL}api/reiniciar" >/dev/null; sleep 0.6
+fi
 if ! curl -fs --max-time 1 "${URL}api/videos" >/dev/null; then
     setsid -f python3 "$DIR/servidor.py" serve >/dev/null 2>&1 </dev/null
     for _ in $(seq 30); do curl -fs --max-time 1 "${URL}api/videos" >/dev/null && break; sleep 0.1; done

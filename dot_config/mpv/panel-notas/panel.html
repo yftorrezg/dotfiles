@@ -91,6 +91,9 @@ select{font:inherit;color:var(--txt);background:var(--bg);border:1px solid var(-
 #lista .it.sabido{opacity:.55}#lista .it.sabido:hover,#lista .it.sabido.actual{opacity:1}
 .it .acc button[data-b=cut]:hover{color:var(--acento2);border-color:var(--acento2)}
 .it .acc button[data-b=del]:hover{color:var(--peligro);border-color:var(--peligro)}
+#lista .it:hover{background:var(--card2);border-color:var(--acento2)}
+.it .ahora{position:absolute;right:8px;top:5px;font:600 11px system-ui;color:#06241c;background:var(--acento);border-radius:5px;padding:0 6px}
+#lista .it.actual .nom{padding-right:0}
 #lista .it.imp{border-left:3px solid #fbbf24}
 #barra-lista{flex-wrap:wrap}
 #barra-lista{display:none;gap:5px;margin-top:7px;align-items:center}
@@ -194,8 +197,12 @@ function pintarCabecera(){
   $("#btn-lista").classList.toggle("on", vista === "lista");
   if (vista === "lista") { $("#titulo").textContent = "Lista de reproducción"; $("#btn-todos").textContent = "Videos";
     const total = lista.reduce((a, x) => a + (x.dur || 0), 0);
-    $("#info").textContent = lista.length
-      ? `${(lista.find(x => x.actual)?.i ?? -1) + 1} de ${lista.length}${total ? ` · ${fmt(total)}` : ""}` : ""; return; }
+    const NOM = {imp:"★ importantes", dudo:"❓ no entendidos", sabido:"✓ sabidos", pend:"pendientes"};
+    const pasa2 = x => filtro === "pend" ? !x.marcas.includes("sabido") : x.marcas.includes(filtro);
+    const fl = filtro ? lista.filter(pasa2) : [], ia = fl.findIndex(x => x.actual);
+    $("#info").textContent = !lista.length ? "" : filtro
+      ? `Filtro ${NOM[filtro]}: ${fl.length} videos${ia >= 0 ? ` · vas en el ${ia + 1}` : " · el que suena no está en el filtro"} (> y < solo pasan por estos)`
+      : `${(lista.find(x => x.actual)?.i ?? -1) + 1} de ${lista.length}${total ? ` · ${fmt(total)}` : ""}`; return; }
   if (vista === "todos") { $("#titulo").textContent = "Todos los videos con notas"; $("#info").textContent = ""; $("#btn-todos").textContent = "← Volver"; return; }
   if (vista === "repaso") { $("#titulo").textContent = "Repaso de hoy"; $("#info").textContent = pendientes.length ? `${pendientes.length} por repasar · ¿te acuerdas sin mirar?` : ""; return; }
   $("#titulo").textContent = est.mpv ? est.nombre : "mpv no está abierto";
@@ -211,7 +218,7 @@ async function pintarLista(){
     const act = lista.findIndex(x => x.actual);
     const caps = new Set(lista.map(x => x.cap)).size > 1;  // curso entero: un título por capítulo
     const pasa = x => !filtro ? true : filtro === "pend" ? !x.marcas.includes("sabido") : x.marcas.includes(filtro);
-    const vis = lista.filter(pasa);
+    const vis = lista.filter(x => pasa(x) || x.actual);  // el que suena se ve siempre, aunque no cumpla el filtro
     const IC = {
       del: '<svg viewBox="0 0 24 24"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14M10 10v7M14 10v7"/></svg>',
       imp: '<svg viewBox="0 0 24 24"><polygon points="12 2 15 9 22 9.5 16.5 14 18.5 21 12 17 5.5 21 7.5 14 2 9.5 9 9"/></svg>',
@@ -221,6 +228,7 @@ async function pintarLista(){
       sabido: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="m8 12.5 3 3 5-6"/></svg>' };
     const bt = (k, x, t) => `<button data-b="${k}" class="${x.marcas.includes(k) ? "on" : ""}" title="${t}">${IC[k]}</button>`;
     cont.innerHTML = vis.length ? vis.map((x, k) => `${caps && (k === 0 || vis[k - 1].cap !== x.cap) ? `<div class="cap">${esc(x.cap || "")}</div>` : ""}<div class="it${x.actual ? " actual" : ""}${x.i < act ? " vista" : ""}${x.marcas.map(m => " " + m).join("")}" data-i="${x.i}" title="${esc(x.nombre)}">
+      ${x.actual ? `<span class="ahora">▶ ${filtro && !pasa(x) ? "suena (fuera del filtro)" : "suena ahora"}</span>` : ""}
       <div class="mini"><img loading="lazy" src="/mini?i=${x.i}" onerror="this.style.display='none'"><i>${x.i + 1}</i>${x.dur ? `<span class="dur">${fmt(x.dur)}</span>` : ""}</div>
       <div class="nom">${esc(limpiar(x.nombre))}</div>
       <div class="acc"><button data-b="ver" title="Ver apuntes y tarjetas">${IC.ver}</button><button data-b="cut" title="Recortar principio / final">${IC.cut}</button><button data-b="del" title="Eliminar video">${IC.del}</button>${bt("imp", x, "Importante")}${bt("dudo", x, "No lo entendí")}${bt("sabido", x, "Ya lo sé")}</div></div>`).join("")
