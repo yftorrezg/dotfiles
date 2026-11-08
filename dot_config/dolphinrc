@@ -32,8 +32,5 @@ IconSize=22
 [PreviewSettings]
 MaximumSize=104857600
 
-[Search]
-Location=Everywhere
-
 [UiSettings]
 ColorScheme=Noctalia
