@@ -7,6 +7,9 @@ SCRIPTS="$HOME/.config/hypr/scripts"
 CURSO=$(realpath "${1:?Uso: $0 <carpeta del curso>}")
 [ -d "$CURSO" ] || { echo "No existe la carpeta: $CURSO"; exit 1; }
 NOMBRE_CURSO=$(basename "$CURSO")
+# v10: los apuntes van en Apuntes/ (antes capturas/: confundía, parecía una carpeta de imágenes)
+[ -d "$CURSO/capturas" ] && [ ! -e "$CURSO/Apuntes" ] && mv "$CURSO/capturas" "$CURSO/Apuntes"
+AP="$CURSO/Apuntes"
 # Panel de cursos (lo arma otro script; si no está, no pasa nada). Las tarjetas de cada clase
 # las hace video-a-capturas.sh al terminar sus apuntes.
 panel() { [ -f "$SCRIPTS/panel-cursos.py" ] && python3 "$SCRIPTS/panel-cursos.py" >/dev/null 2>&1 || true; }
@@ -21,7 +24,7 @@ if ! flock -n 9; then
 fi
 
 
-# Nombre de la carpeta de una clase dentro de capturas/ (nombre_largo = el de la versión anterior,
+# Nombre de la carpeta de una clase dentro de Apuntes/ (nombre_largo = el de la versión anterior,
 # solo para renombrar lo ya hecho).
 nombre_largo() {
     local sub="$1" clase="$2"
@@ -61,7 +64,7 @@ PY
 # capturas/ (salida de este mismo script) ni node_modules/; un .ts solo cuenta si pesa >5 MB (los
 # .ts de TypeScript del código del curso no son video: en "React desde cero" eran 2.097 falsos).
 mapfile -t VIDEOS < <(
-    find "$CURSO" \( -type d \( -name capturas -o -name node_modules \) \) -prune -o -type f \( -iname '*.mp4' -o -iname '*.mkv' -o -iname '*.webm' -o -iname '*.mov' -o \( -iname '*.ts' ! -iname '*.d.ts' -size +5M \) \) \
+    find "$CURSO" \( -type d \( -name capturas -o -name Apuntes -o -name 'capturas-*' -o -name codigo-en-imagenes -o -name node_modules \) \) -prune -o -type f \( -iname '*.mp4' -o -iname '*.mkv' -o -iname '*.webm' -o -iname '*.mov' -o \( -iname '*.ts' ! -iname '*.d.ts' -size +5M \) \) \
         ! -name '*.part' ! -name '*.temp.*' -printf '%P\n' |
     awk '{ clase=$0; sub(/\.[^.\/]*$/, "", clase); es = (clase ~ /\.(es|en)$/); sub(/\.(es|en)$/, "", clase);
            if (!(clase in elegido) || es) elegido[clase]=$0 }
@@ -85,7 +88,7 @@ if [ "${SIN_IA:-0}" != 1 ] && python3 -c "import sys; sys.path.insert(0, '$SCRIP
     LISTA_WHISPER="${XDG_RUNTIME_DIR:-/tmp}/whisper-adelantado.$$"
     for V in "${VIDEOS[@]}"; do
         N=$(nombre_corto "$(dirname "$V")" "$(basename "${V%.*}" | sed -E 's/\.(es|en)$//')")
-        { [ ! -f "$CURSO/capturas/$N/apuntes.md" ] || [ -f "$CURSO/capturas/$N/.rehacer" ]; } && echo "$CURSO/$V"
+        { [ ! -f "$AP/$N/apuntes.md" ] || [ -f "$AP/$N/.rehacer" ]; } && echo "$CURSO/$V"
     done > "$LISTA_WHISPER"
     if [ -s "$LISTA_WHISPER" ]; then
         echo "🎙️ Whisper adelantado: $(wc -l < "$LISTA_WHISPER") clases pendientes"
@@ -103,7 +106,7 @@ for i in "${!VIDEOS[@]}"; do
     V="${VIDEOS[$i]}"
     SUB=$(dirname "$V")
     CLASE=$(basename "${V%.*}" | sed -E 's/\.(es|en)$//')
-    # Salida: todas las clases en $CURSO/capturas/ (así el índice y el panel ven el curso entero).
+    # Salida: todas las clases en $CURSO/Apuntes/ (así el índice y el panel ven el curso entero).
     # Nombre corto: sin los tramos de ruta comunes a todo el curso, sin "@Canal"/"NNN." de los
     # nombres de Telegram, sin repetir el título de la subcarpeta, tope de largo (ver nombre_corto).
     NOM=$(nombre_corto "$SUB" "$CLASE")
@@ -111,15 +114,15 @@ for i in "${!VIDEOS[@]}"; do
     BASE_NOM="$NOM"; n=2
     while [ -n "${USADOS[$NOM]:-}" ] && [ "${USADOS[$NOM]}" != "$V" ]; do NOM="$BASE_NOM ($n)"; n=$((n + 1)); done
     USADOS[$NOM]="$V"
-    DEST="$CURSO/capturas/$NOM"
+    DEST="$AP/$NOM"
     # Apuntes hechos con una versión anterior: se renombran/mueven a su lugar
     VIEJO="$CURSO/$SUB/capturas/$CLASE"
     if [ "$SUB" != . ] && [ -d "$VIEJO" ] && [ ! -e "$DEST" ]; then
-        mkdir -p "$CURSO/capturas" && mv "$VIEJO" "$DEST"
+        mkdir -p "$AP" && mv "$VIEJO" "$DEST"
         # el índice viejo de esa subcarpeta ya no corresponde (el panel lo tomaría por otro curso)
         [ -f "$CURSO/$SUB/capturas/INDICE.md" ] && mv -f "$CURSO/$SUB/capturas/INDICE.md" "$CURSO/$SUB/capturas/.INDICE-viejo.md"
     fi
-    VIEJO2="$CURSO/capturas/$(nombre_largo "$SUB" "$CLASE")"
+    VIEJO2="$AP/$(nombre_largo "$SUB" "$CLASE")"
     [ "$VIEJO2" != "$DEST" ] && [ -d "$VIEJO2" ] && [ ! -e "$DEST" ] && mv "$VIEJO2" "$DEST"
     export PROGRESO_CLASE="$((i + 1))/$TOTAL"
     echo "===== [$((i + 1))/$TOTAL] $CLASE ($(date +%H:%M)) ====="
@@ -130,7 +133,7 @@ for i in "${!VIDEOS[@]}"; do
     if DESTINO="$DEST" nice -n 19 ionice -c 3 bash "$SCRIPTS/video-a-capturas.sh" "$CURSO/$V" \
         && [ -f "$DEST/apuntes.md" ]; then
         HECHAS=$((HECHAS + 1))
-        python3 "$SCRIPTS/cuadernillo.py" --indice "$CURSO/capturas" >/dev/null
+        python3 "$SCRIPTS/cuadernillo.py" --indice "$AP" >/dev/null
         panel
     else
         FALLARON+=("$NOM")
@@ -138,20 +141,20 @@ for i in "${!VIDEOS[@]}"; do
     fi
 done
 
-python3 "$SCRIPTS/cuadernillo.py" --indice "$CURSO/capturas"
+python3 "$SCRIPTS/cuadernillo.py" --indice "$AP"
 panel
-# Todas las capturas del curso, en orden, en una sola carpeta (para estudiarlas y filtrarlas)
-python3 "$SCRIPTS/todas-las-capturas.py" "$CURSO/capturas" || true
 # código y PDF que entrega el curso → imágenes en orden de clase + codigo-del-curso.md
 python3 "$SCRIPTS/codigo-curso-a-imagenes.py" "$CURSO" || true
 # mapa por módulo (MAPA.md): solo en cursos largos (30+ clases), 1 llamada corta por módulo
-if [ "$(find "$CURSO/capturas" -mindepth 2 -maxdepth 2 -name .apuntes-ia.json 2>/dev/null | wc -l)" -ge 30 ]; then
+if [ "$(find "$AP" -mindepth 2 -maxdepth 2 -name .apuntes-ia.json 2>/dev/null | wc -l)" -ge 30 ]; then
     python3 "$SCRIPTS/mapa-curso.py" "$CURSO" || true
 fi
 # Clases que quedaron sin resumen de IA (Claude no respondió): se rehacen ahora, sin bajar nada
-[ "${SIN_IA:-0}" = 1 ] || python3 "$SCRIPTS/rehacer-sin-ia.py" "$CURSO/capturas" || true
+[ "${SIN_IA:-0}" = 1 ] || python3 "$SCRIPTS/rehacer-sin-ia.py" "$AP" || true
+# v10: capturas-clave/ y capturas-esenciales/, borra las sueltas y la basura, oculta los .srt (ver ordenar-curso.py)
+python3 "$SCRIPTS/ordenar-curso.py" "$CURSO" || true
 MSG="$HECHAS de $TOTAL clases con apuntes."
 [ ${#FALLARON[@]} -gt 0 ] && MSG="$MSG Fallaron: ${FALLARON[*]}"
 export PROGRESO_RANGO="0 100" PROGRESO_CLASE=""
-python3 "$SCRIPTS/progreso.py" poner 100 fin "🎓 $MSG Índice: capturas/INDICE.md"
+python3 "$SCRIPTS/progreso.py" poner 100 fin "🎓 $MSG Índice: Apuntes/INDICE.md"
 echo "$MSG"

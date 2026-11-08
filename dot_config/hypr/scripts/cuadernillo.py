@@ -181,7 +181,7 @@ def regla_resumen(segundos):
             "chuleta y código mínimo solo lo imprescindible.")
 
 
-FORMATO = 6  # v6: menos andamiaje en clases cortas, diagramas solo si explican, "primero recuerda", soluciones comprobadas, "(extra)"; v5: cero imágenes; v4: relevancia ⭐🔸💤, comentarios 👉 en el código, intuición, tope de lectura; v3: + objetivos, comparativas, solución de ejercicios, vocabulario; v2 del formato de apuntes.md (v2: sin transcripción adentro, ejemplos, diagramas, errores con arreglo)
+FORMATO = 10  # v10: recorte que cumple el presupuesto sí o sí, sin metacomentarios ni '(extra)'; v6: menos andamiaje en clases cortas, diagramas solo si explican, "primero recuerda", soluciones comprobadas, "(extra)"; v5: cero imágenes; v4: relevancia ⭐🔸💤, comentarios 👉 en el código, intuición, tope de lectura; v3: + objetivos, comparativas, solución de ejercicios, vocabulario; v2 del formato de apuntes.md (v2: sin transcripción adentro, ejemplos, diagramas, errores con arreglo)
 SISTEMA = ("Eres un docente experto en la disciplina de la clase. Priorizas precisión, comprensión y práctica. "
            "Usas la transcripción y el código original como evidencia; adaptas ejemplos, diagramas y tareas "
            "al nivel y a la materia. No inventas APIs, métodos, resultados, citas ni mediciones. "
@@ -1284,9 +1284,23 @@ def _tokens_en_codigo(md):
     return "\n".join(sal)
 
 
+NIVELES = 10  # 0 todo · 1-3 pliega · 4-6 recorta lo de adorno · 7-9 recorta hasta cumplir sí o sí (v10)
+LINEAS_CODIGO = {8: 14, 9: 8}
+
+
+def _cortar_codigo(codigo, maximo, fin, lenguaje=""):
+    """Código largo → las primeras `maximo` líneas + un comentario que manda al video (no un '…' mudo)."""
+    lineas = str(codigo or "").strip("\n").split("\n")
+    if len(lineas) <= maximo:
+        return codigo
+    abre, cierra = COMENTARIO.get(str(lenguaje or "").lower().strip(), ("//", ""))
+    return "\n".join(lineas[:maximo] + [f"{abre} 👉 +{len(lineas) - maximo} líneas: completo en el video hasta {hms(fin)}{cierra}"])
+
+
 def _recortar(datos, secciones, nivel):
     """v9: si el apunte se pasa del presupuesto de lectura, se RECORTA (no solo se pliega) lo menos importante, de a poco.
-    Opera sobre copias: .apuntes-ia.json conserva lo que dijo la IA (rearmar-v6 puede volver a armar con otro presupuesto)."""
+    v10 (08/11/2026): los niveles 7-9 cumplen el presupuesto aunque haya que tocar lo ⭐ y el código (antes el nivel 6
+    se quedaba corto en 134 de 141 clases de un curso real). Opera sobre copias: .apuntes-ia.json conserva todo."""
     if nivel < 4 or not datos:
         return datos, secciones
     import copy
@@ -1294,21 +1308,72 @@ def _recortar(datos, secciones, nivel):
     for k, s in enumerate(sec):
         diario = s.get("relevancia") == "diario"
         cierre = k == len(sec) - 1  # v9c: el cierre del video (resultados, conclusiones, advertencias) pierde menos
-        s["puntos"] = _top_puntos(s.get("puntos") or [], {4: 5, 5: 4, 6: 3}[nivel] + (1 if diario else 0) + (2 if cierre else 0))
-        if not diario:
+        base = {4: 5, 5: 4, 6: 3, 7: 3, 8: 2, 9: 2}[nivel]
+        s["puntos"] = _top_puntos(s.get("puntos") or [], base + (1 if diario and nivel < 8 else 0) + ((2 if nivel < 8 else 1) if cierre else 0))
+        if not diario or nivel >= 7:
             s["porque"], s["intuicion"] = "", ""
             if nivel >= 5:
                 s["ejemplo"], s["comparativa"], s["diagrama"] = None, None, ""
         if nivel >= 6:
             s["linea_a_linea"] = []
+        if nivel >= 8:
+            if s.get("relevancia") == "raro" and len(sec) > 1:
+                s["codigo"] = ""
+            s["codigo"] = _cortar_codigo(s.get("codigo"), LINEAS_CODIGO[nivel], s.get("fin", 0), s.get("lenguaje"))
     if nivel >= 5:
         d["errores_comunes"] = (d.get("errores_comunes") or [])[:1] if nivel == 5 else []
-        d["practica"] = (d.get("practica") or [])[:1]
+        d["practica"] = (d.get("practica") or [])[:1] if nivel < 7 else []
+    if nivel >= 7:
+        d["conceptos"], d["vocabulario"], d["objetivos"] = [], [], []
     return d, sec
 
 
+# v10: lo que habla del PROCESO (OCR, capturas, el apunte anterior) y no del tema es ruido para estudiar
+META_ARMADO = re.compile(META.pattern + r"|\bOCR\b|la captura (muestra|dice|se lee)|fotograma|apunte (previo|anterior)|"
+                         r"el apunte usa|en pantalla solo se ley[oó]|se lee con dudas", re.I)
+EXTRA = re.compile(r"\*?\((?:extra|[Cc]omplemento[^)]{0,60}|[Ee]jemplo adicional|[Ee]jercicio adicional)\)\*?")
+
+
+def _limpiar_punto(p):
+    """Viñeta → sin aclaraciones sobre el proceso; None si toda ella es sobre el proceso o es material extra
+    (lo que el profe NO dijo: el usuario estudia el video, no un libro)."""
+    t = str(p)
+    if EXTRA.search(t):
+        return None
+    t = re.sub(r"\s*\((?:[^()]*?)(?:\bOCR\b|lectura|no verificad|la captura)(?:[^()]*?)\)", "", t)
+    t = re.sub(r"[,;:]?\s*(?:porque\s+)?en pantalla solo se ley[oó] con OCR\.?", ".", t)
+    return None if META_ARMADO.search(t) else t.strip()
+
+
+def limpiar_titulo(t):
+    """'001. @RecursosCompartidos Operadores' → '001. Operadores' (firmas de canales de Telegram en los nombres)."""
+    return re.sub(r"\s{2,}", " ", re.sub(r"(^|\s)@\w+", r"\1", str(t))).strip()
+
+
+def _limpiar_datos(datos):
+    """Aplica _limpiar_punto a las viñetas y al resumen (sobre una copia)."""
+    if not datos:
+        return datos
+    import copy
+    d = copy.deepcopy(datos)
+    for s in d.get("secciones") or []:
+        if isinstance(s, dict):
+            s["puntos"] = [x for x in (_limpiar_punto(p) for p in s.get("puntos") or []) if x]
+            ej = s.get("ejemplo")
+            if isinstance(ej, dict) and EXTRA.search(str(ej.get("enunciado") or "")):
+                s["ejemplo"] = None
+            cod = str(s.get("codigo") or "")
+            if re.search(r"\(extra\)|\bIlustrativo\b", cod[:300], re.I):  # código que el profe no mostró
+                s["codigo"], s["linea_a_linea"] = "", []
+            elif "OCR" in cod:
+                s["codigo"] = re.sub(r"\s*\([^()\n]*\bOCR\b[^()\n]*\)", "", cod)
+    d["resumen"] = [x for x in (_limpiar_punto(p) for p in d.get("resumen") or []) if x]
+    return d
+
+
 def armar(carpeta, titulo, capturas, subs, datos, duracion, recursos_md=""):
-    datos = editorial.revisar_apis(datos)
+    titulo = limpiar_titulo(titulo)
+    datos = _limpiar_datos(editorial.revisar_apis(datos))
     recursos_md = editorial.recursos_sin_imagenes(recursos_md)
     cues_es = subs.get("es") or subs.get("en") or []
     idioma_txt = "español" if subs.get("es") else ("inglés" if subs.get("en") else None)
@@ -1337,7 +1402,7 @@ def armar(carpeta, titulo, capturas, subs, datos, duracion, recursos_md=""):
     hay_voz = bool(voz)
 
     presupuesto = presupuesto_lectura(duracion)
-    for nivel in range(7):  # si se pasa del presupuesto: 1-3 pliega lo menos importante; 4-6 lo RECORTA (v9)
+    for nivel in range(NIVELES):  # si se pasa del presupuesto: 1-3 pliega lo menos importante; 4-9 lo RECORTA (v9/v10)
         d_n, sec_n = _recortar(datos, secciones, nivel)
         md = _armar_md(titulo, capturas, d_n, duracion, recursos_md, sec_n, importantes, esenciales,
                        voz, idioma_txt, hay_resumen, min(nivel, 3))
@@ -1426,7 +1491,8 @@ def _armar_md(titulo, capturas, datos, duracion, recursos_md, secciones, importa
     la práctica · 3 = también los errores después del 3.º (lo ⭐ nunca se pliega)."""
     hay_voz = bool(voz)
     L = [f"# 📓 {titulo}", ""]
-    L += [f"> ⏱️ **Duración:** {hms(duracion)} · {"📚 **Secciones:** " + str(len(secciones)) + " · " if len(secciones) >= 2 else ""}Imágenes: {len(importantes)}"]
+    L += [f"> ⏱️ **Duración:** {hms(duracion)}" + (f" · 📚 **Secciones:** {len(secciones)}" if len(secciones) >= 2 else "")
+          + (f" · Imágenes: {len(importantes)}" if importantes else "")]
     enlaces = (["⚡ [Repaso rápido](resumen.md)"] if hay_resumen else []) + \
               ([f"🗣️ [Lo que dice el profe](transcripcion.md) ({idioma_txt})"] if hay_voz else [])
     if enlaces:
@@ -1464,7 +1530,8 @@ def _armar_md(titulo, capturas, datos, duracion, recursos_md, secciones, importa
         porque = _txt(s.get("porque"))
         if rel in ("diario", "raro") and len(secciones) > 1 and not (rel == "diario" and not porque):  # ⭐ y 💤 orientan; sin porqué no se rotula
             L += ["> " + " — ".join(x for x in (REL[rel], porque if rel == "diario" else "") if x), ""]
-        plegar = (rel == "raro" and nivel >= 1 and len(secciones) > 1 and len(s.get("puntos") or []) >= 4)
+        plegar = (rel == "raro" and nivel >= 1 and len(secciones) > 1 and len(s.get("puntos") or []) >= 4
+                  and not str(s.get("codigo") or "").strip())  # v10: lo que trae código del profe no se esconde
         cuerpo = []
         # presupuesto de la sección según lo que dura: los puntos que se pasan van plegados (no se pierden)
         tope = max(30, 20 * dur / 60) * (1.5, 1.2, 1.0, 0.8)[nivel] * (1.3 if rel == "diario" else 1.0)
@@ -1489,10 +1556,10 @@ def _armar_md(titulo, capturas, datos, duracion, recursos_md, secciones, importa
             L += cuerpo
         if sobran:
             L += ["> [!tip]- 🔍 Más detalle del código"] + [f"> - {x}" for x in sobran] + [""]
-        if _txt(s.get("intuicion")):
+        if _txt(s.get("intuicion")) and duracion >= 600:  # v10: en clases cortas "La idea" repite las viñetas
             L += [f"> [!abstract] 🧠 La idea", f"> {_txt(s['intuicion'])}", ""]
         diag = _mermaid(s.get("diagrama"))
-        if diag and _diagrama_vale(diag, rel, dur) and n_diag[0] < (1 if duracion < 1200 else n_diagramas(duracion)):
+        if diag and _diagrama_vale(diag, rel, dur) and n_diag[0] < n_diagramas(duracion):
             n_diag[0] += 1
             L += ["```mermaid", diag, "```", ""]
         comp = s.get("comparativa")
@@ -1502,7 +1569,7 @@ def _armar_md(titulo, capturas, datos, duracion, recursos_md, secciones, importa
                 L += ["> [!info]- ⚖️ Comparativa"] + [f"> {x}" for x in tabla] + [""]
             else:
                 L += tabla
-        ej = s.get("ejemplo")
+        ej = s.get("ejemplo") if duracion >= 600 else None  # v10: en clases cortas el ejemplo resuelto es andamiaje
         if isinstance(ej, dict) and (ej.get("pasos") or ej.get("salida")):
             marca = "-" if (plegar or (nivel >= 2 and rel != "diario")) else ""
             L += [f"> [!example]{marca} 🧪 Ejemplo resuelto: {_txt(ej.get('enunciado'))}"]
@@ -1530,8 +1597,9 @@ def _armar_md(titulo, capturas, datos, duracion, recursos_md, secciones, importa
 
     if datos:
         # clases cortas: se muestra solo lo que les toca (lo demás queda en el JSON), aunque se hayan hecho con más
-        tope_l = 0 if duracion < 120 else 1 if duracion < 300 else 2 if duracion < 600 else None
-        errores = [e for e in datos.get("errores_comunes") or [] if e][:tope_l]
+        # v10: los topes por duración de siempre (antes un tope_l propio dejaba práctica y errores en clases de 3 min)
+        tope_l = n_ejercicios(duracion)
+        errores = [e for e in datos.get("errores_comunes") or [] if e][:n_errores(duracion)]
         if errores:
             def linea_error(e):
                 if not isinstance(e, dict):
@@ -1574,14 +1642,15 @@ def _armar_md(titulo, capturas, datos, duracion, recursos_md, secciones, importa
                 L += P + [""]
             if any(str(x.get("lenguaje", "")).lower() in ("js", "javascript", "python", "py") for x in secciones):
                 L += ["> Con el botón **Práctica** de SUPER+I salen ejercicios con tests (JS/Python).", ""]
-        if datos.get("conceptos") and duracion >= 600:
-            conc = [c for c in datos["conceptos"] if isinstance(c, dict)]
+        if datos.get("conceptos") and duracion >= 2700:  # v10: glosario solo en clases de 45+ min (en las cortas repite)
+            conc = [c for c in datos["conceptos"] if isinstance(c, dict)][:12]
             # material de consulta: plegado (no se lee de corrido, se abre cuando hace falta)
             L += ["## 🧠 Glosario", "", f"> [!abstract]- {len(conc)} términos de la clase", "> | Concepto | Qué es |", "> |---|---|"]
             L += [f"> | **{_celda(c.get('termino', ''))}** | {_celda(c.get('definicion', ''))} |" for c in conc]
             L += [""]
         voc = [v for v in datos.get("vocabulario") or [] if isinstance(v, dict) and _txt(v.get("en"))]
-        if voc and duracion >= 600:
+        voc = voc[:n_vocabulario(duracion)]
+        if voc:
             L += ["## 🇬🇧 Vocabulario", "", f"> [!abstract]- {len(voc)} términos en inglés (con pronunciación)",
                   "> | English | Suena | Español |", "> |---|---|---|"]
             L += [f"> | **{_celda(v.get('en'))}** | {_celda(v.get('suena'))} | {_celda(v.get('es'))} |" for v in voc]
@@ -1684,7 +1753,7 @@ def ancla(titulo):
     """Ancla estilo GitHub/Obsidian para el índice."""
     t = titulo.lower()
     t = re.sub(r"[^\w\s-]", "", t)
-    return re.sub(r"\s+", "-", t.strip())
+    return t.strip().replace(" ", "-")  # v10: cada espacio es un guion (como GitHub/Obsidian); antes "a := b" → "a-b" y no "a--b"
 
 
 def _idea(carpeta_capturas, d):
@@ -1744,7 +1813,7 @@ def indice(carpeta_capturas, nombre_curso):
 def main():
     if len(sys.argv) >= 3 and sys.argv[1] == "--indice":
         carpeta = os.path.abspath(sys.argv[2])
-        indice(carpeta, os.path.basename(os.path.dirname(carpeta)) if os.path.basename(carpeta) == "capturas"
+        indice(carpeta, os.path.basename(os.path.dirname(carpeta)) if os.path.basename(carpeta) in ("Apuntes", "capturas")
                else os.path.basename(carpeta))
         return 0
     p = argparse.ArgumentParser()
@@ -1765,10 +1834,11 @@ def main():
 
     print("📸 Eligiendo capturas importantes…")
     capturas = elegir_capturas(carpeta)
-    if not capturas:
+    if not capturas and not editorial.duracion_guardada(carpeta):
         print("No hay capturas con minuto del video en la carpeta")
         return 1
-    print(f"   {sum(c[2] for c in capturas)} importantes de {len(capturas)}")
+    # v10: tras ordenar-curso.py las capturas sueltas ya no están (viven en capturas-clave/): se sigue con la voz
+    print(f"   {sum(c[2] for c in capturas)} importantes de {len(capturas)}") if capturas else None
 
     subs = buscar_subtitulos(carpeta, a.video)
     if not subs and a.video and tr.disponible():
@@ -1814,7 +1884,7 @@ def main():
     if capitulos:
         codigo_curso += ("\n--- CAPÍTULOS DEL VIDEO (los puso el autor: úsalos como las secciones, con estos tiempos) ---\n"
                          + "\n".join(f"[{hms(t)}] {n}" for t, n in capitulos) + "\n")
-    duracion = max([capturas[-1][1], editorial.duracion_guardada(carpeta)] + [c[1] for v in subs.values() for c in v[-1:]])
+    duracion = max(([capturas[-1][1]] if capturas else []) + [editorial.duracion_guardada(carpeta)] + [c[1] for v in subs.values() for c in v[-1:]])
     editorial.registrar_fuentes(carpeta, a.video, duracion)
 
     datos = None

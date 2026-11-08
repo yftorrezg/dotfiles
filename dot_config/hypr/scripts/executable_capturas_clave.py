@@ -327,9 +327,13 @@ def _armar(curso, carpeta, clases, tl, salida, padre, obtener, titulo, nota):
     borradas = 0
     ancho = max(3, len(str(len(clases))))
     nuevas, filas, total_c, total, esperados = [], [], 0, 0, set()
+    intocables = []  # v10: clases sin capturas sueltas (ya se limpiaron): lo suyo en esta carpeta NO se toca
     for k, clase in enumerate(clases, 1):
         cdir = os.path.join(carpeta, clase)
         n = len(imagenes(cdir))
+        if n == 0:
+            intocables.append(f"{k:0{ancho}d} {tl.limpio(clase)} · ")
+            continue
         print(f"[{k}/{len(clases)}] {clase} ({n} capturas)", flush=True)
         lista = obtener(cdir)
         if lista is None:
@@ -365,6 +369,8 @@ def _armar(curso, carpeta, clases, tl, salida, padre, obtener, titulo, nota):
     quitadas = 0
     for f in os.listdir(destino):  # lo que ya no corresponde a este nivel (regla nueva, o borrado más arriba)
         ruta = os.path.join(destino, f)
+        if f.startswith(tuple(intocables)):
+            continue
         if f.lower().endswith(EXT) and f not in esperados and os.stat(ruta).st_nlink >= 2:  # nunca la única copia
             os.remove(ruta)
             quitadas += 1
@@ -383,8 +389,8 @@ def procesar(carpeta):
     todas-las-capturas/ (el nivel más grande) lo arma todas-las-capturas.py."""
     tl = _todas()
     carpeta = os.path.abspath(carpeta)
-    if os.path.basename(carpeta) != "capturas" and os.path.isdir(os.path.join(carpeta, "capturas")):
-        carpeta = os.path.join(carpeta, "capturas")
+    if os.path.basename(carpeta) not in ("Apuntes", "capturas"):  # v10: la carpeta de las clases se llama Apuntes/
+        carpeta = next((os.path.join(carpeta, n) for n in ("Apuntes", "capturas") if os.path.isdir(os.path.join(carpeta, n))), carpeta)
     curso = os.path.dirname(carpeta)
     # mismas clases y mismo orden que todas-las-capturas (así los nombres coinciden)
     clases = sorted((d for d in os.listdir(carpeta) if os.path.isfile(os.path.join(carpeta, d, "apuntes.md"))),

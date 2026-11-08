@@ -309,7 +309,7 @@ def main():
         totales = {"clase": 0, "lecturas": 0, "proyecto": 0, "pdf": 0, "imagenes": 0, "enlaces": 0}
         con = n = 0
         for raiz, dirs, fs in os.walk(a[1]):
-            dirs[:] = [d for d in dirs if d not in {"capturas", "todas-las-capturas", "capturas-clave", "capturas-esenciales"} | SALTAR_DIR]
+            dirs[:] = [d for d in dirs if d not in {"Apuntes", "capturas", "todas-las-capturas", "capturas-clave", "capturas-esenciales", "codigo-en-imagenes"} | SALTAR_DIR]
             for f in sorted(fs):
                 if os.path.splitext(f)[1].lower() in VIDEO and not re.search(r"\.(es|en)\.\w+$", f):
                     n += 1

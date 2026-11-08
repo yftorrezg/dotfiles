@@ -73,7 +73,7 @@ with tempfile.TemporaryDirectory() as d:
     sr1, sr2 = "<!--SR:!2026-10-05,4,270-->", "<!--SR:!fsrs,2026-10-09,3,1,5.2,4.1,0,0,2026-09-28-->"
     md = md.replace("Porque Y.\n", "Porque Y.\n" + sr1 + "\n")
     md = md.replace("`np.array([1, 2])`\n", "`np.array([1, 2])` " + sr2 + "\n")  # ajuste "misma línea"
-    md = md.replace("nunca se regenera.*", "nunca se regenera.*\n\nMi pregunta\n?\nMi respuesta\n<!--SR:!2026-10-01,1,230-->")
+    md = md.replace("no se regenera.*", "no se regenera.*\n\nMi pregunta\n?\nMi respuesta\n<!--SR:!2026-10-01,1,230-->")
     open(ruta, "w").write(md)
     antes = os.path.getmtime(ruta)
     assert ta.generar(c) == 0 and open(ruta).read() == md  # sin --forzar: no se pisa

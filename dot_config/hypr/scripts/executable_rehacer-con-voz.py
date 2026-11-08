@@ -37,7 +37,8 @@ def main():
     if not args:
         sys.exit(__doc__)
     for curso in args:
-        cap = os.path.join(os.path.abspath(curso), "capturas")
+        cap = next((os.path.join(os.path.abspath(curso), n) for n in ("Apuntes", "capturas")
+                    if os.path.isdir(os.path.join(os.path.abspath(curso), n))), "")
         if not os.path.isdir(cap):
             print(f"(no es un curso con capturas/: {curso})")
             continue

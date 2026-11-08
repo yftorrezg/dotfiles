@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """Código y diapositivas que entrega el curso → imágenes en orden de clase + un .md con todo.
 
-Lee `<curso>/capturas/<clase>/codigo-del-curso/` (lo copia recursos.py) y arma:
+Lee `<curso>/Apuntes/<clase>/codigo-del-curso/` (lo copia recursos.py; antes `capturas/`) y, desde v10, también el
+código y los PDF del curso que no quedaron asignados a ninguna clase (p. ej. una "Práctica final" sin video). Arma:
   <curso>/codigo-en-imagenes/NNN clase · archivo (k de N).webp   código resaltado (one-dark)
   <curso>/codigo-en-imagenes/NNN clase · archivo · pág P.webp     páginas de los PDF del curso
   <curso>/codigo-del-curso.md                                     todo el código, por clase
@@ -41,8 +42,37 @@ def es_volcado_de_datos(texto):
     return datos / len(ls) > 0.5
 
 
+CARPETAS_APUNTES = ("Apuntes", "capturas")
+FUERA = {"Apuntes", "capturas", "capturas-clave", "capturas-esenciales", "todas-las-capturas", "codigo-en-imagenes",
+         "capturas-estudio-codigos", "node_modules", "__pycache__", ".git", "Extras"}
+
+
+def carpeta_apuntes(curso):
+    return next((curso / n for n in CARPETAS_APUNTES if (curso / n).is_dir()), curso / "Apuntes")
+
+
+def sueltos(curso, ya_vistos):
+    """Código y PDF del curso que no está en ninguna clase: (carpeta relativa, archivo), en orden."""
+    out = []
+    for p in sorted(curso.rglob("*"), key=lambda p: ri.natural(str(p.relative_to(curso)))):
+        partes = p.relative_to(curso).parts
+        if not p.is_file() or len(partes) < 2 and p.suffix.lower() != ".pdf" or any(x in FUERA or x.startswith(".") for x in partes):
+            continue
+        if len(partes) == 1:  # en la raíz solo los PDF del curso, no lo que genera este sistema
+            continue
+        ext = p.suffix.lower()
+        if ext in (".html", ".htm"):  # páginas de la plataforma (avisos, enunciados con enlaces): se abren en el navegador
+            continue
+        if ext != ".pdf" and ext != ".ipynb" and ext not in ri.EXT_CODIGO and p.name not in ri.NOMBRES_CODIGO:
+            continue
+        if (p.name, p.stat().st_size) in ya_vistos:
+            continue
+        out.append(p)
+    return out
+
+
 def clases(curso):
-    cap = curso / "capturas"
+    cap = carpeta_apuntes(curso)
     if not cap.is_dir():
         return []
     return sorted((d for d in cap.iterdir() if d.is_dir() and (d / "codigo-del-curso").is_dir()),
@@ -116,60 +146,42 @@ def main():
     a = ap.parse_args()
     curso = a.curso.resolve()
     columnas, tamano, lineas = (100, 22, 42) if a.pc else (60, 30, 30)
-
-    cls = clases(curso)
-    if not cls:
-        print(f"Sin codigo-del-curso/ en {curso}/capturas")
-        return 0
     salida = curso / "codigo-en-imagenes"
     manif = salida / ".ya-agregadas.txt"
     ya = set() if a.forzar or not manif.exists() else set(manif.read_text().split("\n"))
     r = ri.Renderizador(columnas, tamano)
-    md = [f"# 💻 Código del curso — {curso.name}\n",
-          "> Todo el código que entrega el curso, en orden de clase. Las imágenes están en "
-          "`codigo-en-imagenes/` (una tecla = siguiente).\n"]
-    nuevas = n_cod = n_pdf = 0
-    if not a.ver:
-        salida.mkdir(exist_ok=True)
-    for i, clase in enumerate(cls, 1):
-        titulo = clase.name
-        piezas = []
-        for f in archivos(clase / "codigo-del-curso"):
-            rel = f.relative_to(clase / "codigo-del-curso")
-            base = f"{i:03d} {ri.limpiar(ri.corto(titulo, 70))} · {ri.limpiar(ri.corto(str(rel), 50))}"
-            ext = f.suffix.lower()
-            if ext == ".pdf" and not a.sin_pdf:
-                n_pdf += 1
-                piezas.append(f"- 📄 [{rel}](<capturas/{clase.name}/codigo-del-curso/{rel}>) (páginas en imágenes)")
-                if a.ver or base + ".pdf" in ya:
-                    continue
+    cont = {"nuevas": 0, "cod": 0, "pdf": 0}
+
+    def pieza(f, rel, enlace, base, titulo):
+        """Un archivo → su entrada del .md (o None) y sus imágenes."""
+        ext = f.suffix.lower()
+        if ext == ".pdf":
+            if a.sin_pdf:
+                return None
+            cont["pdf"] += 1
+            if not (a.ver or base + ".pdf" in ya):
                 with tempfile.TemporaryDirectory() as tmp:
-                    subprocess.run(["pdftoppm", "-r", "110", "-png", "-l", str(MAX_PAGINAS_PDF), str(f),
-                                    f"{tmp}/p"], capture_output=True)
-                    pags = sorted(Path(tmp).glob("p-*.png"), key=lambda p: ri.natural(p.name))
-                    for k, png in enumerate(pags, 1):
+                    subprocess.run(["pdftoppm", "-r", "110", "-png", "-l", str(MAX_PAGINAS_PDF), str(f), f"{tmp}/p"],
+                                   capture_output=True)
+                    for k, png in enumerate(sorted(Path(tmp).glob("p-*.png"), key=lambda p: ri.natural(p.name)), 1):
                         destino = salida / f"{base} · pág {k:02d}.webp"
                         if not destino.exists():
                             guardar(Image.open(png), destino)
-                            nuevas += 1
+                            cont["nuevas"] += 1
                 ya.add(base + ".pdf")
-                continue
-            es_nb = ext == ".ipynb"
-            if not es_nb and ext not in ri.EXT_CODIGO and f.name not in ri.NOMBRES_CODIGO:
-                continue
-            if not es_nb and f.stat().st_size > ri.MAX_BYTES:
-                piezas.append(f"- 📦 [{rel}](<capturas/{clase.name}/codigo-del-curso/{rel}>) (muy grande, solo enlace)")
-                continue
-            texto = notebook_a_texto(f) if es_nb else ri.leer(f)
-            if not texto or not texto.strip():
-                continue
-            if es_volcado_de_datos(texto):
-                piezas.append(f"- 🗄️ [{rel}](<capturas/{clase.name}/codigo-del-curso/{rel}>) (script de datos, solo enlace)")
-                continue
-            n_cod += 1
-            piezas.append(f"### `{rel}`\n\n```{'python' if es_nb else lenguaje_md(f)}\n{texto}\n```")
-            if a.ver:
-                continue
+            return f"- 📄 [{rel}](<{enlace}>) (páginas en imágenes)"
+        es_nb = ext == ".ipynb"
+        if not es_nb and ext not in ri.EXT_CODIGO and f.name not in ri.NOMBRES_CODIGO:
+            return None
+        if not es_nb and f.stat().st_size > ri.MAX_BYTES:
+            return f"- 📦 [{rel}](<{enlace}>) (muy grande, solo enlace)"
+        texto = notebook_a_texto(f) if es_nb else ri.leer(f)
+        if not texto or not texto.strip():
+            return None
+        if es_volcado_de_datos(texto):
+            return f"- 🗄️ [{rel}](<{enlace}>) (script de datos, solo enlace)"
+        cont["cod"] += 1
+        if not a.ver:
             ls = ri.lineas_resaltadas(texto, f.stem + ".py" if es_nb else f.name, r.estilo)
             rangos = ri.partir(ls, lineas)[:MAX_PAGINAS_NOTEBOOK if es_nb else MAX_PAGINAS_ARCHIVO]
             for k, (ini, fin) in enumerate(rangos, 1):
@@ -178,14 +190,50 @@ def main():
                 destino = salida / nombre
                 if nombre in ya or destino.exists():
                     continue
-                guardar(r.imagen(ls[ini:fin], ini + 1, ri.corto(f"{rel} · {titulo}", columnas - (10 if suf else 2)), f"{k} de {len(rangos)}" if suf else ""),
-                        destino)
+                guardar(r.imagen(ls[ini:fin], ini + 1, ri.corto(f"{rel} · {titulo}", columnas - (10 if suf else 2)),
+                                 f"{k} de {len(rangos)}" if suf else ""), destino)
                 ya.add(nombre)
-                nuevas += 1
+                cont["nuevas"] += 1
+        return f"### `{rel}`\n\n```{'python' if es_nb else lenguaje_md(f)}\n{texto}\n```"
+
+    cls = clases(curso)
+    if not a.ver:
+        salida.mkdir(exist_ok=True)
+    md = [f"# 💻 Código del curso — {curso.name}\n",
+          "> Todo el código que entrega el curso, en orden de clase. Las imágenes están en "
+          "`codigo-en-imagenes/` (una tecla = siguiente).\n"]
+    vistos, n = set(), 0
+    for clase in cls:
+        n += 1
+        piezas = []
+        for f in archivos(clase / "codigo-del-curso"):
+            rel = f.relative_to(clase / "codigo-del-curso")
+            vistos.add((f.name, f.stat().st_size))
+            base = f"{n:03d} {ri.limpiar(ri.corto(clase.name, 70))} · {ri.limpiar(ri.corto(str(rel), 50))}"
+            x = pieza(f, rel, f"{clase.parent.name}/{clase.name}/codigo-del-curso/{rel}", base, clase.name)
+            piezas += [x] if x else []
         if piezas:
-            md.append(f"\n## {i:03d} · {titulo}\n")
-            md.extend(p + "\n" for p in piezas)
-    print(f"{len(cls)} clases con material · {n_cod} archivos de código · {n_pdf} PDF · {nuevas} imágenes nuevas")
+            md.append(f"\n## {n:03d} · {clase.name}\n")
+            md.extend(x + "\n" for x in piezas)
+    # v10: lo que el curso trae y no quedó en ninguna clase (práctica final, material de una sección sin video…)
+    grupos = {}
+    for f in sueltos(curso, vistos):
+        grupos.setdefault(str(f.parent.relative_to(curso)), []).append(f)
+    for carpeta, fs in grupos.items():
+        n += 1
+        piezas = []
+        for f in fs:
+            base = f"{n:03d} {ri.limpiar(ri.corto(carpeta, 70))} · {ri.limpiar(ri.corto(f.name, 50))}"
+            x = pieza(f, f.name, str(f.relative_to(curso)), base, carpeta)
+            piezas += [x] if x else []
+        if piezas:
+            md.append(f"\n## {n:03d} · {carpeta} (material sin clase)\n")
+            md.extend(x + "\n" for x in piezas)
+    if not cont["cod"] and not cont["pdf"]:
+        print(f"(sin código ni PDF del curso en {curso})")
+        return 0
+    print(f"{len(cls)} clases con material + {len(grupos)} carpetas sueltas · {cont['cod']} archivos de código · "
+          f"{cont['pdf']} PDF · {cont['nuevas']} imágenes nuevas")
     if not a.ver:
         manif.write_text("\n".join(sorted(x for x in ya if x)))
         (curso / "codigo-del-curso.md").write_text("".join(md))

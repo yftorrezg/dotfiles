@@ -252,11 +252,12 @@ def nombres(carpeta):
     try:
         primera = open(os.path.join(carpeta, "apuntes.md"), encoding="utf-8").readline()
         titulo = primera.removeprefix("# 📓 ").strip() or titulo
+        titulo = re.sub(r"\s{2,}", " ", re.sub(r"(^|\s)@\w+", r"\1", titulo)).strip()  # v10: sin "@RecursosCompartidos"
     except OSError:
         pass
     arriba = os.path.dirname(carpeta)
     indice = os.path.join(arriba, "INDICE.md")
-    if os.path.basename(arriba) == "capturas" or os.path.exists(indice):
+    if os.path.basename(arriba) in ("Apuntes", "capturas") or os.path.exists(indice):
         curso = os.path.basename(os.path.dirname(arriba))
         try:
             curso = open(indice, encoding="utf-8").readline().removeprefix("# 🎓 ").strip() or curso
@@ -267,11 +268,8 @@ def nombres(carpeta):
 
 
 def armar_md(titulo, tag, tarjetas, progreso, mias, hay_resumen=True):
-    L = [f"# 🃏 Tarjetas: {escapar_linea(titulo)}", "", tag, "",
-         "*Repaso espaciado con el plugin Spaced Repetition: ícono de tarjetas de la barra izquierda "
-         "o Ctrl+P → «Revisar tarjetas en esta nota» / «…de todas las notas» (en inglés: «Review flashcards…»). Las genera tarjetas.py a partir de "
-         + ("[📓 los apuntes](apuntes.md) y [⚡ el resumen](resumen.md)" if hay_resumen else "[📓 los apuntes](apuntes.md)") + "; al regenerarlas se conserva tu "
-         "progreso y la sección «Mis tarjetas» (lo demás se pisa).*", ""]
+    """v10: sin el párrafo de ayuda del plugin (75 palabras repetidas en cada clase: ruido); hay_resumen queda por compatibilidad."""
+    L = [f"# 🃏 Tarjetas: {escapar_linea(titulo)}", "", tag, ""]
     seccion, conservadas = None, 0
     for sec, p, r in tarjetas:
         if sec != seccion:
@@ -284,8 +282,7 @@ def armar_md(titulo, tag, tarjetas, progreso, mias, hay_resumen=True):
             L += viejo
             conservadas += 1
         L += [""]
-    L += [mias or (MARCA_MIAS + "\n\n*Tus tarjetas (pregunta, una línea con `?` sola, respuesta; "
-                   "una línea en blanco entre tarjetas). Esta sección nunca se regenera.*"), ""]
+    L += [mias or (MARCA_MIAS + "\n\n*Pregunta, una línea con `?`, respuesta. Esta sección no se regenera.*"), ""]
     return "\n".join(L), conservadas
 
 
@@ -294,7 +291,7 @@ def a_html(texto):
     out = []
     for i, trozo in enumerate(re.split(r"```[^\n]*\n(.*?)\n?```", texto, flags=re.S)):
         if i % 2:
-            out.append(f"<pre><code>{html.escape(trozo)}</code></pre>")
+            out.append(f"<pre><code>{html.escape(trozo).replace(chr(10), '<br>')}</code></pre>")  # v10: un salto real rompía la fila del TSV
             continue
         t = html.escape(trozo.strip("\n"), quote=True)
         t = re.sub(r"`([^`]+)`", r"<code>\1</code>", t)
@@ -340,20 +337,22 @@ def _paquete(m):
 
 
 def _de_datos_duros(largo, cuantas, ya):
-    """Tarjetas 'completa el dato' a partir de las viñetas con cifras, versiones o advertencias (cuando la IA no mandó preguntas)."""
-    cand = []
-    for s in (largo or {}).get("secciones") or []:
-        for p in (s.get("puntos") or []) if isinstance(s, dict) else []:
-            p = _txt(p)
-            if re.search(r"\d|\b(nunca|siempre|evita|cuidado|requisito|necesitas|necesita)\b", p, re.I) and 25 <= len(p) <= 220:
-                cand.append(p)
+    """v10: cuando la IA no mandó bastantes preguntas, tarjetas de RECUERDO por sección ("¿Qué explicó el profe sobre X?"
+    → sus 2-3 viñetas más duras). Antes era "¿qué dato concreto se dio aquí? «…»": una frase cortada, de relleno."""
     sal = []
-    for p in cand:
+    secs = [s for s in (largo or {}).get("secciones") or [] if isinstance(s, dict) and _txt(s.get("titulo")) and s.get("puntos")]
+    secs.sort(key=lambda s: {"diario": 0, "a-veces": 1}.get(s.get("relevancia"), 2))  # primero lo ⭐
+    for s in secs:
         if len(sal) >= cuantas:
             break
-        pregunta = f"Según la clase: ¿qué dato concreto se dio aquí? «{p[:p.find(' ', 20) if ' ' in p[20:60] else 40]}…»"
+        pts = [_txt(p) for p in s["puntos"] if _txt(p)]
+        duros = [p for p in pts if re.search(r"\d|`|\b(nunca|siempre|evita|cuidado|requisito|necesita\w*)\b", p, re.I)]
+        resp = (duros + [p for p in pts if p not in duros])[:3]
+        if len(" ".join(resp)) < 25:
+            continue
+        pregunta = f"¿Qué explicó el profe sobre **{_txt(s['titulo'])}**?"
         if pregunta not in ya:
-            sal.append(("🔁 Preguntas de la clase", pregunta, p))
+            sal.append(("🔁 Preguntas de la clase", pregunta, "\n".join(f"- {p}" for p in resp)))
     return sal
 
 

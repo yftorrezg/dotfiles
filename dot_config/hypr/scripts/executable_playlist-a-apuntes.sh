@@ -3,7 +3,7 @@
 # cuadernillo de apuntes, y el INDICE.md del curso. Mismo diseño que curso-a-apuntes.sh:
 # se puede cortar y volver a lanzar (con el mismo link) y sigue donde quedó; prioridad baja.
 # Uso: playlist-a-apuntes.sh <url de la playlist>   (sirve watch?v=…&list=… o playlist?list=…)
-# Salida: ~/Vídeos/Capturas de YouTube/<título de la playlist>/capturas/<NNN - título>/
+# Salida: ~/Vídeos/Capturas de YouTube/<título de la playlist>/Apuntes/<NNN - título>/
 #   NNN = posición en la playlist (001, 002…: así se ordenan solas). Cada clase guarda el id del
 #   video en .youtube-id: aunque YouTube cambie el título o el orden, se reconoce lo ya hecho.
 # Variables: MAX_VIDEOS=N (solo los primeros N, para probar) · SIN_IA=1 · SIN_APUNTES=1
@@ -38,7 +38,9 @@ done
 NOMBRE_CURSO=$(grep "^TITULO$T" <<<"$LISTADO" | cut -f2 | limpiar)
 [ -z "$NOMBRE_CURSO" ] && NOMBRE_CURSO="Playlist $LISTA"
 CURSO="$BASE/$NOMBRE_CURSO"
-mkdir -p "$CURSO/capturas"
+[ -d "$CURSO/capturas" ] && [ ! -e "$CURSO/Apuntes" ] && mv "$CURSO/capturas" "$CURSO/Apuntes"  # v10: antes capturas/
+AP="$CURSO/Apuntes"
+mkdir -p "$AP"
 grep -v "^TITULO$T" <<<"$LISTADO" > "$CURSO/.playlist.tsv"   # posición, id, duración, título
 echo "$URL" > "$CURSO/.playlist-url"
 mapfile -t ENTRADAS < "$CURSO/.playlist.tsv"
@@ -48,7 +50,7 @@ TOTAL=${#ENTRADAS[@]}
 
 # Carpetas ya existentes por id de video (de una corrida anterior)
 declare -A CARPETA_DE
-for f in "$CURSO"/capturas/*/.youtube-id; do
+for f in "$AP"/*/.youtube-id; do
     [ -f "$f" ] && CARPETA_DE[$(< "$f")]=$(dirname "$f")
 done
 
@@ -65,7 +67,7 @@ al_salir() {  # si se corta (error, cancelar), que la barrita no quede colgada
 }
 trap al_salir EXIT
 extras() {  # índice + tarjetas + panel (los dos últimos, si existen: los arma otro script)
-    python3 "$SCRIPTS/cuadernillo.py" --indice "$CURSO/capturas" >/dev/null
+    python3 "$SCRIPTS/cuadernillo.py" --indice "$AP" >/dev/null
     [ -f "$SCRIPTS/panel-cursos.py" ] && python3 "$SCRIPTS/panel-cursos.py" >/dev/null 2>&1 || true
 }
 
@@ -77,7 +79,7 @@ for i in "${!ENTRADAS[@]}"; do
     export PROGRESO_CLASE="$((i + 1))/$TOTAL"
     TITULO_ORIGINAL="$TITULO"   # sin limpiar: limpiar() cambia [ ] por "-" y ya no se vería "[Private video]"
     TITULO=$(limpiar <<<"$TITULO")
-    DIR="${CARPETA_DE[$ID]:-$CURSO/capturas/$(printf '%03d' "$((10#$POS))") - $TITULO}"
+    DIR="${CARPETA_DE[$ID]:-$AP/$(printf '%03d' "$((10#$POS))") - $TITULO}"
     echo "===== [$((i + 1))/$TOTAL] $(basename "$DIR") ($(date +%H:%M)) ====="
     if [ -f "$DIR/$LISTO" ]; then
         echo "Ya tiene apuntes: se saltea"
@@ -120,15 +122,16 @@ rm -f -- "$TMP"
 
 extras
 # Clases que quedaron sin resumen de IA (Claude no respondió): se rehacen ahora, sin bajar nada
-[ "${SIN_IA:-0}" = 1 ] || python3 "$SCRIPTS/rehacer-sin-ia.py" "$CURSO/capturas" || true
-python3 "$SCRIPTS/cuadernillo.py" --indice "$CURSO/capturas"
-python3 "$SCRIPTS/todas-las-capturas.py" "$CURSO/capturas" || true
+[ "${SIN_IA:-0}" = 1 ] || python3 "$SCRIPTS/rehacer-sin-ia.py" "$AP" || true
+python3 "$SCRIPTS/cuadernillo.py" --indice "$AP"
 # código y PDF que entrega el curso → imágenes en orden de clase + codigo-del-curso.md
 python3 "$SCRIPTS/codigo-curso-a-imagenes.py" "$CURSO" || true
 # mapa por módulo (MAPA.md): solo en cursos largos (30+ clases), 1 llamada corta por módulo
-if [ "$(find "$CURSO/capturas" -mindepth 2 -maxdepth 2 -name .apuntes-ia.json 2>/dev/null | wc -l)" -ge 30 ]; then
+if [ "$(find "$AP" -mindepth 2 -maxdepth 2 -name .apuntes-ia.json 2>/dev/null | wc -l)" -ge 30 ]; then
     python3 "$SCRIPTS/mapa-curso.py" "$CURSO" || true
 fi
+# v10: capturas-clave/ y capturas-esenciales/, borra las sueltas y la basura (ver ordenar-curso.py)
+python3 "$SCRIPTS/ordenar-curso.py" "$CURSO" || true
 MSG="$HECHAS de $TOTAL clases con apuntes."
 [ "$SALTEADAS" -gt 0 ] && MSG="$MSG $SALTEADAS no disponibles."
 [ ${#FALLARON[@]} -gt 0 ] && MSG="$MSG Fallaron: ${FALLARON[*]}"
@@ -139,5 +142,5 @@ if [ -n "$CORTE" ]; then
     python3 "$SCRIPTS/progreso.py" poner 100 error "$MSG"
     echo "$MSG"; exit 2
 fi
-python3 "$SCRIPTS/progreso.py" poner 100 fin "🎓 $MSG Índice: capturas/INDICE.md"
+python3 "$SCRIPTS/progreso.py" poner 100 fin "🎓 $MSG Índice: Apuntes/INDICE.md"
 echo "$MSG"

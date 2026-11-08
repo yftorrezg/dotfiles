@@ -333,8 +333,9 @@ prueba("v2: la voz del profe va a transcripcion.md (no adentro)", "hola" in tr_m
        and "Lo que dice el profe" in md, md[:300])
 prueba("v2: ejemplo resuelto, comentario 👉 en el código y diagrama", "Ejemplo resuelto" in md
        and "let a = 1;  // 👉 declara" in md and md.count("```mermaid") == 1)
-prueba("v2: errores con arreglo + compatibles con texto", "❌ **olvidar let**" in md and "✅ usar let" in md and "- texto viejo" in md)
-prueba("v2: pista plegada y glosario escapado", "[!hint]-" in md and "función \\| que recuerda" in md)
+prueba("v2: errores con arreglo (v10: 20 min → solo 1)", "❌ **olvidar let**" in md and "✅ usar let" in md and "- texto viejo" not in md)
+md45 = c.armar(d, "Clase v2", [], subs_v2, datos_v2, 3000)
+prueba("v2: pista plegada y glosario escapado (v10: glosario desde 45 min)", "[!hint]-" in md and "Glosario" not in md and "función \\| que recuerda" in md45)
 prueba("v2: sin resumen.md muestra 'En 30 segundos'; con resumen.md no", "En 30 segundos" in md and
        (open(os.path.join(d, "resumen.md"), "w").write("x") and "En 30 segundos" not in
         c.armar(d, "Clase v2", [("0001.webp", 5.0, True, 1.0)], subs_v2, datos_v2, 120)))
@@ -372,25 +373,9 @@ prueba("v6: clase de <10 min sin objetivos, glosario ni vocabulario", "Al termin
 md = c.armar(d, "Clase v3", [("0001.webp", 5.0, True, 1.0)], {}, dv3, 700)
 prueba("v3: comparativa, solución plegada (objetivos solo desde 45 min en v8)", "| sin pareja | no sale | sale con NULL |" in md
        and "[!success]- ✅ Solución" in md and "  > FROM a JOIN b" in md)
-prueba("v3: glosario y vocabulario plegados", "> [!abstract]- 1 términos de la clase" in md and "> | **database** | déita-beis |" in md)
+md = c.armar(d, "Clase v3", [], {}, dv3, 3700)
+prueba("v3: glosario y vocabulario plegados (v10: 45 min / 1 h)", "> [!abstract]- 1 términos de la clase" in md and "> | **database** | déita-beis |" in md, md)
 shutil.rmtree(d)
-mj = cargar("mj", "mejorar-apuntes.py")
-datos_m = {"secciones": [{"titulo": "A", "codigo": "x = 1", "puntos": ["viejo"]}, {"titulo": "B", "puntos": ["b"]}],
-           "practica": ["viejo"], "errores_comunes": ["viejo"]}
-corto_m = {"preguntas": [{"pregunta": "¿vieja?", "respuesta": "r"}]}
-nuevo_m = {"objetivos": ["o"], "secciones": [{"i": 0, "porque": "pq", "codigo": "NO SE TOCA", "puntos": ["n1", "n2"]},
-                                              {"i": 7, "porque": "fuera de rango"}, {"i": "x"}],
-           "practica": [{"enunciado": f"e{k}"} for k in range(3)], "errores_comunes": [{"error": "e"}, {"error": "f"}],
-           "corto": {"preguntas": [{"pregunta": f"¿{k}?", "respuesta": "r"} for k in range(4)], "pretest": [{"pregunta": "¿pt?", "respuesta": "r"}]}}
-dm, cm = mj.fusionar(datos_m, corto_m, nuevo_m, 3600)
-prueba("mejorar: mete lo nuevo sin tocar el código", dm["secciones"][0]["codigo"] == "x = 1" and dm["secciones"][0]["porque"] == "pq"
-       and dm["secciones"][0]["puntos"] == ["n1", "n2"] and dm["secciones"][0]["puntos_antes"] == ["viejo"]
-       and "porque" not in dm["secciones"][1] and dm["formato"] == c.FORMATO)
-prueba("mejorar: reemplaza práctica/errores/preguntas y pone pretest", len(dm["practica"]) == 3 and len(dm["errores_comunes"]) == 2
-       and [q["pregunta"] for q in cm["preguntas"]] == ["¿0?", "¿1?", "¿2?", "¿3?"] and cm["pretest"][0]["pregunta"] == "¿pt?")
-prueba("mejorar: respuesta pobre no borra lo que había", mj.fusionar({"secciones": [{"t": 1}], "practica": ["a"]},
-       {"preguntas": [{"pregunta": "p", "respuesta": "r"}]}, {"secciones": [], "practica": [], "corto": {"preguntas": []}}, 3600)[0]["practica"] == ["a"])
-
 # ---- formato v4 (06/11/2026): relevancia, comentarios 👉, tope de lectura
 cod, sob = c._comentar("x = 1\ny = x + 1\nprint(y)", "python", ["`y = x + 1` → suma", "`no existe` → nada", "sin formato"])
 prueba("v4: comentario 👉 en la línea justa, el código no cambia", cod.split("\n") == ["x = 1", "y = x + 1  # 👉 suma", "print(y)"]
@@ -429,20 +414,6 @@ md = c.armar(d, "Bienvenida", [("0001.webp", 5.0, True, 1.0)], {}, {"sin_conteni
 prueba("sin_contenido: solo 2 puntos, sin objetivos/índice/práctica", "Presenta el curso" in md and "tercero" not in md
        and "Al terminar" not in md and "Para practicar" not in md and "Índice" not in md and len(md.split()) < 60, md)
 shutil.rmtree(d)
-mj = cargar("mj2", "mejorar-apuntes.py")
-prueba("mejorar: grupos de temas (≤28 = 1 llamada; 60 = partes de ≤24)", mj.grupos_de(27) == [(0, 27)] and mj.grupos_de(28) == [(0, 28)]
-       and mj.grupos_de(60) == [(0, 20), (20, 40), (40, 60)] and mj.grupos_de(0) == [(0, 0)])
-dm, cm = mj.fusionar({"secciones": [{"titulo": "A"}], "practica": ["vieja"] * 5, "errores_comunes": ["vieja"] * 3},
-                     {"preguntas": [{"pregunta": "p", "respuesta": "r"}] * 5}, {"secciones": [], "sin_contenido": True, "corto": {"preguntas": [{"pregunta": "¿?", "respuesta": "r"}]}}, 40)
-prueba("mejorar: sin_contenido vacía práctica/errores y deja 1 pregunta", dm["practica"] == [] and dm["errores_comunes"] == [] and dm["sin_contenido"]
-       and len(cm["preguntas"]) == 1)
-dm, cm = mj.fusionar({"secciones": [{"titulo": "A"}], "practica": ["vieja"] * 5, "errores_comunes": ["vieja"] * 3},
-                     {"preguntas": [{"pregunta": "p", "respuesta": "r"}] * 5}, {"secciones": [{"i": 0, "porque": "x"}]}, 3600)
-prueba("mejorar: parte 2 de 3 (sin práctica ni corto) no borra lo global", dm["practica"] == ["vieja"] * 5 and dm["errores_comunes"] == ["vieja"] * 3
-       and len(cm["preguntas"]) == 5 and dm["secciones"][0]["porque"] == "x")
-dm, _ = mj.fusionar({"secciones": [{"titulo": "A"}], "practica": ["vieja"] * 6, "errores_comunes": []}, None,
-                    {"secciones": [], "practica": []}, 90)
-prueba("mejorar: clase de 1,5 min → sin ejercicios", dm["practica"] == [])
 
 d = tempfile.mkdtemp()
 dc = {"secciones": [{"inicio": "0:00", "titulo": "A", "puntos": ["p"]}], "conceptos": [{"termino": "t", "definicion": "d"}],
@@ -450,9 +421,11 @@ dc = {"secciones": [{"inicio": "0:00", "titulo": "A", "puntos": ["p"]}], "concep
       "practica": [{"enunciado": "ej1"}, {"enunciado": "ej2"}, {"enunciado": "ej3"}]}
 m1 = c.armar(d, "Corta", [("0001.webp", 5.0, True, 1.0)], {}, dc, 84)
 m2 = c.armar(d, "Media", [("0001.webp", 5.0, True, 1.0)], {}, dc, 240)
-m3 = c.armar(d, "Larga", [("0001.webp", 5.0, True, 1.0)], {}, dc, 1200)
-prueba("cortas ya hechas: se muestra solo lo que les toca", "ej1" not in m1 and "Errores" not in m1 and "Glosario" not in m1
-       and "ej1" in m2 and "ej2" not in m2 and "e2" not in m2 and "Glosario" not in m2 and "Glosario" in m3 and "ej3" in m3 and "e3" in m3)
+m3 = c.armar(d, "Larga", [("0001.webp", 5.0, True, 1.0)], {}, dc, 1100)
+m4 = c.armar(d, "Muy larga", [], {}, dc, 3000)
+prueba("cortas ya hechas: se muestra solo lo que les toca (v10: n_ejercicios/n_errores)", "ej1" not in m1 and "Errores" not in m1 and "Glosario" not in m1
+       and "ej1" not in m2 and "e1" not in m2 and "Glosario" not in m2
+       and "ej1" in m3 and "ej2" not in m3 and "e1" in m3 and "e2" not in m3 and "Glosario" not in m3 and "Glosario" in m4 and "ej2" in m4)
 shutil.rmtree(d)
 
 

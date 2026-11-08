@@ -76,14 +76,14 @@ def buscar_cursos(base):
     cursos = {}
     for raiz, dirs, archivos in os.walk(base):
         dirs[:] = sorted(d for d in dirs if not d.startswith("."))
-        es_curso = "INDICE.md" in archivos and (os.path.basename(raiz) == "capturas"
+        es_curso = "INDICE.md" in archivos and (os.path.basename(raiz) in ("Apuntes", "capturas")
                                                or any(os.path.exists(os.path.join(raiz, d, "apuntes.md")) for d in dirs))
         if es_curso:
             cursos.setdefault(raiz, {"clases": []})["indice"] = os.path.join(raiz, "INDICE.md")
         if "apuntes.md" not in archivos:
             continue
         arriba = os.path.dirname(raiz)
-        if os.path.basename(arriba) == "capturas" or os.path.exists(os.path.join(arriba, "INDICE.md")):
+        if os.path.basename(arriba) in ("Apuntes", "capturas") or os.path.exists(os.path.join(arriba, "INDICE.md")):
             cursos.setdefault(arriba, {"clases": []})["clases"].append(raiz)   # clase de un curso
         else:
             cursos.setdefault(raiz, {"clases": []})["clases"].append(raiz)     # curso de una sola clase

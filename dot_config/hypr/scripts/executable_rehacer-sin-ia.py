@@ -47,7 +47,7 @@ def main():
         else:
             fallas += 1
         padre = os.path.dirname(c)
-        if os.path.basename(padre) == "capturas":
+        if os.path.basename(padre) in ("Apuntes", "capturas"):
             subprocess.run([sys.executable, os.path.join(AQUI, "cuadernillo.py"), "--indice", padre],
                            stdout=subprocess.DEVNULL)
     subprocess.run([sys.executable, os.path.join(AQUI, "panel-cursos.py")], stdout=subprocess.DEVNULL)

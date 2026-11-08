@@ -84,10 +84,10 @@ def cursos_conocidos():
             continue
         for raiz_dir, dirs, _ in os.walk(raiz):
             prof = len(Path(raiz_dir).relative_to(raiz).parts)
-            if "capturas" in dirs and prof >= 1:
+            if ("Apuntes" in dirs or "capturas" in dirs) and prof >= 1:
                 cursos.add(os.path.realpath(raiz_dir))
             # capturas/ de un curso nunca tiene otro curso adentro; y no hace falta bajar más de 3 niveles
-            dirs[:] = [x for x in dirs if x != "capturas" and prof < 3 and not x.startswith(".")
+            dirs[:] = [x for x in dirs if x not in ("Apuntes", "capturas") and prof < 3 and not x.startswith(".")
                        and x not in ("$RECYCLE.BIN", "System Volume Information")]
     for lista in LISTAS:
         try:
@@ -112,7 +112,7 @@ def videos_del_curso(curso):
         return c[1]
     vistos = set()
     for raiz, dirs, archivos in os.walk(curso):
-        dirs[:] = [d for d in dirs if d not in ("capturas", "node_modules")]
+        dirs[:] = [d for d in dirs if d not in ("Apuntes", "capturas", "node_modules")]
         for a in archivos:
             ext = Path(a).suffix.lower()
             if ext not in VIDEO_EXT or a.endswith(".part") or ".temp." in a:
@@ -129,7 +129,7 @@ def videos_del_curso(curso):
 
 
 def clases_con_apuntes(curso):
-    cap = Path(curso) / "capturas"
+    cap = next((Path(curso) / n for n in ("Apuntes", "capturas") if (Path(curso) / n).is_dir()), Path(curso) / "Apuntes")
     if not cap.is_dir():
         return 0, False
     n = 0

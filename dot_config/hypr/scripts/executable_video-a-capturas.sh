@@ -122,7 +122,7 @@ else
     VIDEO=$(realpath "$1")
     NOMBRE=$(basename "${VIDEO%.*}" | sed -E 's/\.(es|en)$//')  # "clase.es.mp4" (doblado) = misma clase
     [ "$PROPIA" = 1 ] && setsid python3 "$SCRIPTS/progreso.py" seguir "$PROGRESO_ARCHIVO" "$NOMBRE" >/dev/null 2>&1 &
-    DIR="${DESTINO:-$(dirname "$VIDEO")/capturas/$NOMBRE}"
+    DIR="${DESTINO:-$(dirname "$VIDEO")/Apuntes/$NOMBRE}"
     BORRAR=0
     CAPTURAS_DESDE=0
 fi
