@@ -416,14 +416,16 @@ def lista_reproduccion():
     if pl is True:
         pl = []
     wd = ipc("get_property", "working-directory") or ""
-    out = []
+    out, imps = [], importantes()
     for i, e in enumerate(pl):
         ruta = e.get("filename", "")
         if not re.match(r"^\w[\w+.-]*://", ruta) and not ruta.startswith("/"):
             ruta = os.path.join(wd, ruta)
         nombre = e.get("title") or os.path.splitext(os.path.basename(ruta))[0]
         out.append({"i": i, "nombre": nombre, "ruta": normalizar(ruta),
-                    "actual": bool(e.get("current")), "dur": duracion(ruta)})
+                    "cap": os.path.basename(os.path.dirname(ruta)),  # capítulo (carpeta): el panel lo usa de título
+                    "actual": bool(e.get("current")), "dur": duracion(ruta),
+                    "imp": normalizar(ruta) in imps})
     return out
 
 
@@ -487,6 +489,326 @@ def duracion(ruta):
         return seg
 
 
+# ---------- gestión de videos: importantes · borrar · recortar ----------
+IMPORTANTES = os.environ.get("NOTAS_IMPORTANTES") or os.path.expanduser("~/.local/share/mpv-panel/importantes.json")
+EXT_VIDEO = {"3g2", "3gp", "avi", "flv", "m2ts", "m4v", "mkv", "mov", "mp4", "mpeg", "mpg", "ogv", "ts", "webm", "wmv"}
+EXT_SUBS = {"srt", "vtt", "ass"}
+MARCAS_CURSO = ("Apuntes", "capturas", "capturas-clave")  # las mismas que usa curso.lua
+CARPETAS_CLAVE = ("capturas-clave", "capturas-esenciales", "codigo-en-imagenes")
+WATCH_LATER = os.path.expanduser("~/.local/state/mpv/watch_later")
+_gest_candado = threading.Lock()
+
+
+def _alnum(t):
+    return re.sub(r"[\W_]+", "", t.casefold())
+
+
+def importantes():
+    """{ruta del video: {"curso": raíz, "cuando": fecha}}"""
+    return leer_json(IMPORTANTES, {})
+
+
+def alternar_importante(ruta):
+    """Marca / desmarca el video como importante; devuelve el estado nuevo."""
+    with _gest_candado:
+        d = importantes()
+        if ruta in d:
+            del d[ruta]
+            ahora = False
+        else:
+            d[ruta] = {"curso": raiz_curso(ruta), "cuando": datetime.date.today().isoformat()}
+            ahora = True
+        os.makedirs(os.path.dirname(IMPORTANTES), exist_ok=True)
+        escribir_json(IMPORTANTES, d)
+        return ahora
+
+
+def quitar_importante(ruta):
+    with _gest_candado:
+        d = importantes()
+        if d.pop(ruta, None) is not None:
+            escribir_json(IMPORTANTES, d)
+
+
+def raiz_curso(ruta):
+    """Carpeta raíz del curso del video (sube hasta 4 carpetas buscando Apuntes/…, como curso.lua)."""
+    d = os.path.dirname(ruta)
+    x = d
+    for _ in range(5):
+        if any(os.path.isdir(os.path.join(x, m)) for m in MARCAS_CURSO):
+            return x
+        p = os.path.dirname(x)
+        if p == x:
+            break
+        x = p
+    return d
+
+
+def item_de_lista(i):
+    """Item i de la lista de mpv si es un video local que existe (lo único que se puede tocar); si no, None."""
+    item = next((x for x in lista_reproduccion() if x["i"] == i), None)
+    if not item or re.match(r"^\w[\w+.-]*://", item["ruta"]) or not os.path.isfile(item["ruta"]):
+        return None
+    if os.path.splitext(item["ruta"])[1].lstrip(".").lower() not in EXT_VIDEO:
+        return None
+    return item
+
+
+def _subtitulos_de(ruta):
+    d, stem = os.path.split(ruta)
+    stem = os.path.splitext(stem)[0]
+    try:
+        return [os.path.join(d, f) for f in sorted(os.listdir(d))
+                if f.startswith(stem + ".") and f.rsplit(".", 1)[-1].lower() in EXT_SUBS]
+    except OSError:
+        return []
+
+
+def apuntes_de(ruta):
+    """Todo lo derivado de este video: carpeta de apuntes, capturas clave, notas del panel, fila del MAPA."""
+    raiz = raiz_curso(ruta)
+    stem = os.path.splitext(os.path.basename(ruta))[0]
+    limpio = re.sub(r"^(\d+)\.\s*", r"\1 ", stem)  # "009. Cursores" → "009 Cursores"
+    carpeta_v = os.path.dirname(ruta)
+    cand = f"{os.path.basename(carpeta_v)} - {limpio}" if carpeta_v != raiz else limpio
+    res = {"clase": None, "dir": None, "archivos": [], "extras": [], "mapa": None, "notas": 0, "slug": None}
+    base = next((os.path.join(raiz, n) for n in ("Apuntes", "capturas") if os.path.isdir(os.path.join(raiz, n))), None)
+    if base:
+        try:
+            nombres = os.listdir(base)
+        except OSError:
+            nombres = []
+        hallado = cand if cand in nombres else next((n for n in nombres if _alnum(n) == _alnum(cand)), None)
+        if hallado and os.path.isdir(os.path.join(base, hallado)):
+            res["clase"], res["dir"] = hallado, os.path.join(base, hallado)
+            res["archivos"] = sorted(f for f in os.listdir(res["dir"])
+                                     if f in ("apuntes.md", "resumen.md", "tarjetas.md", "tarjetas-anki.txt", "transcripcion.md"))
+    if res["clase"]:
+        pref = re.compile(r"^\d+ " + re.escape(res["clase"]) + r" · ")
+        for c in CARPETAS_CLAVE:
+            cd = os.path.join(raiz, c)
+            if os.path.isdir(cd):
+                res["extras"] += [os.path.join(cd, f) for f in sorted(os.listdir(cd)) if pref.match(f)]
+        mapa = os.path.join(raiz, "MAPA.md")
+        if os.path.isfile(mapa):
+            res["mapa"] = mapa
+    slug = indice().get(ruta)
+    d = slug and cargar(slug)
+    if d:
+        res["slug"], res["notas"] = slug, len(d["notas"])
+    return res
+
+
+def a_papelera(ruta):
+    """Manda a la papelera (recuperable). Devuelve None si fue bien o el texto del error."""
+    r = subprocess.run(["gio", "trash", ruta], stdout=subprocess.DEVNULL, stderr=subprocess.PIPE, timeout=120)
+    return None if r.returncode == 0 else (r.stderr.decode(errors="replace").strip() or "gio trash falló")
+
+
+def info_borrado(i):
+    item = item_de_lista(i)
+    if not item:
+        return None
+    a = apuntes_de(item["ruta"])
+    return {"nombre": item["nombre"], "clase": a["clase"], "archivos": a["archivos"],
+            "capturas": len(a["extras"]), "notas": a["notas"], "subs": len(_subtitulos_de(item["ruta"]))}
+
+
+def borrar_video(i, con_apuntes):
+    """Quita el video de la lista y lo manda a la papelera (+ subtítulos). Con con_apuntes: también sus apuntes."""
+    item = item_de_lista(i)
+    if not item:
+        return {"ok": False, "error": "video no encontrado"}
+    ruta = item["ruta"]
+    a = apuntes_de(ruta) if con_apuntes else None
+    archivos = [ruta] + _subtitulos_de(ruta)
+    for f in archivos:
+        err = a_papelera(f)
+        if err:
+            return {"ok": False, "error": err}
+    ocultos = os.path.join(os.path.dirname(ruta), ".hidden")
+    if os.path.isfile(ocultos):  # los .srt se ocultan en .hidden: limpia los nombres borrados
+        quitar = {os.path.basename(f) for f in archivos}
+        try:
+            with open(ocultos, encoding="utf-8") as f:
+                lineas = f.read().splitlines()
+            if any(l in quitar for l in lineas):
+                with open(ocultos, "w", encoding="utf-8") as f:
+                    f.write("\n".join(l for l in lineas if l not in quitar) + "\n")
+        except OSError:
+            pass
+    ipc("playlist-remove", i)
+    quitar_importante(ruta)
+    borrados = {"video": True, "apuntes": False, "capturas": 0, "notas": 0}
+    if a:
+        if a["dir"] and not a_papelera(a["dir"]):
+            borrados["apuntes"] = True
+        for f in a["extras"]:
+            if not a_papelera(f):
+                borrados["capturas"] += 1
+        if a["clase"] and a["mapa"]:
+            _quitar_de_mapa(a["mapa"], a["clase"])
+        if a["slug"]:
+            with _candado:
+                idx = indice()
+                if idx.pop(ruta, None) is not None:
+                    escribir_json(os.path.join(RAIZ, "indice.json"), idx)
+            if not a_papelera(carpeta(a["slug"])):
+                borrados["notas"] = a["notas"]
+    return {"ok": True, **borrados}
+
+
+def _quitar_de_mapa(mapa, clase):
+    """Quita del MAPA.md la fila de la clase borrada (si no, el enlace quedaría roto)."""
+    try:
+        with open(mapa, encoding="utf-8") as f:
+            lineas = f.read().split("\n")
+        clave = f"Apuntes/{clase}/"
+        nuevas = [l for l in lineas if clave not in l]
+        if len(nuevas) != len(lineas):
+            with open(mapa, "w", encoding="utf-8") as f:
+                f.write("\n".join(nuevas))
+    except OSError:
+        pass
+
+
+# ---------- recortar (principio y final) ----------
+_recorte = {"activo": False, "pct": 0, "ok": None, "msg": "", "i": None}
+
+
+def estado_recorte():
+    return dict(_recorte)
+
+
+def _ffmpeg(args, dur, al_progreso=None):
+    p = subprocess.Popen(["ffmpeg", "-y", "-hide_banner", "-loglevel", "error", "-nostats", "-progress", "pipe:1"] + args,
+                         stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+    for l in p.stdout:
+        if al_progreso and l.startswith("out_time_us="):
+            try:
+                al_progreso(min(0.99, int(l.split("=")[1]) / 1e6 / max(dur, 0.1)))
+            except ValueError:
+                pass
+    err = p.stderr.read()
+    return p.wait() == 0, err.strip()[-300:]
+
+
+def _seg_srt(t):
+    h, m, r = t.replace(",", ".").split(":")
+    return int(h) * 3600 + int(m) * 60 + float(r)
+
+
+def _txt_srt(t):
+    t = max(0, round(t * 1000))
+    return f"{t // 3600000:02d}:{t // 60000 % 60:02d}:{t // 1000 % 60:02d},{t % 1000:03d}"
+
+
+def cortar_srt(ruta, ini, fin):
+    """Deja en el .srt solo lo que cae entre ini y fin, con los tiempos desplazados (el original va a la papelera)."""
+    with open(ruta, encoding="utf-8-sig") as f:
+        bloques = re.split(r"\n\s*\n", f.read().strip().replace("\r\n", "\n"))
+    salida = []
+    for b in bloques:
+        l = b.split("\n")
+        k = next((j for j, x in enumerate(l) if "-->" in x), None)
+        if k is None:
+            continue
+        a, z = (_seg_srt(x.strip()) for x in l[k].split("-->")[:2])
+        if z <= ini or a >= fin:
+            continue
+        salida.append("\n".join([str(len(salida) + 1), f"{_txt_srt(max(a, ini) - ini)} --> {_txt_srt(min(z, fin) - ini)}"] + l[k + 1:]))
+    if a_papelera(ruta):
+        return
+    with open(ruta, "w", encoding="utf-8") as f:
+        f.write("\n\n".join(salida) + "\n")
+
+
+def _hilo_recorte(i, ruta, ini, fin, dur):
+    nuevo = fin - ini
+    d, base = os.path.split(ruta)
+    tmp = os.path.join(d, f".recorte-{os.getpid()}-{base}")
+    subs = _subtitulos_de(ruta)
+    try:
+        ok, err = _ffmpeg(["-ss", f"{ini:.3f}", "-i", ruta, "-t", f"{nuevo:.3f}", "-map", "0:v:0", "-map", "0:a?",
+                           "-c:v", "libx264", "-crf", "18", "-preset", "veryfast", "-pix_fmt", "yuv420p", "-c:a", "copy", tmp],
+                          nuevo, lambda f: _recorte.update(pct=round(f * 100)))
+        if not ok:
+            raise RuntimeError("ffmpeg: " + err)
+        r = subprocess.run(["ffprobe", "-v", "error", "-show_entries", "format=duration", "-of", "default=nw=1:nk=1", tmp],
+                           stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, timeout=15)
+        real = float(r.stdout.decode().strip().splitlines()[0])
+        if abs(real - nuevo) > 3:
+            raise RuntimeError(f"el resultado dura {fmt(real)} y se esperaba {fmt(nuevo)}")
+        err = a_papelera(ruta)  # el original queda recuperable en la papelera
+        if err:
+            raise RuntimeError("no pude guardar el original en la papelera: " + err)
+        os.replace(tmp, ruta)
+        for sub in subs:  # los .srt siguen el mismo corte (vtt/ass no se tocan)
+            if sub.lower().endswith(".srt"):
+                try:
+                    cortar_srt(sub, ini, fin)
+                except (OSError, ValueError):
+                    pass
+        slug = indice().get(ruta)  # notas del panel: desplaza los tiempos
+        d_notas = slug and cargar(slug)
+        if d_notas:
+            with _candado:
+                for n in d_notas["notas"]:
+                    n["t"] = round(min(max(0, n["t"] - ini), real), 1)
+                guardar(slug, d_notas)
+        try:  # posición guardada del video viejo (pasaría del final del nuevo)
+            os.remove(os.path.join(WATCH_LATER, hashlib.md5(ruta.encode()).hexdigest().upper()))
+        except OSError:
+            pass
+        if (item := next((x for x in lista_reproduccion() if x["ruta"] == ruta), None)) and item["actual"]:
+            ipc("playlist-play-index", item["i"])  # recarga el archivo nuevo
+        _recorte.update(activo=False, ok=True, pct=100, msg=f"Listo: {fmt(dur)} → {fmt(real)}")
+    except Exception as e:
+        if os.path.exists(tmp):
+            os.remove(tmp)
+        _recorte.update(activo=False, ok=False, msg=str(e))
+
+
+def iniciar_recorte(i, ini, fin):
+    if _recorte["activo"]:
+        return {"ok": False, "error": "ya hay un recorte en curso"}
+    item = item_de_lista(i)
+    if not item:
+        return {"ok": False, "error": "video no encontrado"}
+    dur = duracion(item["ruta"]) or 0
+    ini = max(0.0, float(ini or 0))
+    fin = float(fin) if fin not in (None, "") else dur
+    fin = min(fin, dur) if dur else fin
+    if fin - ini < 2:
+        return {"ok": False, "error": "no queda nada del video (mínimo 2 s)"}
+    if ini < 0.5 and dur - fin < 0.5:
+        return {"ok": False, "error": "no hay nada que recortar"}
+    _recorte.update(activo=True, pct=0, ok=None, msg="", i=i)
+    threading.Thread(target=_hilo_recorte, args=(i, item["ruta"], ini, fin, dur), daemon=True).start()
+    return {"ok": True}
+
+
+# ---------- reproducir solo los importantes ----------
+def _clave_natural(s):
+    return [int(x) if x.isdigit() else x for x in re.split(r"(\d+)", s.casefold())]
+
+
+def solo_importantes(i_ref):
+    """Reemplaza la lista de mpv por los videos importantes del curso del item i_ref (en orden natural)."""
+    ref = next((x for x in lista_reproduccion() if x["i"] == i_ref), None)
+    if not ref:
+        return {"ok": False, "error": "sin lista"}
+    raiz = raiz_curso(ref["ruta"])
+    marcados = sorted((r for r in importantes() if raiz_curso(r) == raiz and os.path.isfile(r)), key=_clave_natural)
+    if not marcados:
+        return {"ok": False, "error": "no hay videos importantes en este curso"}
+    ipc("loadfile", marcados[0], "replace")
+    for r in marcados[1:]:
+        ipc("loadfile", r, "append")
+    enfocar_mpv()
+    return {"ok": True, "n": len(marcados)}
+
+
 # ---------- HTTP ----------
 ultimo_uso = time.time()
 
@@ -532,6 +854,14 @@ class H(BaseHTTPRequestHandler):
             return self._json(repaso_pendiente())
         if u.path == "/api/lista":
             return self._json(lista_reproduccion())
+        if u.path == "/api/borrar-info":
+            try:
+                info = info_borrado(int(q.get("i", ["-1"])[0]))
+            except ValueError:
+                info = None
+            return self._json(info or {"error": "video no encontrado"}, 200 if info else 404)
+        if u.path == "/api/recorte-estado":
+            return self._json(estado_recorte())
         if u.path == "/mini":
             try:
                 ruta = miniatura(int(q.get("i", ["-1"])[0]))
@@ -571,6 +901,19 @@ class H(BaseHTTPRequestHandler):
             ok = ipc("playlist-play-index", int(d["i"])) is not None
             enfocar_mpv()
             return self._json({"ok": ok})
+        if p == "/api/importante":
+            item = item_de_lista(int(d["i"]))
+            if not item:
+                return self._json({"ok": False})
+            return self._json({"ok": True, "imp": alternar_importante(item["ruta"])})
+        if p == "/api/borrar-video":
+            return self._json(borrar_video(int(d["i"]), bool(d.get("apuntes"))))
+        if p == "/api/recortar":
+            return self._json(iniciar_recorte(int(d["i"]), d.get("ini"), d.get("fin")))
+        if p == "/api/solo-importantes":
+            return self._json(solo_importantes(int(d["i"])))
+        if p == "/api/curso-completo":
+            return self._json({"ok": ipc("script-message", "curso-completo") is not None})
         if p == "/api/abrir":
             video, t = d["video"], float(d.get("t", 0))
             if ipc("get_property", "pid") is not None:

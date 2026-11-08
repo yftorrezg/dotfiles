@@ -113,7 +113,8 @@ En el panel (ventana de Brave): clic en `⏱ 12:34` o en la captura = mpv **salt
 | `P` (Shift+p) o `<` | Video anterior |
 | `Tab` | Ver la **lista** y elegir un video |
 | `Ctrl+o` | **Explorador de carpetas** |
-| `Alt+c` | **Cargar el curso completo** (carpeta padre + subcarpetas) |
+| (automático) | **Curso completo en la lista**: al abrir un video de un curso, la lista pasa a ser el curso entero, capítulo tras capítulo (`>`/`<` y Shift+H cruzan de capítulo) |
+| `Alt+c` | Cargar a mano el curso (carpeta padre + subcarpetas), si no se detectó solo |
 | `Alt+C` (Alt+Shift+c) | Cargar la carpeta actual + sus subcarpetas |
 | Clic derecho | Menú general de uosc |
 
@@ -151,7 +152,7 @@ Curso React/
     └── 1 Hooks.mp4
 ```
 Tienes tres formas de verlo:
-1. **Abrir un video y pulsar `Alt+c`**: la lista pasa a ser el curso entero, módulo tras módulo, y el video actual no se corta. Al terminar el módulo 1, sigue solo con el módulo 2.
+1. **Abrir un video** (desde 08/11/2026 es automático; antes había que pulsar `Alt+c`): la lista pasa a ser el curso entero, módulo tras módulo, y el video actual no se corta. Al terminar el módulo 1, sigue solo con el módulo 2.
 2. **Abrir la carpeta del curso directamente** desde la terminal: `mpv ~/Cursos/"Curso React"`. Carga todo, subcarpetas incluidas.
 3. **Pulsar `o`**, entrar a la subcarpeta que quieras y elegir el video.
 

@@ -56,9 +56,9 @@ def sueltos(curso, ya_vistos):
     out = []
     for p in sorted(curso.rglob("*"), key=lambda p: ri.natural(str(p.relative_to(curso)))):
         partes = p.relative_to(curso).parts
-        if not p.is_file() or len(partes) < 2 and p.suffix.lower() != ".pdf" or any(x in FUERA or x.startswith(".") for x in partes):
-            continue
-        if len(partes) == 1:  # en la raíz solo los PDF del curso, no lo que genera este sistema
+        if not p.is_file() or any(x in FUERA or x.startswith(".") or x.endswith("_files") for x in partes):
+            continue  # v10: las carpetas "*_files" son páginas web guardadas (js/css), no código del curso
+        if len(partes) == 1 and p.suffix.lower() != ".pdf":  # en la raíz solo los PDF del curso, no lo que genera el sistema
             continue
         ext = p.suffix.lower()
         if ext in (".html", ".htm"):  # páginas de la plataforma (avisos, enunciados con enlaces): se abren en el navegador
@@ -132,7 +132,10 @@ def lenguaje_md(p):
 
 
 def guardar(img, destino):
-    img.convert("RGB").save(destino, "WEBP", lossless=True, quality=50, method=1)
+    try:
+        img.convert("RGB").save(destino, "WEBP", lossless=True, quality=50, method=1)
+    except (ValueError, OSError) as e:  # p. ej. una línea minificada de 20 000 px de ancho: se salta, no se cae todo
+        print(f"  (sin imagen para {Path(destino).name}: {e})", file=sys.stderr)
 
 
 def main():
@@ -154,6 +157,8 @@ def main():
 
     def pieza(f, rel, enlace, base, titulo):
         """Un archivo → su entrada del .md (o None) y sus imágenes."""
+        if not a.ver:
+            salida.mkdir(exist_ok=True)  # v10: solo cuando de verdad hay algo que dibujar
         ext = f.suffix.lower()
         if ext == ".pdf":
             if a.sin_pdf:
@@ -197,8 +202,6 @@ def main():
         return f"### `{rel}`\n\n```{'python' if es_nb else lenguaje_md(f)}\n{texto}\n```"
 
     cls = clases(curso)
-    if not a.ver:
-        salida.mkdir(exist_ok=True)
     md = [f"# 💻 Código del curso — {curso.name}\n",
           "> Todo el código que entrega el curso, en orden de clase. Las imágenes están en "
           "`codigo-en-imagenes/` (una tecla = siguiente).\n"]

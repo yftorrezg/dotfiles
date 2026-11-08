@@ -62,6 +62,7 @@ select{font:inherit;color:var(--txt);background:var(--bg);border:1px solid var(-
 #lista .it{display:flex;gap:9px;align-items:center;background:var(--card);border:1px solid var(--borde);border-radius:9px;
   padding:5px;cursor:pointer;flex:none;transition:border-color .15s}
 #lista .it:hover{border-color:var(--acento2)}
+#lista .cap{font:600 12px system-ui,sans-serif;color:var(--acento);text-transform:uppercase;letter-spacing:.04em;margin:8px 2px -4px;opacity:.9}
 #lista .it.actual{border-color:var(--acento);box-shadow:0 0 0 1px var(--acento);background:var(--card2)}
 .it .mini{position:relative;flex:none;width:38%;max-width:150px;aspect-ratio:16/9;border-radius:6px;overflow:hidden;background:#000}
 .it .mini img{width:100%;height:100%;object-fit:cover;display:block}
@@ -73,6 +74,38 @@ select{font:inherit;color:var(--txt);background:var(--bg);border:1px solid var(-
 .it .nom{flex:1;min-width:0;font-weight:500;line-height:1.3;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;word-break:break-word}
 .it.actual .nom{color:var(--acento);font-weight:600}
 .it.vista .nom{color:var(--sub)}
+#lista .it{position:relative}
+.it .nom{padding-bottom:18px}
+.it .acc{position:absolute;right:5px;bottom:4px;display:flex;gap:3px}
+.it .acc button{width:24px;height:22px;padding:0;display:grid;place-items:center;border-radius:6px;
+  background:rgba(19,20,26,.82);color:var(--sub);border:1px solid transparent;opacity:.55;transition:opacity .12s,color .12s}
+.it:hover .acc button{opacity:1}
+.it .acc button svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.it .acc button[data-b=imp].on{opacity:1;color:#fbbf24}
+.it .acc button[data-b=imp].on svg{fill:#fbbf24}
+.it .acc button[data-b=imp]:hover{color:#fbbf24;border-color:#fbbf24}
+.it .acc button[data-b=cut]:hover{color:var(--acento2);border-color:var(--acento2)}
+.it .acc button[data-b=del]:hover{color:var(--peligro);border-color:var(--peligro)}
+#lista .it.imp{border-left:3px solid #fbbf24}
+#barra-lista{display:none;gap:5px;margin-top:7px;align-items:center}
+#barra-lista.ver{display:flex}
+#barra-lista button{font-size:12px;padding:3px 8px;white-space:nowrap}
+#barra-lista .chip{flex:none}
+#barra-lista .chip.on{background:#fbbf24;border-color:#fbbf24;color:#2b1d00}
+#modal{position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;align-items:center;justify-content:center;padding:14px;z-index:9}
+#modal.ver{display:flex}
+#modal .caja{background:var(--card);border:1px solid var(--borde);border-radius:12px;padding:14px;width:100%;max-width:420px;max-height:92vh;overflow:auto}
+#modal h2{font-size:15px;margin:0 0 8px;line-height:1.3;word-break:break-word}
+#modal p{margin:6px 0;color:var(--sub);font-size:13px}
+#modal .botones{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end;margin-top:12px}
+#modal button.peligro{border-color:var(--peligro);color:var(--peligro)}
+#modal button.peligro.fuerte{background:var(--peligro);color:#2a0606;font-weight:600}
+#modal ul{margin:6px 0;padding-left:18px;color:var(--txt);font-size:13px}
+#modal .campo{display:flex;gap:6px;align-items:center;margin:7px 0}
+#modal .campo label{flex:none;width:92px;font-size:13px}
+#modal .campo input{width:80px;font-family:ui-monospace,monospace}
+#modal .barra{height:8px;background:var(--bg);border-radius:4px;overflow:hidden;margin-top:10px}
+#modal .barra i{display:block;height:100%;width:0;background:var(--acento);transition:width .3s}
 #toast{position:fixed;left:50%;bottom:14px;transform:translateX(-50%);background:var(--card2);border:1px solid var(--acento);
   border-radius:8px;padding:5px 12px;opacity:0;transition:opacity .2s;pointer-events:none}
 #toast.ver{opacity:1}
@@ -90,6 +123,11 @@ select{font:inherit;color:var(--txt);background:var(--bg);border:1px solid var(-
   </div>
   <div class="meta"><span id="info"></span><label><input type="checkbox" id="seguir" checked style="width:auto;vertical-align:-2px"> seguir</label></div>
   <input id="buscar" placeholder="Buscar en las notas…" autocomplete="off">
+  <div id="barra-lista">
+    <button class="chip" id="f-imp" title="Mostrar solo los videos marcados como importantes">★ Importantes <span id="n-imp"></span></button>
+    <button class="mini" id="b-solo" title="Reproducir en mpv solo los importantes de este curso">▶ Solo importantes</button>
+    <button class="mini" id="b-todo" title="Volver a la lista del curso entero">Todo el curso</button>
+  </div>
   <div id="chips">
     <button class="chip on" data-f="">Todas</button><button class="chip" data-f="?">❓</button>
     <button class="chip" data-f="!">🔑</button><button class="chip" data-f="p">🛠️</button>
@@ -104,6 +142,7 @@ select{font:inherit;color:var(--txt);background:var(--bg);border:1px solid var(-
   </div>
 </div>
 <main id="lista"></main>
+<div id="modal"><div class="caja" id="caja"></div></div>
 <div id="toast"></div>
 
 <script>
@@ -114,7 +153,7 @@ const fmt = t => { t = Math.floor(t); const h = Math.floor(t/3600), m = Math.flo
 const api = (ruta, cuerpo) => fetch(ruta, cuerpo === undefined ? {} :
   { method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify(cuerpo) }).then(r => r.json());
 
-let lista = [], listaFirma = "", est = {mpv:false}, datos = {video:null, notas:[]}, vista = "video", editando = null, borrando = null;
+let soloImp = false, lista = [], listaFirma = "", est = {mpv:false}, datos = {video:null, notas:[]}, vista = "video", editando = null, borrando = null;
 let versionVista = null, videoVista = null, actualId = null, tVisto = 0;
 let filtroTipo = "", pendientes = [], ticks = 0;
 const TIPOS = {"?":["duda","❓ duda"], "!":["clave","🔑 clave"], "p":["practicar","🛠️ practicar"]};
@@ -137,6 +176,11 @@ function notaActual(){
 }
 
 function pintarCabecera(){
+  const enLista = vista === "lista";
+  $("#barra-lista").classList.toggle("ver", enLista);
+  $("#buscar").style.display = $("#chips").style.display = enLista ? "none" : "";
+  if (enLista) { const n = lista.filter(x => x.imp).length; $("#n-imp").textContent = n ? `(${n})` : "";
+    $("#f-imp").classList.toggle("on", soloImp); $("#b-solo").style.display = n ? "" : "none"; }
   $("#punto").classList.toggle("on", est.mpv);
   $("#btn-todos").textContent = "Videos"; $("#btn-repaso").classList.toggle("on", vista === "repaso");
   $("#btn-lista").classList.toggle("on", vista === "lista");
@@ -157,11 +201,19 @@ async function pintarLista(){
   if (vista === "lista") {
     lista = est.mpv ? await api("/api/lista") : [];
     const act = lista.findIndex(x => x.actual);
-    cont.innerHTML = lista.length ? lista.map((x, k) => `<div class="it${x.actual ? " actual" : ""}${k < act ? " vista" : ""}" data-i="${x.i}" title="${esc(x.nombre)}">
-      <div class="mini"><img loading="lazy" src="/mini?i=${x.i}" onerror="this.style.display='none'"><i>${k + 1}</i>${x.dur ? `<span class="dur">${fmt(x.dur)}</span>` : ""}</div>
-      <div class="nom">${esc(limpiar(x.nombre))}</div></div>`).join("")
-      : `<div class="vacio">No hay lista de reproducción.<br>Abre un video o carga un curso con <kbd>Alt</kbd>+<kbd>C</kbd>.</div>`;
-    listaFirma = lista.map(x => x.i + (x.actual ? "*" : "")).join();
+    const caps = new Set(lista.map(x => x.cap)).size > 1;  // curso entero: un título por capítulo
+    const vis = soloImp ? lista.filter(x => x.imp) : lista;
+    const IC = {
+      del: '<svg viewBox="0 0 24 24"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14M10 10v7M14 10v7"/></svg>',
+      imp: '<svg viewBox="0 0 24 24"><polygon points="12 2 15 9 22 9.5 16.5 14 18.5 21 12 17 5.5 21 7.5 14 2 9.5 9 9"/></svg>',
+      cut: '<svg viewBox="0 0 24 24"><circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="M20 4 8.1 15.9M14.5 14.5 20 20M8.1 8.1 12 12"/></svg>' };
+    cont.innerHTML = vis.length ? vis.map((x, k) => `${caps && (k === 0 || vis[k - 1].cap !== x.cap) ? `<div class="cap">${esc(x.cap || "")}</div>` : ""}<div class="it${x.actual ? " actual" : ""}${x.i < act ? " vista" : ""}${x.imp ? " imp" : ""}" data-i="${x.i}" title="${esc(x.nombre)}">
+      <div class="mini"><img loading="lazy" src="/mini?i=${x.i}" onerror="this.style.display='none'"><i>${x.i + 1}</i>${x.dur ? `<span class="dur">${fmt(x.dur)}</span>` : ""}</div>
+      <div class="nom">${esc(limpiar(x.nombre))}</div>
+      <div class="acc"><button data-b="del" title="Eliminar video">${IC.del}</button><button data-b="imp" class="${x.imp ? "on" : ""}" title="${x.imp ? "Quitar de importantes" : "Marcar como importante"}">${IC.imp}</button><button data-b="cut" title="Recortar principio / final">${IC.cut}</button></div></div>`).join("")
+      : (soloImp ? `<div class="vacio">Aún no marcaste videos importantes.<br>Pulsa la ★ de cada video.</div>`
+        : `<div class="vacio">No hay lista de reproducción.<br>Abre un video o carga un curso con <kbd>Alt</kbd>+<kbd>C</kbd>.</div>`);
+    listaFirma = lista.map(x => x.i + (x.actual ? "*" : "") + (x.imp ? "+" : "")).join();
     cont.querySelector(".it.actual")?.scrollIntoView({block:"center"});
     return;
   }
@@ -217,6 +269,8 @@ function marcarActual(forzar){
 }
 
 $("#lista").addEventListener("click", async e => {
+  const bb = e.target.closest("[data-b]");
+  if (bb && vista === "lista") { e.stopPropagation(); return accionLista(bb.dataset.b, +bb.closest(".it").dataset.i); }
   const it = e.target.closest(".it");
   if (it && vista === "lista") { await api("/api/ir", {i: +it.dataset.i}); return; }
   const b = e.target.closest("[data-a]"); if (!b) return;
@@ -260,6 +314,100 @@ $("#n-ok").onclick = async () => {
 };
 $("#nueva").addEventListener("keydown", e => { if (e.key === "Enter" && (e.ctrlKey || e.target.id === "n-tit")) $("#n-ok").click(); if (e.key === "Escape") nuevaAbrir(false); });
 
+// ---------- modal ----------
+const cerrarModal = () => { $("#modal").classList.remove("ver"); $("#caja").innerHTML = ""; };
+function modal(html, botones){
+  $("#caja").innerHTML = html + `<div class="botones">${botones.map((b, k) => `<button class="${b.cls || ""}" data-m="${k}"${b.id ? ` id="${b.id}"` : ""}>${b.txt}</button>`).join("")}</div>`;
+  $("#caja").querySelectorAll("[data-m]").forEach(el => el.onclick = () => botones[+el.dataset.m].fn(el));
+  $("#modal").classList.add("ver");
+}
+$("#modal").addEventListener("mousedown", e => { if (e.target.id === "modal" && !recortando) cerrarModal(); });
+document.addEventListener("keydown", e => { if (e.key === "Escape" && $("#modal").classList.contains("ver") && !recortando) cerrarModal(); });
+
+const PARTES = {"apuntes.md":"📝 apuntes", "resumen.md":"📄 resumen", "tarjetas.md":"🃏 tarjetas Anki", "transcripcion.md":"🗒️ transcripción"};
+async function accionLista(que, i){
+  const x = lista.find(v => v.i === i); if (!x) return;
+  if (que === "imp") {
+    const r = await api("/api/importante", {i});
+    if (r.ok) { toast(r.imp ? "★ Marcado como importante" : "Quitado de importantes"); await pintarLista(); pintarCabecera(); }
+    return;
+  }
+  if (que === "del") return modalBorrar(x);
+  if (que === "cut") return modalRecortar(x);
+}
+
+async function modalBorrar(x){
+  const inf = await api("/api/borrar-info?i=" + x.i);
+  if (inf.error) return toast("No encuentro ese video");
+  const partes = inf.archivos.filter(f => f !== "tarjetas-anki.txt").map(f => PARTES[f]).filter(Boolean);
+  const extras = []; if (inf.capturas) extras.push(`🖼️ ${inf.capturas} captura${inf.capturas === 1 ? "" : "s"} clave`);
+  if (inf.notas) extras.push(`✏️ ${inf.notas} nota${inf.notas === 1 ? "" : "s"} tuya${inf.notas === 1 ? "" : "s"} del panel`);
+  const tiene = partes.length || extras.length;
+  const hecho = async apuntes => {
+    cerrarModal();
+    const r = await api("/api/borrar-video", {i: x.i, apuntes});
+    if (!r.ok) return toast("No se pudo borrar: " + (r.error || ""));
+    toast(apuntes && (r.apuntes || r.notas) ? "Video y apuntes a la papelera" : "Video a la papelera");
+    versionVista = null; await pintarLista(); pintarCabecera();
+  };
+  const cancelar = {txt: "Cancelar", fn: cerrarModal};
+  if (!tiene) return modal(`<h2>¿Eliminar este video?</h2><p><b>${esc(limpiar(inf.nombre))}</b></p>
+    <p>Irá a la papelera (se puede recuperar) y se quita de la lista. No tiene apuntes ni notas.</p>`,
+    [cancelar, {txt: "Eliminar video", cls: "peligro fuerte", fn: () => hecho(false)}]);
+  modal(`<h2>¿Eliminar este video?</h2><p><b>${esc(limpiar(inf.nombre))}</b></p>
+    <p>Este video también tiene:</p><ul>${[...partes, ...extras].map(t => `<li>${t}</li>`).join("")}</ul>
+    <p>Todo va a la papelera (se puede recuperar). ¿Borro también los apuntes?</p>`,
+    [cancelar, {txt: "Solo el video", fn: () => hecho(false)}, {txt: "Video y apuntes", cls: "peligro fuerte", fn: () => hecho(true)}]);
+}
+
+let recortando = false;
+const aSeg = t => { t = String(t).trim().replace(",", "."); if (!t) return null;
+  const p = t.split(":").map(Number); if (p.some(isNaN)) return NaN;
+  return p.reduce((a, v) => a * 60 + v, 0); };
+async function modalRecortar(x){
+  const dur = x.dur || 0;
+  if (!dur) return toast("No sé cuánto dura este video");
+  const hayActual = x.actual;
+  modal(`<h2>Recortar video</h2><p><b>${esc(limpiar(x.nombre))}</b> · dura ${fmt(dur)}</p>
+    <p>Pon dónde <b>empieza</b> y dónde <b>termina</b> lo que quieres conservar. Lo de fuera se elimina.</p>
+    <div class="campo"><label>Empieza en</label><input id="r-ini" value="0:00"><button class="mini" data-uso="ini" ${hayActual ? "" : "disabled"} title="${hayActual ? "Usa el minuto donde está mpv" : "Reproduce este video para usarlo"}">📍 tiempo actual</button></div>
+    <div class="campo"><label>Termina en</label><input id="r-fin" value="${fmt(dur)}"><button class="mini" data-uso="fin" ${hayActual ? "" : "disabled"}>📍 tiempo actual</button></div>
+    <p id="r-res"></p>
+    <p style="font-size:12px">Se recodifica (calidad casi idéntica). Tus notas del panel y los subtítulos se ajustan solos; el original queda en la papelera.</p>
+    <div class="barra" id="r-barra" style="display:none"><i></i></div><p id="r-msg"></p>`,
+    [{txt: "Cancelar", id: "r-cancel", fn: cerrarModal}, {txt: "✂ Recortar", id: "r-ok", cls: "p", fn: () => lanzarRecorte(x, dur)}]);
+  const calc = () => { const a = aSeg($("#r-ini").value) ?? 0, b = aSeg($("#r-fin").value) ?? dur;
+    $("#r-res").textContent = (isNaN(a) || isNaN(b)) ? "Tiempo no válido (usa m:ss)" :
+      b - a < 2 ? "Queda muy poco video" : `Quedará de ${fmt(b - a)} (quitas ${fmt(Math.max(0, a) + Math.max(0, dur - b))})`; };
+  $("#caja").querySelectorAll("input").forEach(el => el.oninput = calc); calc();
+  $("#caja").querySelectorAll("[data-uso]").forEach(b => b.onclick = async () => {
+    const e = await api("/api/estado"); $(b.dataset.uso === "ini" ? "#r-ini" : "#r-fin").value = fmt(e.t); calc(); });
+}
+async function lanzarRecorte(x, dur){
+  const ini = aSeg($("#r-ini").value) ?? 0, fin = aSeg($("#r-fin").value) ?? dur;
+  if (isNaN(ini) || isNaN(fin)) return toast("Tiempo no válido");
+  const r = await api("/api/recortar", {i: x.i, ini, fin});
+  if (!r.ok) { $("#r-msg").textContent = r.error || "No se pudo"; return; }
+  recortando = true; $("#r-ok").disabled = $("#r-cancel").disabled = true;
+  $("#r-barra").style.display = "block"; $("#r-msg").textContent = "Recortando…";
+  const sondear = async () => {
+    const e = await api("/api/recorte-estado").catch(() => null);
+    if (e && e.activo) { $("#r-barra i").style.width = e.pct + "%"; $("#r-msg").textContent = `Recortando… ${e.pct}%`; return setTimeout(sondear, 800); }
+    recortando = false;
+    if (e && e.ok) { cerrarModal(); toast(e.msg || "Recortado"); versionVista = null; await pintarLista(); pintarCabecera(); }
+    else { $("#r-cancel").disabled = false; $("#r-barra").style.display = "none"; $("#r-msg").textContent = "Falló: " + (e ? e.msg : "sin respuesta"); }
+  };
+  sondear();
+}
+
+$("#f-imp").onclick = () => { soloImp = !soloImp; pintarLista(); pintarCabecera(); };
+$("#b-solo").onclick = async () => {
+  const act = lista.find(x => x.actual) || lista[0]; if (!act) return;
+  const r = await api("/api/solo-importantes", {i: act.i});
+  if (r.ok) { toast(`Reproduciendo ${r.n} importante${r.n === 1 ? "" : "s"}`); soloImp = false; } else toast(r.error || "No se pudo");
+};
+$("#b-todo").onclick = async () => { await api("/api/curso-completo", {}); soloImp = false; toast("Curso entero"); };
+
 async function tick(){
   try { est = await api("/api/estado"); } catch { est = {mpv:false}; }
   if (vista === "video" && (est.video !== videoVista || est.version !== versionVista)) {
@@ -267,7 +415,7 @@ async function tick(){
     if (!(editando)) { await cargarNotas(); actualId = null; pintarCabecera(); await pintarLista(); }
   } else if (vista === "video") { pintarCabecera(); marcarActual(false); }
   else if (vista === "lista") {
-    const firma = est.mpv ? (await api("/api/lista").catch(() => [])).map(x => x.i + (x.actual ? "*" : "")).join() : "";
+    const firma = est.mpv ? (await api("/api/lista").catch(() => [])).map(x => x.i + (x.actual ? "*" : "") + (x.imp ? "+" : "")).join() : "";
     if (firma !== listaFirma) await pintarLista();
     pintarCabecera();
   } else pintarCabecera();

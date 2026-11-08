@@ -10,6 +10,9 @@ NOMBRE_CURSO=$(basename "$CURSO")
 # v10: los apuntes van en Apuntes/ (antes capturas/: confundía, parecía una carpeta de imágenes)
 [ -d "$CURSO/capturas" ] && [ ! -e "$CURSO/Apuntes" ] && mv "$CURSO/capturas" "$CURSO/Apuntes"
 AP="$CURSO/Apuntes"
+# v10: antes de listar los videos, la estructura: copias "Tema (1)" idénticas fuera, carpetas Tema/Tema aplanadas
+# (si no, se procesaban con IA videos repetidos: en HackingWeb, 189 de 302 clases eran copias)
+python3 "$SCRIPTS/normalizar-curso.py" "$CURSO" || true
 # Panel de cursos (lo arma otro script; si no está, no pasa nada). Las tarjetas de cada clase
 # las hace video-a-capturas.sh al terminar sus apuntes.
 panel() { [ -f "$SCRIPTS/panel-cursos.py" ] && python3 "$SCRIPTS/panel-cursos.py" >/dev/null 2>&1 || true; }
