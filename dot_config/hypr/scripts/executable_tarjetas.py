@@ -179,8 +179,9 @@ def _como_pregunta(quiero):
 SECCION_TIPO = {"que-imprime": "🖨️ ¿Qué imprime?", "error": "🐞 Encuentra el error"}
 
 
-def juntar(corto, largo):
-    """[(sección, pregunta, respuesta)] sin duplicados ni tarjetas vacías/triviales."""
+def juntar(corto, largo, segundos=0):
+    """[(sección, pregunta, respuesta)] sin duplicados ni tarjetas vacías/triviales.
+    v8: con la duración (segundos>0) hay tope por clase y las preguntas de autoevaluación son la fuente principal."""
     tarjetas, vistas, respuestas = [], set(), set()
 
     def poner(seccion, p, r):
@@ -202,13 +203,20 @@ def juntar(corto, largo):
                 resp = f"```\n{resp.strip(chr(10))}\n```"
             if q.get("verificada"):
                 resp += "\n*✔ salida comprobada ejecutando el código*"
-            poner(SECCION_TIPO.get(q.get("tipo"), "🔁 Preguntas de la clase"), preg, resp)
+            poner(SECCION_TIPO.get(q.get("tipo"), "🔁 Preguntas de la clase") if codigo.strip() else "🔁 Preguntas de la clase", preg, resp)  # v9b: sin código no es "¿Qué imprime?"
+    m = segundos / 60
     for c in (largo or {}).get("conceptos") or []:
+        if segundos and m < 45:  # v8: sin glosario en tarjetas de clases cortas (la IA lo llenaba con cosas no dichas)
+            break
         if isinstance(c, dict) and len(_txt(c.get("definicion"))) >= 15:
             poner("📖 Conceptos", f"¿Qué es **{_txt(c.get('termino'))}**?", c.get("definicion"))
     for c in (corto or {}).get("chuleta") or []:
+        if segundos and (len(tarjetas) >= 3 or (m < 8 and len(tarjetas) >= 2)):  # v9c: la chuleta solo rellena si hay menos de 2 (cortas) o de 3 tarjetas
+            break
         if isinstance(c, dict) and len(_txt(c.get("quiero"))) >= 4:
             poner("🧩 ¿Cómo se hace?", _como_pregunta(c.get("quiero")), c.get("como"))
+    if segundos:
+        tarjetas = tarjetas[:max(2 if m >= 2 else 1, min(20, round(0.22 * _paquete(m) / 30)))]  # v9: mismo presupuesto que cuadernillo.n_preguntas
     return tarjetas
 
 
@@ -258,11 +266,11 @@ def nombres(carpeta):
     return titulo, None, titulo  # curso de una sola clase: la carpeta es el curso
 
 
-def armar_md(titulo, tag, tarjetas, progreso, mias):
+def armar_md(titulo, tag, tarjetas, progreso, mias, hay_resumen=True):
     L = [f"# 🃏 Tarjetas: {escapar_linea(titulo)}", "", tag, "",
          "*Repaso espaciado con el plugin Spaced Repetition: ícono de tarjetas de la barra izquierda "
          "o Ctrl+P → «Revisar tarjetas en esta nota» / «…de todas las notas» (en inglés: «Review flashcards…»). Las genera tarjetas.py a partir de "
-         "[📓 los apuntes](apuntes.md) y [⚡ el resumen](resumen.md); al regenerarlas se conserva tu "
+         + ("[📓 los apuntes](apuntes.md) y [⚡ el resumen](resumen.md)" if hay_resumen else "[📓 los apuntes](apuntes.md)") + "; al regenerarlas se conserva tu "
          "progreso y la sección «Mis tarjetas» (lo demás se pisa).*", ""]
     seccion, conservadas = None, 0
     for sec, p, r in tarjetas:
@@ -320,6 +328,45 @@ def leer_json(ruta):
         return None
 
 
+def _paquete(m):
+    """Palabras totales de lectura por clase según los minutos (copia de cuadernillo.presupuesto_paquete)."""
+    pts = [(0, 40), (1, 70), (3, 220), (8, 360), (12, 500), (20, 650), (45, 950), (120, 1900), (300, 3700), (600, 4800)]
+    if m <= pts[0][0]:
+        return pts[0][1]
+    for (m0, v0), (m1, v1) in zip(pts, pts[1:]):
+        if m <= m1:
+            return v0 + (v1 - v0) * (m - m0) / (m1 - m0)
+    return pts[-1][1]
+
+
+def _de_datos_duros(largo, cuantas, ya):
+    """Tarjetas 'completa el dato' a partir de las viñetas con cifras, versiones o advertencias (cuando la IA no mandó preguntas)."""
+    cand = []
+    for s in (largo or {}).get("secciones") or []:
+        for p in (s.get("puntos") or []) if isinstance(s, dict) else []:
+            p = _txt(p)
+            if re.search(r"\d|\b(nunca|siempre|evita|cuidado|requisito|necesitas|necesita)\b", p, re.I) and 25 <= len(p) <= 220:
+                cand.append(p)
+    sal = []
+    for p in cand:
+        if len(sal) >= cuantas:
+            break
+        pregunta = f"Según la clase: ¿qué dato concreto se dio aquí? «{p[:p.find(' ', 20) if ' ' in p[20:60] else 40]}…»"
+        if pregunta not in ya:
+            sal.append(("🔁 Preguntas de la clase", pregunta, p))
+    return sal
+
+
+def _segundos(carpeta):
+    """Duración de la clase según su apuntes.md ("Duración: 4:02"); 0 si no se sabe (clases viejas: sin tope)."""
+    try:
+        cab = open(os.path.join(carpeta, "apuntes.md"), encoding="utf-8").read(3000)
+    except OSError:
+        return 0
+    m = re.search(r"Duración:\*\*\s*(?:(\d+):)?(\d+):(\d+)", cab)
+    return int(m.group(1) or 0) * 3600 + int(m.group(2)) * 60 + int(m.group(3)) if m else 0
+
+
 def generar(carpeta, forzar=False):
     """Arma tarjetas.md y tarjetas-anki.txt. Devuelve la cantidad de tarjetas (0 = nada)."""
     rutas = [os.path.join(carpeta, n) for n in (".resumen-ia.json", ".apuntes-ia.json")]
@@ -333,7 +380,15 @@ def generar(carpeta, forzar=False):
         if nuevo <= os.path.getmtime(salida):
             print(f"Ya existe {salida} y los apuntes no cambiaron (usar --forzar para rehacerlo)")
             return 0
-    tarjetas = juntar(corto, largo)
+    tarjetas = juntar(corto, largo, _segundos(carpeta))
+    seg = _segundos(carpeta)
+    minimo = 2 if not seg else max(2, round(0.22 * _paquete(seg / 60) / 30 * 0.75))  # v9f: mínimo según la duración (≈75 % del tope)
+    if len(tarjetas) < minimo and largo:
+        tarjetas += _de_datos_duros(largo, minimo - len(tarjetas), {p for _, p, _ in tarjetas})
+    orden = {}
+    for sec, _, _ in tarjetas:
+        orden.setdefault(sec, len(orden))
+    tarjetas = sorted(tarjetas, key=lambda x: orden[x[0]])  # v9f: mismas cabeceras juntas (antes se repetía "Preguntas de la clase")
     if not tarjetas:
         print(f"No salió ninguna tarjeta de {carpeta}")
         return 0
@@ -342,7 +397,7 @@ def generar(carpeta, forzar=False):
     progreso, mias = {}, None
     if os.path.exists(salida):
         progreso, mias = progreso_viejo(open(salida, encoding="utf-8").read())
-    md, conservadas = armar_md(titulo, tag, tarjetas, progreso, mias)
+    md, conservadas = armar_md(titulo, tag, tarjetas, progreso, mias, os.path.exists(os.path.join(carpeta, 'resumen.md')))
     escribir(salida, md)
     mazo = "Cursos::" + "::".join(n.replace("::", ":") for n in ([curso, clase] if clase else [curso]))
     escribir(os.path.join(carpeta, ANKI), armar_anki(mazo, tag[1:].replace("/", "::"), tarjetas))

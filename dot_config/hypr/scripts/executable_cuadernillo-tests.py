@@ -225,11 +225,11 @@ shutil.rmtree(d)
 
 # 8) Niveles de capturas: esenciales ⊆ clave ⊆ amplia, esenciales ≈ la mitad; n_preguntas según la duración
 cc = c.cc
-prueba("n_preguntas: 1 min, 10 min, 1 h, 3 h, 5 h = 2, 5, 15, 39, 40",
-       [c.n_preguntas(x) for x in (60, 600, 3600, 10800, 18000)] == [2, 5, 15, 39, 40],
+prueba("n_preguntas (v9b, por presupuesto): 1 min, 10 min, 1 h, 3 h, 5 h = 1, 3, 8, 18, 20",
+       [c.n_preguntas(x) for x in (60, 600, 3600, 10800, 18000)] == [1, 3, 8, 18, 20],
        str([c.n_preguntas(x) for x in (60, 600, 3600, 10800, 18000)]))
-prueba("n_pretest: 1 min, 10 min, 1 h, 3 h = 0, 4, 7, 10",
-       [c.n_pretest(x) for x in (60, 600, 3600, 10800)] == [0, 4, 7, 10], str([c.n_pretest(x) for x in (60, 600, 3600, 10800)]))
+prueba("n_pretest (v8): 1 min, 10 min, 1 h, 3 h = 0, 0, 4, 4",
+       [c.n_pretest(x) for x in (60, 600, 3600, 10800)] == [0, 0, 4, 4], str([c.n_pretest(x) for x in (60, 600, 3600, 10800)]))
 # una clase de 20 diapositivas, todas distintas (cada una con su propio texto): todas son clave
 temas = ["variables", "funciones", "objetos", "arreglos", "promesas", "eventos", "modulos", "clases", "tipos", "bucles",
          "cierres", "prototipos", "async", "errores", "regex", "fechas", "mapas", "sets", "proxies", "tests"]
@@ -297,6 +297,7 @@ open(os.path.join(d, "apuntes.md"), "w").write("# 📓 Clase de prueba\n")
 pedidos = []
 mp.cu.consultar_ia = lambda prompt, modelo=None: (pedidos.append(prompt) or json.dumps(
     {"preguntas": [{"pregunta": f"¿N{i}?", "respuesta": f"RN{i}."} for i in range(8)]}))
+_np_v8 = mp.cu.n_preguntas; mp.cu.n_preguntas = lambda s: 5   # v8: la prueba fija 5 para no depender de la curva
 pend = mp.pendientes(d)
 prueba("mas-preguntas: detecta la clase con 1 de 5", [(x[2], x[3]) for x in pend] == [(1, 5)], str(pend))
 mp.subprocess.run = lambda *a, **k: None   # sin tarjetas ni panel reales
@@ -305,12 +306,13 @@ prueba("mas-preguntas: agrega exactamente las que faltan", mp.agregar(d, 600, 1,
 prueba("mas-preguntas: pide 4 y no repite las existentes", "EXACTAMENTE 4" in pedidos[0] and "- ¿P0?" in pedidos[0])
 prueba("mas-preguntas: resumen.md rehecho con las nuevas", "¿N0?" in open(os.path.join(d, "resumen.md")).read())
 prueba("mas-preguntas: ya completa = nada pendiente", mp.pendientes(d) == [])
+mp.cu.n_preguntas = _np_v8
 shutil.rmtree(d)
 
 # ---- formato v2 (05/11/2026): sin transcripción adentro, ejemplos, diagramas, errores con arreglo
 prueba("v2: cantidades según duración",
        (c.n_ejercicios(5 * 60), c.n_ejercicios(150 * 60), c.n_errores(5 * 60), c.n_errores(150 * 60),
-        c.n_diagramas(5 * 60), c.n_diagramas(150 * 60)) == (2, 14, 2, 10, 1, 6))
+        c.n_diagramas(5 * 60), c.n_diagramas(150 * 60)) == (0, 6, 0, 5, 0, 4))
 prueba("v2: el prompt pide las cantidades", all(x in c.PROMPT for x in ("{n_ejer}", "{n_err}", "{rango_diag}", "{n_pre}", "{n_preg}")))
 d = tempfile.mkdtemp()
 datos_v2 = {"resumen": ["r1"], "conceptos": [{"termino": "closure", "definicion": "función | que recuerda"}],
@@ -356,7 +358,7 @@ if shutil.which("bwrap") and shutil.which("node"):
 # ---- formato v3 (06/11/2026) + mejorar-apuntes.py
 prueba("v3: salidas de varias líneas en orden", c._coincide("4\n101", "4 y luego 101") and not c._coincide("4\n101", "101 y 4")
        and c._coincide("750\n1000", "750 y luego 1000.") and not c._coincide("1", "1.5") and not c._coincide("1", "11"))
-prueba("v3: tope de palabras según duración", (c.tope_palabras(60), c.tope_palabras(49 * 60), c.n_vocabulario(60), c.n_vocabulario(3 * 3600)) == (60, 1220, 0, 10))
+prueba("v3: tope de palabras según duración", (c.tope_palabras(60), c.tope_palabras(49 * 60), c.n_vocabulario(60), c.n_vocabulario(3 * 3600)) == (40, 420, 0, 3))
 d = tempfile.mkdtemp()
 dv3 = {"objetivos": ["escribir un JOIN"], "conceptos": [{"termino": "JOIN", "definicion": "une tablas"}],
        "vocabulario": [{"en": "database", "suena": "déita-beis", "es": "base de datos"}],
@@ -368,7 +370,7 @@ md_corta = c.armar(d, "Clase v3", [("0001.webp", 5.0, True, 1.0)], {}, dv3, 400)
 prueba("v6: clase de <10 min sin objetivos, glosario ni vocabulario", "Al terminar podrás" not in md_corta
        and "Glosario" not in md_corta and "Vocabulario" not in md_corta)
 md = c.armar(d, "Clase v3", [("0001.webp", 5.0, True, 1.0)], {}, dv3, 700)
-prueba("v3: objetivos, comparativa, solución plegada", "Al terminar podrás" in md and "| sin pareja | no sale | sale con NULL |" in md
+prueba("v3: comparativa, solución plegada (objetivos solo desde 45 min en v8)", "| sin pareja | no sale | sale con NULL |" in md
        and "[!success]- ✅ Solución" in md and "  > FROM a JOIN b" in md)
 prueba("v3: glosario y vocabulario plegados", "> [!abstract]- 1 términos de la clase" in md and "> | **database** | déita-beis |" in md)
 shutil.rmtree(d)
@@ -379,13 +381,13 @@ corto_m = {"preguntas": [{"pregunta": "¿vieja?", "respuesta": "r"}]}
 nuevo_m = {"objetivos": ["o"], "secciones": [{"i": 0, "porque": "pq", "codigo": "NO SE TOCA", "puntos": ["n1", "n2"]},
                                               {"i": 7, "porque": "fuera de rango"}, {"i": "x"}],
            "practica": [{"enunciado": f"e{k}"} for k in range(3)], "errores_comunes": [{"error": "e"}, {"error": "f"}],
-           "corto": {"preguntas": [{"pregunta": f"¿{k}?", "respuesta": "r"} for k in range(3)], "pretest": [{"pregunta": "¿pt?", "respuesta": "r"}]}}
-dm, cm = mj.fusionar(datos_m, corto_m, nuevo_m, 300)
+           "corto": {"preguntas": [{"pregunta": f"¿{k}?", "respuesta": "r"} for k in range(4)], "pretest": [{"pregunta": "¿pt?", "respuesta": "r"}]}}
+dm, cm = mj.fusionar(datos_m, corto_m, nuevo_m, 3600)
 prueba("mejorar: mete lo nuevo sin tocar el código", dm["secciones"][0]["codigo"] == "x = 1" and dm["secciones"][0]["porque"] == "pq"
        and dm["secciones"][0]["puntos"] == ["n1", "n2"] and dm["secciones"][0]["puntos_antes"] == ["viejo"]
        and "porque" not in dm["secciones"][1] and dm["formato"] == c.FORMATO)
 prueba("mejorar: reemplaza práctica/errores/preguntas y pone pretest", len(dm["practica"]) == 3 and len(dm["errores_comunes"]) == 2
-       and [q["pregunta"] for q in cm["preguntas"]] == ["¿0?", "¿1?", "¿2?"] and cm["pretest"][0]["pregunta"] == "¿pt?")
+       and [q["pregunta"] for q in cm["preguntas"]] == ["¿0?", "¿1?", "¿2?", "¿3?"] and cm["pretest"][0]["pregunta"] == "¿pt?")
 prueba("mejorar: respuesta pobre no borra lo que había", mj.fusionar({"secciones": [{"t": 1}], "practica": ["a"]},
        {"preguntas": [{"pregunta": "p", "respuesta": "r"}]}, {"secciones": [], "practica": [], "corto": {"preguntas": []}}, 3600)[0]["practica"] == ["a"])
 
@@ -403,7 +405,7 @@ prueba("v4: tabla que repite los puntos se descarta", c._repite({"filas": [["c",
        ["entrada cinco dólares, salida veinticinco"]) and not c._repite({"filas": [["c", "memoria compartida"]]}, ["otra cosa"]))
 d = tempfile.mkdtemp()
 dv4 = {"secciones": [{"inicio": "0:00", "titulo": "Diario", "relevancia": "diario", "porque": "lo usas siempre", "puntos": ["p " * 30]},
-                     {"inicio": "0:05:00", "titulo": "Raro", "relevancia": "raro", "puntos": ["viejo " * 400],
+                     {"inicio": "0:05:00", "titulo": "Raro", "relevancia": "raro", "puntos": ["viejo " * 20] * 20,
                       "ejemplo": {"enunciado": "e", "pasos": ["paso " * 40], "salida": "s"}}],
        "practica": [{"enunciado": "haz " * 40, "solucion": "x"}] * 4}
 md = c.armar(d, "Clase v4", [("0001.webp", 5.0, True, 1.0)], {}, dv4, 300)
@@ -416,9 +418,9 @@ shutil.rmtree(d)
 
 # ---- clases muy cortas, triviales, muy largas y diagramas con \n literales (06/11/2026)
 prueba("cortas: casi nada fijo (13 s, 1,4 min, 3 min)", [(c.n_ejercicios(x), c.n_errores(x), c.n_pretest(x), c.n_vocabulario(x)) for x in (13, 84, 180)]
-       == [(0, 0, 0, 0), (0, 0, 0, 0), (1, 1, 3, 3)] and [c.n_preguntas(x) for x in (13, 84, 180)] == [1, 2, 4])
+       == [(0, 0, 0, 0), (0, 0, 0, 0), (0, 0, 0, 0)] and [c.n_preguntas(x) for x in (13, 84, 180)] == [1, 1, 2])
 prueba("diagramas: en clases largas pide al menos la mitad", c.rango_diagramas(10 * 60) == "como máximo 1"
-       and c.rango_diagramas(241 * 60) == "entre 3 y 6")
+       and c.rango_diagramas(241 * 60) == "como máximo 4")
 prueba("diagrama con \\n literales sigue siendo válido", c._mermaid('flowchart TD\\n  A["a"] --> B["b"]') == 'flowchart TD\n  A["a"] --> B["b"]'
        and c._mermaid("esto no es mermaid") == "")
 d = tempfile.mkdtemp()

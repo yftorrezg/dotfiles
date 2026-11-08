@@ -18,6 +18,7 @@ import os
 import re
 import shutil
 import subprocess
+import unicodedata
 import sys
 import time
 
@@ -39,51 +40,145 @@ spec.loader.exec_module(ac)
 CAPTURAS_A_LA_VISTA = 4   # capturas visibles por sección si no hay esenciales (el resto queda plegado)
 
 
-def n_preguntas(segundos):
-    """Preguntas de autoevaluación/tarjetas: 1 (video de menos de 1 min), 2 (menos de 2), de ahí 3 hasta 40 (~3 h)."""
+def _interp(m, puntos):
+    """Interpolación lineal por tramos: puntos = [(minutos, valor), …] ordenados; fuera de rango se queda en el extremo."""
+    if m <= puntos[0][0]:
+        return puntos[0][1]
+    for (m0, v0), (m1, v1) in zip(puntos, puntos[1:]):
+        if m <= m1:
+            return v0 + (v1 - v0) * (m - m0) / (m1 - m0)
+    return puntos[-1][1]
+
+
+# v8 (08/11/2026): UNA curva de densidad por duración (la densidad baja a medida que el video crece) y menos andamiaje
+# en lo corto. Medido en 12 clases de 1 min a 8 h: el apunte pesaba como la transcripción entera en lo corto y era
+# demasiado delgado (3-5 palabras/min) en lo muy largo.
+def presupuesto_paquete(segundos):
+    """v9 (08/11/2026): palabras TOTALES que debería leer el alumno por clase (apuntes a la vista + repaso + preguntas).
+    Regla del usuario: estudiar no puede costar casi lo que dura el video. A 200 palabras/min el tiempo de lectura
+    queda en ~22 % del video a 1 min, 15 % a 8 min, 11 % a 20 min, 8 % a 45 min, 6 % a 2 h, 4 % a 5 h."""
     m = segundos / 60
-    return 1 if m < 1 else 2 if m < 2 else max(3, min(40, round(3 + m / 5)))
+    return int(_interp(m, [(0, 40), (1, 70), (3, 220), (8, 360), (12, 500), (20, 650), (45, 950), (120, 1900), (300, 3700), (600, 4800)]))
+
+
+def n_preguntas(segundos):
+    """Preguntas de autoevaluación (única fuente de las tarjetas): el 25 % del presupuesto a ~30 palabras cada una, 1 a 20."""
+    m = segundos / 60
+    return max(2 if m >= 2 else 1, min(20, round(0.22 * presupuesto_paquete(segundos) / 30)))
 
 
 def n_pretest(segundos):
-    """Preguntas del pre-test (SUPER+I): 0 en menos de 3 min (no tiene sentido), si no 3 hasta 10 (~1 h 45)."""
-    m = segundos / 60
-    return 0 if m < 3 else max(3, min(10, round(3 + m / 15)))
+    """Preguntas del pre-test (SUPER+I): 0 por debajo de 1 h (la autoevaluación ya cubre), 4 de ahí."""
+    return 0 if segundos / 60 < 60 else 4
 
 
 def n_ejercicios(segundos):
-    """Ejercicios de "Para practicar": 0 (menos de 2 min), 1 (menos de 5), 2 (menos de 10), de ahí 3 hasta 10."""
+    """Ejercicios de "Para practicar": 0 (<5 min), 1 (<20), 2 (<45), 4 (<90), 6."""
     m = segundos / 60
-    return 0 if m < 2 else 1 if m < 5 else 2 if m < 10 else max(3, min(14, round(2 + m / 10)))
+    return 0 if m < 10 else 1 if m < 20 else 2 if m < 45 else 4 if m < 90 else 6
 
 
 def n_errores(segundos):
-    """Errores comunes: 0 (menos de 2 min), 1 (menos de 5), 2 (menos de 10), de ahí 2 hasta 8."""
+    """Errores comunes (solo los que el profe advierte): 0 (<5 min), 1 (<10), 2 (<45), 4 (<120), 5."""
     m = segundos / 60
-    return 0 if m < 2 else 1 if m < 5 else max(2, min(10, round(2 + m / 15)))
+    return 0 if m < 10 else 1 if m < 45 else 3 if m < 120 else 5
 
 
 def n_diagramas(segundos):
-    """Tope de diagramas mermaid: 1 cada ~20 min (1 a 6)."""
-    return max(1, min(6, round(segundos / 60 / 20)))
+    """Tope de diagramas mermaid: 0 (<10 min), 1 (<45), de ahí 1 cada 30 min hasta 4."""
+    m = segundos / 60
+    return 0 if m < 10 else 1 if m < 45 else min(4, int(m // 30))
 
 
 def rango_diagramas(segundos):
-    """Texto para el prompt: en clases largas se piden al menos la mitad del tope (si no, la IA no dibuja ninguno)."""
-    hi = n_diagramas(segundos)
-    lo = hi // 2 if segundos >= 40 * 60 else 0
-    return (f"entre {lo} y {hi}" if lo else f"como máximo {hi}")
+    n = n_diagramas(segundos)
+    return f"como máximo {n}" if n else "ninguno"
 
 
 def n_vocabulario(segundos):
-    """Términos en inglés: 3 hasta 10."""
-    return 0 if segundos < 180 else max(3, min(10, round(3 + segundos / 60 / 15)))
+    """Términos en inglés: 0 por debajo de 1 h, 3 de ahí."""
+    return 0 if segundos / 60 < 60 else 3
 
 
 def tope_palabras(segundos):
-    """Palabras de TODOS los "puntos" juntos: ~25 por minuto de video (mín. 150). Con lo demás (código,
-    ejemplos, por qué) los apuntes quedan en ~1/3 del tiempo del video."""
-    return int(max(60, round(25 * segundos / 60, -1)))
+    """Palabras de TODOS los "puntos" juntos (sin código ni lo demás): ~40 % del presupuesto del paquete."""
+    return int(max(40, round(0.42 * presupuesto_paquete(segundos), -1)))
+
+
+def presupuesto_lectura(segundos):
+    """Palabras A LA VISTA de apuntes.md (código y plegados cuentan menos, ver palabras_a_la_vista): 60 % del paquete.
+    Si el apunte se pasa, armar() recorta (nivel 4-6) lo menos importante; el JSON de la IA conserva todo."""
+    return int((0.62 if segundos < 1200 else 0.55) * presupuesto_paquete(segundos))
+
+
+def n_tarjetas(segundos):
+    """Tope de tarjetas por clase: las mismas que preguntas de autoevaluación."""
+    return n_preguntas(segundos)
+
+
+def regla_secciones(segundos):
+    m = segundos / 60
+    if m < 3:
+        return "UNA sola sección, con todos los datos concretos del profe (cifras, versiones, herramientas, requisitos)."
+    if m < 8:
+        return "1 o 2 secciones; no partas un mismo tema en varias."
+    if m < 20:
+        return "2 o 3 secciones como máximo; agrupa los pasos pequeños del mismo mecanismo."
+    if m < 45:
+        return ("entre 4 y 6 secciones (una cada ~6-8 min), cada una de más de 4 min con al menos 3 puntos; NINGUNA de más de 8 min: un tema que el profe explica más adelante va "
+                "en SU sección con su marca de tiempo; junta los pasos pequeños del mismo mecanismo.")
+    if m < 120:
+        return ("entre 6 y 10 secciones; cada una cubre entre ~5 y 12 min; ninguna con un solo punto. Reparte las secciones "
+                "por TODO el video: cada tema importante debe tener la suya y ningún tramo largo puede quedar sin cubrir.")
+    return ("entre 20 y 35 secciones (una cada 12-15 min); ninguna con un solo punto. Cubre TODO el video: cada tema, herramienta "
+            "o concepto que se explica debe tener su sección; ningún tramo de más de 20 min puede quedar sin sección.")
+
+
+def regla_extras(segundos):
+    m = segundos / 60
+    base = ("Sin relleno: NO inventes ejemplos, errores comunes, ejercicios ni definiciones que no salgan de lo que se hace "
+            "en el video; `errores_comunes` y `practica` solo si el profe los plantea o advierte (si no, vacíos). Datos que solo "
+            "estén en el OCR y no en lo que dice el profe no se afirman (salvo el código). NO escribas metacomentarios sobre la "
+            "fuente (\"dato que no se confirma\", \"el profe no desarrolla\"): di el dato o calla. Una pregunta NO se repite entre "
+            "`corto.preguntas`, `pretest`, `errores_comunes` y `practica`. CONSERVA siempre toda cifra, versión, herramienta, "
+            "requisito, advertencia, alternativa, tabla y ejemplo numérico que el profe muestre, y SIEMPRE las conclusiones o "
+            "recomendaciones finales: se resume el relleno, no los datos. La ÚLTIMA sección tiene una viñeta PROPIA con los resultados, cifras finales, "
+            "conclusiones y recomendaciones del cierre del video, y las advertencias del profe (\"evita…\", \"cuidado con…\") van como "
+            "viñeta en los apuntes (no solo en las tarjetas). El título de cada sección debe corresponder a lo que sus puntos "
+            "desarrollan (no prometas algo que el cuerpo no explica). Una de las preguntas cubre el resultado o la conclusión final. ")
+    if m < 20:
+        return base + ("NO incluyas conceptos (glosario) ni vocabulario. `ejemplo` solo si el profe resuelve casos con cifras (conserva hasta 3, "
+                       "cada uno en una línea con sus valores y resultado reales); `comparativa` sirve también como TABLA DE REFERENCIA "
+                       "del profe (hasta 16 filas). Todo caso de uso que el profe menciona va como punto. Los ejemplos numéricos que el "
+                       "profe resuelve (p. ej. 0110 = 4+2 = 6) van como punto con su cálculo: no se recortan.")
+    if m < 60:
+        return base + ("NO incluyas conceptos (glosario) ni vocabulario. Ejemplo resuelto solo si el profe hace un cálculo o prueba "
+                       "paso a paso cuyo resultado no se ve en el código; comparativa solo si el profe compara alternativas.")
+    return base + ("Glosario: como máximo 6 términos, solo los que las secciones explican. Ejemplo resuelto y comparativa "
+                   "solo si el profe los hace.")
+
+
+def regla_presupuesto(segundos):
+    w = presupuesto_paquete(segundos)
+    return (f"PRESUPUESTO TOTAL DE LECTURA de esta clase (apuntes + repaso + preguntas): {w} palabras, ~{max(0.2, w / 200):.1f} min de lectura "
+            f"para un video de {segundos / 60:.0f} min. Es un tope DURO: escribe lo mínimo que permite recordar el video. Prioriza cifras, "
+            "versiones, pasos, código esencial, advertencias y conclusiones; elimina narración, contexto y repeticiones. Cada punto es una "
+            "idea concreta de una línea. NO recortes datos duros para ahorrar palabras: cifras, versiones, requisitos, a quién va dirigido, "
+            "temario, pasos, tablas de referencia, resultados de los ejemplos del profe y su conclusión o advertencia final (aunque sea en "
+            "una línea); se recorta la narración, no los datos. Tampoco te quedes corto: usa al menos el 70 % del presupuesto si el video "
+            "tiene datos concretos. El alumno ya ve el video y tiene las capturas: los apuntes solo refuerzan.")
+
+
+def regla_resumen(segundos):
+    m = segundos / 60
+    if m < 20:
+        return ("El repaso (`corto`) es mínimo: idea en una frase, 2 o 3 puntos en `esencial`, sin chuleta, mapa, código ni diagrama; "
+                "las preguntas son pocas y concretas.")
+    if m < 45:
+        return ("El repaso (`corto`) es corto: idea, 3 a 5 puntos en `esencial`, chuleta solo si hay sintaxis o comandos; sin mapa, "
+                "código ni diagrama (ya están en las secciones).")
+    return ("El repaso (`corto`) es un mapa de bloques del video: idea, 5 a 8 puntos en `esencial` repartidos por TODO el video; "
+            "chuleta y código mínimo solo lo imprescindible.")
 
 
 FORMATO = 6  # v6: menos andamiaje en clases cortas, diagramas solo si explican, "primero recuerda", soluciones comprobadas, "(extra)"; v5: cero imágenes; v4: relevancia ⭐🔸💤, comentarios 👉 en el código, intuición, tope de lectura; v3: + objetivos, comparativas, solución de ejercicios, vocabulario; v2 del formato de apuntes.md (v2: sin transcripción adentro, ejemplos, diagramas, errores con arreglo)
@@ -383,8 +478,20 @@ def leer_pantallas(carpeta, capturas, cada=240, maximo=60):
 
 
 # --------------------------------------------------------------------- IA ----
+class _Plantilla(str):
+    """PROMPT.format(...) añade solo las reglas que dependen de la duración (regla_secciones/extras/resumen)."""
+    def format(self, **kw):
+        d = kw.get("duracion")
+        seg = a_segundos(d) if isinstance(d, str) and d else float(d or 0)
+        kw.setdefault("regla_secciones", regla_secciones(seg))
+        kw.setdefault("regla_extras", regla_extras(seg))
+        kw.setdefault("regla_resumen", regla_resumen(seg))
+        kw.setdefault("regla_presupuesto", regla_presupuesto(seg))
+        return str.format(self, **kw)
+
+
 with open(os.path.join(AQUI, "apuntes-prompt-v5.txt"), encoding="utf-8") as _prompt:
-    PROMPT = _prompt.read()
+    PROMPT = _Plantilla(_prompt.read())
 
 # Modelo para los apuntes: Sonnet gasta bastante menos cuota que el modelo por defecto de la
 # cuenta y resume muy bien. Para un curso difícil: APUNTES_MODELO=opus (o "" = el de la cuenta).
@@ -468,8 +575,10 @@ def pedir_a_claude(titulo, duracion, cues, pantallas, codigo=""):
                  " sirve para el código exacto y los datos que se ven:\n<<<\n"
                  + "\n\n".join(f"[{hms(t)}]\n{txt}" for t, txt in pantallas) + "\n>>>\n")
     lig = es_ligera(titulo, duracion)
+    if not lig and duracion >= SEG_TROCEO and os.environ.get("APUNTES_SIN_TROCEO") != "1":
+        return pedir_por_tramos(titulo, duracion, cues, pantallas, codigo)  # v8: videos largos, una llamada por tramo
     if lig:  # bienvenida / instalación / despedida / clase muy corta: apunte mínimo
-        cant = dict(n_preg=1, n_pre=0, n_ejer=0, n_err=0, n_diag=0, n_voc=0, tope=60, rango_diag="ninguno")
+        cant = dict(n_preg=2, n_pre=0, n_ejer=0, n_err=0, n_diag=0, n_voc=0, tope=90, rango_diag="ninguno")
     else:
         cant = dict(n_preg=n_preguntas(duracion), n_pre=n_pretest(duracion), n_ejer=n_ejercicios(duracion),
                     n_err=n_errores(duracion), n_diag=n_diagramas(duracion), n_voc=n_vocabulario(duracion),
@@ -477,14 +586,24 @@ def pedir_a_claude(titulo, duracion, cues, pantallas, codigo=""):
     prompt = PROMPT.format(titulo=titulo, duracion=hms(duracion), **cant, transcripcion=transcripcion,
                            pantallas=extra + (f"\nMaterial que entrega el curso (recursos.py):\n<<<\n{codigo}\n>>>\n" if codigo else ""))
     prompt += REGLA_LIGERA if lig else ""
-    for intento in range(2):
-        texto = consultar_ia(prompt)
+    for intento in range(3):  # v8: 3 intentos (una respuesta inválida suelta no debe dejar la clase sin IA)
+        texto = consultar_ia(prompt) or ""  # v9c: sin respuesta de la IA → reintento, no un AttributeError
         try:
             datos = json.loads(texto[texto.index("{"):texto.rindex("}") + 1])
+            if isinstance(datos, dict) and not datos.get("secciones") and datos.get("resumen"):
+                # v8: con sin_contenido=true la IA deja la información en `resumen` y ninguna sección → no se tira, se rescata
+                datos["secciones"] = [{"inicio": "0:00", "titulo": titulo_propio(titulo) or "Contenido", "relevancia": "raro",
+                                       "puntos": [str(x) for x in datos["resumen"]][:5]}]
             # los modelos débiles a veces mandan secciones sin título: se reintenta en vez de romper el armado
             if datos.get("secciones") and all(isinstance(x, dict) and x.get("titulo") for x in datos["secciones"]):
                 if lig:
                     aplicar_ligera(datos)
+                else:
+                    aplicar_perfil(datos, duracion)
+                    fuente = " ".join(c[-1] for c in cues) + " " + " ".join(x for _, x in pantallas) + " " + (codigo or "")
+                    quitadas = verificar_fidelidad(datos, fuente)
+                    if quitadas:
+                        print(f"   🧹 {quitadas} afirmaciones sin respaldo en el video quitadas")
                 verificar_salidas(datos)
                 verificar_practica(datos)
                 return datos
@@ -492,6 +611,119 @@ def pedir_a_claude(titulo, duracion, cues, pantallas, codigo=""):
             pass
         print(f"  (respuesta de Claude inválida, intento {intento + 1})", file=sys.stderr)
     return None
+
+
+SEG_TROCEO = 3600  # v8: desde 1 h, una llamada por tramo (una sola llamada dejaba horas enteras sin cubrir)
+
+
+def _json_de(texto):
+    try:
+        return json.loads(texto[texto.index("{"):texto.rindex("}") + 1])
+    except (ValueError, TypeError, json.JSONDecodeError):
+        return None
+
+
+def _prompt_para(titulo, duracion, lineas, pantallas, codigo, **reglas):
+    transcripcion = "Transcripción con marcas de tiempo [h:mm:ss]:\n<<<\n" + "\n".join(lineas) + "\n>>>\n"
+    extra = ""
+    if pantallas:
+        extra = ("\nTexto leído de la PANTALLA (OCR, puede tener errores de lectura) en algunos momentos;"
+                 " sirve para el código exacto y los datos que se ven:\n<<<\n"
+                 + "\n\n".join(f"[{hms(t)}]\n{txt}" for t, txt in pantallas) + "\n>>>\n")
+    if codigo:
+        extra += f"\nMaterial que entrega el curso (recursos.py):\n<<<\n{codigo}\n>>>\n"
+    cant = dict(n_preg=n_preguntas(duracion), n_pre=n_pretest(duracion), n_ejer=n_ejercicios(duracion),
+                n_err=n_errores(duracion), n_diag=n_diagramas(duracion), n_voc=n_vocabulario(duracion),
+                tope=tope_palabras(duracion), rango_diag=rango_diagramas(duracion))
+    cant.update(reglas)
+    return PROMPT.format(titulo=titulo, duracion=hms(duracion), transcripcion=transcripcion, pantallas=extra, **cant)
+
+
+def pedir_por_tramos(titulo, duracion, cues, pantallas, codigo=""):
+    """Video largo: cada tramo (20-25 min) se resume por separado (secciones con SU parte del video y cobertura
+    completa) y una última llamada arma el repaso global (corto, práctica, errores, glosario) desde esas secciones."""
+    largo_tramo = (25 if duracion >= 7200 else 20) * 60
+    n = max(2, int(round(duracion / largo_tramo)))
+    largo_tramo = duracion / n
+    lineas_todas = [(t, f"[{hms(t)}] {txt}") for t, txt in parrafos(cues, cada=30)]
+    secciones, falta = [], []
+    frac_tope = tope_palabras(duracion) / max(1, n)
+    for k in range(n):
+        t0, t1 = k * largo_tramo, (k + 1) * largo_tramo
+        lineas = [l for t, l in lineas_todas if t0 <= t < t1 or (k == n - 1 and t >= t0)]
+        pant = [(t, x) for t, x in pantallas if t0 <= t < t1 or (k == n - 1 and t >= t0)]
+        if not lineas and not pant:
+            continue
+        print(f"   tramo {k + 1}/{n} ({hms(t0)}–{hms(t1)})", flush=True)
+        reglas = dict(n_preg=0, n_pre=0, n_ejer=0, n_err=0, n_voc=0, tope=int(max(150, frac_tope)),
+                      n_diag=max(0, round(n_diagramas(duracion) / n)), rango_diag="como máximo 1",
+                      regla_secciones=((f"1 o 2 secciones para ESTE tramo (cada una de 6 a 12 min)" if duracion < 7200 else
+                                        f"1 a 3 secciones para ESTE tramo (cada una de 8 a 15 min)") +
+                                       "; ninguna de más de 8 min con menos de 3 puntos. Cubre TODO el tramo: cada tema o herramienta que se explica "
+                                       "tiene su sección y no queda ningún hueco de más de 8 min. Marcas de tiempo absolutas del "
+                                       "video completo."),
+                      regla_resumen="Para `corto` basta idea de una frase y 2 puntos en `esencial`; el repaso global se arma después.",
+                      regla_extras="No incluyas ejemplos resueltos, comparativas, conceptos ni vocabulario; solo secciones con puntos y código.")
+        prompt = _prompt_para(f"{titulo} (tramo {k + 1} de {n}, {hms(t0)}–{hms(t1)})", largo_tramo, lineas, pant,
+                              codigo if k == 0 else "", **reglas)
+        # las marcas deben ser las del video completo: el prompt usa la duración del tramo solo para los topes
+        datos = None
+        for intento in range(3):
+            d = _json_de(consultar_ia(prompt) or "")
+            if d and d.get("secciones") and all(isinstance(x, dict) and x.get("titulo") for x in d["secciones"]):
+                datos = d
+                break
+            print(f"  (tramo {k + 1}: respuesta inválida, intento {intento + 1})", file=sys.stderr)
+        if not datos:
+            falta.append((t0, t1))
+            secciones.append({"inicio": hms(t0), "titulo": f"Tramo {hms(t0)}–{hms(t1)} (sin resumen de IA)", "relevancia": "raro",
+                              "puntos": ["La IA no devolvió el resumen de este tramo; consulta la transcripción."]})
+            continue
+        for s in datos["secciones"]:
+            try:
+                ini = a_segundos(str(s.get("inicio", "0")))
+            except ValueError:
+                ini = t0
+            if not (t0 - 60 <= ini <= t1 + 60):   # marcas relativas al tramo → se corrigen al video completo
+                ini = t0 + min(ini, largo_tramo)
+            s["inicio"] = hms(max(0, ini))
+            for campo in ("ejemplo", "comparativa"):
+                s[campo] = None
+            secciones.append(s)
+    if not secciones:
+        return None
+    secciones.sort(key=_seg_seccion)
+    esquema = [f"[{s['inicio']}] {s['titulo']}: " + " ".join(str(x) for x in (s.get("puntos") or [])[:4]) for s in secciones]
+    prompt = _prompt_para(titulo, duracion, esquema, [], "",
+                          regla_secciones="deja `secciones` con UNA sola sección mínima (ya están hechas aparte); concéntrate en lo global.")
+    prompt = ("NOTA: en lugar de la transcripción recibes el ESQUEMA de secciones ya resumidas del video completo; úsalo para el repaso "
+              f"global (idea, esencial por bloques, chuleta, preguntas, pretest, práctica, errores, conceptos). Devuelve EXACTAMENTE "
+              f"{n_preguntas(duracion)} preguntas en `corto.preguntas`, repartidas por TODO el video (una por cada ~{max(5, int(duracion / 60 / max(1, n_preguntas(duracion))))} min), "
+              "incluidas las últimas partes; elige el código mínimo y la chuleta de todo el video, no solo del principio.\n") + prompt
+    glob = None
+    for intento in range(3):
+        d = _json_de(consultar_ia(prompt) or "")
+        if d and isinstance(d.get("corto"), dict):
+            glob = d
+            break
+        print(f"  (repaso global: respuesta inválida, intento {intento + 1})", file=sys.stderr)
+    if not glob or len(falta) > max(1, n // 4):
+        # v9c: si la IA falló (cuota agotada…) en el repaso global o en más de 1/4 de los tramos, NO se guarda un apunte degradado
+        # como terminado: se devuelve None y la clase queda pendiente de rehacer
+        print("  (la IA falló en demasiados tramos o en el repaso global: no se guarda un apunte incompleto)", file=sys.stderr)
+        return None
+    glob["secciones"] = secciones
+    glob.pop("sin_contenido", None)
+    aplicar_perfil(glob, duracion)
+    fuente = " ".join(c[-1] for c in cues) + " " + " ".join(x for _, x in pantallas) + " " + (codigo or "")
+    quitadas = verificar_fidelidad(glob, fuente)
+    if quitadas:
+        print(f"   🧹 {quitadas} afirmaciones sin respaldo en el video quitadas")
+    verificar_salidas(glob)
+    verificar_practica(glob)
+    if falta:
+        glob["_tramos_sin_resumen"] = [f"{hms(a)}–{hms(b)}" for a, b in falta]
+    return glob
 
 
 _ri = None
@@ -557,14 +789,14 @@ LIGERA = re.compile(r"bienvenid|presentaci[oó]n|introducci[oó]n al curso|despe
                     r"|material(es)? del curso|qu[eé] vas a aprender|agradecim|pr[oó]ximos pasos|siguientes pasos"
                     r"|instalaci[oó]n|instalando|instalar |configuraci[oó]n del entorno|preparaci[oó]n del entorno"
                     r"|welcome|goodbye|\bsetup\b|\binstall", re.I)
-SEG_LIGERA = 150  # más cortas que esto: siempre ligeras
+SEG_LIGERA = 120  # más cortas que esto: siempre ligeras (v8: 150 → 120; de 2 a 4 min manda la curva, sin andamiaje)
 REGLA_LIGERA = """
 
 CLASE LIGERA (bienvenida, introducción, instalación, despedida o clase muy corta): el alumno ya verá el video y lo recordará.
-- UNA sola sección con 1 a 3 puntos MUY breves (qué se hace / qué se necesita).
+- UNA sola sección con 2 a 5 puntos MUY breves (qué se hace / qué se necesita) que conserven TODA cifra, versión, herramienta, requisito y alternativa que se mencione.
 - Si es una instalación o configuración: lista corta de los pasos y comandos clave EXACTOS (en un bloque de código si hay comandos).
 - Sin ejercicios, sin errores comunes, sin glosario ni vocabulario, sin diagramas, sin comparativas, sin ejemplos resueltos.
-- corto.pretest vacío; 1 pregunta como máximo. Si no hay nada que rescatar, usa "sin_contenido".
+- corto.pretest vacío; 2 preguntas de DATO concreto (cifra, requisito, alternativa, advertencia) en corto.preguntas. Si no hay nada que rescatar, usa "sin_contenido".
 """
 
 
@@ -574,6 +806,8 @@ def titulo_propio(nombre):
 
 
 def es_ligera(titulo, duracion=0):
+    if duracion and duracion >= 900:  # un video de 15 min o más nunca es "ligero" aunque diga "instalación" en el título
+        return False
     return bool(duracion and duracion < SEG_LIGERA) or bool(LIGERA.search(titulo_propio(titulo)))
 
 
@@ -586,6 +820,205 @@ def aplicar_ligera(datos):
         s["diagrama"], s["comparativa"], s["ejemplo"] = "", None, None
     (datos.get("corto") or {}).pop("pretest", None)
     datos["ligera"] = True
+
+
+def _seg_seccion(s):
+    try:
+        return a_segundos(str(s.get("inicio", "0")))
+    except ValueError:
+        return 0
+
+
+def fusionar_secciones(datos, segundos):
+    """Una sección de pocos segundos o con un solo punto y sin código se une a la anterior (no hay secciones-migaja)."""
+    m = segundos / 60
+    if m < 8:
+        return
+    minimo = (5 if m >= 120 else 3) * 60
+    secs = [s for s in datos.get("secciones") or [] if isinstance(s, dict)]
+    secs.sort(key=_seg_seccion)
+    piso = 2 if m < 20 else max(3, int(-(-m // 12)))  # v9d: un video de 12 min nunca queda en una sola sección
+    sal = []
+    for k, s in enumerate(secs):
+        fin = _seg_seccion(secs[k + 1]) if k + 1 < len(secs) else segundos
+        corta = fin - _seg_seccion(s) < minimo
+        migaja = len(s.get("puntos") or []) <= 1 and not str(s.get("codigo") or "").strip()
+        if sal and (migaja or (corta and not str(s.get("codigo") or "").strip())) and len(sal) + (len(secs) - k - 1) >= piso:
+            prev = sal[-1]
+            prev["puntos"] = list(prev.get("puntos") or []) + list(s.get("puntos") or [])
+            if not prev.get("diagrama") and s.get("diagrama"):
+                prev["diagrama"] = s["diagrama"]
+            continue
+        sal.append(s)
+    datos["secciones"] = sal
+    # v8: tope duro de secciones por duración; se une la más corta con la anterior (puntos y código se conservan)
+    tope = 6 if m < 45 else 10 if m < 120 else 35
+    while len(sal) > tope:
+        durs = [((_seg_seccion(sal[k + 1]) if k + 1 < len(sal) else segundos) - _seg_seccion(sal[k]), k) for k in range(1, len(sal))]
+        _, k = min(durs)
+        prev, cur = sal[k - 1], sal.pop(k)
+        prev["puntos"] = list(prev.get("puntos") or []) + [f"**{cur.get('titulo', '')}:**"] * 0 + list(cur.get("puntos") or [])
+        if str(cur.get("codigo") or "").strip():
+            if not str(prev.get("codigo") or "").strip():
+                prev["codigo"], prev["lenguaje"] = cur["codigo"], cur.get("lenguaje")
+            elif (prev.get("lenguaje") or "") == (cur.get("lenguaje") or ""):
+                prev["codigo"] = str(prev["codigo"]).rstrip("\n") + "\n\n" + str(cur["codigo"])
+        if not prev.get("diagrama") and cur.get("diagrama"):
+            prev["diagrama"] = cur["diagrama"]
+        prev["titulo"] = f"{prev.get('titulo', '')} y {str(cur.get('titulo', '')).lower()}" if len(prev.get("titulo", "")) < 55 else prev.get("titulo", "")
+    datos["secciones"] = sal
+
+
+META = re.compile(r"no se confirma|dato (dudoso|no verificado|no confirmado)|no aparece en (la|las) (fuente|transcripci)|seg[úu]n la transcripci[oó]n|"
+                  r"transcripci[oó]n (dudosa|poco clara|ambigua)|la transcripci[oó]n (dice|indica|muestra|parece)", re.I)
+
+
+def _norm_num(x):
+    return re.sub(r"[.,\s]", "", x)
+
+
+def verificar_fidelidad(datos, fuente):
+    """v9c: lo que NO sale del video se quita. Una viñeta/pregunta se descarta si trae (a) una cifra de 3+ dígitos, un decimal o una
+    notación 1e-3 que no está en la transcripción/OCR/material, o (b) un `identificador` entre backticks (5+ letras) que tampoco
+    está. También se quitan las viñetas que son puro meta-aviso ('la transcripción dice…', 'dato no verificado'). Devuelve cuántas quitó."""
+    f = (fuente or "").lower()
+    f_sin = re.sub(r"[-\s]", "", f)
+    f_ent = "".join(c for c in unicodedata.normalize("NFD", f) if unicodedata.category(c) != "Mn")
+    nums = {_norm_num(x) for x in re.findall(r"\d[\d.,]*", f)}
+    quitadas = [0]
+
+    def ok(txt):
+        txt = str(txt or "")
+        if META.search(txt):
+            return False
+        for n in re.findall(r"\d+[.,]\d+|\d+e-?\d+|\d{4,}", txt):  # v9d: 4+ dígitos (3 dígitos daba falsos positivos: se dicen en voz)
+            if re.fullmatch(r"[01]+", n) or (_norm_num(n) in nums) or n.lower() in f:  # los binarios 0110/1100 se dictan, no se escriben
+                continue
+            return False
+        sin_tilde = lambda s: "".join(c for c in unicodedata.normalize("NFD", s) if unicodedata.category(c) != "Mn")
+        for ent in re.findall(r"\b[a-z]+[A-Z]\w+\b|\b[A-Z][a-z]+[A-Z]\w*\b|(?<=[a-záéíóúñ,;:] )[A-ZÁÉÍÓÚÑ][a-záéíóúñ]{5,}\b", txt):
+            b = sin_tilde(ent.lower())
+            if b not in f_ent and b.rstrip("s") not in f_ent:
+                return False
+        for pc in re.findall(r"\d+(?:[.,]\d+)?\s?%", txt):  # v9e: los porcentajes ("67 %") también deben salir del video
+            num = re.sub(r"[\s%]", "", pc).replace(",", ".")
+            if not re.search(r"(?<![\d.,])" + re.escape(num).replace(r"\.", r"[.,]") + r"\s?(%|por ?ciento)", f):
+                return False
+        for tok in re.findall(r"\b[A-Za-z]+-?\d+[A-Za-z]*\b|\b\d+[A-Za-z]+\b", txt):
+            base = re.sub(r"[-\s]", "", tok.lower())
+            if len(base) >= 3 and base not in f_sin and not base.isdigit():
+                return False
+        for ident in re.findall(r"`([A-Za-z_][\w.]{4,})(?:\(\))?`", txt):
+            base = ident.split(".")[-1].lower()
+            if len(base) >= 5 and base not in f:
+                return False
+        return True
+
+    for s in datos.get("secciones") or []:
+        if isinstance(s, dict) and s.get("puntos"):
+            buenos = [p for p in s["puntos"] if ok(p)]
+            quitadas[0] += len(s["puntos"]) - len(buenos)
+            s["puntos"] = buenos or s["puntos"][:1]  # una sección nunca queda sin nada
+    # v9e: también el resumen ("En 30 segundos"), objetivos, porqués, ejemplos, errores, conceptos y comparativas
+    for campo in ("resumen", "objetivos"):
+        if isinstance(datos.get(campo), list):
+            buenos = [x for x in datos[campo] if ok(x)]
+            quitadas[0] += len(datos[campo]) - len(buenos)
+            datos[campo] = buenos
+    for s in datos.get("secciones") or []:
+        if not isinstance(s, dict):
+            continue
+        for campo in ("porque", "intuicion"):
+            if s.get(campo) and not ok(s[campo]):
+                s[campo] = ""
+                quitadas[0] += 1
+        ej = s.get("ejemplo")
+        if isinstance(ej, dict) and not all(ok(x) for x in [ej.get("enunciado"), ej.get("salida")] + list(ej.get("pasos") or [])):
+            s["ejemplo"] = None
+            quitadas[0] += 1
+        comp = s.get("comparativa")
+        if isinstance(comp, dict) and not all(ok(c) for fila in comp.get("filas") or [] for c in fila):
+            s["comparativa"] = None
+            quitadas[0] += 1
+    for campo, claves in (("errores_comunes", ("error", "porque", "arreglo")), ("conceptos", ("termino", "definicion"))):
+        if isinstance(datos.get(campo), list):
+            buenos = [e for e in datos[campo] if not isinstance(e, dict) or all(ok(e.get(k)) for k in claves)]
+            quitadas[0] += len(datos[campo]) - len(buenos)
+            datos[campo] = buenos
+    corto = datos.get("corto")
+    if isinstance(corto, dict):
+        buenas = [e for e in corto.get("esencial") or [] if ok(e)]
+        quitadas[0] += len(corto.get("esencial") or []) - len(buenas)
+        corto["esencial"] = buenas
+        qs = [q for q in corto.get("preguntas") or [] if isinstance(q, dict) and ok(q.get("pregunta")) and ok(q.get("respuesta"))]
+        quitadas[0] += len(corto.get("preguntas") or []) - len(qs)
+        corto["preguntas"] = qs
+    return quitadas[0]
+
+
+def _limitar_codigo(datos, segundos):
+    """v9c: en videos largos el código de cada sección no pasa de 15 líneas (CSS: 8); no se vuelcan hojas de estilo enteras."""
+    m = segundos / 60
+    if m < 45:
+        return
+    for s in datos.get("secciones") or []:
+        cod = str(s.get("codigo") or "")
+        lim = 8 if str(s.get("lenguaje") or "").lower() in ("css", "scss") else 15
+        lineas = cod.split("\n")
+        if len(lineas) > lim:
+            s["codigo"] = "\n".join(lineas[:lim] + ["…"])
+            s["linea_a_linea"] = []
+
+
+def aplicar_perfil(datos, segundos):
+    """v8: hace cumplir la curva de la duración aunque la IA no obedezca el prompt (topes, piezas que no van, secciones-migaja)."""
+    m = segundos / 60
+    datos["practica"] = (datos.get("practica") or [])[:n_ejercicios(segundos)]
+    datos["errores_comunes"] = (datos.get("errores_comunes") or [])[:n_errores(segundos)]
+    datos["vocabulario"] = (datos.get("vocabulario") or [])[:n_vocabulario(segundos)]
+    datos["conceptos"] = [] if m < 60 else (datos.get("conceptos") or [])[:6]
+    # ejemplos, comparativas y diagramas: máximos por duración
+    max_ej = 0 if m < 5 else 2 if m < 20 else 3 if m < 45 else max(2, int(m // 40))
+    max_comp = 0 if m < 5 else 1 if m < 120 else max(1, int(m // 60))
+    max_diag = n_diagramas(segundos)
+    for s in datos.get("secciones") or []:
+        if not isinstance(s, dict):
+            continue
+        if s.get("ejemplo"):
+            if max_ej > 0:
+                max_ej -= 1
+            else:
+                s["ejemplo"] = None
+        if s.get("comparativa"):
+            if max_comp > 0:
+                max_comp -= 1
+            else:
+                s["comparativa"] = None
+        if s.get("diagrama"):
+            if max_diag > 0:
+                max_diag -= 1
+            else:
+                s["diagrama"] = ""
+    for s in datos.get("secciones") or []:  # ejemplo que solo repite un bloque corto, y tablas de una sola fila: ruido
+        if isinstance(s, dict):
+            if s.get("ejemplo") and str(s.get("codigo") or "").strip() and len(str(s["codigo"]).strip().split("\n")) <= 8:
+                s["ejemplo"] = None
+            comp = s.get("comparativa")
+            if isinstance(comp, dict) and len(comp.get("filas") or []) < 2:
+                s["comparativa"] = None
+    _limitar_codigo(datos, segundos)
+    fusionar_secciones(datos, segundos)
+    corto = datos.get("corto")
+    if isinstance(corto, dict):
+        corto["preguntas"] = (corto.get("preguntas") or [])[:n_preguntas(segundos)]
+        corto["pretest"] = (corto.get("pretest") or [])[:n_pretest(segundos)]
+        corto["esencial"] = (corto.get("esencial") or [])[:3 if m < 20 else 5 if m < 45 else 8]
+        if m < 8:
+            corto["chuleta"] = []
+        if m < 45:
+            corto["codigo"], corto["mapa"], corto["diagrama"] = [], [], ""
+        elif m < 120:
+            corto["codigo"], corto["diagrama"] = (corto.get("codigo") or [])[:1], ""
 
 
 def verificar_practica(datos):
@@ -823,6 +1256,57 @@ def consultar_ia(prompt, modelo=None):
 
 
 # ----------------------------------------------------------------- armado ----
+def _top_puntos(puntos, k):
+    """Se queda con k puntos, en su orden; los que traen cifras, código o un 'no/nunca/siempre' (datos duros) se salvan primero."""
+    puntos = list(puntos)
+    if len(puntos) <= k:
+        return puntos
+    duro = [i for i, p in enumerate(puntos) if re.search(
+        r"\d|`|\b(nunca|siempre|no se|no uses|no lo|evita|evitar|ojo|cuidado|advert\w*|recomiend\w*|recomendad\w*|conclus\w*|importante|error|requisito\w*)\b",
+        str(p), re.I)]
+    elegidos = set(duro[:k]) | set(range(max(0, k - len(duro))))
+    return [p for i, p in enumerate(puntos) if i in elegidos][:k]
+
+
+def _tokens_en_codigo(md):
+    """v9b: tokens como <|reward|> o <script> sueltos (fuera de bloques y de `código`) se pierden al verse como HTML: van entre
+    backticks. No toca lo que ya está entre backticks, los destinos de enlaces ](<…>) ni los comentarios HTML."""
+    def envolver(trozo):
+        return re.sub(r"(?<![`\w(<])<(?![<!])(/?[\w|][^<>`\n]{0,40})>(?![`>)])", lambda m: f"`<{m.group(1)}>`", trozo)
+    sal, en_codigo = [], False
+    for l in md.split("\n"):
+        if l.lstrip("> ").startswith("```"):
+            en_codigo = not en_codigo
+        elif not en_codigo and "<" in l and not l.lstrip().startswith("<!--"):
+            partes = re.split(r"(`[^`\n]*`|\]\(<[^)\n]*>\)|<<[^<>\n]*>>)", l)  # lo protegido queda como está
+            l = "".join(p if k % 2 else envolver(p) for k, p in enumerate(partes))
+        sal.append(l)
+    return "\n".join(sal)
+
+
+def _recortar(datos, secciones, nivel):
+    """v9: si el apunte se pasa del presupuesto de lectura, se RECORTA (no solo se pliega) lo menos importante, de a poco.
+    Opera sobre copias: .apuntes-ia.json conserva lo que dijo la IA (rearmar-v6 puede volver a armar con otro presupuesto)."""
+    if nivel < 4 or not datos:
+        return datos, secciones
+    import copy
+    d, sec = copy.deepcopy(datos), copy.deepcopy(secciones)
+    for k, s in enumerate(sec):
+        diario = s.get("relevancia") == "diario"
+        cierre = k == len(sec) - 1  # v9c: el cierre del video (resultados, conclusiones, advertencias) pierde menos
+        s["puntos"] = _top_puntos(s.get("puntos") or [], {4: 5, 5: 4, 6: 3}[nivel] + (1 if diario else 0) + (2 if cierre else 0))
+        if not diario:
+            s["porque"], s["intuicion"] = "", ""
+            if nivel >= 5:
+                s["ejemplo"], s["comparativa"], s["diagrama"] = None, None, ""
+        if nivel >= 6:
+            s["linea_a_linea"] = []
+    if nivel >= 5:
+        d["errores_comunes"] = (d.get("errores_comunes") or [])[:1] if nivel == 5 else []
+        d["practica"] = (d.get("practica") or [])[:1]
+    return d, sec
+
+
 def armar(carpeta, titulo, capturas, subs, datos, duracion, recursos_md=""):
     datos = editorial.revisar_apis(datos)
     recursos_md = editorial.recursos_sin_imagenes(recursos_md)
@@ -853,13 +1337,14 @@ def armar(carpeta, titulo, capturas, subs, datos, duracion, recursos_md=""):
     hay_voz = bool(voz)
 
     presupuesto = presupuesto_lectura(duracion)
-    for nivel in range(4):  # si se pasa del presupuesto se pliega lo menos importante, de a poco
-        md = _armar_md(titulo, capturas, datos, duracion, recursos_md, secciones, importantes, esenciales,
-                       voz, idioma_txt, hay_resumen, nivel)
+    for nivel in range(7):  # si se pasa del presupuesto: 1-3 pliega lo menos importante; 4-6 lo RECORTA (v9)
+        d_n, sec_n = _recortar(datos, secciones, nivel)
+        md = _armar_md(titulo, capturas, d_n, duracion, recursos_md, sec_n, importantes, esenciales,
+                       voz, idioma_txt, hay_resumen, min(nivel, 3))
         if palabras_a_la_vista(md) <= presupuesto:
             break
     escribir_transcripcion(carpeta, titulo, secciones, voz, idioma_txt, duracion)
-    return md
+    return _tokens_en_codigo(md)
 
 
 # los valores del JSON siguen siendo diario/a-veces/raro (compatibles); lo que se muestra dice IMPORTANCIA:
@@ -867,26 +1352,26 @@ def armar(carpeta, titulo, capturas, subs, datos, duracion, recursos_md=""):
 REL = {"diario": "⭐ **Clave**", "a-veces": "🔸 **Útil**", "raro": "💤 **De paso**"}
 
 
-def presupuesto_lectura(segundos):
-    """Palabras A LA VISTA (lo plegado no cuenta): ~35 % del video a 200 palabras/min, mín. 120."""
-    return max(120, int(70 * segundos / 60))
-
-
 def palabras_a_la_vista(md):
     """Palabras que se leen de corrido: sin bloques plegados ([!x]-), imágenes ni rótulos de minuto."""
-    n, plegado = 0, False
+    n, plegado, en_codigo = 0, False, False
     for l in md.split("\n"):
+        if l.lstrip().startswith("```"):
+            en_codigo = not en_codigo
         if re.match(r"\s*> \[!\w+\]-", l):
             plegado = True
             continue
         if plegado and re.match(r"\s*>", l):
+            n += 0.5 * len(l.split()) * (0.5 if en_codigo else 1)  # v9: lo plegado también se lee: cuenta la mitad
+            if l.lstrip("> ").startswith("```"):
+                en_codigo = not en_codigo
             continue
         plegado = False
         # rótulos y navegación (minutos, enlaces, cabecera): se miran, no se leen
         if l.startswith(("![", "*⏱️", "<!--", "⏱️", "> ⏱️", "> ⚡", "> 🗣️", "---")):
             continue
-        n += len(l.split())
-    return n
+        n += len(l.split()) * (0.5 if en_codigo else 1)
+    return int(n)
 
 
 COMENTARIO = {**dict.fromkeys(("python", "py", "bash", "sh", "shell", "zsh", "fish", "yaml", "yml", "toml", "r", "ruby",
@@ -941,7 +1426,7 @@ def _armar_md(titulo, capturas, datos, duracion, recursos_md, secciones, importa
     la práctica · 3 = también los errores después del 3.º (lo ⭐ nunca se pliega)."""
     hay_voz = bool(voz)
     L = [f"# 📓 {titulo}", ""]
-    L += [f"> ⏱️ **Duración:** {hms(duracion)} · 📚 **Secciones:** {len(secciones)} · Imágenes: {len(importantes)}"]
+    L += [f"> ⏱️ **Duración:** {hms(duracion)} · {"📚 **Secciones:** " + str(len(secciones)) + " · " if len(secciones) >= 2 else ""}Imágenes: {len(importantes)}"]
     enlaces = (["⚡ [Repaso rápido](resumen.md)"] if hay_resumen else []) + \
               ([f"🗣️ [Lo que dice el profe](transcripcion.md) ({idioma_txt})"] if hay_voz else [])
     if enlaces:
@@ -954,11 +1439,11 @@ def _armar_md(titulo, capturas, datos, duracion, recursos_md, secciones, importa
             L += [f"- {p}" for p in (s.get("puntos") or [])[:2]]
         return "\n".join(L + ["", f"<!-- formato v{FORMATO} -->", ""])
     L += _primero_recuerda(datos, duracion)
-    objetivos = [o for o in (datos or {}).get("objetivos") or [] if _txt(o)][:3] if duracion >= 600 else []
+    objetivos = [o for o in (datos or {}).get("objetivos") or [] if _txt(o)][:3] if duracion >= 2700 else []
     if objetivos:
         L += ["## 🎯 Al terminar podrás", ""] + [f"- [ ] {_txt(o)}" for o in objetivos][:3 if nivel < 3 else 2] + [""]
-    if datos and datos.get("resumen") and not hay_resumen:  # el resumen ya está en resumen.md: no se repite
-        L += ["## 🎯 En 30 segundos", ""] + [f"- {p}" for p in datos["resumen"]] + [""]
+    if datos and datos.get("resumen") and not hay_resumen and len(secciones) >= 2 and duracion >= 480:  # solo en clases de 8+ min (en las cortas repite las viñetas)
+        L += ["## 🎯 En 30 segundos", ""] + [f"- {p}" for p in datos["resumen"][:3 if duracion < 900 else 5]] + [""]
     if len(secciones) >= 4 and duracion >= 900:  # navegación, no lectura: plegado (en clases cortas sobra)
         L += [f"> [!summary]- 🗂️ Índice ({len(secciones)} temas)"]
         L += [f"> {k + 1}. [{s['titulo']}](#{k + 1}-{ancla(s['titulo'])}) · `{hms(s['ini'])}`" for k, s in enumerate(secciones)]
@@ -977,16 +1462,16 @@ def _armar_md(titulo, capturas, datos, duracion, recursos_md, secciones, importa
             cab += f" · 🗣️ [lo que dice el profe](transcripcion.md#{k + 1}-{ancla(s['titulo'])})"
         L += [cab, ""]
         porque = _txt(s.get("porque"))
-        if rel in ("diario", "raro"):  # ⭐ y 💤 orientan; "🔸 Útil" en cada sección era ruido
+        if rel in ("diario", "raro") and len(secciones) > 1 and not (rel == "diario" and not porque):  # ⭐ y 💤 orientan; sin porqué no se rotula
             L += ["> " + " — ".join(x for x in (REL[rel], porque if rel == "diario" else "") if x), ""]
-        plegar = (rel == "raro" and nivel >= 1)
+        plegar = (rel == "raro" and nivel >= 1 and len(secciones) > 1 and len(s.get("puntos") or []) >= 4)
         cuerpo = []
         # presupuesto de la sección según lo que dura: los puntos que se pasan van plegados (no se pierden)
         tope = max(30, 20 * dur / 60) * (1.5, 1.2, 1.0, 0.8)[nivel] * (1.3 if rel == "diario" else 1.0)
         vis, mas, usadas = [], [], 0
         for p in (s.get("puntos") or []):
             n = len(_txt(p).split())
-            (vis if (not vis or usadas + n <= tope) and len(vis) < 5 else mas).append(p)
+            (vis if len(s.get("puntos") or []) <= 6 or ((not vis or usadas + n <= tope) and len(vis) < 5) else mas).append(p)  # v9c: pocos puntos → todos a la vista
             usadas += n if p in vis else 0
         cuerpo += [f"- {p}" for p in vis]
         if mas:
@@ -999,7 +1484,7 @@ def _armar_md(titulo, capturas, datos, duracion, recursos_md, secciones, importa
             codigo, sobran = _comentar(str(s["codigo"]).strip("\n"), s.get("lenguaje"), lal)
             cuerpo += [f"```{s.get('lenguaje') or ''}", codigo, "```", ""]
         if plegar:
-            L += ["> [!note]- 💤 Ver el detalle"] + [f"> {x}" if x else ">" for x in cuerpo] + [""]
+            L += ["> [!note]- 💤 Ver el detalle"] + [f"> {ln}" if ln else ">" for x in cuerpo for ln in x.split("\n")] + [""]  # v8: cada línea del código lleva el '>' (antes solo la primera → el bloque se rompía)
         else:
             L += cuerpo
         if sobran:
@@ -1354,13 +1839,13 @@ def main():
             datos["formato"] = FORMATO  # mejorar-apuntes.py salta las que ya tienen el formato actual
             with open(os.path.join(carpeta, ".apuntes-ia.json"), "w", encoding="utf-8") as f:
                 json.dump(datos, f, ensure_ascii=False, indent=1)
-            if isinstance(corto, dict) and corto.get("esencial"):
+            if isinstance(corto, dict) and corto.get("esencial") and duracion >= 1200:  # v9: solo desde 20 min hay resumen.md aparte (antes sobra: apuntes ya trae "En 30 segundos")
                 # el repaso corto viene en la MISMA respuesta: no hace falta otra llamada
                 rc = cargar_resumen_corto()
                 with open(os.path.join(carpeta, ".resumen-ia.json"), "w", encoding="utf-8") as f:
                     json.dump(corto, f, ensure_ascii=False, indent=1)
                 with open(os.path.join(carpeta, "resumen.md"), "w", encoding="utf-8") as f:
-                    f.write(rc.armar(titulo, hms(duracion), corto))
+                    f.write(rc.armar(titulo, hms(duracion), corto, con_preguntas=False))
                 print("⚡ Resumen corto armado en la misma llamada")
         else:
             print("   (sin resumen de IA: se arma solo con capturas y transcripción)")

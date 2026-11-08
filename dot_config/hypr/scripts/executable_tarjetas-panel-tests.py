@@ -43,6 +43,7 @@ def ver(md):
     return md.replace("\u200b", "").replace("\\", "")
 
 
+ta._segundos = lambda c: 0  # v8: estas pruebas de formato no dependen de la duración (clases viejas: sin tope)
 CORTO = {"preguntas": [{"pregunta": "¿Por qué X?", "respuesta": "Porque Y."},
                        {"pregunta": "¿Por qué X?", "respuesta": "Duplicada."},
                        {"pregunta": "¿Vacía?", "respuesta": ""}],

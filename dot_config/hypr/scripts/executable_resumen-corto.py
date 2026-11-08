@@ -75,36 +75,41 @@ def pedir_a_claude(titulo, duracion, datos):
 
 def celda(texto):
     """Texto seguro dentro de una tabla Markdown (el | la rompe)."""
-    return str(texto).replace("|", "\\|").replace("\n", " ")
+    t = str(texto).replace("|", "\\|").replace("\n", " ")
+    if "<" in t and "`" not in t:  # v8: un <script> suelto se pierde al mostrarse como HTML
+        t = "`" + t + "`"
+    return t
 
 
 ICONO_TIPO = {"porque": "🤔 ", "que-imprime": "🖨️ ", "error": "🐞 ", "definicion": "📖 "}
 
 
-def armar(titulo, duracion, corto):
+def armar(titulo, duracion, corto, con_preguntas=True):
     L = [f"# ⚡ Repaso rápido: {titulo}", ""]
     L += [f"> ⏱️ **Duración:** {duracion} · 📓 **Versión completa:** [apuntes.md](apuntes.md)", ""]
     if corto.get("idea"):
         L += ["## 💡 En una frase", "", corto["idea"], ""]
     L += ["## ✅ Lo esencial", ""] + [f"- {e}" for e in corto.get("esencial", [])] + [""]
-    if corto.get("chuleta"):
+    seg = cu.a_segundos(duracion) if isinstance(duracion, str) and duracion else float(duracion or 0)
+    largo = seg >= 45 * 60  # v8: código mínimo y mapa solo en clases largas (en las demás ya están en los apuntes)
+    if corto.get("chuleta") and seg >= 8 * 60:
         L += ["## 🧩 Chuleta", "", "| Quiero… | Cómo |", "|---|---|"]
         L += [f"| {celda(c.get('quiero', ''))} | {celda(c.get('como', ''))} |" for c in corto["chuleta"]]
         L += [""]
     codigos = [c for c in corto.get("codigo", []) if str(c.get("codigo", "")).strip()]
-    if codigos:
+    if codigos and largo:
         L += ["## 💻 Código mínimo", ""]
         for c in codigos:
             L += [f"**{c.get('titulo', '')}**", "", f"```{c.get('lenguaje') or ''}",
                   str(c["codigo"]).strip("\n"), "```", ""]
     diag = cu._mermaid(corto.get("diagrama"))
-    if corto.get("mapa") or diag:
+    if largo and (corto.get("mapa") or diag):
         L += ["## 🗺️ Mapa de la clase", ""]
         if diag:
             L += ["```mermaid", diag, "```", ""]
         L += [f"- `{m.get('inicio', '')}` {m.get('tema', '')}" for m in corto.get("mapa") or []] + [""]
-    if corto.get("preguntas"):
-        L += ["## 🔁 Autoevaluación", "", "*Respondé de memoria y después abrí la respuesta.*", ""]
+    if corto.get("preguntas") and con_preguntas:  # v8: las preguntas viven en tarjetas.md (aquí era la misma lista)
+        L += ["## 🔁 Autoevaluación", "", "*Responde de memoria y después abre la respuesta.*", ""]
         for k, q in enumerate(corto["preguntas"], 1):
             if not isinstance(q, dict):
                 continue
