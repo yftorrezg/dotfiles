@@ -77,23 +77,26 @@ select{font:inherit;color:var(--txt);background:var(--bg);border:1px solid var(-
 #lista .it{position:relative}
 .it .nom{padding-bottom:18px}
 .it .acc{position:absolute;right:5px;bottom:4px;display:flex;gap:3px}
-.it .acc button{width:22px;height:22px;padding:0;display:grid;place-items:center;border-radius:6px;
+.it .acc button{width:28px;height:26px;padding:0;display:grid;place-items:center;border-radius:6px;
   background:rgba(19,20,26,.82);color:var(--sub);border:1px solid transparent;opacity:.55;transition:opacity .12s,color .12s}
 .it:hover .acc button{opacity:1}
-.it .acc button svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
-.it .acc button.on{opacity:1}
-.it .acc button[data-b=imp].on{color:#fbbf24}.it .acc button[data-b=imp].on svg{fill:#fbbf24}
-.it .acc button[data-b=imp]:hover{color:#fbbf24;border-color:#fbbf24}
-.it .acc button[data-b=dudo].on,.it .acc button[data-b=dudo]:hover{color:var(--acento2);border-color:var(--acento2)}
-.it .acc button[data-b=sabido].on,.it .acc button[data-b=sabido]:hover{color:#4ade80;border-color:#4ade80}
-.it .acc button[data-b=ver]:hover{color:var(--acento);border-color:var(--acento)}
-#lista .it.dudo{border-left:3px solid #38bdf8}
+.it .acc button svg{width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.it .acc button[data-b=imp]{--c:#fbbf24}.it .acc button[data-b=dudo]{--c:#fb7185}.it .acc button[data-b=sabido]{--c:#4ade80}
+.it .acc button{color:var(--c);opacity:.38;border-radius:8px}
+.it .acc button:hover{opacity:1;background:color-mix(in srgb,var(--c) 16%,#13141a);border-color:var(--c)}
+.it .acc button.on{opacity:1;background:color-mix(in srgb,var(--c) 22%,#13141a);border-color:var(--c);box-shadow:0 0 8px color-mix(in srgb,var(--c) 35%,transparent)}
+.it .acc button[data-b=imp].on svg{fill:#fbbf24}
+.it .acc button[data-b=sabido].on svg{stroke-width:2.6}
+.it .mini .bd{position:absolute;right:3px;top:3px;display:flex;gap:2px}
+.it .mini .bd b{font:700 11px system-ui;border-radius:4px;padding:0 5px;color:#13141a}
+.b-imp{background:#fbbf24}.b-dudo{background:#fb7185}.b-sabido{background:#4ade80}
+#lista .it.dudo{border-left:3px solid #fb7185}
 #lista .it.sabido{opacity:.55}#lista .it.sabido:hover,#lista .it.sabido.actual{opacity:1}
-.it .acc button[data-b=cut]:hover{color:var(--acento2);border-color:var(--acento2)}
-.it .acc button[data-b=del]:hover{color:var(--peligro);border-color:var(--peligro)}
-#lista .it:hover{background:var(--card2);border-color:var(--acento2)}
-.it .ahora{position:absolute;right:8px;top:5px;font:600 11px system-ui;color:#06241c;background:var(--acento);border-radius:5px;padding:0 6px}
-#lista .it.actual .nom{padding-right:0}
+#lista .it.sabido{border-left:3px solid #4ade80}
+.chip[data-fl=imp]{color:#fbbf24}.chip[data-fl=dudo]{color:#fb7185}.chip[data-fl=sabido]{color:#4ade80}
+.chip[data-fl=imp].on{background:#fbbf24;border-color:#fbbf24;color:#2b1d00}
+.chip[data-fl=dudo].on{background:#fb7185;border-color:#fb7185;color:#2d0610}
+.chip[data-fl=sabido].on{background:#4ade80;border-color:#4ade80;color:#052e14}
 #lista .it.imp{border-left:3px solid #fbbf24}
 #barra-lista{flex-wrap:wrap}
 #barra-lista{display:none;gap:5px;margin-top:7px;align-items:center}
@@ -229,9 +232,9 @@ async function pintarLista(){
     const bt = (k, x, t) => `<button data-b="${k}" class="${x.marcas.includes(k) ? "on" : ""}" title="${t}">${IC[k]}</button>`;
     cont.innerHTML = vis.length ? vis.map((x, k) => `${caps && (k === 0 || vis[k - 1].cap !== x.cap) ? `<div class="cap">${esc(x.cap || "")}</div>` : ""}<div class="it${x.actual ? " actual" : ""}${x.i < act ? " vista" : ""}${x.marcas.map(m => " " + m).join("")}" data-i="${x.i}" title="${esc(x.nombre)}">
       ${x.actual ? `<span class="ahora">▶ ${filtro && !pasa(x) ? "suena (fuera del filtro)" : "suena ahora"}</span>` : ""}
-      <div class="mini"><img loading="lazy" src="/mini?i=${x.i}" onerror="this.style.display='none'"><i>${x.i + 1}</i>${x.dur ? `<span class="dur">${fmt(x.dur)}</span>` : ""}</div>
+      <div class="mini"><img loading="lazy" src="/mini?i=${x.i}" onerror="this.style.display='none'"><i>${x.i + 1}</i>${x.marcas.length ? `<span class="bd">${x.marcas.map(m => ({imp:"★", dudo:"?", sabido:"✓"})[m]).map((g, k) => `<b class="b-${x.marcas[k]}">${g}</b>`).join("")}</span>` : ""}${x.dur ? `<span class="dur">${fmt(x.dur)}</span>` : ""}</div>
       <div class="nom">${esc(limpiar(x.nombre))}</div>
-      <div class="acc"><button data-b="ver" title="Ver apuntes y tarjetas">${IC.ver}</button><button data-b="cut" title="Recortar principio / final">${IC.cut}</button><button data-b="del" title="Eliminar video">${IC.del}</button>${bt("imp", x, "Importante")}${bt("dudo", x, "No lo entendí")}${bt("sabido", x, "Ya lo sé")}</div></div>`).join("")
+      <div class="acc">${bt("imp", x, "Importante: para repasar")}${bt("dudo", x, "No lo entendí: volver a verlo")}${bt("sabido", x, "Ya lo sé: no hace falta verlo")}</div></div>`).join("")
       : (filtro ? `<div class="vacio">Ningún video con este filtro.<br>Márcalos con los iconos ★ ❓ ✓ de cada video.</div>`
         : `<div class="vacio">No hay lista de reproducción.<br>Abre un video o carga un curso con <kbd>Alt</kbd>+<kbd>C</kbd>.</div>`);
     listaFirma = lista.map(x => x.i + (x.actual ? "*" : "") + x.marcas.join("")).join();
