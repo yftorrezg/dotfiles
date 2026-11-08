@@ -30,7 +30,7 @@ MODAL_SH = os.path.join(AQUI, "modal-toggle.sh")
 TARJETAS_PY = os.environ.get("TARJETAS_PY") or os.path.expanduser("~/.config/hypr/scripts/tarjetas.py")
 TIPOS = {"?": ("duda", "❓"), "!": ("clave", "🔑"), "p": ("practicar", "🛠️")}
 MAX_INTERVALO = 60  # días
-SOCK = os.path.join(os.environ.get("XDG_RUNTIME_DIR", "/tmp"), "mpv-notas.sock")
+SOCK = os.environ.get("NOTAS_SOCK") or os.path.join(os.environ.get("XDG_RUNTIME_DIR", "/tmp"), "mpv-notas.sock")
 CERRAR_SIN_USO = 20 * 60  # segundos sin peticiones -> el servidor se apaga solo
 _candado = threading.Lock()
 
@@ -657,6 +657,8 @@ def borrar_video(i, con_apuntes):
             pass
     ipc("playlist-remove", i)
     quitar_importante(ruta)
+    if _filtro["f"]:
+        empujar_filtro()
     borrados = {"video": True, "apuntes": False, "capturas": 0, "notas": 0}
     if a:
         if a["dir"] and not a_papelera(a["dir"]):
@@ -815,6 +817,23 @@ def _clave_natural(s):
     return [int(x) if x.isdigit() else x for x in re.split(r"(\d+)", s.casefold())]
 
 
+_filtro = {"f": ""}
+
+
+def empujar_filtro():
+    """Manda a mpv (filtro.lua) qué videos de la lista están permitidos: así > / < / Enter / el fin del video
+    pasan solo por los del filtro activo. Filtro vacío = todos."""
+    f = _filtro["f"]
+    rutas = []
+    if f:
+        for x in lista_reproduccion():
+            m = x["marcas"]
+            if (f == "pend" and "sabido" not in m) or (f in MARCAS and f in m):
+                rutas.append(x["ruta"])
+    ipc("script-message", "filtro-rutas", json.dumps({"f": f, "rutas": rutas}, ensure_ascii=False))
+    return len(rutas)
+
+
 def reproducir_filtro(i_ref, filtro):
     """Reemplaza la lista de mpv por los videos del curso que cumplen el filtro (imp | dudo | sabido | pend = sin 'sabido')."""
     ref = next((x for x in lista_reproduccion() if x["i"] == i_ref), None)
@@ -845,9 +864,14 @@ def parsear_tarjetas(md):
     def cerrar():
         nonlocal bloque
         if bloque:
-            lin = [l.strip() for l in bloque]
-            if "?" in lin:
-                k = lin.index("?")
+            k, dentro = None, False  # primera línea «?» sola que no esté dentro de un bloque de código
+            for n, l in enumerate(bloque):
+                if l.lstrip().startswith("```"):
+                    dentro = not dentro
+                elif l.strip() == "?" and not dentro:
+                    k = n
+                    break
+            if k is not None:
                 q, a = "\n".join(bloque[:k]).strip(), "\n".join(bloque[k + 1:]).strip()
                 if q and a:
                     res.append({"sec": sec, "q": q, "a": a})
@@ -1051,6 +1075,8 @@ class H(BaseHTTPRequestHandler):
             return self._json(listar_videos())
         if u.path == "/api/repaso":
             return self._json(repaso_pendiente())
+        if u.path == "/api/filtro":
+            return self._json({"filtro": _filtro["f"]})
         if u.path == "/api/lista":
             return self._json(lista_reproduccion())
         if u.path == "/api/borrar-info":
@@ -1073,6 +1099,11 @@ class H(BaseHTTPRequestHandler):
                 return self._json(detectar_cortes(int(q["i"][0])))
             except (ValueError, KeyError):
                 return self._json({"ok": False, "error": "falta i"})
+        if u.path == "/api/leyendo":
+            r = subprocess.run(["pgrep", "-x", "piper-tts|edge-tts|ffplay|pw-play"], stdout=subprocess.DEVNULL)
+            if r.returncode != 0:
+                r = subprocess.run(["pgrep", "-f", "chatterbox-hablar[.]py"], stdout=subprocess.DEVNULL)
+            return self._json({"leyendo": r.returncode == 0})
         if u.path == "/api/recorte-estado":
             return self._json(estado_recorte())
         if u.path == "/mini":
@@ -1107,16 +1138,30 @@ class H(BaseHTTPRequestHandler):
             return self._json({"error": "json"}, 400)
         p = urlparse(self.path).path
         if p == "/api/saltar":
+            if d.get("i") is not None and indice_actual() != int(d["i"]):  # el modal prueba un video que no está sonando
+                ipc("playlist-play-index", int(d["i"]))
+                time.sleep(0.8)
             ok = ipc("seek", float(d["t"]), "absolute+exact") is not None
-            enfocar_mpv()
+            if d.get("play"):
+                ipc("set_property", "pause", False)
+                _pausa_modal["puse"] = False
+            else:
+                enfocar_mpv()
             return self._json({"ok": ok})
+        if p == "/api/filtro":
+            f = d.get("filtro", "")
+            _filtro["f"] = f if f in MARCAS + ("pend",) else ""
+            return self._json({"ok": True, "n": empujar_filtro()})
         if p == "/api/ir":
+            ipc("script-message", "filtro-libre")  # elegido a mano: se reproduce aunque no cumpla el filtro
             ok = ipc("playlist-play-index", int(d["i"])) is not None
             enfocar_mpv()
             return self._json({"ok": ok})
         if p == "/api/marca":
             item = item_de_lista(int(d["i"]))
             ms = item and alternar_marca(item["ruta"], d.get("marca"))
+            if _filtro["f"]:
+                empujar_filtro()
             return self._json({"ok": ms is not None and bool(item), "marcas": ms or []})
         if p == "/api/borrar-video":
             return self._json(borrar_video(int(d["i"]), bool(d.get("apuntes"))))

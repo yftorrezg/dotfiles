@@ -2,7 +2,7 @@
 -- Teclas parecidas a la extensión Video Speed Controller de Brave:
 --
 --   d / a        +0.1 / -0.1
---   r  (o Retroceso)  volver a 1.0x
+--   s  (o Retroceso)  volver a 1.0x   (la r ahora es «recortar», ver notas.lua)
 --   q / w / g / e     velocidad fija 1.3 / 1.5 / 1.8 / 2.0
 --   v            mostrar u ocultar el visor fijo de velocidad
 --
@@ -50,7 +50,7 @@ end
 
 mp.add_forced_key_binding("d", "vel-mas", function() change(0.1) end, { repeatable = true })
 mp.add_forced_key_binding("a", "vel-menos", function() change(-0.1) end, { repeatable = true })
-mp.add_forced_key_binding("r", "vel-normal", function() set_speed(1) end)
+mp.add_forced_key_binding("s", "vel-normal", function() set_speed(1) end)
 mp.add_forced_key_binding("BS", "vel-normal-bs", function() set_speed(1) end)
 mp.add_forced_key_binding("q", "vel-1.3", function() set_speed(1.3) end)
 mp.add_forced_key_binding("w", "vel-1.5", function() set_speed(1.5) end)

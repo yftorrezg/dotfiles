@@ -3,6 +3,10 @@
 --   Ctrl+n   nueva nota en este instante: pausa, escribes título (Enter) y anotación (Enter), sigue
 --            (Esc en el título cancela · Esc en la anotación guarda solo con título)
 --   h        ver / ocultar el panel de notas al lado (20 % a la derecha, video 80 %)
+--   i        apuntes, tarjetas Anki y resumen de este video en una ventana encima del video (pausa el video;
+--            🔊 lo lee en voz alta). Esc o i la cierra y sigue el video.
+--   r        recortar el principio / final de este video (misma ventana; puede detectar la intro sola)
+--   Delete   borra este video Y sus apuntes (van a la papelera), sin preguntar, y pasa al siguiente
 --
 -- Las notas se guardan en ~/Documentos/Notas-cursos/<nombre del video>/ (notas.md, notas.json, capturas/).
 -- El panel (panel-notas/servidor.py + panel.html) habla con mpv por un socket IPC; aquí se abre ese
@@ -116,3 +120,52 @@ end
 mp.add_forced_key_binding("Ctrl+n", "nota-nueva", nueva)
 mp.add_forced_key_binding("h", "nota-panel", function() panel() end)
 mp.add_forced_key_binding("H", "lista-panel", function() panel("lista") end)
+
+-- ---------- modal (i / r) y borrado directo (Delete) ----------
+local modal = base .. "/modal-toggle.sh"
+
+local function abrir_modal(vista)
+    abrir_socket()
+    local salio = false
+    if mp.get_property_bool("fullscreen") then
+        mp.set_property_bool("fullscreen", false)
+        salio = true
+    end
+    mp.add_timeout(salio and 0.5 or 0, function()
+        mp.command_native_async({ name = "subprocess", playback_only = false,
+            args = { modal, "alternar", "?v=" .. vista } }, function() end)
+    end)
+end
+mp.add_forced_key_binding("i", "apuntes-modal", function() abrir_modal("apuntes") end)
+mp.add_forced_key_binding("r", "recortar-modal", function() abrir_modal("recortar") end)
+
+-- POST al servidor del panel; si no está encendido lo arranca y reintenta
+local function llamar(ruta, cuerpo, cb)
+    local function intento(reintentar)
+        mp.command_native_async({ name = "subprocess", playback_only = false, capture_stdout = true,
+            args = { "curl", "-s", "--max-time", "60", "-X", "POST", "-H", "Content-Type: application/json",
+                     "-d", cuerpo, "http://127.0.0.1:47831" .. ruta } }, function(_, r)
+            if r and r.status == 0 and r.stdout and r.stdout ~= "" then return cb(utils.parse_json(r.stdout)) end
+            if reintentar then
+                mp.command_native({ name = "subprocess", playback_only = false,
+                    args = { "setsid", "-f", "python3", servidor, "serve" } })
+                mp.add_timeout(1.2, function() intento(false) end)
+            else
+                cb(nil)
+            end
+        end)
+    end
+    intento(true)
+end
+
+mp.add_forced_key_binding("Delete", "borrar-video-y-apuntes", function()
+    local nombre = (mp.get_property("media-title") or "video")
+    llamar("/api/borrar-actual", "{}", function(r)
+        if r and r.ok then
+            local extra = r.apuntes and " y sus apuntes" or ""
+            mp.osd_message("🗑 «" .. nombre .. "»" .. extra .. " → papelera", 3)
+        else
+            mp.osd_message("No pude borrar: " .. ((r and r.error) or "el servidor no responde"), 4)
+        end
+    end)
+end)

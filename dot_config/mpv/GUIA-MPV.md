@@ -30,7 +30,7 @@
 ### Reproducción
 | Tecla | Acción |
 |---|---|
-| `Espacio`, `k`, `i` o un clic en el video | Pausar / reanudar |
+| `Espacio`, `k` o un clic en el video | Pausar / reanudar |
 | `f` o doble clic | Pantalla completa |
 | `Esc` | Salir de pantalla completa |
 | `Ctrl+q` | Salir **recordando el minuto** |
@@ -54,7 +54,7 @@
 | Tecla | Acción |
 |---|---|
 | `d` / `a` | +0.1 / −0.1 |
-| `r` o `Retroceso` | Volver a 1.0x |
+| `s` o `Retroceso` | Volver a 1.0x |
 | `q` / `w` / `g` / `e` | Velocidad fija 1.3 / 1.5 / 1.8 / 2.0 |
 | `v` | Mostrar u ocultar el visor fijo `⏩` |
 
@@ -125,7 +125,7 @@ En el panel (ventana de Brave): clic en `⏱ 12:34` o en la captura = mpv **salt
 | `m` | Silenciar |
 | `V` (Shift+v) | Mostrar u ocultar subtítulos |
 | `J` (Shift+j) | Cambiar pista de subtítulos |
-| `s` / `S` | Captura de pantalla / sin subtítulos → `~/Imágenes/Capturas-mpv/`. Si el video dura **más de 1 hora**, va a una subcarpeta con el nombre del video (`capturas.lua`) |
+| `S` | Captura de pantalla sin subtítulos (la `s` ahora vuelve a velocidad normal) → `~/Imágenes/Capturas-mpv/`. Si el video dura **más de 1 hora**, va a una subcarpeta con el nombre del video (`capturas.lua`) |
 | `t` | Tiempo transcurrido y total |
 | `Ctrl+i` | Estadísticas técnicas |
 
@@ -225,3 +225,18 @@ Ejecuta en la terminal `mpv --input-test --force-window --idle`: cada tecla que 
   ```
 - **Laptop (Intel Iris Xe)**: los videos se decodifican con la gráfica (`hwdec=vaapi`, menos CPU y batería). Para comprobarlo, con un video abierto pulsa `i`: debe decir `vaapi` junto al códec. Sin cargador, `bateria.lua` activa el perfil `[bateria]` de `mpv.conf` (escalado simple); al enchufar vuelve solo.
 - **Documentación oficial**: `man mpv`, o <https://mpv.io/manual/stable/>.
+
+## Apuntes, recorte y limpieza de la lista (08/11/2026)
+
+Todo sale de `scripts/notas.lua` + `panel-notas/` (el panel de `h` y una ventana flotante «modal»).
+
+| Tecla | Qué hace |
+|---|---|
+| `i` | Ventana encima del video con los **apuntes**, **tarjetas Anki** y **resumen** de ese video. Pausa el video y lo reanuda al cerrar. `🔊` (o `L`) lo lee en voz alta (si seleccionas texto, lee solo eso; cada título tiene su 🔊). En Tarjetas: `Espacio` muestra la respuesta, `1` no la sabía (vuelve al final), `2` la sabía. `Tab` cambia de pestaña, `Esc` o `i` cierra. Arriba a la derecha: ★ ❓ ✓ para marcar el video. |
+| `r` | Misma ventana en la pestaña **Recortar**: empieza/termina (con 📍 = minuto actual de mpv y ▶ probar) y 🔍 **detectar intro y final** (compara con otros videos de la lista; solo encuentra lo que se repite igual en varios videos). Recodifica y deja el original en la papelera; ajusta tus notas y los `.srt`. |
+| `Delete` | Borra el video **y sus apuntes** (papelera) **sin preguntar** y pasa al siguiente. |
+
+En la lista del panel (`H`), cada video tiene iconos abajo a la derecha: 📖 apuntes · ✂ recortar · 🗑 eliminar (con modal) · ★ importante · ❓ no lo entendí · ✓ ya lo sé (se ve atenuado). Los chips de arriba filtran (Todos · ★ · ❓ · ✓ · Pendientes = sin los ya sabidos); **▶ Reproducir filtro** carga en mpv solo esos videos y **Todo el curso** vuelve a la lista completa. Las marcas viven en `~/.local/share/mpv-panel/importantes.json`.
+Al borrar un video con apuntes, el `MAPA.md` del curso se rearma solo (sin IA, reaprovechando la hoja del módulo; `scripts/mapa-tras-borrar.py`).
+
+**Filtro activo (09/11/2026):** al elegir un chip (★ ❓ ✓ Pendientes) en el panel, `>` `<` `N` `P` `Enter`, los botones laterales del mouse y el fin de cada video pasan solo por los videos de ese filtro (`scripts/filtro.lua`). Elegir un video a mano en el panel lo reproduce aunque no cumpla. «Todos» quita el filtro. (Elegir desde el menú uosc `Tab` no cuenta como «a mano»: si no cumple el filtro, salta al siguiente.)

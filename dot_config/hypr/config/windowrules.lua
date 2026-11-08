@@ -136,3 +136,7 @@ hl.window_rule({ match = { class = "^(descargar-menu)$" }, float = true, center 
 -- Anillo radial del MX Master 4 (scripts/anillo.py): sin animación del compositor (la hace el propio
 -- anillo, así no hay retraso al abrir/cerrar) y vidrio esmerilado detrás del velo oscuro.
 hl.layer_rule({ name = "anillo", match = { namespace = "^anillo$" }, no_anim = true, blur = true, ignore_alpha = 0.3 })
+
+-- (08/11/2026) Modal de mpv (tecla i apuntes/tarjetas, tecla r recortar): flotante, centrado, encima del video.
+-- Es una ventana de Brave --app en http://localhost:47831/modal.html (panel-notas/modal-toggle.sh).
+hl.window_rule({ match = { class = "^brave-localhost__" }, float = true, center = true, size = { "monitor_w*0.62", "monitor_h*0.86" } })

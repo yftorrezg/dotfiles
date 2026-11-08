@@ -7,6 +7,7 @@ import atexit, datetime, os, shutil, sys, tempfile, unittest
 TMP = tempfile.mkdtemp(prefix="notas-test-")
 atexit.register(shutil.rmtree, TMP, ignore_errors=True)
 os.environ["NOTAS_RAIZ"] = os.path.join(TMP, "boveda", "Notas de videos")
+os.environ["NOTAS_IMPORTANTES"] = os.path.join(TMP, "importantes.json")
 os.environ["NOTAS_CLASES"] = os.path.join(TMP, "boveda", "Capturas de YouTube")
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import servidor as S  # noqa: E402
@@ -104,6 +105,85 @@ class Notas(unittest.TestCase):
         os.makedirs(d)
         self.assertEqual(S.buscar_clase("Mi video único!"), d)
         self.assertIsNone(S.buscar_clase("No existe"))
+
+
+class Marcas(unittest.TestCase):
+    def test_sabido_y_dudo_se_excluyen(self):
+        v = os.path.join(TMP, "curso", "01 - A", "001. x.mp4")
+        self.assertEqual(S.alternar_marca(v, "imp"), ["imp"])
+        self.assertEqual(S.alternar_marca(v, "dudo"), ["imp", "dudo"])
+        self.assertEqual(S.alternar_marca(v, "sabido"), ["imp", "sabido"])  # sabido quita dudo
+        self.assertEqual(S.alternar_marca(v, "dudo"), ["imp", "dudo"])      # y al revés
+        self.assertEqual(S.alternar_marca(v, "imp"), ["dudo"])
+        self.assertEqual(S.alternar_marca(v, "dudo"), [])
+        self.assertNotIn(v, S.importantes())                                # sin marcas no queda rastro
+        self.assertIsNone(S.alternar_marca(v, "otra"))
+
+    def test_entrada_vieja_cuenta_como_importante(self):
+        self.assertEqual(S.marcas_de({"/a.mp4": {"curso": "/", "cuando": "2026-11-08"}}, "/a.mp4"), ["imp"])
+
+
+class Apuntes(unittest.TestCase):
+    def test_tarjetas(self):
+        md = """# 🃏 Tarjetas: x
+
+#flashcards/x
+
+## 🖨️ ¿Qué imprime?
+
+¿Qué hace esto?
+```sql
+SELECT 1
+?
+FROM dual;
+```
+?
+Devuelve 1.
+
+## ✍️ Mis tarjetas
+
+*Tus tarjetas (pregunta, una línea con `?` sola…)*
+
+Capital de Perú::Lima
+
+Sin respuesta
+"""
+        t = S.parsear_tarjetas(md)
+        self.assertEqual(len(t), 2)
+        self.assertTrue(t[0]["q"].startswith("¿Qué hace esto?") and "FROM dual;" in t[0]["q"])  # un «?» dentro del código no corta
+        self.assertEqual(t[0]["a"], "Devuelve 1.")
+        self.assertEqual((t[1]["q"], t[1]["a"], t[1]["sec"]), ("Capital de Perú", "Lima", "✍️ Mis tarjetas"))
+
+    def test_apuntes_de_clase(self):
+        raiz = os.path.join(TMP, "c2")
+        v = os.path.join(raiz, "10 - Cursores", "009. Cursores con parámetros.mp4")
+        os.makedirs(os.path.dirname(v))
+        d = os.path.join(raiz, "Apuntes", "10 - Cursores - 009 Cursores con parámetros")
+        os.makedirs(d)
+        open(os.path.join(d, "apuntes.md"), "w").write("x")
+        os.makedirs(os.path.join(raiz, "capturas-clave"))
+        open(os.path.join(raiz, "capturas-clave", "002 10 - Cursores - 009 Cursores con parámetros · 0001 · 00-00-18.webp"), "w").write("")
+        open(os.path.join(raiz, "capturas-clave", "003 10 - Cursores - 010 Otra · 0001 · 00-00-18.webp"), "w").write("")
+        a = S.apuntes_de(v)
+        self.assertEqual(a["dir"], d)
+        self.assertEqual(len(a["extras"]), 1)  # solo las capturas de ESTA clase
+        self.assertEqual(S.raiz_curso(v), raiz)
+
+
+class Recorte(unittest.TestCase):
+    def test_srt_se_desplaza_y_recorta(self):
+        r = os.path.join(TMP, "a.es.srt")
+        open(r, "w", encoding="utf-8").write("1\n00:00:05,000 --> 00:00:08,000\nantes\n\n2\n00:00:30,000 --> 00:00:33,000\ndentro\n\n3\n00:01:30,000 --> 00:01:33,000\ndespués\n")
+        antes, S.a_papelera = S.a_papelera, lambda ruta: None
+        try:
+            S.cortar_srt(r, 10, 50)
+        finally:
+            S.a_papelera = antes
+        t = open(r, encoding="utf-8").read()
+        self.assertIn("00:00:20,000 --> 00:00:23,000", t)
+        self.assertIn("dentro", t)
+        self.assertNotIn("antes", t)
+        self.assertNotIn("después", t)
 
 
 if __name__ == "__main__":
