@@ -5,6 +5,7 @@
 --   h        ver / ocultar el panel de notas al lado (20 % a la derecha, video 80 %)
 --   i        apuntes, tarjetas Anki y resumen de este video en una ventana encima del video (pausa el video;
 --            🔊 lo lee en voz alta). Esc o i la cierra y sigue el video.
+--   I        (Shift+i) la misma ventana en la pestaña Capturas: la captura clave/esenciales más cercana a este minuto
 --   r        recortar el principio / final de este video (misma ventana; puede detectar la intro sola)
 --   Delete   borra este video Y sus apuntes (van a la papelera), sin preguntar, y pasa al siguiente
 --
@@ -138,6 +139,7 @@ local function abrir_modal(vista)
 end
 mp.add_forced_key_binding("i", "apuntes-modal", function() abrir_modal("apuntes") end)
 mp.add_forced_key_binding("r", "recortar-modal", function() abrir_modal("recortar") end)
+mp.add_forced_key_binding("I", "capturas-modal", function() abrir_modal("capturas") end)  -- Shift+i: capturas clave/esenciales del curso
 
 -- POST al servidor del panel; si no está encendido lo arranca y reintenta
 local function llamar(ruta, cuerpo, cb)

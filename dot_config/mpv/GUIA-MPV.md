@@ -240,3 +240,8 @@ En la lista del panel (`H`), cada video tiene iconos abajo a la derecha: 📖 ap
 Al borrar un video con apuntes, el `MAPA.md` del curso se rearma solo (sin IA, reaprovechando la hoja del módulo; `scripts/mapa-tras-borrar.py`).
 
 **Filtro activo (09/11/2026):** al elegir un chip (★ ❓ ✓ Pendientes) en el panel, `>` `<` `N` `P` `Enter`, los botones laterales del mouse y el fin de cada video pasan solo por los videos de ese filtro (`scripts/filtro.lua`). Elegir un video a mano en el panel lo reproduce aunque no cumpla. «Todos» quita el filtro. (Elegir desde el menú uosc `Tab` no cuenta como «a mano»: si no cumple el filtro, salta al siguiente.)
+
+**Ventana de apuntes dinámica (09/11/2026):** `i` (o `I` = Shift+i, directo a Capturas) abre la ventana y **sigue al video de mpv**: clic en otro video del panel, `>` `<` o las flechas **← →** de la ventana (respetan el filtro activo) y los apuntes cambian solos; no hace falta volver a pulsar `i`.
+- Pestaña **🖼 Capturas**: muestra la captura **clave** (🔑) o **esencial** (⭐) del curso más cercana al minuto del video (`k` alterna) y se recorre todo el curso: `← →` captura, `↑ ↓` clase, `Shift+← →` video, `f` pantalla completa, `o` abre en Gwenview (ahí navegas toda la carpeta), `📍` vuelve al minuto actual, `▶` salta a ese minuto en el video.
+- **Modo concentración** (`m`): solo el texto, sin índice ni cabecera, letra más grande; se recuerda.
+- Teclas: `c` Capturas · `Tab` cambia de pestaña · `m` concentración · `l` leer · `Esc`/`i` cierra.

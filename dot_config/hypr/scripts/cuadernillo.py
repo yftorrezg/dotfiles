@@ -508,7 +508,9 @@ MOTOR = os.environ.get("APUNTES_MOTOR", "claude")
 # opencode-go/longcat-2.5-preview-free sí funciona y no gastó la ventana de Go (estaba al 100 %).
 MODELOS_OPENCODE = [m.strip() for m in os.environ.get(
     # 06/11/2026: deepseek-v4-flash y longcat ya no existen en OpenCode Go (fallaban en silencio)
-    "APUNTES_MODELO_OPENCODE", "opencode-go/deepseek-v4.1-flash,opencode-go/gpt-6-luna,opencode-go/claude-haiku-5-5,opencode-go/glm-5.3-flash",
+    # 08/11/2026: probado en la misma clase de 10 min: claude-haiku-5-5 37 s y el más fiel (cifras, posiciones y colores exactos),
+    # gpt-6-luna 28 s pero parafrasea el código, deepseek-v4.1-flash 90 s, glm-5.3-flash 85 s. Por eso va primero haiku.
+    "APUNTES_MODELO_OPENCODE", "opencode-go/claude-haiku-5-5,opencode-go/gpt-6-luna,opencode-go/deepseek-v4.1-flash,opencode-go/glm-5.3-flash",
 ).split(",") if m.strip()]
 MODELO_OPENCODE = MODELOS_OPENCODE[0] if MODELOS_OPENCODE else ""
 
@@ -1188,7 +1190,7 @@ def marcar_opencode_agotado():
         pass
 
 
-CODEX = os.environ.get("APUNTES_CODEX", "1") != "0"
+CODEX = os.environ.get("APUNTES_CODEX", "0") != "0"  # 08/11/2026: apagado por defecto (cuota semanal casi agotada); APUNTES_CODEX=1 lo vuelve a encender
 CODEX_MODELO = os.environ.get("APUNTES_CODEX_MODELO", "")  # "" = el de la cuenta
 TIMEOUT_CODEX = int(os.environ.get("APUNTES_TIMEOUT_CODEX", "300"))
 
@@ -1813,6 +1815,38 @@ def indice(carpeta_capturas, nombre_curso):
     print(f"🗂️ Índice: {os.path.join(carpeta_capturas, 'INDICE.md')} ({len(clases)} clases)")
 
 
+def _ocr_guardado(carpeta, max_pantallas=25, max_chars=1200):
+    """[(segundo, texto)] de .ocr-capturas.json + .minutos.tsv: la pantalla de la clase sin necesidad de las imágenes
+    (mismo criterio que regenerar-curso.leer_ocr: sin OCR ilegible, repartido por toda la clase)."""
+    try:
+        datos = json.load(open(os.path.join(carpeta, ".ocr-capturas.json"), encoding="utf-8"))
+    except (OSError, ValueError):
+        return []
+    tiempos = {}
+    try:
+        for linea in open(os.path.join(carpeta, ".minutos.tsv"), encoding="utf-8").read().splitlines():
+            f, sep, t = linea.partition("\t")
+            if sep:
+                try:
+                    tiempos[os.path.basename(f)] = a_segundos(t)
+                except ValueError:
+                    pass
+    except OSError:
+        pass
+    pantallas = []
+    for nombre, texto in datos.items():
+        texto = " ".join(str(texto or "").split())
+        alfa = sum(c.isalnum() for c in texto)
+        if alfa < 40 or alfa / max(1, len(texto)) < 0.45:
+            continue
+        pantallas.append((tiempos.get(os.path.basename(nombre), 0), texto[:max_chars]))
+    pantallas.sort()
+    if len(pantallas) > max_pantallas:
+        paso = len(pantallas) / max_pantallas
+        pantallas = [pantallas[int(i * paso)] for i in range(max_pantallas)]
+    return pantallas
+
+
 def main():
     if len(sys.argv) >= 3 and sys.argv[1] == "--indice":
         carpeta = os.path.abspath(sys.argv[2])
@@ -1902,6 +1936,8 @@ def main():
         # sin subtítulos, la pantalla es la única fuente: se leen más capturas
         # cada 2 min: con las capturas clave cada pantalla es un estado final, y las repetidas se quitan
         pantallas = leer_pantallas(carpeta, capturas, cada=120 if subs else 20)
+        if not pantallas and not capturas:  # v10: sin capturas sueltas (ya limpiadas), el OCR que se guardó al procesar la clase
+            pantallas = _ocr_guardado(carpeta)
         print(f"   {len(pantallas)} pantallas leídas")
         if subs or pantallas:
             print(f"🤖 Pidiendo a {nombre_motor()} apuntes + resumen corto…")

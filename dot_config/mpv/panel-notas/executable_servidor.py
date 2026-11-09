@@ -976,6 +976,62 @@ def cerrar_modal():
                      stdin=subprocess.DEVNULL, start_new_session=True)
 
 
+# ---------- capturas del curso (clave / esenciales) ----------
+RE_CAP = re.compile(r"^(\d+) (.*) · (\d+) · (\d\d)-(\d\d)-(\d\d)\.(webp|jpg|jpeg|png)$")
+_cap_cache = {}
+
+
+def listar_capturas(raiz, conjunto):
+    """[{f, clase, t, n, seq}] de capturas-<conjunto>/ en orden del curso (n = número de clase, seq = orden dentro)."""
+    d = os.path.join(raiz, "capturas-" + conjunto)
+    try:
+        mt = os.stat(d).st_mtime
+        nombres = os.listdir(d)
+    except OSError:
+        return []
+    if _cap_cache.get(d, (None,))[0] == mt:
+        return _cap_cache[d][1]
+    res = []
+    for f in nombres:
+        m = RE_CAP.match(f)
+        if m:
+            res.append({"f": f, "clase": m.group(2), "t": int(m.group(4)) * 3600 + int(m.group(5)) * 60 + int(m.group(6)),
+                        "n": int(m.group(1)), "seq": int(m.group(3))})
+    res.sort(key=lambda c: (c["n"], c["seq"]))
+    _cap_cache[d] = (mt, res)
+    return res
+
+
+def capturas_de(i, conjunto, t=None):
+    item = item_de_lista(i)
+    if not item or conjunto not in ("clave", "esenciales"):
+        return None
+    raiz = raiz_curso(item["ruta"])
+    items = listar_capturas(raiz, conjunto)
+    clase = apuntes_de(item["ruta"])["clase"]
+    if t is None:
+        t = (ipc("get_property", "time-pos") or 0) if item["actual"] else 0
+    cerca = None
+    propias = [k for k, c in enumerate(items) if clase and c["clase"] == clase]
+    if propias:
+        cerca = min(propias, key=lambda k: abs(items[k]["t"] - t))
+    elif items and clase:  # la clase no tiene capturas en este conjunto: la más próxima por número de clase
+        otro = listar_capturas(raiz, "esenciales" if conjunto == "clave" else "clave")
+        n = next((c["n"] for c in otro + items if c["clase"] == clase), None)
+        if n is not None:
+            cerca = min(range(len(items)), key=lambda k: (abs(items[k]["n"] - n), items[k]["n"] < n, items[k]["seq"]))
+    return {"conjunto": conjunto, "clase": clase, "items": items, "cerca": cerca, "t": t,
+            "otros": {c: len(listar_capturas(raiz, c)) for c in ("clave", "esenciales")}}
+
+
+def ruta_captura(i, conjunto, f):
+    item = item_de_lista(i)
+    if not item or conjunto not in ("clave", "esenciales") or f != os.path.basename(f) or not RE_CAP.match(f):
+        return None
+    ruta = os.path.join(raiz_curso(item["ruta"]), "capturas-" + conjunto, f)
+    return ruta if os.path.isfile(ruta) else None
+
+
 # ---------- detectar intro y final comparando con otros videos del curso ----------
 FPS_DET, SEG_DET, LADO = 2, 60, 32
 
@@ -1104,6 +1160,21 @@ class H(BaseHTTPRequestHandler):
             except (ValueError, IndexError):
                 datos = None
             return self._json(datos or {"error": "no hay video"}, 200 if datos else 404)
+        if u.path == "/api/capturas":
+            try:
+                t = float(q["t"][0]) if "t" in q else None
+                datos = capturas_de(int(q["i"][0]), q.get("set", ["clave"])[0], t)
+            except (ValueError, KeyError):
+                datos = None
+            return self._json(datos or {"error": "sin capturas"}, 200 if datos else 404)
+        if u.path == "/api/captura":
+            try:
+                ruta = ruta_captura(int(q["i"][0]), q.get("set", [""])[0], q.get("f", [""])[0])
+            except (ValueError, KeyError):
+                ruta = None
+            if not ruta:
+                return self._json({"error": "no existe"}, 404)
+            return self._archivo(ruta, {"webp": "image/webp", "png": "image/png"}.get(ruta.rsplit(".", 1)[-1], "image/jpeg"), "max-age=86400")
         if u.path == "/api/detectar-cortes":
             try:
                 return self._json(detectar_cortes(int(q["i"][0])))
@@ -1185,6 +1256,15 @@ class H(BaseHTTPRequestHandler):
             return self._json(reproducir_filtro(int(d["i"]), d.get("filtro", "")))
         if p == "/api/curso-completo":
             return self._json({"ok": ipc("script-message", "curso-completo") is not None})
+        if p == "/api/mover":  # video anterior / siguiente (respeta el filtro activo)
+            ipc("script-message", "filtro-mover", str(1 if int(d.get("d", 1)) > 0 else -1))
+            return self._json({"ok": True})
+        if p == "/api/abrir-imagen":  # en el visor de fotos (Gwenview): ahí se navega por toda la carpeta
+            ruta = ruta_captura(int(d["i"]), d.get("set", ""), d.get("f", ""))
+            if ruta:
+                subprocess.Popen(["gwenview", ruta], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
+                                 stdin=subprocess.DEVNULL, start_new_session=True)
+            return self._json({"ok": bool(ruta)})
         if p == "/api/leer":
             return self._json({"ok": leer_en_voz_alta(str(d.get("texto", "")))})
         if p == "/api/parar-lectura":
