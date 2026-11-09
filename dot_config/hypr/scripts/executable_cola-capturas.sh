@@ -5,6 +5,7 @@
 # Uso:
 #   cola-capturas.sh encolar <video|playlist|curso> <url o carpeta> [etiqueta]
 #   cola-capturas.sh estado          # qué se está procesando y qué espera
+#   cola-capturas.sh mover <clave> <posición>   # reordena lo que espera (1 = el próximo)
 #   cola-capturas.sh vaciar          # borra lo que espera (lo que está en marcha sigue)
 #   cola-capturas.sh cancelar        # vaciar + cortar lo que está en marcha (se puede reanudar)
 #   cola-capturas.sh trabajar        # (interno) el único trabajador; sale cuando la cola queda vacía
@@ -132,10 +133,28 @@ estado() {
     fi
 }
 
+mover() {  # mover <clave> <posición>: el pedido que espera pasa a esa posición (1 = el próximo)
+    local clave=$1 nueva=$2 total
+    [[ "$nueva" =~ ^[0-9]+$ ]] && [ "$nueva" -ge 1 ] || { echo "Uso: $0 mover <clave> <posición>"; return 1; }
+    bloquear_cola
+    if ! cut -f1 "$COLA" | grep -qxF -- "$clave"; then
+        soltar_cola; echo "Ya no está en cola"; return 1
+    fi
+    total=$(wc -l < "$COLA")
+    [ "$nueva" -gt "$total" ] && nueva=$total
+    CLAVE="$clave" NUEVA="$nueva" awk -F'\t' '
+        { if ($1 == ENVIRON["CLAVE"]) que = $0; else otras[++m] = $0 }
+        END { j = 0; for (i = 1; i <= NR; i++) { if (i == ENVIRON["NUEVA"] + 0) print que; else print otras[++j] } }
+    ' "$COLA" > "$COLA.tmp" && mv "$COLA.tmp" "$COLA"
+    soltar_cola
+    echo "Movido a la posición $nueva"
+}
+
 case "$1" in
     encolar) shift; encolar "$@" ;;
     trabajar) trabajar ;;
     estado) estado ;;
+    mover) shift; mover "$@" ;;
     vaciar) bloquear_cola; : > "$COLA"; soltar_cola; echo "Cola vaciada" ;;
     cancelar)
         bloquear_cola; : > "$COLA"; soltar_cola

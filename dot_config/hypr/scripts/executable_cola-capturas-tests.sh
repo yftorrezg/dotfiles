@@ -88,6 +88,19 @@ R=$(bash "$COLA_SH" encolar video "https://youtu.be/ZZZZZZZZZZZ")
 esperar_fin
 [ "$R" = "empieza ya" ] && grep -q ZZZZ "$REG" && bien "actual.txt viejo se ignora: se reanuda" || falla "reanudar: '$R'"
 
+# 4) Reordenar lo que espera (mover): por clave, sin tocar lo demás
+printf 'curso:A\tcurso\t-\tA\t📚 A\ncurso:B\tcurso\t-\tB\t📚 B\ncurso:C\tcurso\t-\tC\t📚 C\n' > "$DIR_COLA/cola.txt"
+orden() { cut -f1 "$DIR_COLA/cola.txt" | sed 's/^curso://' | tr '\n' ' '; }
+bash "$COLA_SH" mover "curso:C" 1 >/dev/null
+[ "$(orden)" = "C A B " ] && bien "mover: C pasa al frente" || falla "mover al frente: '$(orden)'"
+bash "$COLA_SH" mover "curso:C" 3 >/dev/null
+[ "$(orden)" = "A B C " ] && bien "mover: C pasa al final" || falla "mover al final: '$(orden)'"
+bash "$COLA_SH" mover "curso:A" 99 >/dev/null
+[ "$(orden)" = "B C A " ] && bien "mover: posición fuera de rango = al final" || falla "mover fuera de rango: '$(orden)'"
+bash "$COLA_SH" mover "curso:Z" 1 >/dev/null
+[ "$(orden)" = "B C A " ] && bien "mover: clave que no está no cambia nada" || falla "mover clave inexistente: '$(orden)'"
+[ "$(cut -f5 "$DIR_COLA/cola.txt" | head -n 1)" = "📚 B" ] && bien "mover: conserva etiqueta y campos" || falla "mover: campos alterados"
+
 rm -f -- "${T:?}"/scripts/* "${T:?}"/bin/* "${T:?}"/cache/* "${T:?}"/registro "${T:?}"/notificaciones
 rmdir "$T/scripts" "$T/bin" "$T/cache" "$T"
 [ "$FALLOS" -eq 0 ] && echo "OK" || { echo "FALLARON $FALLOS"; exit 1; }
