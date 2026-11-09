@@ -295,9 +295,8 @@ def seccion_md(rec, copiados):
         L += [""]
     if rec["enlaces"]:
         L += ["**🔗 Enlaces:**", ""] + [f"- [{t}]({u})" for t, u in rec["enlaces"]] + [""]
-    if rec["proyecto"]:
-        L += ["**📦 Proyecto completo de la sección** (código terminado):", ""]
-        L += [f"- [{os.path.basename(p)}](<file://{p}>)" for p in rec["proyecto"]] + [""]
+    # v10: ya no se lista el "proyecto de la sección": eran archivos de OTRA clase, con rutas absolutas del disco de origen, y en las
+    # clases cortas los enlaces pesaban más que el contenido. Siguen en la carpeta del curso.
     return ("## 📎 Recursos de la clase\n\n" + "\n".join(L)) if L else ""
 
 

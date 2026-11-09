@@ -158,7 +158,7 @@ for r, _, fs in os.walk(os.path.expanduser("~/Vídeos")):
         antes_mias = md.split(ta.MARCA_MIAS)[0]
         esperadas = len(ta.juntar(ta.leer_json(os.path.join(r, ".resumen-ia.json")),
                                   ta.leer_json(os.path.join(r, ".apuntes-ia.json"))))
-        assert len(multis(antes_mias)) == esperadas, r
+        assert len(multis(antes_mias)) >= esperadas, r  # v10: juntar() ahora descarta (extra)/relleno que tarjetas viejas sí traen
         reales += 1
 ok += 1
 

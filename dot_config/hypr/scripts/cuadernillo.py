@@ -122,9 +122,12 @@ def regla_secciones(segundos):
         return "UNA sola sección, con todos los datos concretos del profe (cifras, versiones, herramientas, requisitos)."
     if m < 8:
         return "1 o 2 secciones; no partas un mismo tema en varias."
-    if m < 20:
-        return ("entre 3 y 5 secciones (una cada ~2-4 min), cada una con sus propios datos y su marca de tiempo; no metas dos temas "
+    if m < 12:
+        return ("entre 3 y 5 secciones (una cada ~2-3 min), cada una con sus propios datos y su marca de tiempo; no metas dos temas "
                 "distintos en una sola sección (v10: antes salían 2 secciones para 10 min y se perdía el detalle).")
+    if m < 20:
+        return ("entre 4 y 6 secciones (una cada ~2-4 min), cada una con sus propios datos y su marca de tiempo; no metas dos temas "
+                "distintos en una sola sección.")
     if m < 45:
         return ("entre 4 y 6 secciones (una cada ~6-8 min), cada una de más de 4 min con al menos 3 puntos; NINGUNA de más de 8 min: un tema que el profe explica más adelante va "
                 "en SU sección con su marca de tiempo; junta los pasos pequeños del mismo mecanismo.")
@@ -519,7 +522,7 @@ def nombre_motor():
     """Etiqueta para los mensajes: "Claude (sonnet)" u "OpenCode (opencode-go/kimi-k3)"."""
     if MOTOR == "opencode":
         if RESPALDO:
-            return f"Claude {RESPALDO} → OpenCode ({MODELO_OPENCODE or 'modelo de la cuenta'})"
+            return f"OpenCode ({MODELO_OPENCODE or 'modelo de la cuenta'}) → Claude {RESPALDO} si falla"
         return f"OpenCode ({MODELO_OPENCODE or 'modelo de la cuenta'})"
     return f"Claude ({MODELO or 'modelo de la cuenta'})"
 
@@ -589,6 +592,7 @@ def pedir_a_claude(titulo, duracion, cues, pantallas, codigo=""):
     prompt = PROMPT.format(titulo=titulo, duracion=hms(duracion), **cant, transcripcion=transcripcion,
                            pantallas=extra + (f"\nMaterial que entrega el curso (recursos.py):\n<<<\n{codigo}\n>>>\n" if codigo else ""))
     prompt += REGLA_LIGERA if lig else ""
+    pobre = None
     for intento in range(3):  # v8: 3 intentos (una respuesta inválida suelta no debe dejar la clase sin IA)
         texto = consultar_ia(prompt) or ""  # v9c: sin respuesta de la IA → reintento, no un AttributeError
         try:
@@ -607,13 +611,20 @@ def pedir_a_claude(titulo, duracion, cues, pantallas, codigo=""):
                     quitadas = verificar_fidelidad(datos, fuente)
                     if quitadas:
                         print(f"   🧹 {quitadas} afirmaciones sin respaldo en el video quitadas")
+                    etiquetar_pantalla(datos, " ".join(c[-1] for c in cues), " ".join(x for _, x in pantallas))
                 verificar_salidas(datos)
                 verificar_practica(datos)
+                if not lig and duracion >= 480 and len(datos["secciones"]) < 3 and intento < 2:
+                    # v10: un video de 8+ min con 1-2 secciones pierde detalle (medido en OpenCode): un reintento pidiendo más
+                    pobre = pobre or datos
+                    prompt += "\n\nATENCIÓN: la respuesta anterior tenía muy pocas secciones. Esta clase dura más de 8 minutos: divide en AL MENOS 3 secciones de temas distintos, cada una con su marca de tiempo."
+                    print(f"  (solo {len(datos['secciones'])} secciones para {hms(duracion)}: reintento pidiendo más)", file=sys.stderr)
+                    continue
                 return datos
         except (ValueError, TypeError, json.JSONDecodeError):
             pass
         print(f"  (respuesta de Claude inválida, intento {intento + 1})", file=sys.stderr)
-    return None
+    return pobre
 
 
 SEG_TROCEO = 3600  # v8: desde 1 h, una llamada por tramo (una sola llamada dejaba horas enteras sin cubrir)
@@ -878,6 +889,28 @@ META = re.compile(r"no se confirma|dato (dudoso|no verificado|no confirmado)|no 
 
 def _norm_num(x):
     return re.sub(r"[.,\s]", "", x)
+
+
+def etiquetar_pantalla(datos, voz, ocr):
+    """v10: un punto cuyos datos concretos (cifras, `código`, nombres con dígitos) están en la PANTALLA (OCR) y en nada de lo que dijo el
+    profe se marca *(pantalla)*: el alumno distingue lo que el profe argumenta de lo que solo se ve. Si la voz y la pantalla chocan,
+    el prompt manda la voz."""
+    v, o = voz.lower(), ocr.lower()
+    n = 0
+    for s in datos.get("secciones") or []:
+        if not isinstance(s, dict):
+            continue
+        nuevos = []
+        for p in s.get("puntos") or []:
+            t = str(p)
+            toks = {x.lower() for x in re.findall(r"`([^`]{3,40})`", t)} | {x.lower() for x in re.findall(r"\b[\w.-]*\d[\w.-]*\b", t) if len(x) >= 3}
+            if (toks and "(pantalla)" not in t and not t.lstrip().lower().startswith("pantalla")
+                    and all(k in o for k in toks) and not any(k in v for k in toks)):
+                t += " *(pantalla)*"
+                n += 1
+            nuevos.append(t)
+        s["puntos"] = nuevos
+    return n
 
 
 def verificar_fidelidad(datos, fuente):
@@ -1183,6 +1216,12 @@ def opencode_enfriando():
 
 
 def marcar_opencode_agotado():
+    if not opencode_enfriando():  # primera vez en esta ventana: avisar al usuario (una sola notificación)
+        try:
+            subprocess.run(["notify-send", "-u", "critical", "-t", "10000", "OpenCode Go: cuota agotada",
+                            "Sigo con el respaldo (Claude) si lo hay; si no, la clase queda para reintentar."], timeout=5)
+        except (OSError, subprocess.SubprocessError):
+            pass
     try:
         os.makedirs(os.path.dirname(AGOTADO_OC), exist_ok=True)
         open(AGOTADO_OC, "w").close()
@@ -1225,7 +1264,8 @@ def consultar_ia(prompt, modelo=None):
     Con claude espera a que se renueve la cuota; el modelo es APUNTES_MODELO salvo que se
     indique otro (practica.py usa PRACTICA_MODELO). Con opencode se usa APUNTES_MODELO_OPENCODE."""
     if MOTOR == "opencode":
-        # Cadena por velocidad y fiabilidad: 1) Claude RESPALDO (haiku: rápido y barato), 2) modelos de
+        # Cadena (v10): 1) modelos de OpenCode Go en orden (haiku-5-5 primero), 2) Claude RESPALDO si OpenCode falla o se agotó
+        # (usa TU plan de Claude; APUNTES_RESPALDO= lo desactiva); antes iba al revés. Detalle anterior: modelos de
         # OpenCode Go en orden (MODELOS_OPENCODE; el gratuito LongCat va al final: se cuelga seguido).
         # Cada paso falla rápido (timeout corto, sin esperar cuota) y se pasa al siguiente. Si TODOS
         # fallan se repite la cadena tras una pausa (los cuelgues suelen ser pasajeros); si aun así
@@ -1235,17 +1275,19 @@ def consultar_ia(prompt, modelo=None):
                 print(f"  (todos los modelos fallaron: reintento la cadena en {PAUSA_CADENA} s, ronda {ronda + 1}/{RONDAS_CADENA})", file=sys.stderr)
                 reportar(75, "apuntes", "reintentando la IA")
                 time.sleep(PAUSA_CADENA)
+            # v10 (08/11/2026): OpenCode Go PRIMERO. Antes iba primero Claude haiku (el plan de Claude del usuario) y OpenCode solo
+            # de respaldo: las 119 clases de la corrida de OpenCode salieron del plan de Claude sin que nadie lo supiera.
+            texto = None if opencode_enfriando() else llamar_opencode(prompt, max_espera=0)
+            if texto is not None:
+                return texto
             if RESPALDO:
                 extra = ["--effort", RESPALDO_EFFORT] if RESPALDO_EFFORT else []
                 cmd = [ruta_claude(), "-p", "--output-format", "json", "--tools", "", "--strict-mcp-config",
                        "--no-session-persistence", "--system-prompt", SISTEMA, "--model", RESPALDO] + extra
+                print(f"  (OpenCode no respondió: uso Claude {RESPALDO} de tu plan de Claude)", file=sys.stderr)
                 texto = llamar_claude(cmd, prompt, max_espera=0, timeout=TIMEOUT_CLAUDE)
                 if texto is not None:
                     return texto
-                print(f"  (Claude {RESPALDO} no disponible: sigo con OpenCode)", file=sys.stderr)
-            texto = None if opencode_enfriando() else llamar_opencode(prompt, max_espera=0)
-            if texto is not None:
-                return texto
             texto = llamar_codex(prompt)  # último respaldo: la cuota de ChatGPT (Codex CLI)
             if texto is not None:
                 return texto
@@ -1292,12 +1334,27 @@ LINEAS_CODIGO = {8: 14, 9: 8}
 
 
 def _cortar_codigo(codigo, maximo, fin, lenguaje=""):
-    """Código largo → las primeras `maximo` líneas + un comentario que manda al video (no un '…' mudo)."""
+    """Código largo → las primeras líneas hasta una frontera completa (paréntesis y llaves cerrados) + un comentario que manda al video.
+    Nunca corta a mitad de estructura ni por 1-3 líneas; JSON/YAML/TOML no se parten (se dejan enteros o, si son enormes, solo
+    el comentario). La marca de tiempo no pasa de la duración de la clase."""
     lineas = str(codigo or "").strip("\n").split("\n")
-    if len(lineas) <= maximo:
+    lang = str(lenguaje or "").lower().strip()
+    if len(lineas) <= maximo + 3:
         return codigo
-    abre, cierra = COMENTARIO.get(str(lenguaje or "").lower().strip(), ("//", ""))
-    return "\n".join(lineas[:maximo] + [f"{abre} 👉 +{len(lineas) - maximo} líneas: completo en el video hasta {hms(fin)}{cierra}"])
+    if lang in ("json", "yaml", "yml", "toml", "xml", "html"):
+        return codigo if len(lineas) <= 40 else ""
+    abre, cierra = COMENTARIO.get(lang, ("//", ""))
+    corte = maximo
+    prof = 0
+    mejor = None
+    for k, l in enumerate(lineas[:maximo + 8]):
+        prof += sum(l.count(c) for c in "({[") - sum(l.count(c) for c in ")}]")
+        if prof <= 0 and k + 1 <= maximo + 3:
+            mejor = k + 1
+    corte = mejor or maximo
+    if corte >= len(lineas) - 1:
+        return codigo
+    return "\n".join(lineas[:corte] + [f"{abre} 👉 +{len(lineas) - corte} líneas: completo en el video{cierra}"])
 
 
 def _recortar(datos, secciones, nivel):
@@ -1314,7 +1371,9 @@ def _recortar(datos, secciones, nivel):
         base = {4: 5, 5: 4, 6: 3, 7: 3, 8: 2, 9: 2}[nivel]
         s["puntos"] = _top_puntos(s.get("puntos") or [], base + (1 if diario and nivel < 8 else 0) + ((2 if nivel < 8 else 1) if cierre else 0))
         if not diario or nivel >= 7:
-            s["porque"], s["intuicion"] = "", ""
+            s["intuicion"] = ""
+            if nivel >= 8:
+                s["porque"] = ""  # v10: el "por qué" del profe es lo último que se recorta
             if nivel >= 5:
                 s["ejemplo"], s["comparativa"], s["diagrama"] = None, None, ""
         if nivel >= 8:  # v10: los comentarios 👉 del código se conservan hasta el último recurso (explican el porqué de cada línea)
@@ -1364,6 +1423,9 @@ def _limpiar_datos(datos):
     for s in d.get("secciones") or []:
         if isinstance(s, dict):
             s["puntos"] = [x for x in (_limpiar_punto(p) for p in s.get("puntos") or []) if x]
+            s["titulo"] = limpiar_titulo(s.get("titulo") or "")  # v10: sin "@Canal" en los títulos de sección (ni en transcripcion.md)
+            if s.get("porque") and not _limpiar_punto(s["porque"]):
+                s["porque"] = ""
             ej = s.get("ejemplo")
             if isinstance(ej, dict) and EXTRA.search(str(ej.get("enunciado") or "")):
                 s["ejemplo"] = None
@@ -1380,6 +1442,9 @@ def armar(carpeta, titulo, capturas, subs, datos, duracion, recursos_md=""):
     titulo = limpiar_titulo(titulo)
     datos = _limpiar_datos(editorial.revisar_apis(datos))
     recursos_md = editorial.recursos_sin_imagenes(recursos_md)
+    recursos_md = re.sub(r"\*\*📦 Proyecto completo de la sección\*\*[^\n]*\n(?:\s*\n)?(?:- [^\n]*\n?)+\s*", "", recursos_md)  # v10
+    if recursos_md.strip() == "## 📎 Recursos de la clase":
+        recursos_md = ""
     cues_es = subs.get("es") or subs.get("en") or []
     idioma_txt = "español" if subs.get("es") else ("inglés" if subs.get("en") else None)
     importantes, motivos = editorial.imagenes_esenciales(datos, capturas)
@@ -1445,7 +1510,8 @@ def palabras_a_la_vista(md):
 
 
 COMENTARIO = {**dict.fromkeys(("python", "py", "bash", "sh", "shell", "zsh", "fish", "yaml", "yml", "toml", "r", "ruby",
-                               "rb", "dockerfile", "makefile", "perl", "powershell", "ps1", "ini", "conf"), ("#", "")),
+                               "rb", "dockerfile", "makefile", "perl", "powershell", "ps1", "ini", "conf", "gitignore",
+                               "dockerignore", "env", "properties", "nginx"), ("#", "")),
               **dict.fromkeys(("sql", "plsql", "mysql", "postgresql", "lua", "haskell"), ("--", "")),
               **dict.fromkeys(("html", "xml", "vue", "svelte", "markdown", "md"), ("<!--", " -->")),
               **dict.fromkeys(("css", "scss", "sass", "less"), ("/*", " */"))}
@@ -1535,6 +1601,8 @@ def _armar_md(titulo, capturas, datos, duracion, recursos_md, secciones, importa
         porque = _txt(s.get("porque"))
         if rel in ("diario", "raro") and len(secciones) > 1 and not (rel == "diario" and not porque):  # ⭐ y 💤 orientan; sin porqué no se rotula
             L += ["> " + " — ".join(x for x in (REL[rel], porque if rel == "diario" else "") if x), ""]
+        if porque and rel != "diario" and duracion >= 180:
+            L += [f"> 💡 {porque}", ""]  # v10: el porqué que el profe argumenta se ve en TODA sección, no solo en las ⭐
         plegar = (rel == "raro" and nivel >= 1 and len(secciones) > 1 and len(s.get("puntos") or []) >= 4
                   and not str(s.get("codigo") or "").strip())  # v10: lo que trae código del profe no se esconde
         cuerpo = []
@@ -1948,17 +2016,24 @@ def main():
             datos["formato"] = FORMATO  # mejorar-apuntes.py salta las que ya tienen el formato actual
             with open(os.path.join(carpeta, ".apuntes-ia.json"), "w", encoding="utf-8") as f:
                 json.dump(datos, f, ensure_ascii=False, indent=1)
-            if isinstance(corto, dict) and corto.get("esencial") and duracion >= 1200:  # v9: solo desde 20 min hay resumen.md aparte (antes sobra: apuntes ya trae "En 30 segundos")
-                # el repaso corto viene en la MISMA respuesta: no hace falta otra llamada
-                rc = cargar_resumen_corto()
+            if isinstance(corto, dict):
+                # v10: las preguntas de la IA (de ahí salen las tarjetas) se guardan SIEMPRE; antes solo desde 20 min y en las cortas
+                # las tarjetas caían al relleno "¿Qué explicó el profe sobre…?"
                 with open(os.path.join(carpeta, ".resumen-ia.json"), "w", encoding="utf-8") as f:
                     json.dump(corto, f, ensure_ascii=False, indent=1)
-                with open(os.path.join(carpeta, "resumen.md"), "w", encoding="utf-8") as f:
-                    f.write(rc.armar(titulo, hms(duracion), corto, con_preguntas=False))
-                print("⚡ Resumen corto armado en la misma llamada")
+                if corto.get("esencial") and duracion >= 1200:  # v9: solo desde 20 min hay resumen.md aparte
+                    rc = cargar_resumen_corto()
+                    with open(os.path.join(carpeta, "resumen.md"), "w", encoding="utf-8") as f:
+                        f.write(rc.armar(titulo, hms(duracion), corto, con_preguntas=False))
+                    print("⚡ Resumen corto armado en la misma llamada")
         else:
             print("   (sin resumen de IA: se arma solo con capturas y transcripción)")
 
+    if not datos and not a.sin_ia and os.path.exists(os.path.join(carpeta, ".apuntes-ia.json")) and os.path.exists(salida):
+        # v10: la IA no respondió y esta clase YA tiene apuntes buenos: no se pisan con una versión sin IA (se pierde lo bueno);
+        # queda marcada (.rehacer) para el próximo intento y el curso no la cuenta como hecha
+        print("   ⚠️ la IA no respondió: se conservan los apuntes que ya tenía (reintenta cuando haya cuota)", file=sys.stderr)
+        return 3
     reportar(97, "apuntes", "armando el cuadernillo")
     with open(salida, "w", encoding="utf-8") as f:
         f.write(armar(carpeta, titulo, capturas, subs, datos, duracion, recursos_md))

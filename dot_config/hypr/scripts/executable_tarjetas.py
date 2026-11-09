@@ -186,6 +186,8 @@ def juntar(corto, largo, segundos=0):
 
     def poner(seccion, p, r):
         p, r = _txt(p), _txt(r)
+        if re.search(r"\(extra\)|\bOCR\b|[Ss]egún la clase|la transcripci[oó]n", p + " " + r):  # v10: ni relleno ni metacomentarios
+            return
         k, kr = clave(p), clave(r)
         if len(k) < 4 or len(kr) < 3 or k == kr or k in vistas or kr in respuestas:
             return
@@ -348,7 +350,7 @@ def _de_datos_duros(largo, cuantas, ya):
         pts = [_txt(p) for p in s["puntos"] if _txt(p)]
         duros = [p for p in pts if re.search(r"\d|`|\b(nunca|siempre|evita|cuidado|requisito|necesita\w*)\b", p, re.I)]
         resp = (duros + [p for p in pts if p not in duros])[:3]
-        if len(" ".join(resp)) < 25:
+        if len(" ".join(resp)) < 25 or len(pts) < 3:  # v10: sin 3 viñetas no hay "qué explicó" que valga: sería copiar el apunte
             continue
         pregunta = f"¿Qué explicó el profe sobre **{_txt(s['titulo'])}**?"
         if pregunta not in ya:
@@ -382,7 +384,7 @@ def generar(carpeta, forzar=False):
     tarjetas = juntar(corto, largo, _segundos(carpeta))
     seg = _segundos(carpeta)
     minimo = 2 if not seg else max(2, round(0.22 * _paquete(seg / 60) / 30 * 0.75))  # v9f: mínimo según la duración (≈75 % del tope)
-    if len(tarjetas) < minimo and largo:
+    if len(tarjetas) < minimo and largo and seg >= 180:  # v10: en clases de menos de 3 min cero tarjetas de relleno (mejor 1 buena o ninguna)
         tarjetas += _de_datos_duros(largo, minimo - len(tarjetas), {p for _, p, _ in tarjetas})
     orden = {}
     for sec, _, _ in tarjetas:

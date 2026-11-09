@@ -128,14 +128,19 @@ for i in "${!VIDEOS[@]}"; do
     VIEJO2="$AP/$(nombre_largo "$SUB" "$CLASE")"
     [ "$VIEJO2" != "$DEST" ] && [ -d "$VIEJO2" ] && [ ! -e "$DEST" ] && mv "$VIEJO2" "$DEST"
     export PROGRESO_CLASE="$((i + 1))/$TOTAL"
+    # v10: la barra es del CURSO entero: esta clase ocupa su tramo (i/N → (i+1)/N) y el tiempo restante sale de la media de las clases
+    export PROGRESO_CURSO="$(awk -v i="$i" -v n="$TOTAL" 'BEGIN{printf "%.2f %.2f", 100*i/n, 100*(i+1)/n}')"
     echo "===== [$((i + 1))/$TOTAL] $CLASE ($(date +%H:%M)) ====="
     if [ -f "$DEST/apuntes.md" ] && [ ! -f "$DEST/.rehacer" ]; then  # .rehacer: ver rehacer-con-voz.py
         echo "Ya tiene apuntes: se saltea"
         HECHAS=$((HECHAS + 1)); continue
     fi
+    # v10: "hecha" = hay apuntes.md Y no quedó marcada para rehacer (si la IA falló se conservan los viejos y se cuenta como fallo)
     if DESTINO="$DEST" nice -n 19 ionice -c 3 bash "$SCRIPTS/video-a-capturas.sh" "$CURSO/$V" \
-        && [ -f "$DEST/apuntes.md" ]; then
+        && [ -f "$DEST/apuntes.md" ] && [ ! -f "$DEST/.rehacer" ]; then
         HECHAS=$((HECHAS + 1))
+        # aviso de avance cada 25 clases (para quien deja el curso corriendo)
+        [ $((HECHAS % 25)) -eq 0 ] && notify-send -t 6000 "📚 $NOMBRE_CURSO" "$HECHAS de $TOTAL clases listas" 2>/dev/null
         python3 "$SCRIPTS/cuadernillo.py" --indice "$AP" >/dev/null
         panel
     else
@@ -158,6 +163,7 @@ fi
 python3 "$SCRIPTS/ordenar-curso.py" "$CURSO" || true
 MSG="$HECHAS de $TOTAL clases con apuntes."
 [ ${#FALLARON[@]} -gt 0 ] && MSG="$MSG Fallaron: ${FALLARON[*]}"
+unset PROGRESO_CURSO
 export PROGRESO_RANGO="0 100" PROGRESO_CLASE=""
 python3 "$SCRIPTS/progreso.py" poner 100 fin "🎓 $MSG Índice: Apuntes/INDICE.md"
 echo "$MSG"
