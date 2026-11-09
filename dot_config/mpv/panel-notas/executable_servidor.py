@@ -590,6 +590,49 @@ def _subtitulos_de(ruta):
         return []
 
 
+_SCRIPTS_HYPR = os.path.expanduser("~/.config/hypr/scripts")
+_NZ = {}  # raíz del curso → (cuándo, {ruta relativa del video: carpeta en Apuntes/}); se rehace cada 120 s
+
+
+def _modulo_hypr(nombre, archivo):
+    try:
+        sp = importlib.util.spec_from_file_location(nombre, os.path.join(_SCRIPTS_HYPR, archivo))
+        m = importlib.util.module_from_spec(sp)
+        sp.loader.exec_module(m)
+        return m
+    except Exception:
+        return None
+
+
+def _limpio_captura(clase):
+    """Cómo se escribe el nombre de la clase en capturas-clave/ (la misma función que usa el sistema al armarlas)."""
+    m = _modulo_hypr("_tl_capturas", "todas-las-capturas.py")
+    return m.limpio(clase) if m else clase
+
+
+def carpeta_de_apuntes(raiz, ruta):
+    """Nombre de la carpeta de Apuntes/ de un video, calculado con la MISMA regla que usa SUPER+ALT+A (normalizar-curso.nombres):
+    sin '@Canal', 'NN.'→'NN', sin el prefijo común, recortado a 120 bytes, '(2)' si se repite. None si no se puede calcular.
+    (Antes el panel armaba el nombre a su manera y no coincidía en cursos con '@RecursosCompartidos' o nombres largos.)"""
+    ahora = time.time()
+    t, mapa = _NZ.get(raiz, (0, None))
+    if mapa is None or ahora - t > 120:
+        nz = _modulo_hypr("_nz_curso", "normalizar-curso.py")
+        try:
+            mapa = nz.nombres(raiz) if nz else {}
+        except Exception:
+            mapa = {}
+        _NZ[raiz] = (ahora, mapa)
+    rel = os.path.relpath(ruta, raiz)
+    if rel in mapa:
+        return mapa[rel]
+    base = re.sub(r"\.(es|en)$", "", os.path.splitext(rel)[0])  # video doblado/subtitulado: la clase es la misma
+    for r, n in mapa.items():
+        if re.sub(r"\.(es|en)$", "", os.path.splitext(r)[0]) == base:
+            return n
+    return None
+
+
 def apuntes_de(ruta):
     """Todo lo derivado de este video: carpeta de apuntes, capturas clave, notas del panel, fila del MAPA."""
     raiz = raiz_curso(ruta)
@@ -604,13 +647,14 @@ def apuntes_de(ruta):
             nombres = os.listdir(base)
         except OSError:
             nombres = []
-        hallado = cand if cand in nombres else next((n for n in nombres if _alnum(n) == _alnum(cand)), None)
+        exacto = carpeta_de_apuntes(raiz, ruta)
+        hallado = exacto if exacto in nombres else (cand if cand in nombres else next((n for n in nombres if _alnum(n) == _alnum(cand)), None))
         if hallado and os.path.isdir(os.path.join(base, hallado)):
             res["clase"], res["dir"] = hallado, os.path.join(base, hallado)
             res["archivos"] = sorted(f for f in os.listdir(res["dir"])
                                      if f in ("apuntes.md", "resumen.md", "tarjetas.md", "tarjetas-anki.txt", "transcripcion.md"))
     if res["clase"]:
-        pref = re.compile(r"^\d+ " + re.escape(res["clase"]) + r" · ")
+        pref = re.compile(r"^\d+ " + re.escape(_limpio_captura(res["clase"])) + r" · ")
         for c in CARPETAS_CLAVE:
             cd = os.path.join(raiz, c)
             if os.path.isdir(cd):
