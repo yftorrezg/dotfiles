@@ -113,7 +113,7 @@ source = "custom"
 path = "/usr/share/noctalia/assets/noctalia-wallpaper.png"
 
 [wallpaper.last]
-path = "/home/yafer/Imágenes/Wallpapers/Oscuros/cyberpunk-sakura.jpg"
+path = "/home/yafer/Imágenes/Wallpapers/Oscuros/anime-cielo-estrellas.png"
 
 [wallpaper.monitors.DP-1]
 path = "/home/yafer/Imágenes/Wallpapers/Oscuros/cyberpunk-sakura.jpg"
@@ -122,4 +122,4 @@ path = "/home/yafer/Imágenes/Wallpapers/Oscuros/cyberpunk-sakura.jpg"
 path = "/home/yafer/Imágenes/Wallpapers/Oscuros/vertical/ciudad-futurista.jpg"
 
 [wallpaper.monitors.eDP-1]
-path = "/home/yafer/Imágenes/Wallpapers/Oscuros/cyberpunk-sakura.jpg"
+path = "/home/yafer/Imágenes/Wallpapers/Oscuros/anime-cielo-estrellas.png"
