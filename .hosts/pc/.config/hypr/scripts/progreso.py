@@ -102,7 +102,7 @@ class Estado:
             return None
         inicio = None
         for l in lineas:
-            m = re.match(r"^(\d{4}-\d\d-\d\d \d\d:\d\d:\d\d) .* empieza curso: (.*)$", l)
+            m = re.match(r"^(\d{4}-\d\d-\d\d \d\d:\d\d:\d\d) .*empieza curso: (.*)$", l)
             if m and arg in m.group(2):
                 inicio = time.mktime(time.strptime(m.group(1), "%Y-%m-%d %H:%M:%S"))
         return inicio
@@ -385,6 +385,7 @@ def seguir_barrita(archivo, titulo):
     lbl_titulo = Gtk.Label(label=f"📚 {titulo}", xalign=0, hexpand=True)
     lbl_titulo.set_ellipsize(Pango.EllipsizeMode.END)  # el título se corta; los datos no
     lbl_titulo.set_max_width_chars(1)  # que no agrande la ventana: ocupa lo que sobre de ANCHO
+    lbl_titulo.set_tooltip_text(titulo)  # el título se corta: al pasar el mouse se ve entero
     lbl_datos = Gtk.Label(label="", xalign=1)
     lbl_datos.add_css_class("datos")
     lbl_cola = Gtk.Label(label="", xalign=1)
