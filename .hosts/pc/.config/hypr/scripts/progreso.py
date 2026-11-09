@@ -76,7 +76,7 @@ class Estado:
 
     def __init__(self, archivo, titulo):
         self.archivo, self.titulo = archivo, titulo
-        self.t0, self.pct_prev, self.clase_prev = time.time(), 0.0, None
+        self.t0, self.pct_prev, self.clase_prev = self._inicio_desde_log() or time.time(), 0.0, None
         self.visto = time.time()  # última vez que el archivo existía / cambió
         self.mtime = None
         # Quien escribe el avance: PROGRESO_PID, o el número al final del nombre del archivo
@@ -85,6 +85,27 @@ class Estado:
             self.dueno = int(os.environ.get("PROGRESO_PID") or archivo.rsplit(".", 1)[1])
         except (IndexError, ValueError):
             self.dueno = None
+
+    def _inicio_desde_log(self):
+        """Si la barrita arranca a mitad de un curso, recupera la hora de inicio de cola.log."""
+        carpeta = os.environ.get("DIR_COLA") or CACHE
+        try:
+            campos = open(os.path.join(carpeta, "actual.txt"), encoding="utf-8").read().split("\t")
+            arg = campos[3] if len(campos) > 3 else ""
+        except OSError:
+            return None
+        if not arg:
+            return None
+        try:
+            lineas = open(os.path.join(carpeta, "cola.log"), encoding="utf-8", errors="replace").read().splitlines()
+        except OSError:
+            return None
+        inicio = None
+        for l in lineas:
+            m = re.match(r"^(\d{4}-\d\d-\d\d \d\d:\d\d:\d\d) .* empieza curso: (.*)$", l)
+            if m and arg in m.group(2):
+                inicio = time.mktime(time.strptime(m.group(1), "%Y-%m-%d %H:%M:%S"))
+        return inicio
 
     def dueno_vivo(self):
         if not self.dueno:
@@ -248,14 +269,12 @@ def accion_cola(carpeta, verbo, clave, posicion=None):
     subprocess.run(cmd, env=entorno, capture_output=True)
 
 
-def eta_cola(carpeta, n):
-    """~cuánto puede tardar lo que espera, con el promedio de los últimos cursos de cola.log."""
-    if n <= 0:
-        return ""
+def duracion_media(carpeta):
+    """Segundos que tardó en promedio cada uno de los últimos 5 cursos, o None si no hay datos."""
     try:
         lineas = open(os.path.join(carpeta, "cola.log"), encoding="utf-8", errors="replace").read().splitlines()
     except OSError:
-        return ""
+        return None
     duraciones, inicio = [], None
     for l in lineas:
         m = re.match(r"^(\d{4}-\d\d-\d\d \d\d:\d\d:\d\d) ", l)
@@ -269,14 +288,26 @@ def eta_cola(carpeta, n):
                 duraciones.append(t - inicio)
             inicio = None
     if not duraciones:
-        return ""
+        return None
     ultimas = duraciones[-5:]
-    seg = sum(ultimas) / len(ultimas) * n
+    return sum(ultimas) / len(ultimas)
+
+
+def formato_duracion(seg):
     if seg < 60:
         return "~1 min"
     if seg < 3600:
         return f"~{int(seg // 60)} min"
     return f"~{int(seg // 3600)} h {int(seg % 3600 // 60):02d} min"
+
+
+def eta_cola(carpeta, n, prom=None):
+    """~cuánto puede tardar lo que espera, con el promedio de los últimos cursos de cola.log."""
+    if n <= 0:
+        return ""
+    if prom is None:
+        prom = duracion_media(carpeta)
+    return formato_duracion(prom * n) if prom else ""
 
 
 def leer_modo():
@@ -418,9 +449,10 @@ def seguir_barrita(archivo, titulo):
         accion_cola(carpeta, verbo, clave, posicion)
         GLib.idle_add(renderizar_cola, True)  # después del clic: el botón que lo pidió se destruye al redibujar
 
-    def fila_cola(carpeta, clave, nombre, tipo, arg, pausado, i, n):
+    def fila_cola(carpeta, clave, nombre, tipo, arg, pausado, i, n, prom=None):
         f = Gtk.Box(spacing=4)
         f.add_css_class("cola-fila")
+        f.set_size_request(-1, 20)  # altura fija: el glifo de pausa es más bajo y movía las filas
         if pausado:
             f.add_css_class("pausado")
         agarre = Gtk.Label(label="⠿")
@@ -432,9 +464,12 @@ def seguir_barrita(archivo, titulo):
         nom = Gtk.Label(label=("✓ " if hecho else "") + nombre, xalign=0, hexpand=True)
         nom.set_ellipsize(Pango.EllipsizeMode.END)
         nom.set_max_width_chars(1)
+        tip = ("✓ Ya tiene apuntes (Apuntes/INDICE.md)\n" if hecho else "") + nombre
+        if prom:
+            tip += f"\nDuración estimada: {formato_duracion(prom)}"
+        nom.set_tooltip_text(tip)
         if hecho:
             nom.add_css_class("hecho")
-            nom.set_tooltip_text("Ya tiene apuntes (Apuntes/INDICE.md)")
         f.append(agarre)
         f.append(num)
         f.append(nom)
@@ -442,7 +477,7 @@ def seguir_barrita(archivo, titulo):
         b_pausa.set_tooltip_text("Reanudar: vuelve a su turno" if pausado else "Pausar: la cola la saltea")
         b_pausa.connect("clicked", lambda _b: accion(carpeta, "reanudar" if pausado else "pausar", clave))
         f.append(b_pausa)
-        for txt, pos, tip, activo in (("⤒", 1, "Pasar al primero", i > 0),
+        for txt, pos, tip, activo in (("⇑", 1, "Pasar al primero", i > 0),
                                       ("▲", i, "Subir", i > 0),
                                       ("▼", i + 2, "Bajar", i < n - 1)):
             b = Gtk.Button(label=txt)
@@ -477,6 +512,7 @@ def seguir_barrita(archivo, titulo):
         if not cambio and ahora - cola["eta_t"] < 60:  # el tiempo estimado se refresca solo cada minuto
             return False
         cola["firma"], cola["eta_t"] = firma, ahora
+        prom = duracion_media(carpeta)  # una sola lectura de cola.log para las filas y el total
         if cambio:
             hijo = lista.get_first_child()
             while hijo:
@@ -488,14 +524,17 @@ def seguir_barrita(archivo, titulo):
                 vacio.add_css_class("tenue")
                 lista.append(vacio)
             for i, (clave, nombre, tipo, arg, pausado) in enumerate(pedidos):
-                lista.append(fila_cola(carpeta, clave, nombre, tipo, arg, pausado, i, len(pedidos)))
+                lista.append(fila_cola(carpeta, clave, nombre, tipo, arg, pausado, i, len(pedidos), prom))
             alto = lista.measure(Gtk.Orientation.VERTICAL, -1)[1]  # altura natural de la lista (GTK no la propaga sola)
+            # sin barra vertical el ScrolledWindow no reserva su altura mínima (58 px) y la ventana puede encoger
+            sw.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.NEVER if alto <= alto_cola else Gtk.PolicyType.AUTOMATIC)
             sw.set_size_request(-1, min(alto, alto_cola))  # la ventana crece o encoge con la cola, hasta el máximo
+            win.set_default_size(1, 1)  # sin esto la ventana no encoge al quitar una fila
             win.queue_resize()
         cab = f"En cola · {len(pedidos)}" if pedidos else "En cola"
         if n_paus:
             cab += f" ({n_paus} en pausa)"
-        eta = eta_cola(carpeta, n_act)
+        eta = eta_cola(carpeta, n_act, prom)
         cab_cola.set_label(cab + (f" · {eta}" if eta else ""))
         return False
 

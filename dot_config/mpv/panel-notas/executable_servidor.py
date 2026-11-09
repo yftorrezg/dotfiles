@@ -434,6 +434,7 @@ def lista_reproduccion():
             ruta = os.path.join(wd, ruta)
         nombre = e.get("title") or os.path.splitext(os.path.basename(ruta))[0]
         out.append({"i": i, "nombre": nombre, "ruta": normalizar(ruta),
+                    "k": hashlib.sha1(ruta.encode()).hexdigest()[:10],  # identifica ESTE video: la URL de la miniatura cambia con él (la caché del navegador no mezcla cursos)
                     "cap": os.path.basename(os.path.dirname(ruta)),  # capítulo (carpeta): el panel lo usa de título
                     "actual": bool(e.get("current")), "dur": duracion(ruta),
                     "marcas": marcas_de(imps, normalizar(ruta))})
