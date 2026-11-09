@@ -1046,6 +1046,12 @@ def listar_capturas(raiz, conjunto):
     return res
 
 
+def _es_de_la_clase(c, clase, limpio):
+    """¿La captura `c` es de esta clase? Los archivos de capturas-*/ llevan el nombre LIMPIO de la clase (sin '.' ni ':' ni '?' finales,
+    recortado a 70 caracteres: todas-las-capturas.limpio), no el nombre de la carpeta de Apuntes/. Se compara con los dos."""
+    return bool(clase) and (c["clase"] == limpio or c["clase"] == clase)
+
+
 def capturas_de(i, conjunto, t=None):
     item = item_de_lista(i)
     if not item or conjunto not in ("clave", "esenciales"):
@@ -1056,12 +1062,13 @@ def capturas_de(i, conjunto, t=None):
     if t is None:
         t = (ipc("get_property", "time-pos") or 0) if item["actual"] else 0
     cerca = None
-    propias = [k for k, c in enumerate(items) if clase and c["clase"] == clase]
+    limpio = _limpio_captura(clase) if clase else None
+    propias = [k for k, c in enumerate(items) if _es_de_la_clase(c, clase, limpio)]
     if propias:
         cerca = min(propias, key=lambda k: abs(items[k]["t"] - t))
     elif items and clase:  # la clase no tiene capturas en este conjunto: la más próxima por número de clase
         otro = listar_capturas(raiz, "esenciales" if conjunto == "clave" else "clave")
-        n = next((c["n"] for c in otro + items if c["clase"] == clase), None)
+        n = next((c["n"] for c in otro + items if _es_de_la_clase(c, clase, limpio)), None)
         if n is not None:
             cerca = min(range(len(items)), key=lambda k: (abs(items[k]["n"] - n), items[k]["n"] < n, items[k]["seq"]))
     return {"conjunto": conjunto, "clase": clase, "items": items, "cerca": cerca, "t": t,

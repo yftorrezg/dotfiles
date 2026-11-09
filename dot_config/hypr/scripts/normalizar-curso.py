@@ -262,7 +262,96 @@ class Normalizar:
             os.rename(os.path.join(interna, x), os.path.join(self.curso, x))
         os.rmdir(interna)
 
+    def reparar_capturas(self):
+        """capturas-clave/ y capturas-esenciales/ llevan en cada archivo el nombre LIMPIO de la clase ("NNN <clase> · 0003 · 00-01-05.webp").
+        Si una carpeta de Apuntes/ cambió de nombre (tema renombrado, nombre largo/corto, copia borrada), sus capturas se quedan con el
+        nombre viejo y el panel de mpv (tecla Shift+I) no las encuentra. Se renombran al nombre actual, emparejando por el final del nombre
+        (igual o uno cortado) solo cuando hay UNA candidata. Devuelve cuántos archivos renombró."""
+        ap = self.apuntes()
+        if not ap:
+            return 0
+        sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+        import importlib.util as _iu
+        sp = _iu.spec_from_file_location("_tl_nz", os.path.join(os.path.dirname(os.path.abspath(__file__)), "todas-las-capturas.py"))
+        tl = _iu.module_from_spec(sp)
+        sp.loader.exec_module(tl)
+        clases = sorted((d for d in os.listdir(ap) if os.path.isfile(os.path.join(ap, d, "apuntes.md"))), key=tl.natural)
+        if not clases:
+            return 0
+        ancho = max(3, len(str(len(clases))))
+        actual = {tl.limpio(c): (k, c) for k, c in enumerate(clases, 1)}
+        cola = lambda t: t.rsplit(" - ", 1)[-1].strip().lower()
+        par = lambda a, b: a == b or (min(len(a), len(b)) >= 12 and (a.startswith(b) or b.startswith(a)))
+        hechos = 0
+        for carpeta in ("capturas-clave", "capturas-esenciales"):
+            d = os.path.join(self.curso, carpeta)
+            if not os.path.isdir(d):
+                continue
+            por_clase = {}
+            for f in os.listdir(d):
+                m = re.match(r"^(\d+) (.*?) · (.*)$", f)
+                if m:
+                    por_clase.setdefault(m.group(2), []).append((f, m.group(3)))
+            huerfanas = [c for c in por_clase if c not in actual]
+            tienen = set(c for c in por_clase if c in actual)
+            sin = [lc for lc in actual if lc not in tienen]
+            for h in huerfanas:
+                cand = [lc for lc in sin if par(cola(lc), cola(h))]
+                if len(cand) != 1 or sum(1 for x in huerfanas if par(cola(x), cola(h))) != 1:
+                    continue
+                k, _ = actual[cand[0]]
+                sin.remove(cand[0])
+                for f, resto in por_clase[h]:
+                    hechos += 1
+                    if not self.ver:
+                        os.rename(os.path.join(d, f), os.path.join(d, f"{k:0{ancho}d} {cand[0]} · {resto}"))
+            # 2.ª pasada: nombres tan largos que se recortaron y perdieron el final (todas las clases de un tema quedaron con el mismo
+            # nombre). Cada captura conserva el número de clase (NNN) y su minuto: se empareja por (mismo número + mismo comienzo del
+            # nombre sin paréntesis) y solo si los minutos de la clase caben en su duración. Nunca adivina entre varias candidatas.
+            head = lambda t: re.sub(r"\s*\([^)]*\)?", "", t)[:25].strip().lower()
+            def duracion(c):
+                try:
+                    t = open(os.path.join(ap, c, "apuntes.md"), encoding="utf-8").read(3000)
+                    m = re.search(r"Duración:\*\*\s*(?:(\d+):)?(\d+):(\d+)", t)
+                    return int(m.group(1) or 0) * 3600 + int(m.group(2)) * 60 + int(m.group(3)) if m else None
+                except OSError:
+                    return None
+            por_k = {}
+            for f in os.listdir(d):
+                m = re.match(r"^(\d+) (.*?) · (\d+) · (\d\d)-(\d\d)-(\d\d)", f)
+                if m and m.group(2) not in actual:
+                    por_k.setdefault((int(m.group(1)), m.group(2)), []).append((f, int(m.group(4)) * 3600 + int(m.group(5)) * 60 + int(m.group(6))))
+            for (kv, nombre), fs in por_k.items():
+                if not (1 <= kv <= len(clases)):
+                    continue
+                c = clases[kv - 1]
+                lc = tl.limpio(c)
+                dur = duracion(c)
+                if lc in tienen or head(nombre) != head(lc) or (dur and max(t for _, t in fs) > dur + 5):
+                    continue
+                tienen.add(lc)
+                for f, _ in fs:
+                    hechos += 1
+                    if not self.ver:
+                        m = re.match(r"^\d+ .*? · (.*)$", f)
+                        os.rename(os.path.join(d, f), os.path.join(d, f"{kv:0{ancho}d} {lc} · {m.group(1)}"))
+        # capturas-clave/ contiene a capturas-esenciales/ (las esenciales son la mitad de las clave): lo que falte en clave se repone
+        k, e = os.path.join(self.curso, "capturas-clave"), os.path.join(self.curso, "capturas-esenciales")
+        if os.path.isdir(k) and os.path.isdir(e) and not self.ver:
+            en_k = set(os.listdir(k))
+            for f in os.listdir(e):
+                if f.endswith(".webp") and f not in en_k:
+                    try:
+                        os.link(os.path.join(e, f), os.path.join(k, f))
+                        hechos += 1
+                    except OSError:
+                        pass
+        if hechos:
+            self.log(f"{hechos} capturas renombradas o repuestas para que sigan a su clase")
+        return hechos
+
     def correr(self):
+        self.reparar_capturas()
         self.envoltorio()
         self.reparar_enlaces()
         antes = nombres(self.curso)

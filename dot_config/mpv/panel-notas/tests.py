@@ -186,5 +186,54 @@ class Recorte(unittest.TestCase):
         self.assertNotIn("después", t)
 
 
+class ApuntesYCapturasDelCurso(unittest.TestCase):
+    """El panel (tecla i / Shift+I) encuentra los apuntes y las capturas de CUALQUIER video: nombres con '@Canal', 'NN.', punto final,
+    nombres largos recortados, y las capturas siguen al minuto actual. Regresión del 09/11/2026 (decía 'sin apuntes' y mostraba la 1.ª captura)."""
+
+    def curso(self, videos):
+        raiz = os.path.join(TMP, "curso-" + str(len(os.listdir(TMP))))
+        for v, mins in videos:
+            os.makedirs(os.path.join(raiz, os.path.dirname(v)), exist_ok=True)
+            open(os.path.join(raiz, v), "wb").write(b"x" * 10)
+        os.makedirs(os.path.join(raiz, "Apuntes"))
+        return raiz
+
+    def hacer(self, raiz, video, minutos):
+        n = S.carpeta_de_apuntes(raiz, os.path.join(raiz, video))
+        os.makedirs(os.path.join(raiz, "Apuntes", n), exist_ok=True)
+        open(os.path.join(raiz, "Apuntes", n, "apuntes.md"), "w").write("# x")
+        for conj in ("clave", "esenciales"):
+            d = os.path.join(raiz, "capturas-" + conj)
+            os.makedirs(d, exist_ok=True)
+            for k, t in enumerate(minutos, 1):
+                open(os.path.join(d, f"001 {S._limpio_captura(n)} · {k:04d} · 00-{t:02d}-00.webp"), "wb").write(b"i")
+        return n
+
+    def test_nombres_dificiles(self):
+        vids = [("06. Spec Driven _ Design/07. Opcional - Bloquear rama principal. @RecursosCompartidosOficial.mp4", 1),
+                ("06. Spec Driven _ Design/08. Otra clase con un nombre larguísimo " + "palabra " * 14 + "@RecursosCompartidosOficial.mp4", 1),
+                ("01. Intro/01. Introducción: ¿qué es?.mp4", 1)]
+        raiz = self.curso(vids)
+        for v, _ in vids:
+            n = self.hacer(raiz, v, (1, 5, 9))
+            a = S.apuntes_de(os.path.join(raiz, v))
+            self.assertEqual(a["clase"], n, v)
+            self.assertIn("apuntes.md", a["archivos"])
+            self.assertEqual(len(a["extras"]), 6, v)  # clave + esenciales
+
+    def test_capturas_siguen_al_minuto(self):
+        v = "02 Tema/03. Clase de prueba. @Canal.mp4"
+        raiz = self.curso([(v, 1)])
+        self.hacer(raiz, v, (1, 5, 9))
+        ruta = os.path.join(raiz, v)
+        S.lista_reproduccion = lambda: [{"i": 0, "nombre": "x", "ruta": ruta, "actual": True, "dur": 0}]
+        S.ipc = lambda *a, **k: 5 * 60
+        d = S.capturas_de(0, "clave", 5 * 60)
+        self.assertIsNotNone(d["cerca"])
+        self.assertIn("00-05-00", d["items"][d["cerca"]]["f"])  # la captura del minuto 5, no la primera
+        d = S.capturas_de(0, "clave", 9 * 60 + 20)
+        self.assertIn("00-09-00", d["items"][d["cerca"]]["f"])
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)

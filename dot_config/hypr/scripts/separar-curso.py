@@ -68,9 +68,15 @@ def main():
             os.rename(ap / old, dst)
     # 2) capturas clave / esenciales
     mapa = {}  # limpio(old) -> (sub, limpio(new), k, ancho)
+    choques = set()
     for sub, v in plan.items():
         for old, nuevo, k, n in v:
-            mapa[tl.limpio(old)] = (sub, tl.limpio(nuevo), k, max(3, len(str(n))))
+            clave = tl.limpio(old)
+            if clave in mapa or clave in choques:  # v10: dos clases con el mismo nombre recortado (70 car.): NO se adivina; sus capturas se quedan
+                choques.add(clave)                  # sin mover (antes se asignaban todas a una sola clase y se pisaban entre sí)
+                mapa.pop(clave, None)
+                continue
+            mapa[clave] = (sub, tl.limpio(nuevo), k, max(3, len(str(n))))
     movidas = 0
     for carpeta in ("capturas-clave", "capturas-esenciales"):
         d = padre / carpeta
@@ -85,6 +91,9 @@ def main():
             os.rename(d / f, sub / carpeta / f"{k:0{ancho}d} {nuevo} · {m.group(2)}")
             movidas += 1
     print(f"  {movidas} capturas movidas")
+    if choques:
+        print(f"  ⚠️ {len(choques)} nombres de clase chocan al recortarse a 70 caracteres: sus capturas no se movieron "
+              "(reasígnalas con .clave.txt + .minutos.tsv de cada clase)")
     # 3) lo del padre que ya no corresponde
     for n in ("codigo-en-imagenes", "codigo-del-curso.md", "MAPA.md", "INDICE.md"):
         p = padre / n
