@@ -21,6 +21,7 @@ import subprocess
 import sys
 import time
 from collections import deque
+from concurrent.futures import ThreadPoolExecutor
 
 import numpy as np
 from PIL import Image
@@ -432,6 +433,11 @@ class Guardador:
         self.n = 0
         if os.path.exists(os.path.join(carpeta, MINUTOS)):  # de una corrida anterior cortada
             os.remove(os.path.join(carpeta, MINUTOS))
+        # El WebP sin pérdida tarda ~0,4 s por captura y era el cuello de botella (serial). Se guarda en
+        # hilos (Pillow suelta el GIL al codificar): el resultado es idéntico byte a byte.
+        self.hilos = int(os.environ.get("CAPTURA_HILOS", "4"))
+        self.pool = ThreadPoolExecutor(max_workers=self.hilos)
+        self.pendientes = deque()
 
     def __call__(self, pares):
         for img, t in pares:
@@ -445,9 +451,18 @@ class Guardador:
             # WebP SIN pérdida: píxeles idénticos al PNG y ~43 % menos de espacio. method=1 es
             # casi tan chico como el máximo (6) y mucho más rápido (~0,5 s por captura 1080p).
             nombre = f"{self.n:04d}.webp"
-            img.save(os.path.join(self.carpeta, nombre), "WEBP", lossless=True, method=1, quality=50)
+            self.pendientes.append(self.pool.submit(img.save, os.path.join(self.carpeta, nombre), "WEBP",
+                                                    lossless=True, method=1, quality=50))
             with open(os.path.join(self.carpeta, MINUTOS), "a", encoding="utf-8") as f:
                 f.write(f"{nombre}\t{marca}\n")
+            while len(self.pendientes) > 3 * self.hilos:  # tope de memoria: frames pendientes
+                self.pendientes.popleft().result()
+
+    def terminar(self):
+        """Espera a que estén escritas todas las capturas (y avisa si alguna falló)."""
+        while self.pendientes:
+            self.pendientes.popleft().result()
+        self.pool.shutdown(wait=True)
 
 
 def modo_vivo(monitor, conf, guardar):
@@ -492,6 +507,7 @@ def modo_video(ruta, conf, guardar):
             reportar(100 * t / dur, "capturas", f"{guardar.n} guardadas")
     guardar(det.cerrar())
     ff.wait()
+    guardar.terminar()
     print(f"\rListo: {guardar.n} capturas ({det.repetidas} repetidas descartadas) en {guardar.carpeta}")
 
 
@@ -508,6 +524,7 @@ def main():
         modo_vivo(a.monitor, conf, guardar)
     else:
         modo_video(a.video, conf, guardar)
+    guardar.terminar()
     with open(os.path.join(a.out, ".cantidad"), "w") as f:
         f.write(str(guardar.n))
 

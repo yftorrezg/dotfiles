@@ -105,8 +105,11 @@ python3 "$SCRIPTS/progreso.py" poner 0 capturas "empezando"
 # 9>&-: que la barrita (vive unos segundos más) no se quede con el lock
 setsid python3 "$SCRIPTS/progreso.py" seguir "$PROGRESO_ARCHIVO" "$NOMBRE_CURSO" >/dev/null 2>&1 9>&- &
 HECHAS=0; FALLARON=()
+PREF_PIDFILE="${XDG_RUNTIME_DIR:-/tmp}/curso-prefetch.$$"
 for i in "${!VIDEOS[@]}"; do
     V="${VIDEOS[$i]}"
+    # Solapamiento: si la clase anterior dejó el adelanto de ESTA clase en marcha, esperar a que termine
+    if [ -f "$PREF_PIDFILE" ]; then PP=$(cat "$PREF_PIDFILE"); while kill -0 "$PP" 2>/dev/null; do sleep 1; done; rm -f "$PREF_PIDFILE"; fi
     SUB=$(dirname "$V")
     CLASE=$(basename "${V%.*}" | sed -E 's/\.(es|en)$//')
     # Salida: todas las clases en $CURSO/Apuntes/ (así el índice y el panel ven el curso entero).
@@ -136,6 +139,19 @@ for i in "${!VIDEOS[@]}"; do
         HECHAS=$((HECHAS + 1)); continue
     fi
     # v10: "hecha" = hay apuntes.md Y no quedó marcada para rehacer (si la IA falló se conservan los viejos y se cuenta como fallo)
+    # Adelanto: la clase siguiente se captura mientras esta espera a la IA (si no está hecha ni en marcha)
+    export PREFETCH_VIDEO="" PREFETCH_DESTINO="" PREFETCH_PIDFILE="$PREF_PIDFILE" PREFETCH_LOG="$PREF_PIDFILE.log"
+    if [ $((i + 1)) -lt "$TOTAL" ] && [ "${SIN_APUNTES:-0}" != 1 ]; then
+        NV="${VIDEOS[$((i + 1))]}"; NSUB=$(dirname "$NV")
+        NCLASE=$(basename "${NV%.*}" | sed -E 's/\.(es|en)$//')
+        NNOM=$(nombre_corto "$NSUB" "$NCLASE"); BN="$NNOM"; n=2
+        while [ -n "${USADOS[$NNOM]:-}" ] && [ "${USADOS[$NNOM]}" != "$NV" ]; do NNOM="$BN ($n)"; n=$((n + 1)); done
+        NDEST="$AP/$NNOM"
+        if [ ! -f "$NDEST/.cantidad" ] && { [ ! -f "$NDEST/apuntes.md" ] || [ -f "$NDEST/.rehacer" ]; } \
+           && [ ! -e "$CURSO/$NSUB/capturas/$NCLASE" ] && [ ! -e "$AP/$(nombre_largo "$NSUB" "$NCLASE")" ]; then
+            export PREFETCH_VIDEO="$CURSO/$NV" PREFETCH_DESTINO="$NDEST"
+        fi
+    fi
     if DESTINO="$DEST" nice -n 19 ionice -c 3 bash "$SCRIPTS/video-a-capturas.sh" "$CURSO/$V" \
         && [ -f "$DEST/apuntes.md" ] && [ ! -f "$DEST/.rehacer" ]; then
         HECHAS=$((HECHAS + 1))

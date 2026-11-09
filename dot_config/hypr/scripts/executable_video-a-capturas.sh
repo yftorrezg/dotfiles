@@ -22,7 +22,7 @@ etapa() {  # etapa <inicio> <fin>: la próxima parte ocupa ese tramo de la barri
 poner() { python3 "$SCRIPTS/progreso.py" poner "$@" 2>/dev/null || true; }
 
 PROPIA=0
-if [ -z "$PROGRESO_ARCHIVO" ]; then  # barrita propia (no viene de un curso)
+if [ -z "$PROGRESO_ARCHIVO" ] && [ "${PREFETCH:-0}" != 1 ]; then  # barrita propia (no viene de un curso; un adelanto no tiene)
     PROPIA=1
     export PROGRESO_ARCHIVO="${XDG_RUNTIME_DIR:-/tmp}/auto-captura-progreso.$$"
     poner 0 descarga "preparando"
@@ -139,6 +139,12 @@ else
     APUNTES_DESDE=$CAPTURAS_DESDE
 fi
 
+# Solapamiento: mientras la IA de ESTA clase responde, se capturan la siguiente (solo CPU, sin IA).
+if [ -n "$PREFETCH_VIDEO" ] && [ "${SIN_APUNTES:-0}" != 1 ] && [ -f "$DIR/.cantidad" ]; then
+    env -u PREFETCH_VIDEO -u PREFETCH_DESTINO -u PREFETCH_PIDFILE -u PREFETCH_LOG PREFETCH=1 SIN_APUNTES=1 DESTINO="$PREFETCH_DESTINO" \
+        nice -n 19 ionice -c 3 bash "$SCRIPTS/video-a-capturas.sh" "$PREFETCH_VIDEO" > "$PREFETCH_LOG" 2>&1 9>&- &
+    echo $! > "$PREFETCH_PIDFILE"
+fi
 if [ "${SIN_APUNTES:-0}" != 1 ]; then
     etapa "$APUNTES_DESDE" 100
     poner 0 apuntes ""
