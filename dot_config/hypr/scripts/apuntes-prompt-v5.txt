@@ -1,0 +1,76 @@
+Prepara apuntes de estudio en español a partir de las FUENTES de esta clase.
+Adapta el contenido a la disciplina y al nivel reales. No presupongas que toda clase tiene código.
+El objetivo es comprender, aplicar y repasar con poco esfuerzo de consulta.
+
+Clase: {titulo}
+Duración: {duracion}
+
+{transcripcion}{pantallas}
+
+Devuelve únicamente JSON válido, sin cercas Markdown externas, con esta estructura:
+{{
+  "sin_contenido": false,
+  "objetivos": ["hasta tres acciones comprobables que esta clase enseña"],
+  "resumen": ["ideas esenciales, sin repetirlas después innecesariamente"],
+  "conceptos": [{{"termino":"solo un término necesario","definicion":"una explicación breve"}}],
+  "secciones": [{{
+    "inicio":"h:mm:ss de las fuentes",
+    "titulo":"concepto o problema concreto",
+    "relevancia":"diario | a-veces | raro",
+    "porque":"el POR QUÉ que el profe ARGUMENTA en esta sección (qué pasa si no se hace, qué ventaja da, por qué lo recomienda): su razón, no la tuya; vacío solo si no la dice",
+    "puntos":["lo que hay que retener; el primero es la idea o advertencia central que el profe enfatiza; conserva condiciones, supuestos y unidades"],
+    "lenguaje":"python, javascript, sql, bash, cpp, etc.; vacío si no hay código",
+    "codigo":"código suficiente para comprender el mecanismo, con sus nombres y dependencias reales",
+    "linea_a_linea":["`fragmento EXACTO de la línea` → explica la decisión no obvia en pocas palabras"],
+    "intuicion":"una analogía solo si aclara el concepto difícil; en otro caso vacío",
+    "ejemplo":{{"enunciado":"caso resuelto","pasos":["paso con valores concretos"],"salida":"resultado comprobable"}},
+    "diagrama":"Mermaid que explique un flujo, relación, arquitectura o dimensión; vacío si no ayuda",
+    "comparativa":{{"titulo":"decisión entre opciones","columnas":["criterio","X","Y"],"filas":[["cuándo","...","..."]]}}
+  }}],
+  "practica":[{{"nivel":"🟢 | 🟡 | 🔴","enunciado":"tarea realizable con la clase","pista":"orientación","solucion":"código comentado o procedimiento razonado"}}],
+  "errores_comunes":[{{"error":"fallo relevante","porque":"síntoma o causa concreta","arreglo":"corrección compatible con el código real de esta clase"}}],
+  "corto":{{
+    "idea":"una frase con la idea principal",
+    "esencial":["solo lo imprescindible para volver a aplicar el tema"],
+    "chuleta":[{{"quiero":"acción","como":"sintaxis o regla mínima"}}],
+    "codigo":[{{"titulo":"mecanismo clave","lenguaje":"lenguaje","codigo":"fragmento mínimo; no repitas el programa completo"}}],
+    "diagrama":"esquema global útil o vacío",
+    "mapa":[{{"inicio":"h:mm:ss","tema":"objetivo del bloque"}}],
+    "preguntas":[{{"tipo":"porque | que-imprime | error | definicion","pregunta":"aplicación o razonamiento","lenguaje":"si hay código","codigo":"autocontenido si la pregunta lo necesita","respuesta":"explicación concisa"}}],
+    "pretest":[{{"pregunta":"diagnóstico distinto de las preguntas de repaso","respuesta":"breve"}}]
+  }},
+  "vocabulario":[],
+  "capturas_esenciales":[]
+}}
+
+CRITERIOS EDITORIALES:
+- LO MÁS IMPORTANTE: el alumno ve el video; los apuntes son para RECORDAR. Si el profe dice que algo es lo más importante o lo repite, eso va primero y con SU razón (el "porque" de la sección y el primer punto). Prioriza el criterio, la causa y la advertencia del profe sobre el detalle mecánico de pantalla (comandos, rutas, listas que se ven en la ventana).
+- Si un dato SOLO se ve en la pantalla (OCR) y el profe no lo dijo en voz alta, empieza ese punto con "Pantalla:". Si la voz y la pantalla chocan (versión, nombre, número), manda lo que dijo el profe.
+- Si la pantalla muestra código que el profe escribe o ejecuta, incluye al menos un bloque "codigo" con él. El código va completo y válido: un JSON o YAML se da entero o se explica en prosa, nunca cortado; los comentarios en .gitignore, bash y YAML usan #. No pongas marcas de tiempo mayores que la duración de la clase.
+- CERO capturas por defecto. No solicites imágenes de código ya transcrito, caras, menús, navegación o diapositivas que puedes explicar mejor. Las fuentes visuales pueden ayudar a extraer código sin aparecer como imágenes en los apuntes.
+- Prefiere código COMPRENSIBLE, ejemplos resueltos y diagramas conceptuales precisos. Un diagrama debe aclarar una relación o decisión, no decorar ni dibujar una lista de títulos. Usa ids simples y etiquetas entre comillas; si tiene más de cinco nodos, orientación vertical.
+- En programación: problema, entrada, transformación, salida, decisiones y un cambio para practicar. Comenta el POR QUÉ; no describas cada asignación trivial.
+- En IA/matemáticas: intuición, supuestos, dimensiones, unidades, ecuaciones necesarias, ejemplo pequeño y límites del método.
+- En redes/hacking: entorno del laboratorio, topología, finalidad del comando, evidencia e interpretación, diagnóstico y corrección. Evita colecciones de comandos sin explicación.
+- En reparación/electrónica: síntoma, componente concreto, estado del equipo, instrumento/modo, puntos y valores de medición que realmente constan en la fuente, decisiones y verificación final. No inventes valores ni dibujos de conexiones.
+- En herramientas de IA, desarrollo y automatización: objetivo, configuración mínima, flujo, decisiones, verificación del resultado y límites de la versión estudiada.
+- Una bienvenida o anuncio sin enseñanza técnica debe tener sin_contenido=true y solo uno o dos puntos. No fabriques ejercicios, errores, glosario o vocabulario para llenar casillas.
+- Cada sección corresponde a un tema real. Agrupa pasos pequeños del mismo mecanismo. Las marcas temporales deben existir en las fuentes. Distingue código parcial, proyecto final y código escrito durante esta clase.
+- La transcripción y el código del profesor son la fuente principal. Corrige solo errores inequívocos de reconocimiento. Si falta información, declara la falta; nunca la rellenes como si la hubiera dicho el profesor.
+- No cambies una implementación didáctica por la API estándar de una biblioteca. Antes de recomendar model.eval(), model.train() u otro método, verifica que exista en la clase utilizada. Mantén requisitos, estado previo, dependencias y versiones.
+- NO agregues ejemplos, ejercicios ni explicaciones que el profe no hizo. Si una ampliación del modelo es imprescindible para entender algo, márcala "(extra)" (como mucho una por clase). No afirmes haber consultado documentación o internet si solo recibiste estas fuentes. Una cita debe corresponder a una fuente realmente proporcionada y sostener la afirmación concreta.
+- Ejemplos resueltos: conserva los pasos que enseñan el mecanismo. Para bloques de código muestra el resultado esperado cuando sea determinable; no inventes salidas, métricas o mediciones.
+- La tabla comparativa solo se usa para elegir entre alternativas y no repite los puntos. Glosario y vocabulario son opcionales; omítelos si no resuelven una dificultad real.
+- Escribe en presente y directo ("se configura", "usa X"). Prohibidas las muletillas "el material indica/menciona", "el profesor muestra/dice", "en esta clase": di el dato sin presentarlo.
+- No repitas una idea en objetivos, resumen, puntos, ejemplo y glosario. Omite narración y contexto incidental. Conserva las condiciones técnicas necesarias aunque exijan más explicación.
+
+PRESUPUESTOS MÁXIMOS, nunca cuotas obligatorias:
+- Los ejercicios se basan en lo que se hace en la clase (mismo código o mismo procedimiento con un cambio). En código, la solución es código ejecutable completo (sin depender del navegador si se puede) para poder comprobarla.
+- Hasta {n_ejer} ejercicios y {n_err} errores (menos si bastan; cero si el profe no los plantea). Preguntas de repaso: {n_preg} (casi siempre todas): cubren las ideas centrales de TODA la clase, incluida la parte final; al menos una pide aplicar o calcular un resultado; cada una nace de una idea que el profe ARGUMENTA (su porqué) y su respuesta está en lo que dijo; prohibido "Según la clase…" y las preguntas hipotéticas; son preguntas distintas a la chuleta. Hasta {n_pre} preguntas de diagnóstico. Prioriza implementar, predecir resultados y depurar sobre memorizar nombres.
+- Diagramas: {rango_diag}. SOLO si la clase explica un mecanismo, un flujo con decisiones o una arquitectura que el texto no deja claro. Una lista de pasos, de requisitos o de definiciones NO es un diagrama. Ante la duda, vacío.
+- Secciones: {regla_secciones}
+- {regla_presupuesto}
+- Hasta {tope} palabras entre los puntos, evitando repetir lo que ya muestra el código. Esto es un máximo editorial, no una garantía de tiempo de comprensión.
+- {regla_resumen}
+- {regla_extras}
+- Hasta {n_voc} términos opcionales en vocabulario, solo si se necesitan y aparecen en la clase. No añadas pronunciación ni una sección fija si no aporta a este objetivo.

@@ -24,7 +24,7 @@ Uso:
     progreso.py seguir <archivo> <título>     # muestra/actualiza la barrita hasta "fin"
     progreso.py poner <pct 0-100> <etapa> [detalle]   # desde bash (usa PROGRESO_ARCHIVO/RANGO)
 """
-import os
+import os, re
 import subprocess
 import sys
 import time
@@ -46,6 +46,9 @@ def reportar(pct, etapa, detalle=""):
     try:
         ini, fin = (float(x) for x in os.environ.get("PROGRESO_RANGO", "0 100").split())
         total = ini + max(0.0, min(100.0, float(pct))) * (fin - ini) / 100
+        if os.environ.get("PROGRESO_CURSO"):  # v10: la clase ocupa un tramo de la barra del CURSO entero (clase i de N → i/N…(i+1)/N)
+            c0, c1 = (float(x) for x in os.environ["PROGRESO_CURSO"].split())
+            total = c0 + total * (c1 - c0) / 100
         tmp = archivo + ".tmp"
         with open(tmp, "w", encoding="utf-8") as f:
             f.write(f"{total:.1f}|{etapa}|{detalle}|{os.environ.get('PROGRESO_CLASE', '')}")
@@ -93,7 +96,8 @@ class Estado:
                 return 0.0, "error", "Se cortó el proceso (sin archivo de progreso)", clase, ""
         if time.time() - self.visto > SIN_NOVEDAD:
             return pct, "error", "Sin novedades hace una hora: ¿se colgó?", clase, ""
-        if clase != self.clase_prev or pct < self.pct_prev - 5:  # empezó otra clase: reiniciar el reloj
+        por_curso = bool(re.match(r"^\d+/\d+$", clase or "")) and int(clase.split("/")[1]) > 1  # v10: la barra es del curso entero
+        if (clase != self.clase_prev and not por_curso) or pct < self.pct_prev - 5:  # empezó otra clase (o curso): reiniciar el reloj
             self.t0, self.clase_prev = time.time(), clase
         self.pct_prev = pct
         falta = ""

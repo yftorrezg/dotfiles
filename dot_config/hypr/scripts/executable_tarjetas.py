@@ -384,8 +384,7 @@ def generar(carpeta, forzar=False):
     tarjetas = juntar(corto, largo, _segundos(carpeta))
     seg = _segundos(carpeta)
     minimo = 2 if not seg else max(2, round(0.22 * _paquete(seg / 60) / 30 * 0.75))  # v9f: mínimo según la duración (≈75 % del tope)
-    if len(tarjetas) < minimo and largo and seg >= 180:  # v10: en clases de menos de 3 min cero tarjetas de relleno (mejor 1 buena o ninguna)
-        tarjetas += _de_datos_duros(largo, minimo - len(tarjetas), {p for _, p, _ in tarjetas})
+    # v10: sin tarjetas de relleno ("¿Qué explicó el profe sobre…?" repetía el apunte): si la IA mandó pocas preguntas, hay pocas tarjetas
     orden = {}
     for sec, _, _ in tarjetas:
         orden.setdefault(sec, len(orden))

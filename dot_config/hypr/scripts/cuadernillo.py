@@ -1411,7 +1411,8 @@ def _limpiar_punto(p):
 
 def limpiar_titulo(t):
     """'001. @RecursosCompartidos Operadores' → '001. Operadores' (firmas de canales de Telegram en los nombres)."""
-    return re.sub(r"\s{2,}", " ", re.sub(r"(^|\s)@\w+", r"\1", str(t))).strip()
+    t = re.sub(r"\s{2,}", " ", re.sub(r"(^|\s)@\w+", r"\1", str(t))).strip()
+    return re.sub(r"\s*[-–]\s*copia(\s*\(\d+\))?$", "", t, flags=re.I)  # "… - copia" (copias de Windows) tampoco es parte del nombre
 
 
 def _limpiar_datos(datos):
