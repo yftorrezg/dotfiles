@@ -1032,6 +1032,92 @@ def ruta_captura(i, conjunto, f):
     return ruta if os.path.isfile(ruta) else None
 
 
+def borrar_captura(i, conjunto, f):
+    """Manda la captura a la papelera, en TODOS los conjuntos donde esté (clave y esenciales suelen ser enlaces
+    duros del mismo archivo: si solo se quitara de uno, seguiría estando en el otro)."""
+    ruta = ruta_captura(i, conjunto, f)
+    if not ruta:
+        return {"ok": False, "error": "captura no encontrada"}
+    raiz = os.path.dirname(os.path.dirname(ruta))
+    borradas = []
+    for c in ("clave", "esenciales"):
+        r = os.path.join(raiz, "capturas-" + c, f)
+        if os.path.isfile(r):
+            err = a_papelera(r)
+            if err:
+                return {"ok": False, "error": err, "borradas": borradas}
+            borradas.append(c)
+    return {"ok": True, "borradas": borradas}
+
+
+def _papelera_de(ruta):
+    """(carpeta de la papelera, carpeta base de los Path relativos) del disco donde está ruta."""
+    ruta = os.path.realpath(ruta)
+    home = os.path.expanduser("~/.local/share/Trash")
+    dev = os.stat(ruta).st_dev
+    if os.path.isdir(home) and os.stat(home).st_dev == dev:
+        return home, None
+    top = ruta
+    while os.path.dirname(top) != top and os.stat(os.path.dirname(top)).st_dev == dev:
+        top = os.path.dirname(top)
+    return os.path.join(top, f".Trash-{os.getuid()}"), top
+
+
+def capturas_en_papelera(raiz):
+    """Capturas de este curso que están en la papelera, de la más reciente a la más antigua: [(fecha, f, conjunto, destino, origen)]."""
+    from urllib.parse import unquote as _un
+    papelera, top = _papelera_de(raiz)
+    info = os.path.join(papelera, "info")
+    res = []
+    carpetas = {os.path.realpath(os.path.join(raiz, "capturas-" + c)): c for c in ("clave", "esenciales")}
+    try:
+        nombres = os.listdir(info)
+    except OSError:
+        return res
+    for n in nombres:
+        if not n.endswith(".trashinfo"):
+            continue
+        try:
+            txt = open(os.path.join(info, n), encoding="utf-8").read()
+        except OSError:
+            continue
+        m, fecha = re.search(r"^Path=(.*)$", txt, re.M), re.search(r"^DeletionDate=(.*)$", txt, re.M)
+        if not m:
+            continue
+        destino = _un(m.group(1))
+        if not os.path.isabs(destino) and top:
+            destino = os.path.join(top, destino)
+        carpeta = os.path.realpath(os.path.dirname(destino))
+        if carpeta in carpetas:
+            origen = os.path.join(papelera, "files", n[:-len(".trashinfo")])
+            if os.path.exists(origen):
+                res.append((fecha.group(1) if fecha else "", os.path.basename(destino), carpetas[carpeta], destino, origen, os.path.join(info, n)))
+    res.sort(reverse=True)
+    return res
+
+
+def deshacer_captura(i):
+    """Ctrl+Z: devuelve a su carpeta la última captura eliminada (en clave y esenciales si estaba en ambas)."""
+    item = item_de_lista(i)
+    if not item:
+        return {"ok": False, "error": "video no encontrado"}
+    pend = [e for e in capturas_en_papelera(raiz_curso(item["ruta"])) if not os.path.exists(e[3])]  # las que ya existen no se pueden devolver
+    if not pend:
+        return {"ok": False, "error": "no hay capturas eliminadas que recuperar"}
+    f = pend[0][1]
+    conjuntos = []
+    for fecha, nombre, conj, destino, origen, info in pend:
+        if nombre == f and conj not in conjuntos and not os.path.exists(destino):
+            os.makedirs(os.path.dirname(destino), exist_ok=True)
+            shutil.move(origen, destino)
+            try:
+                os.remove(info)
+            except OSError:
+                pass
+            conjuntos.append(conj)
+    return {"ok": bool(conjuntos), "f": f, "conjuntos": conjuntos, "quedan": len(pend) - len(conjuntos)}
+
+
 # ---------- detectar intro y final comparando con otros videos del curso ----------
 FPS_DET, SEG_DET, LADO = 2, 60, 32
 
@@ -1259,6 +1345,10 @@ class H(BaseHTTPRequestHandler):
         if p == "/api/mover":  # video anterior / siguiente (respeta el filtro activo)
             ipc("script-message", "filtro-mover", str(1 if int(d.get("d", 1)) > 0 else -1))
             return self._json({"ok": True})
+        if p == "/api/deshacer-captura":
+            return self._json(deshacer_captura(int(d["i"])))
+        if p == "/api/borrar-captura":
+            return self._json(borrar_captura(int(d["i"]), d.get("set", ""), d.get("f", "")))
         if p == "/api/abrir-imagen":  # en el visor de fotos (Gwenview): ahí se navega por toda la carpeta
             ruta = ruta_captura(int(d["i"]), d.get("set", ""), d.get("f", ""))
             if ruta:
