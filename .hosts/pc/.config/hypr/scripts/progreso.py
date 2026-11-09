@@ -111,6 +111,15 @@ class Estado:
                 return 0.0, "error", "Se cortó el proceso (sin archivo de progreso)", clase, ""
         vivo = self.dueno_vivo()
         if etapa not in ("fin", "error") and vivo is False:
+            # v10: carrera: el script puede escribir "fin" y terminar JUSTO entre que leímos el archivo y miramos si vive. Se relee
+            # un instante después antes de dar por fallido un proceso que acabó bien (pasó con "Introducción a Ingeniería Social").
+            time.sleep(0.6)
+            try:
+                p2, e2, d2, c2 = open(self.archivo, encoding="utf-8").read().split("|", 3)
+                if e2 in ("fin", "error"):
+                    return float(p2), e2, d2, c2, ""
+            except (OSError, ValueError):
+                pass
             return pct, "error", "El proceso terminó sin avisar el resultado", clase, ""
         quieto = time.time() - self.visto
         if quieto > SIN_NOVEDAD and vivo is not True:
@@ -199,6 +208,9 @@ window.progreso { background: transparent; }
 }
 .cola-fila button:hover { background: rgba(255, 255, 255, 0.22); }
 .cola-fila button:disabled { color: rgba(235, 235, 245, 0.25); }
+.cola-fila button.quitar:hover { background: rgba(230, 80, 80, 0.40); }
+.cola-fila.pausado label { color: rgba(235, 235, 245, 0.45); }
+.cola-fila label.hecho { color: rgba(130, 215, 155, 0.95); }
 .punto { background-color: rgba(18, 18, 24, 0.90); border-radius: 13px; padding: 3px 7px; }
 .punto label { color: rgba(235, 235, 245, 0.90); font-size: 8pt; }
 """
@@ -209,20 +221,62 @@ AQUI = os.path.dirname(os.path.abspath(__file__))
 
 
 def cola_actual():
-    """(carpeta, [(clave, nombre)]) de lo que espera en la cola de cursos (cola-capturas.sh)."""
+    """(carpeta, [(clave, nombre, tipo, argumento, pausado)]) de lo que espera la cola."""
     carpeta = os.environ.get("DIR_COLA") or CACHE
     try:
         filas = [f.split("\t") for f in open(os.path.join(carpeta, "cola.txt"), encoding="utf-8").read().splitlines() if f.strip()]
     except OSError:
         filas = []
-    return carpeta, [(f[0], re.sub(r"^\W+\s*", "", f[4] if len(f) > 4 else f[0]) or f[0]) for f in filas]
+    try:
+        pausados = set(open(os.path.join(carpeta, "pausados.txt"), encoding="utf-8").read().splitlines())
+    except OSError:
+        pausados = set()
+    return carpeta, [(f[0],
+                      re.sub(r"^\W+\s*", "", f[4] if len(f) > 4 else f[0]) or f[0],
+                      f[1] if len(f) > 1 else "",
+                      f[3] if len(f) > 3 else "",
+                      f[0] in pausados) for f in filas]
 
 
-def mover_en_cola(carpeta, clave, posicion):
+def accion_cola(carpeta, verbo, clave, posicion=None):
+    """Pausa, reanuda, quita o mueve un pedido de esa cola (cola-capturas.sh)."""
     entorno = {k: v for k, v in os.environ.items() if k != "LD_PRELOAD"}
     entorno["DIR_COLA"] = carpeta
-    subprocess.run(["bash", os.path.join(AQUI, "cola-capturas.sh"), "mover", clave, str(posicion)],
-                   env=entorno, capture_output=True)
+    cmd = ["bash", os.path.join(AQUI, "cola-capturas.sh"), verbo, clave]
+    if posicion is not None:
+        cmd.append(str(posicion))
+    subprocess.run(cmd, env=entorno, capture_output=True)
+
+
+def eta_cola(carpeta, n):
+    """~cuánto puede tardar lo que espera, con el promedio de los últimos cursos de cola.log."""
+    if n <= 0:
+        return ""
+    try:
+        lineas = open(os.path.join(carpeta, "cola.log"), encoding="utf-8", errors="replace").read().splitlines()
+    except OSError:
+        return ""
+    duraciones, inicio = [], None
+    for l in lineas:
+        m = re.match(r"^(\d{4}-\d\d-\d\d \d\d:\d\d:\d\d) ", l)
+        if not m:
+            continue
+        t = time.mktime(time.strptime(m.group(1), "%Y-%m-%d %H:%M:%S"))
+        if " empieza curso:" in l:
+            inicio = t
+        elif " terminó curso" in l and inicio is not None:
+            if t >= inicio:
+                duraciones.append(t - inicio)
+            inicio = None
+    if not duraciones:
+        return ""
+    ultimas = duraciones[-5:]
+    seg = sum(ultimas) / len(ultimas) * n
+    if seg < 60:
+        return "~1 min"
+    if seg < 3600:
+        return f"~{int(seg // 60)} min"
+    return f"~{int(seg // 3600)} h {int(seg % 3600 // 60):02d} min"
 
 
 def leer_modo():
@@ -333,13 +387,15 @@ def seguir_barrita(archivo, titulo):
     cabecera = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2)  # clic aquí: despliega / pliega
     cabecera.append(fila_txt)
     cabecera.append(area)
-    cab_cola = Gtk.Label(label="En cola (arrastrá ⠿ o usá ▲ ▼ ⤒)", xalign=0)
+    cab_cola = Gtk.Label(label="En cola", xalign=0)
     cab_cola.add_css_class("tenue")
     lista = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=1)
+    mon = elegir_monitor()
+    alto_cola = int(mon.get_geometry().height * 0.5) if mon else 800  # crece con la cola hasta la mitad del monitor
     sw = Gtk.ScrolledWindow(hscrollbar_policy=Gtk.PolicyType.NEVER, propagate_natural_height=True,
-                            max_content_height=260)
+                            max_content_height=alto_cola)
     sw.set_child(lista)
-    pie = Gtk.Label(label="clic: pliega · clic derecho: punto", xalign=1)
+    pie = Gtk.Label(label="⠿ arrastrá · ⏸ pausa · ✕ quita · clic: pliega", xalign=1)
     pie.add_css_class("tenue")
     cola_panel = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=3)
     cola_panel.append(cab_cola)
@@ -356,61 +412,91 @@ def seguir_barrita(archivo, titulo):
     raiz.append(punto)
     win.set_child(raiz)
 
-    cola = {"firma": None}
+    cola = {"firma": None, "eta_t": 0.0}
 
-    def reordenar(carpeta, clave, posicion):
-        mover_en_cola(carpeta, clave, posicion)
+    def accion(carpeta, verbo, clave, posicion=None):
+        accion_cola(carpeta, verbo, clave, posicion)
         GLib.idle_add(renderizar_cola, True)  # después del clic: el botón que lo pidió se destruye al redibujar
 
-    def fila_cola(carpeta, clave, nombre, i, n):
+    def fila_cola(carpeta, clave, nombre, tipo, arg, pausado, i, n):
         f = Gtk.Box(spacing=4)
         f.add_css_class("cola-fila")
+        if pausado:
+            f.add_css_class("pausado")
         agarre = Gtk.Label(label="⠿")
         agarre.add_css_class("arrastre")
         agarre.set_tooltip_text("Arrastrá para cambiar el orden")
         num = Gtk.Label(label=f"{i + 1}.", xalign=1)
         num.add_css_class("tenue")
-        nom = Gtk.Label(label=nombre, xalign=0, hexpand=True)
+        hecho = tipo == "curso" and os.path.exists(os.path.join(arg, "Apuntes", "INDICE.md"))
+        nom = Gtk.Label(label=("✓ " if hecho else "") + nombre, xalign=0, hexpand=True)
         nom.set_ellipsize(Pango.EllipsizeMode.END)
         nom.set_max_width_chars(1)
+        if hecho:
+            nom.add_css_class("hecho")
+            nom.set_tooltip_text("Ya tiene apuntes (Apuntes/INDICE.md)")
         f.append(agarre)
         f.append(num)
         f.append(nom)
+        b_pausa = Gtk.Button(label="▶" if pausado else "⏸")
+        b_pausa.set_tooltip_text("Reanudar: vuelve a su turno" if pausado else "Pausar: la cola la saltea")
+        b_pausa.connect("clicked", lambda _b: accion(carpeta, "reanudar" if pausado else "pausar", clave))
+        f.append(b_pausa)
         for txt, pos, tip, activo in (("⤒", 1, "Pasar al primero", i > 0),
                                       ("▲", i, "Subir", i > 0),
                                       ("▼", i + 2, "Bajar", i < n - 1)):
             b = Gtk.Button(label=txt)
             b.set_tooltip_text(tip)
             b.set_sensitive(activo)
-            b.connect("clicked", lambda _b, p=pos: reordenar(carpeta, clave, p))
+            b.connect("clicked", lambda _b, p=pos: accion(carpeta, "mover", clave, p))
             f.append(b)
+        b_quitar = Gtk.Button(label="✕")
+        b_quitar.add_css_class("quitar")
+        b_quitar.set_tooltip_text("Quitar de la cola")
+        b_quitar.connect("clicked", lambda _b: accion(carpeta, "quitar", clave))
+        f.append(b_quitar)
         arrastre = Gtk.DragSource()
         arrastre.set_actions(Gdk.DragAction.MOVE)
         arrastre.connect("prepare", lambda *_: Gdk.ContentProvider.new_for_value(GObject.Value(GObject.TYPE_STRING, clave)))
         agarre.add_controller(arrastre)
         destino = Gtk.DropTarget.new(GObject.TYPE_STRING, Gdk.DragAction.MOVE)
-        destino.connect("drop", lambda _t, origen, *_: reordenar(carpeta, origen, i + 1) or True)
+        destino.connect("drop", lambda _t, origen, *_: accion(carpeta, "mover", origen, i + 1) or True)
         f.add_controller(destino)
         return f
 
     def renderizar_cola(forzar=False):
         carpeta, pedidos = cola_actual()
-        lbl_cola.set_label(f"⏳ {len(pedidos)}" if pedidos else "")
-        firma = (carpeta, tuple(pedidos))
-        if modo["m"] != "expandido" or (firma == cola["firma"] and not forzar):
+        n_paus = sum(1 for p in pedidos if p[4])
+        n_act = len(pedidos) - n_paus
+        lbl_cola.set_label((f"⏸ {len(pedidos)}" if pedidos and n_act == 0 else f"⏳ {len(pedidos)}") if pedidos else "")
+        firma = (carpeta, tuple((p[0], p[4]) for p in pedidos))
+        if modo["m"] != "expandido":
             return False
-        cola["firma"] = firma
-        hijo = lista.get_first_child()
-        while hijo:
-            siguiente = hijo.get_next_sibling()
-            lista.remove(hijo)
-            hijo = siguiente
-        if not pedidos:
-            vacio = Gtk.Label(label="Nada esperando", xalign=0)
-            vacio.add_css_class("tenue")
-            lista.append(vacio)
-        for i, (clave, nombre) in enumerate(pedidos):
-            lista.append(fila_cola(carpeta, clave, nombre, i, len(pedidos)))
+        ahora = time.time()
+        cambio = firma != cola["firma"] or forzar
+        if not cambio and ahora - cola["eta_t"] < 60:  # el tiempo estimado se refresca solo cada minuto
+            return False
+        cola["firma"], cola["eta_t"] = firma, ahora
+        if cambio:
+            hijo = lista.get_first_child()
+            while hijo:
+                siguiente = hijo.get_next_sibling()
+                lista.remove(hijo)
+                hijo = siguiente
+            if not pedidos:
+                vacio = Gtk.Label(label="Nada esperando", xalign=0)
+                vacio.add_css_class("tenue")
+                lista.append(vacio)
+            for i, (clave, nombre, tipo, arg, pausado) in enumerate(pedidos):
+                lista.append(fila_cola(carpeta, clave, nombre, tipo, arg, pausado, i, len(pedidos)))
+            alto = lista.measure(Gtk.Orientation.VERTICAL, -1)[1]  # altura natural de la lista (GTK no la propaga sola)
+            sw.set_size_request(-1, min(alto, alto_cola))  # la ventana crece o encoge con la cola, hasta el máximo
+            win.queue_resize()
+        cab = f"En cola · {len(pedidos)}" if pedidos else "En cola"
+        if n_paus:
+            cab += f" ({n_paus} en pausa)"
+        eta = eta_cola(carpeta, n_act)
+        cab_cola.set_label(cab + (f" · {eta}" if eta else ""))
         return False
 
     def aplicar_modo():

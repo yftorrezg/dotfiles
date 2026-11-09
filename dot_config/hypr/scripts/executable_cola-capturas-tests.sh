@@ -33,6 +33,15 @@ esperar_fin() {  # hasta que no quede trabajador ni cola (máx. 60 s)
     return 1
 }
 
+esperar_parado() {  # el trabajador arrancó y terminó; $1 = clave que tiene que haber salido de la cola
+    for _ in $(seq 120); do
+        if ( flock -n 9 ) 9>"$DIR_COLA/trabajador.lock" && [ ! -s "$DIR_COLA/actual.txt" ] \
+           && ! cut -f1 "$DIR_COLA/cola.txt" | grep -qxF -- "${1:-}"; then return 0; fi
+        sleep 0.5
+    done
+    return 1
+}
+
 # 1) Dos pulsaciones seguidas + repetidos
 A="https://www.youtube.com/watch?v=AAAAAAAAAAA"
 B="https://youtu.be/BBBBBBBBBBB?si=xyz"
@@ -100,6 +109,31 @@ bash "$COLA_SH" mover "curso:A" 99 >/dev/null
 bash "$COLA_SH" mover "curso:Z" 1 >/dev/null
 [ "$(orden)" = "B C A " ] && bien "mover: clave que no está no cambia nada" || falla "mover clave inexistente: '$(orden)'"
 [ "$(cut -f5 "$DIR_COLA/cola.txt" | head -n 1)" = "📚 B" ] && bien "mover: conserva etiqueta y campos" || falla "mover: campos alterados"
+
+# 5) Pausar / reanudar / quitar lo que espera
+: > "$REG"; : > "$DIR_COLA/pausados.txt"
+printf 'curso:A\tcurso\t-\tA\t📚 A\ncurso:B\tcurso\t-\tB\t📚 B\ncurso:C\tcurso\t-\tC\t📚 C\n' > "$DIR_COLA/cola.txt"
+bash "$COLA_SH" pausar "curso:B" >/dev/null
+bash "$COLA_SH" quitar "curso:C" >/dev/null
+EST=$(bash "$COLA_SH" estado)
+grep -q "B \[curso\] ⏸" <<<"$EST" && bien "pausar: B queda marcado" || falla "estado pausado: $EST"
+grep -q "C" <<<"$EST" && falla "quitar: C sigue en la cola" || bien "quitar: C fuera"
+[ "$(orden)" = "A B " ] && bien "quitar: solo se fue C" || falla "quitar dejó '$(orden)'"
+[ "$(cat "$DIR_COLA/pausados.txt")" = "curso:B" ] && bien "pausar: anotado en pausados.txt" || falla "pausados: '$(cat "$DIR_COLA/pausados.txt")'"
+ESPERA_FALSA=0.3 bash "$COLA_SH" encolar video "https://youtu.be/pausa000001" >/dev/null
+esperar_parado "video:pausa000001" || falla "pausa: el trabajador no terminó"
+grep -q "^inicio A" "$REG" && grep -q "^inicio https://youtu.be/pausa000001" "$REG" && bien "pausa: procesó A y el video nuevo" || { falla "pausa: registro incompleto"; cat "$REG"; }
+grep -q "^inicio B" "$REG" && falla "pausa: B se procesó igual" || bien "pausa: B se saltó"
+[ "$(orden)" = "B " ] && bien "pausa: B sigue esperando en su lugar" || falla "pausa: cola '$(orden)'"
+bash "$COLA_SH" reanudar "curso:B" >/dev/null
+esperar_fin || falla "reanudar: el trabajador no terminó"
+grep -q "^inicio B" "$REG" && bien "reanudar: B se procesó" || falla "reanudar: B no se procesó"
+[ -s "$DIR_COLA/pausados.txt" ] && falla "reanudar: quedó pausados.txt" || bien "reanudar: limpia la pausa"
+bash "$COLA_SH" pausar "curso:Z" >/dev/null 2>&1
+[ -s "$DIR_COLA/pausados.txt" ] && falla "pausar inexistente: anotó algo" || bien "pausar: clave que no está no hace nada"
+printf 'curso:X\tcurso\t-\tX\t📚 X\n' > "$DIR_COLA/cola.txt"; printf 'curso:X\n' > "$DIR_COLA/pausados.txt"
+bash "$COLA_SH" vaciar >/dev/null
+[ -s "$DIR_COLA/pausados.txt" ] && falla "vaciar: no limpió pausados" || bien "vaciar: limpia pausados"
 
 rm -f -- "${T:?}"/scripts/* "${T:?}"/bin/* "${T:?}"/cache/* "${T:?}"/registro "${T:?}"/notificaciones
 rmdir "$T/scripts" "$T/bin" "$T/cache" "$T"
