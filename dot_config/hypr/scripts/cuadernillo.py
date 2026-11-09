@@ -513,7 +513,9 @@ MODELOS_OPENCODE = [m.strip() for m in os.environ.get(
     # 06/11/2026: deepseek-v4-flash y longcat ya no existen en OpenCode Go (fallaban en silencio)
     # 08/11/2026: probado en la misma clase de 10 min: claude-haiku-5-5 37 s y el más fiel (cifras, posiciones y colores exactos),
     # gpt-6-luna 28 s pero parafrasea el código, deepseek-v4.1-flash 90 s, glm-5.3-flash 85 s. Por eso va primero haiku.
-    "APUNTES_MODELO_OPENCODE", "opencode-go/claude-haiku-5-5,opencode-go/gpt-6-luna,opencode-go/deepseek-v4.1-flash,opencode-go/glm-5.3-flash",
+    # 08/11/2026: la cuota de OpenCode Go está agotada (semanal/mensual). Por defecto solo los gratuitos que responden
+    # (probados: beam-free y crouton-alpha-free contestan en ~5 s; glm-5.3-flash-free ya dice "Free usage limit reached").
+    "APUNTES_MODELO_OPENCODE", "opencode-go/beam-free,opencode-go/crouton-alpha-free",
 ).split(",") if m.strip()]
 MODELO_OPENCODE = MODELOS_OPENCODE[0] if MODELOS_OPENCODE else ""
 
@@ -1277,17 +1279,20 @@ def consultar_ia(prompt, modelo=None):
                 time.sleep(PAUSA_CADENA)
             # v10 (08/11/2026): OpenCode Go PRIMERO. Antes iba primero Claude haiku (el plan de Claude del usuario) y OpenCode solo
             # de respaldo: las 119 clases de la corrida de OpenCode salieron del plan de Claude sin que nadie lo supiera.
-            texto = None if opencode_enfriando() else llamar_opencode(prompt, max_espera=0)
-            if texto is not None:
-                return texto
+            # 08/11/2026 (de nuevo): la cuota de OpenCode Go estaba agotada (semanal y mensual al 100 %), y cada clase
+            # perdía minutos probando modelos muertos. Orden nuevo: 1) Claude haiku (plan de Claude), 2) modelos
+            # gratuitos de OpenCode que sí responden, 3) Codex (si está encendido). Sin cambiar la calidad: haiku sigue siendo el primero.
             if RESPALDO:
                 extra = ["--effort", RESPALDO_EFFORT] if RESPALDO_EFFORT else []
                 cmd = [ruta_claude(), "-p", "--output-format", "json", "--tools", "", "--strict-mcp-config",
                        "--no-session-persistence", "--system-prompt", SISTEMA, "--model", RESPALDO] + extra
-                print(f"  (OpenCode no respondió: uso Claude {RESPALDO} de tu plan de Claude)", file=sys.stderr)
                 texto = llamar_claude(cmd, prompt, max_espera=0, timeout=TIMEOUT_CLAUDE)
                 if texto is not None:
                     return texto
+                print(f"  (Claude {RESPALDO} no respondió: pruebo los gratuitos de OpenCode)", file=sys.stderr)
+            texto = None if opencode_enfriando() else llamar_opencode(prompt, max_espera=0)
+            if texto is not None:
+                return texto
             texto = llamar_codex(prompt)  # último respaldo: la cuota de ChatGPT (Codex CLI)
             if texto is not None:
                 return texto
