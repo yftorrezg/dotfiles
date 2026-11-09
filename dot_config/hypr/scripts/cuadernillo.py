@@ -123,7 +123,8 @@ def regla_secciones(segundos):
     if m < 8:
         return "1 o 2 secciones; no partas un mismo tema en varias."
     if m < 20:
-        return "2 o 3 secciones como máximo; agrupa los pasos pequeños del mismo mecanismo."
+        return ("entre 3 y 5 secciones (una cada ~2-4 min), cada una con sus propios datos y su marca de tiempo; no metas dos temas "
+                "distintos en una sola sección (v10: antes salían 2 secciones para 10 min y se perdía el detalle).")
     if m < 45:
         return ("entre 4 y 6 secciones (una cada ~6-8 min), cada una de más de 4 min con al menos 3 puntos; NINGUNA de más de 8 min: un tema que el profe explica más adelante va "
                 "en SU sección con su marca de tiempo; junta los pasos pequeños del mismo mecanismo.")
@@ -837,7 +838,7 @@ def fusionar_secciones(datos, segundos):
     minimo = (5 if m >= 120 else 3) * 60
     secs = [s for s in datos.get("secciones") or [] if isinstance(s, dict)]
     secs.sort(key=_seg_seccion)
-    piso = 2 if m < 20 else max(3, int(-(-m // 12)))  # v9d: un video de 12 min nunca queda en una sola sección
+    piso = 3 if m < 20 else max(3, int(-(-m // 12)))  # v9d: un video de 12 min nunca queda en una sola sección
     sal = []
     for k, s in enumerate(secs):
         fin = _seg_seccion(secs[k + 1]) if k + 1 < len(secs) else segundos
@@ -1314,9 +1315,8 @@ def _recortar(datos, secciones, nivel):
             s["porque"], s["intuicion"] = "", ""
             if nivel >= 5:
                 s["ejemplo"], s["comparativa"], s["diagrama"] = None, None, ""
-        if nivel >= 6:
+        if nivel >= 8:  # v10: los comentarios 👉 del código se conservan hasta el último recurso (explican el porqué de cada línea)
             s["linea_a_linea"] = []
-        if nivel >= 8:
             if s.get("relevancia") == "raro" and len(sec) > 1:
                 s["codigo"] = ""
             s["codigo"] = _cortar_codigo(s.get("codigo"), LINEAS_CODIGO[nivel], s.get("fin", 0), s.get("lenguaje"))
