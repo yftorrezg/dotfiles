@@ -241,6 +241,8 @@ Al borrar un video con apuntes, el `MAPA.md` del curso se rearma solo (sin IA, r
 
 **Filtro activo (09/11/2026):** al elegir un chip (★ ❓ ✓ Pendientes) en el panel, `>` `<` `N` `P` `Enter`, los botones laterales del mouse y el fin de cada video pasan solo por los videos de ese filtro (`scripts/filtro.lua`). Elegir un video a mano en el panel lo reproduce aunque no cumpla. «Todos» quita el filtro. (Elegir desde el menú uosc `Tab` no cuenta como «a mano»: si no cumple el filtro, salta al siguiente.)
 
+**Barra de progreso (09/11/2026):** bajo los chips de la lista, una barra muestra el avance del filtro activo (videos vistos o marcados ✓ sobre el total del filtro; en «sabidos» manda el orden de reproducción) y los **minutos que quedan** para terminarlo. Se actualiza sola al avanzar el video y al cambiar de filtro.
+
 **Ventana de apuntes dinámica (09/11/2026):** `i` (o `I` = Shift+i, directo a Capturas) abre la ventana y **sigue al video de mpv**: clic en otro video del panel, `>` `<` o las flechas **← →** de la ventana (respetan el filtro activo) y los apuntes cambian solos; no hace falta volver a pulsar `i`.
 - Pestaña **🖼 Capturas**: muestra la captura **clave** (🔑) o **esencial** (⭐) del curso más cercana al minuto del video (`k` alterna) y se recorre todo el curso: `← →` captura, `↑ ↓` clase, `Shift+← →` video, `f` pantalla completa, `x` elimina la captura (a la papelera, de clave Y esenciales; también en pantalla completa) y `Ctrl+z` la restaura (repetible: la última eliminada primero, aunque hayas cerrado la ventana), `o` abre en Gwenview (ahí navegas toda la carpeta), `📍` vuelve al minuto actual, `▶` salta a ese minuto en el video.
 - **Modo concentración** (`m`): solo el texto, sin índice ni cabecera, letra más grande; se recuerda.

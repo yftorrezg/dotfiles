@@ -105,6 +105,16 @@ select{font:inherit;color:var(--txt);background:var(--bg);border:1px solid var(-
 #barra-lista.ver{display:flex}
 #barra-lista button{font-size:12px;padding:3px 8px;white-space:nowrap}
 #barra-lista .chip{flex:none}
+#progreso{flex-basis:100%;margin-top:9px}
+#progreso .p-barra{height:8px;background:var(--bg);border:1px solid var(--borde);border-radius:999px;overflow:hidden}
+#progreso .p-barra i{display:block;height:100%;width:0;border-radius:999px;
+  background:linear-gradient(90deg,var(--acento2),var(--acento));
+  box-shadow:0 0 8px color-mix(in srgb,var(--acento) 55%,transparent);
+  transition:width .5s cubic-bezier(.22,1,.36,1)}
+#progreso .p-txt{display:flex;justify-content:space-between;gap:8px;margin-top:4px;font-size:11.5px;color:var(--sub)}
+#progreso .p-pct{color:var(--acento);font-weight:700;font-family:ui-monospace,monospace}
+#progreso.fin .p-barra i{background:linear-gradient(90deg,#4ade80,#6ee7c8)}
+#progreso.fin .p-pct{color:#4ade80}
 #modal{position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;align-items:center;justify-content:center;padding:14px;z-index:9}
 #modal.ver{display:flex}
 #modal .caja{background:var(--card);border:1px solid var(--borde);border-radius:12px;padding:14px;width:100%;max-width:420px;max-height:92vh;overflow:auto}
@@ -142,6 +152,10 @@ select{font:inherit;color:var(--txt);background:var(--bg);border:1px solid var(-
     <button class="chip" data-fl="sabido" title="Ya los sé">✓ <span id="n-sabido"></span></button>
     <button class="chip" data-fl="pend" title="Todos menos los que ya sabes">Pendientes</button>
     <button class="mini" id="b-todo" title="Volver a la lista del curso entero">Todo el curso</button>
+    <div id="progreso">
+      <div class="p-barra"><i id="p-relleno"></i></div>
+      <div class="p-txt"><span class="p-pct" id="p-msg">Progreso</span><span id="p-resto"></span></div>
+    </div>
   </div>
   <div id="chips">
     <button class="chip on" data-f="">Todas</button><button class="chip" data-f="?">❓</button>
@@ -190,6 +204,40 @@ function notaActual(){
   return id;
 }
 
+const NOMF = {imp:"importantes", dudo:"no entendidos", sabido:"sabidos", pend:"pendientes"};
+const fmtMin = seg => { seg = Math.max(0, Math.round(seg));
+  const h = Math.floor(seg/3600), m = Math.round(seg%3600/60);
+  return h ? `${h} h ${m} min` : `${m} min`; };
+
+// Barra de progreso del filtro activo: videos terminados (vistos o marcados ✓) / total del filtro,
+// con la fracción del video que suena. Lo de los ✓ no aplica en el filtro «sabidos» (manda el orden).
+function pintarProgreso(){
+  const relleno = $("#p-relleno"), msg = $("#p-msg"), resto = $("#p-resto"), caja = $("#progreso");
+  const pasa = x => !filtro ? true : filtro === "pend" ? !x.marcas.includes("sabido") : x.marcas.includes(filtro);
+  const enF = lista.filter(pasa), act = lista.findIndex(x => x.actual);
+  if (!enF.length) {
+    relleno.style.width = "0%"; caja.classList.remove("fin");
+    msg.textContent = "Progreso"; resto.textContent = "sin videos"; return;
+  }
+  const hecho = x => x.i < act || (filtro !== "sabido" && x.marcas.includes("sabido"));
+  let nHechos = 0, nQuedan = 0, queda = 0, frac = 0;
+  for (const x of enF) {
+    const d = x.i === act && x.dur == null ? est.dur || 0 : x.dur || 0;
+    if (hecho(x)) { nHechos++; continue; }
+    if (x.i === act) {
+      const t = Math.min(est.t || 0, d);
+      frac = d > 0 ? t/d : 0;
+      queda += d - t; nQuedan++;
+    } else { queda += d; nQuedan++; }
+  }
+  const pr = Math.round(Math.max(0, Math.min(1, (nHechos + frac)/enF.length)) * 100);
+  relleno.style.width = pr + "%";
+  if (pr >= 100) { caja.classList.add("fin"); msg.textContent = "🎉 100 % · completado"; resto.textContent = ""; return; }
+  caja.classList.remove("fin");
+  msg.textContent = `${pr} % · ${filtro ? NOMF[filtro] : "curso"}`;
+  resto.textContent = `quedan ${nQuedan} video${nQuedan === 1 ? "" : "s"} · ${fmtMin(queda)}`;
+}
+
 function pintarCabecera(){
   const enLista = vista === "lista";
   $("#barra-lista").classList.toggle("ver", enLista);
@@ -207,7 +255,8 @@ function pintarCabecera(){
     const fl = filtro ? lista.filter(pasa2) : [], ia = fl.findIndex(x => x.actual);
     $("#info").textContent = !lista.length ? "" : filtro
       ? `Filtro ${NOM[filtro]}: ${fl.length} videos${ia >= 0 ? ` · vas en el ${ia + 1}` : " · el que suena no está en el filtro"} (> y < solo pasan por estos)`
-      : `${(lista.find(x => x.actual)?.i ?? -1) + 1} de ${lista.length}${total ? ` · ${fmt(total)}` : ""}`; return; }
+      : `${(lista.find(x => x.actual)?.i ?? -1) + 1} de ${lista.length}${total ? ` · ${fmt(total)}` : ""}`;
+    pintarProgreso(); return; }
   if (vista === "todos") { $("#titulo").textContent = "Todos los videos con notas"; $("#info").textContent = ""; $("#btn-todos").textContent = "← Volver"; return; }
   if (vista === "repaso") { $("#titulo").textContent = "Repaso de hoy"; $("#info").textContent = pendientes.length ? `${pendientes.length} por repasar · ¿te acuerdas sin mirar?` : ""; return; }
   $("#titulo").textContent = est.mpv ? est.nombre : "mpv no está abierto";
