@@ -305,11 +305,11 @@ wallpaper_scheme = "m3-tonal-spot"
 path = "/usr/share/noctalia/assets/noctalia-wallpaper.png"
 
 [wallpaper.last]
-path = "/home/yafer/Imágenes/Wallpapers/HD/vertical/wallhaven-yqvpmk.png"
+path = "/home/yafer/Imágenes/Wallpapers/Oscuros/cyberpunk-sakura.jpg"
 
 [wallpaper.monitors.DP-3]
-path = "/home/yafer/Imágenes/Wallpapers/Oscuros/anime-cielo-estrellas.png"
+path = "/home/yafer/Imágenes/Wallpapers/Oscuros/cyberpunk-sakura.jpg"
 
 [wallpaper.monitors.HDMI-A-1]
 fill_mode = "fit"
-path = "/home/yafer/Imágenes/Wallpapers/HD/vertical/wallhaven-yqvpmk.png"
+path = "/home/yafer/Imágenes/Wallpapers/Oscuros/vertical/ciudad-futurista.jpg"
