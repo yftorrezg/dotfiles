@@ -974,6 +974,34 @@ def datos_clase(i):
             "notas": a["notas"], "marcas": marcas_de(importantes(), item["ruta"])}
 
 
+def guardar_apuntes(i, texto):
+    """Guarda apuntes.md de la clase del video i. Deja la última copia en .seguridad/ (hasta 5)."""
+    item = item_de_lista(i)
+    if not item:
+        return {"ok": False, "error": "video no encontrado"}
+    a = apuntes_de(item["ruta"])
+    if not a["dir"]:
+        return {"ok": False, "error": "este video no tiene carpeta de apuntes"}
+    ruta = os.path.join(a["dir"], "apuntes.md")
+    try:
+        if os.path.isfile(ruta):
+            seg = os.path.join(a["dir"], ".seguridad")
+            os.makedirs(seg, exist_ok=True)
+            marca = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
+            shutil.copy2(ruta, os.path.join(seg, f"apuntes-{marca}.md"))
+            viejos = sorted(f for f in os.listdir(seg) if f.startswith("apuntes-"))
+            for f in viejos[:-5]:
+                try:
+                    os.remove(os.path.join(seg, f))
+                except OSError:
+                    pass
+        with open(ruta, "w", encoding="utf-8") as f:
+            f.write(texto)
+    except OSError as e:
+        return {"ok": False, "error": str(e)}
+    return {"ok": True}
+
+
 def indice_actual():
     return next((x["i"] for x in lista_reproduccion() if x["actual"]), None)
 
@@ -1435,6 +1463,8 @@ class H(BaseHTTPRequestHandler):
                 subprocess.Popen(["setsid", "mpv", f"--start={t}", video],
                                  stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, stdin=subprocess.DEVNULL)
             return self._json({"ok": True})
+        if p == "/api/guardar-apuntes":  # editar los apuntes.md de la clase (pestaña Apuntes del modal)
+            return self._json(guardar_apuntes(int(d["i"]), str(d.get("texto", "") or "")))
         if p == "/api/editar":
             return self._json({"ok": editar_nota(d["video"], int(d["id"]), d.get("titulo"), d.get("texto"), d.get("tipo"))})
         if p == "/api/repasado":

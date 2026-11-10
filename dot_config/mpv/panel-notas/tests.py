@@ -234,6 +234,21 @@ class ApuntesYCapturasDelCurso(unittest.TestCase):
         d = S.capturas_de(0, "clave", 9 * 60 + 20)
         self.assertIn("00-09-00", d["items"][d["cerca"]]["f"])
 
+    def test_guardar_apuntes(self):
+        v = "02 Tema/03. Clase de prueba. @Canal.mp4"
+        raiz = self.curso([(v, 1)])
+        n = self.hacer(raiz, v, (1,))
+        ruta = os.path.join(raiz, v)
+        S.lista_reproduccion = lambda: [{"i": 0, "nombre": "x", "ruta": ruta, "actual": True, "dur": 0}]
+        r = S.guardar_apuntes(0, "# mis apuntes\n\nmejorados")
+        self.assertTrue(r["ok"], r)
+        carpeta = os.path.join(raiz, "Apuntes", n)
+        self.assertEqual(open(os.path.join(carpeta, "apuntes.md"), encoding="utf-8").read(), "# mis apuntes\n\nmejorados")
+        copias = os.listdir(os.path.join(carpeta, ".seguridad"))  # la copia de seguridad queda oculta
+        self.assertEqual(len(copias), 1)
+        self.assertEqual(open(os.path.join(carpeta, ".seguridad", copias[0]), encoding="utf-8").read(), "# x")
+        self.assertFalse(S.guardar_apuntes(99, "x")["ok"])  # video inexistente
+
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)
