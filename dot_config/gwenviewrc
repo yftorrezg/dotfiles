@@ -12,26 +12,26 @@ ThumbnailSplitterSizes=764,220
 MenuBar=Disabled
 
 [Recent Files]
-File1[$e]=/mnt/dahua/Cursos/hack4u/Aprende Oracle PLSQL desde Cero/codigo-en-imagenes/051 11 - Procedimientos y funciones almacenadas - 006 Parametros tipo IN · 006. LLAMAR-A-CALC-TAX.sql.webp
-File10[$e]=/mnt/dahua/Cursos/hack4u/Aprende Oracle PLSQL desde Cero/capturas-clave/069 10 - Cursores - 005 Atributos (Recordatorio) · 0002 · 00-00-08.webp
-File2[$e]=/mnt/dahua/Cursos/hack4u/Aprende Oracle PLSQL desde Cero/codigo-en-imagenes/052 11 - Procedimientos y funciones almacenadas - 007 Parámetros tipo OUT · 007. CALC-TAX2.sql.webp
-File3[$e]=/mnt/dahua/Cursos/hack4u/Aprende Oracle PLSQL desde Cero/codigo-en-imagenes/052 11 - Procedimientos y funciones almacenadas - 007 Parámetros tipo OUT · 007. LLAMAR-A-CALC-TAX-OUT.sql.webp
-File4[$e]=/mnt/dahua/Cursos/hack4u/Aprende Oracle PLSQL desde Cero/codigo-en-imagenes/053 11 - Procedimientos y funciones almacenadas - 008 Parámetros tipo IN-… · 008. LLAMAR-A-CALC-TAX-IN-OUT.sql.webp
-File5[$e]=/mnt/dahua/Cursos/hack4u/Aprende Oracle PLSQL desde Cero/codigo-en-imagenes/053 11 - Procedimientos y funciones almacenadas - 008 Parámetros tipo IN-… · 008. PARAMETROS-IN-OUT.sql.webp
-File6[$e]=/mnt/dahua/Cursos/hack4u/Aprende Oracle PLSQL desde Cero/codigo-en-imagenes/054 11 - Procedimientos y funciones almacenadas - 010 Funciones · 010. CALC-TAX-F.sql.webp
-File7[$e]=/mnt/dahua/Cursos/hack4u/Aprende Oracle PLSQL desde Cero/capturas-clave/069 10 - Cursores - 005 Atributos (Recordatorio) · 0001 · 00-00-00.webp
-File8[$e]=/mnt/dahua/Cursos/hack4u/Aprende Oracle PLSQL desde Cero/capturas-clave/068 10 - Cursores - 004 Crear un cursor · 0016 · 00-04-55.webp
-File9[$e]=/mnt/dahua/Cursos/hack4u/Aprende Oracle PLSQL desde Cero/capturas-clave/069 10 - Cursores - 005 Atributos (Recordatorio) · 0004 · 00-01-45.webp
-Name1[$e]=051 11 - Procedimientos y funciones almacenadas - 006 Parametros tipo IN · 006. LLAMAR-A-CALC-TAX.sql.webp
-Name10[$e]=069 10 - Cursores - 005 Atributos (Recordatorio) · 0002 · 00-00-08.webp
-Name2[$e]=052 11 - Procedimientos y funciones almacenadas - 007 Parámetros tipo OUT · 007. CALC-TAX2.sql.webp
-Name3[$e]=052 11 - Procedimientos y funciones almacenadas - 007 Parámetros tipo OUT · 007. LLAMAR-A-CALC-TAX-OUT.sql.webp
-Name4[$e]=053 11 - Procedimientos y funciones almacenadas - 008 Parámetros tipo IN-… · 008. LLAMAR-A-CALC-TAX-IN-OUT.sql.webp
-Name5[$e]=053 11 - Procedimientos y funciones almacenadas - 008 Parámetros tipo IN-… · 008. PARAMETROS-IN-OUT.sql.webp
-Name6[$e]=054 11 - Procedimientos y funciones almacenadas - 010 Funciones · 010. CALC-TAX-F.sql.webp
-Name7[$e]=069 10 - Cursores - 005 Atributos (Recordatorio) · 0001 · 00-00-00.webp
-Name8[$e]=068 10 - Cursores - 004 Crear un cursor · 0016 · 00-04-55.webp
-Name9[$e]=069 10 - Cursores - 005 Atributos (Recordatorio) · 0004 · 00-01-45.webp
+File1[$e]=$HOME/GoogleDrive/Uni/Base3/apuntes2parcial/imagenes/norm_dependencia_transitiva.png
+File10[$e]=$HOME/GoogleDrive/Uni/Base3/apuntes2parcial/imagenes/er_cardinalidad.png
+File2[$e]=$HOME/GoogleDrive/Uni/Base3/apuntes2parcial/imagenes/norm_dependencia_parcial.png
+File3[$e]=$HOME/GoogleDrive/Uni/Base3/apuntes2parcial/imagenes/norm_bcnf.png
+File4[$e]=$HOME/GoogleDrive/Uni/Base3/apuntes2parcial/imagenes/norm_4fn.png
+File5[$e]=$HOME/GoogleDrive/Uni/Base3/apuntes2parcial/imagenes/norm_3fn.png
+File6[$e]=$HOME/GoogleDrive/Uni/Base3/apuntes2parcial/imagenes/norm_2fn.png
+File7[$e]=$HOME/GoogleDrive/Uni/Base3/apuntes2parcial/imagenes/er_relacion_1a1_1aN.png
+File8[$e]=$HOME/GoogleDrive/Uni/Base3/apuntes2parcial/imagenes/er_reglas_mapeo_logico.png
+File9[$e]=$HOME/GoogleDrive/Uni/Base3/apuntes2parcial/imagenes/er_participacion.png
+Name1[$e]=norm_dependencia_transitiva.png
+Name10[$e]=er_cardinalidad.png
+Name2[$e]=norm_dependencia_parcial.png
+Name3[$e]=norm_bcnf.png
+Name4[$e]=norm_4fn.png
+Name5[$e]=norm_3fn.png
+Name6[$e]=norm_2fn.png
+Name7[$e]=er_relacion_1a1_1aN.png
+Name8[$e]=er_reglas_mapeo_logico.png
+Name9[$e]=er_participacion.png
 
 [SideBar]
 InformationSplitterSizes=219,256
