@@ -146,6 +146,8 @@ hl.bind(mainMod .. " + ALT + Y", hl.dsp.exec_cmd(launchPrefix .. "bash " .. os.g
 hl.bind(mainMod .. " + ALT + G", hl.dsp.exec_cmd(launchPrefix .. "bash " .. os.getenv("HOME") .. "/.config/hypr/scripts/repo-a-imagenes.sh"))
 -- SUPER+ALT+A: elegir la carpeta de un curso y sacar capturas + apuntes de todas las clases (segundo plano)
 hl.bind(mainMod .. " + ALT + A", hl.dsp.exec_cmd(launchPrefix .. "bash " .. os.getenv("HOME") .. "/.config/hypr/scripts/curso-apuntes-elegir.sh"))
+-- SUPER+ALT+P: retomar apuntes tras un reinicio (re-encola los cursos conocidos; las clases hechas se saltean)
+hl.bind(mainMod .. " + ALT + P", hl.dsp.exec_cmd(launchPrefix .. "bash " .. os.getenv("HOME") .. "/.config/hypr/scripts/retomar-apuntes.sh"))
 -- (29/09/2026) Centro de estudio: SUPER+I abre la próxima clase (pre-test, apuntes, práctica, tests)
 hl.bind(mainMod .. " + I", hl.dsp.exec_cmd(launchPrefix .. "python3 " .. os.getenv("HOME") .. "/.config/hypr/scripts/estudiar.py"))
 -- SUPER+ALT+V: verificar (correr) los tests de la práctica de la clase actual → notificación ✅/❌

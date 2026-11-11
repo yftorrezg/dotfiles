@@ -17,4 +17,9 @@ case "$CURSO" in
         notify-send -u critical "Auto Captura" "Carpeta no válida: «${CURSO:-/}». Elige la carpeta de un curso." ; exit 1 ;;
 esac
 [ -d "$CURSO" ] || { notify-send -u critical "Auto Captura" "La carpeta no existe: $CURSO"; exit 1; }
+# Encola normalmente y pregunta si procesarlo primero (frente de la cola)
 bash "$SCRIPTS/cola-capturas.sh" encolar curso "$CURSO" "📚 $(basename "$CURSO")" >/dev/null
+if zenity --question --title="📚 Prioridad" --text="¿Procesar «$(basename "$CURSO")» primero (frente de la cola)?" 2>/dev/null; then
+    clave="curso:$(realpath -m "$CURSO")"
+    bash "$SCRIPTS/cola-capturas.sh" mover "$clave" 1 >/dev/null 2>&1
+fi
