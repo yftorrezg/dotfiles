@@ -1568,10 +1568,7 @@ def _armar_md(titulo, capturas, datos, duracion, recursos_md, secciones, importa
     la práctica · 3 = también los errores después del 3.º (lo ⭐ nunca se pliega)."""
     hay_voz = bool(voz)
     L = [f"# 📓 {titulo}", ""]
-    L += [f"> ⏱️ **Duración:** {hms(duracion)}" + (f" · 📚 **Secciones:** {len(secciones)}" if len(secciones) >= 2 else "")
-          + (f" · Imágenes: {len(importantes)}" if importantes else "")]
-    enlaces = (["⚡ [Repaso rápido](resumen.md)"] if hay_resumen else []) + \
-              ([f"🗣️ [Lo que dice el profe](transcripcion.md) ({idioma_txt})"] if hay_voz else [])
+    enlaces = (["⚡ [Repaso rápido](resumen.md)"] if hay_resumen else [])
     if enlaces:
         L += ["> " + " · ".join(enlaces)]
     L += [""]
@@ -1600,10 +1597,7 @@ def _armar_md(titulo, capturas, datos, duracion, recursos_md, secciones, importa
         dur = min(s["fin"], duracion) - s["ini"]
         rel = str(s.get("relevancia") or "").strip().lower()
         L += [f"## {k + 1}. {s['titulo']}", ""]
-        cab = f"⏱️ `{hms(s['ini'])} – {hms(min(s['fin'], duracion))}`"
-        if hay_voz and any(s["ini"] <= t < s["fin"] for t, _ in voz):
-            cab += f" · 🗣️ [lo que dice el profe](transcripcion.md#{k + 1}-{ancla(s['titulo'])})"
-        L += [cab, ""]
+        # (líneas de duración y "lo que dice el profe" eliminadas a petición del usuario)
         porque = _txt(s.get("porque"))
         if rel in ("diario", "raro") and len(secciones) > 1 and not (rel == "diario" and not porque):  # ⭐ y 💤 orientan; sin porqué no se rotula
             L += ["> " + " — ".join(x for x in (REL[rel], porque if rel == "diario" else "") if x), ""]

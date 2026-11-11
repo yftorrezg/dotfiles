@@ -18,15 +18,13 @@ import shutil
 import sys
 
 COPIAR = ("apuntes.md", "resumen.md", ".apuntes-ia.json", ".resumen-ia.json")
-VOZ = "Lo que dice el profe"
-
-
 def sin_voz(carpeta_capturas):
     for d in sorted(os.listdir(carpeta_capturas)):
         c = os.path.join(carpeta_capturas, d)
         a = os.path.join(c, "apuntes.md")
         if os.path.isfile(a) and not os.path.exists(os.path.join(c, ".sin-ia")):
-            if VOZ not in open(a, encoding="utf-8", errors="replace").read() or os.path.exists(os.path.join(c, ".rehacer")):
+            # antes se buscaba el texto "Lo que dice el profe" en apuntes.md; ahora se mira si existe transcripcion.md
+            if not os.path.isfile(os.path.join(c, "transcripcion.md")) or os.path.exists(os.path.join(c, ".rehacer")):
                 yield c
 
 
