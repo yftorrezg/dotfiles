@@ -515,7 +515,13 @@ MODELOS_OPENCODE = [m.strip() for m in os.environ.get(
     # gpt-6-luna 28 s pero parafrasea el código, deepseek-v4.1-flash 90 s, glm-5.3-flash 85 s. Por eso va primero haiku.
     # 08/11/2026: la cuota de OpenCode Go está agotada (semanal/mensual). Por defecto solo los gratuitos que responden
     # (probados: beam-free y crouton-alpha-free contestan en ~5 s; glm-5.3-flash-free ya dice "Free usage limit reached").
-    "APUNTES_MODELO_OPENCODE", "opencode-go/beam-free,opencode-go/crouton-alpha-free",
+    "APUNTES_MODELO_OPENCODE",
+    "opencode-go/longcat-2.5-free,opencode-go/iceman-contributor-free,opencode-go/beam-free,"
+    "opencode/iceman-free,opencode/inkling-2-small-free,opencode/longcat-2.5-free,opencode/flint-40b-free,"
+    "opencode/minimax-m3.1-flash-free,opencode/deepseek-v4.1-flash-free,opencode/nemotron-3.5-super-vl-free,"
+    "opencode/beam-free,opencode/mimo-v2.6-flash-free,opencode/glm-5.3-flash-free,"
+    "opencode-go/gpt-6-luna,opencode-go/minimax-m3.1-flash,opencode-go/deepseek-v4.1-flash,"
+    "opencode-go/mimo-v2.5,opencode-go/qwen3.8-flash,opencode-go/glm-5.3-flash,opencode-go/muse-spark-1.3-contributor",
 ).split(",") if m.strip()]
 MODELO_OPENCODE = MODELOS_OPENCODE[0] if MODELOS_OPENCODE else ""
 
@@ -1277,11 +1283,12 @@ def consultar_ia(prompt, modelo=None):
                 print(f"  (todos los modelos fallaron: reintento la cadena en {PAUSA_CADENA} s, ronda {ronda + 1}/{RONDAS_CADENA})", file=sys.stderr)
                 reportar(75, "apuntes", "reintentando la IA")
                 time.sleep(PAUSA_CADENA)
-            # v10 (08/11/2026): OpenCode Go PRIMERO. Antes iba primero Claude haiku (el plan de Claude del usuario) y OpenCode solo
-            # de respaldo: las 119 clases de la corrida de OpenCode salieron del plan de Claude sin que nadie lo supiera.
-            # 08/11/2026 (de nuevo): la cuota de OpenCode Go estaba agotada (semanal y mensual al 100 %), y cada clase
-            # perdía minutos probando modelos muertos. Orden nuevo: 1) Claude haiku (plan de Claude), 2) modelos
-            # gratuitos de OpenCode que sí responden, 3) Codex (si está encendido). Sin cambiar la calidad: haiku sigue siendo el primero.
+            # Orden (pedido del usuario): 1) modelos GRATUITOS de OpenCode (todos los disponibles), 2) modelos de
+            # OpenCode Go de mejor calidad/precio, 3) haiku de Claude Code como respaldo, 4) Codex (si está encendido).
+            # Sin sonnet: la cuota de sonnet se agota rápido.
+            texto = None if opencode_enfriando() else llamar_opencode(prompt, max_espera=0)
+            if texto is not None:
+                return texto
             if RESPALDO:
                 extra = ["--effort", RESPALDO_EFFORT] if RESPALDO_EFFORT else []
                 cmd = [ruta_claude(), "-p", "--output-format", "json", "--tools", "", "--strict-mcp-config",
@@ -1289,10 +1296,7 @@ def consultar_ia(prompt, modelo=None):
                 texto = llamar_claude(cmd, prompt, max_espera=0, timeout=TIMEOUT_CLAUDE)
                 if texto is not None:
                     return texto
-                print(f"  (Claude {RESPALDO} no respondió: pruebo los gratuitos de OpenCode)", file=sys.stderr)
-            texto = None if opencode_enfriando() else llamar_opencode(prompt, max_espera=0)
-            if texto is not None:
-                return texto
+                print(f"  (Claude {RESPALDO} no respondió: reintento OpenCode)", file=sys.stderr)
             texto = llamar_codex(prompt)  # último respaldo: la cuota de ChatGPT (Codex CLI)
             if texto is not None:
                 return texto
