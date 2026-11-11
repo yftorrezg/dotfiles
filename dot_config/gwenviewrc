@@ -12,26 +12,26 @@ ThumbnailSplitterSizes=764,220
 MenuBar=Disabled
 
 [Recent Files]
-File1[$e]=/mnt/dahua/paola_v/IMG_20231130_145056.jpg
-File10[$e]=/mnt/dahua/paola_v/IMG-20231023-WA0129.jpg
-File2[$e]=/mnt/dahua/paola_v/IMG_20231130_145114.jpg
-File3[$e]=/mnt/dahua/paola_v/IMG_20231130_145126.jpg
-File4[$e]=/mnt/dahua/paola_v/IMG_20231130_145129.jpg
-File5[$e]=/mnt/dahua/paola_v/IMG_20231130_145132.jpg
-File6[$e]=/mnt/dahua/paola_v/IMG_20231130_145134.jpg
-File7[$e]=/mnt/dahua/paola_v/IMG_20231130_145136.jpg
-File8[$e]=/mnt/dahua/paola_v/IMG_20231130_145139.jpg
-File9[$e]=/mnt/dahua/paola_v/captura_20261012_015915.png
-Name1[$e]=IMG_20231130_145056.jpg
-Name10[$e]=IMG-20231023-WA0129.jpg
-Name2[$e]=IMG_20231130_145114.jpg
-Name3[$e]=IMG_20231130_145126.jpg
-Name4[$e]=IMG_20231130_145129.jpg
-Name5[$e]=IMG_20231130_145132.jpg
-Name6[$e]=IMG_20231130_145134.jpg
-Name7[$e]=IMG_20231130_145136.jpg
-Name8[$e]=IMG_20231130_145139.jpg
-Name9[$e]=captura_20261012_015915.png
+File1[$e]=/mnt/dahua/paola_v/IMG_20231130_145139.jpg
+File10[$e]=/mnt/nuevo-vol/s24/alema/42.png
+File2[$e]=/mnt/dahua/paola_v/captura_20261012_015915.png
+File3[$e]=/mnt/dahua/paola_v/IMG-20231023-WA0129.jpg
+File4[$e]=/mnt/nuevo-vol/s24/alema/26.png
+File5[$e]=/mnt/nuevo-vol/s24/alema/33.png
+File6[$e]=/mnt/nuevo-vol/s24/alema/38.png
+File7[$e]=/mnt/nuevo-vol/s24/alema/39.png
+File8[$e]=/mnt/nuevo-vol/s24/alema/40.png
+File9[$e]=/mnt/nuevo-vol/s24/alema/41.png
+Name1[$e]=IMG_20231130_145139.jpg
+Name10[$e]=42.png
+Name2[$e]=captura_20261012_015915.png
+Name3[$e]=IMG-20231023-WA0129.jpg
+Name4[$e]=26.png
+Name5[$e]=33.png
+Name6[$e]=38.png
+Name7[$e]=39.png
+Name8[$e]=40.png
+Name9[$e]=41.png
 
 [SideBar]
 InformationSplitterSizes=219,256
