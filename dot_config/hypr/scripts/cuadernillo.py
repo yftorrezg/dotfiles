@@ -1266,8 +1266,13 @@ TIMEOUT_CLAUDE_RESPALDO = int(os.environ.get("APUNTES_TIMEOUT_CLAUDE_RESPALDO", 
 
 def llamar_codex(prompt):
     """Respuesta de `codex exec` (sin herramientas: sandbox de solo lectura, sesión efímera), o None."""
-    exe = shutil.which("codex") or os.path.expanduser("~/.local/bin/codex")
-    if not CODEX or not os.path.exists(exe):
+    local = os.path.expanduser("~/.local/bin/codex")
+    exe = local if os.path.isfile(local) and os.access(local, os.X_OK) else shutil.which("codex")
+    if not CODEX:
+        print("  (Codex desactivado por APUNTES_CODEX=0)", file=sys.stderr)
+        return None
+    if not exe:
+        print("  (no se encontró el ejecutable de Codex)", file=sys.stderr)
         return None
     import tempfile
     with tempfile.TemporaryDirectory(prefix="codex-apuntes-") as tmp:
