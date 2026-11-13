@@ -7,8 +7,8 @@
 # el avance se ve en una notificación con barrita de progreso que se actualiza sola.
 # Uso desde la terminal: youtube-capturas.sh [link]   (sin link, usa el portapapeles)
 SCRIPTS="$HOME/.config/hypr/scripts"
-# Los apuntes de YouTube usan Codex con GPT-6 Luna y esfuerzo mínimo; la cola guarda esta opción.
-export APUNTES_MOTOR=codex
+# Los apuntes de YouTube usan GPT-6 Luna low → Claude Haiku → modelos gratuitos de OpenCode.
+export APUNTES_MOTOR=codex APUNTES_CODEX_MODELO=gpt-6-luna APUNTES_CODEX_EFFORT=low APUNTES_RESPALDO_EFFORT=low
 
 URL=${1:-$(wl-paste --no-newline 2>/dev/null)}
 URL=$(tr -d '[:space:]' <<<"$URL")

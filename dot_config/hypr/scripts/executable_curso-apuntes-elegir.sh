@@ -6,8 +6,8 @@
 SCRIPTS="$HOME/.config/hypr/scripts"
 INICIO="$(xdg-user-dir VIDEOS 2>/dev/null || echo "$HOME")/Descargas/"
 [ -d "$INICIO" ] || INICIO="$HOME/"
-# Codex directo para evitar la cadena lenta de modelos agotados de OpenCode.
-export APUNTES_MOTOR=codex APUNTES_CODEX_MODELO=gpt-6-luna APUNTES_CODEX_EFFORT=none
+# Prioridad para los apuntes: GPT-6 Luna low → Claude Haiku → modelos gratuitos de OpenCode.
+export APUNTES_MOTOR=codex APUNTES_CODEX_MODELO=gpt-6-luna APUNTES_CODEX_EFFORT=low APUNTES_RESPALDO_EFFORT=low
 CURSO=$(zenity --file-selection --directory --title="📚 Carpeta del curso para sacar apuntes" --filename="$INICIO") || exit 0
 # Rechaza rutas vacías o demasiado amplias (p. ej. "/" cuando el disco no estaba montado).
 CURSO="${CURSO%/}"

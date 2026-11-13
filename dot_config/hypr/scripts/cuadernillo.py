@@ -523,17 +523,18 @@ MODELOS_OPENCODE = [m.strip() for m in os.environ.get(
     "opencode-go/gpt-6-luna,opencode-go/minimax-m3.1-flash,opencode-go/deepseek-v4.1-flash,"
     "opencode-go/mimo-v2.5,opencode-go/qwen3.8-flash,opencode-go/glm-5.3-flash,opencode-go/muse-spark-1.3-contributor",
 ).split(",") if m.strip()]
+MODELOS_OPENCODE_GRATIS = list(dict.fromkeys(
+    [m for m in MODELOS_OPENCODE if m.rsplit("/", 1)[-1].endswith("-free")]
+    + ["opencode/big-pickle", "opencode/nemotron-3.5-lightning-free",
+       "opencode/nemotron-3-ultra-free", "opencode/jev-1.13-free"]
+))
 MODELO_OPENCODE = MODELOS_OPENCODE[0] if MODELOS_OPENCODE else ""
 
 
 def nombre_motor():
     """Etiqueta del motor y modelo configurados para generar los apuntes."""
-    if MOTOR == "codex":
-        return f"Codex ({CODEX_MODELO}, {CODEX_EFFORT})"
-    if MOTOR == "opencode":
-        if RESPALDO:
-            return f"OpenCode ({MODELO_OPENCODE or 'modelo de la cuenta'}) → Claude {RESPALDO} si falla"
-        return f"OpenCode ({MODELO_OPENCODE or 'modelo de la cuenta'})"
+    if MOTOR in ("codex", "opencode"):
+        return f"Codex Luna ({CODEX_EFFORT}) → Claude {RESPALDO or 'omitido'} → OpenCode gratis"
     return f"Claude ({MODELO or 'modelo de la cuenta'})"
 
 
@@ -1131,6 +1132,7 @@ def verificar_salidas(datos):
 
 
 TIMEOUT_OC = int(os.environ.get("APUNTES_TIMEOUT_OC", "150"))  # s por llamada a OpenCode antes de darla por colgada
+TIMEOUT_OC_GRATIS = int(os.environ.get("APUNTES_TIMEOUT_OC_GRATIS", "20"))
 RONDAS_CADENA = int(os.environ.get("APUNTES_RONDAS", "2"))  # veces que se recorre la cadena antes de rendirse
 PAUSA_CADENA = int(os.environ.get("APUNTES_PAUSA", "45"))  # s entre rondas
 TIMEOUT_CLAUDE = int(os.environ.get("APUNTES_TIMEOUT_CLAUDE", "300"))
@@ -1180,19 +1182,29 @@ def ruta_opencode():
     return c
 
 
-def llamar_opencode(prompt, esperar=time.sleep, max_espera=None):
+def llamar_opencode(prompt, esperar=time.sleep, max_espera=None, modelos=None, timeout=None):
     """Texto de la respuesta de `opencode run`, o None si falló. Prueba los modelos de
     MODELOS_OPENCODE en orden; si TODOS dicen "usage limit" (el límite de Go es del plan, no del
     modelo, y se renueva por ventanas) espera y reintenta, como con Claude."""
     # --standalone: servidor propio (el servicio de fondo se cuelga con prompts largos y comparte
     # estado entre llamadas). El prompt va por stdin: como argumento, 5 de 5 llamadas largas se colgaron.
+    modelos_prueba = MODELOS_OPENCODE if modelos is None else modelos
+    if not modelos_prueba:
+        print("  (OpenCode: no hay modelos configurados para probar)", file=sys.stderr)
+        return None
+    try:
+        exe = ruta_opencode()
+    except OSError as e:
+        print(f"  (OpenCode no disponible: {e})", file=sys.stderr)
+        return None
+    timeout_modelo = TIMEOUT_OC if timeout is None else timeout
     esperado = 0
     while True:
         agotados = 0
-        for modelo in MODELOS_OPENCODE or [""]:
-            cmd = [ruta_opencode(), "run", "--standalone", "--agent", "apuntes"] + (["--model", modelo] if modelo else [])
+        for modelo in modelos_prueba:
+            cmd = [exe, "run", "--standalone", "--agent", "apuntes"] + (["--model", modelo] if modelo else [])
             try:
-                r = subprocess.run(cmd, input=prompt, capture_output=True, text=True, timeout=TIMEOUT_OC)  # normal: 40-90 s; si pasa de TIMEOUT_OC está colgado: mejor probar otro modelo
+                r = subprocess.run(cmd, input=prompt, capture_output=True, text=True, timeout=timeout_modelo)
             except (OSError, subprocess.TimeoutExpired) as e:
                 print(f"  (opencode {modelo} falló: {e})", file=sys.stderr)
                 continue
@@ -1205,9 +1217,9 @@ def llamar_opencode(prompt, esperar=time.sleep, max_espera=None):
                 continue
             detalle = re.sub(r"\x1b\[[0-9;]*m", "", salida).strip().replace("\n", " ")[:120]
             print(f"  (opencode {modelo} falló: {detalle or 'sin detalle'})", file=sys.stderr)
-        if agotados == len(MODELOS_OPENCODE or [""]):
+        if agotados == len(modelos_prueba):
             marcar_opencode_agotado()
-        if agotados < len(MODELOS_OPENCODE or [""]) or esperado >= (ESPERA_CUOTA_MAX if max_espera is None else max_espera):
+        if agotados < len(modelos_prueba) or esperado >= (ESPERA_CUOTA_MAX if max_espera is None else max_espera):
             return None
         print(f"  ⏳ Cuota de OpenCode Go agotada; reintento en {ESPERA_CUOTA_OC // 60} min", file=sys.stderr)
         reportar(75, "apuntes", "⏳ esperando la cuota de OpenCode")
@@ -1220,7 +1232,7 @@ ENFRIAR_OC = 1800  # s sin tocar OpenCode después de que todos sus modelos dije
 # Si OpenCode no puede (cuota), se usa Claude con un modelo barato. APUNTES_RESPALDO="" lo desactiva
 # (entonces se espera la cuota de OpenCode). APUNTES_RESPALDO_EFFORT=low|medium para bajar el esfuerzo.
 RESPALDO = os.environ.get("APUNTES_RESPALDO", "haiku")
-RESPALDO_EFFORT = os.environ.get("APUNTES_RESPALDO_EFFORT", "")
+RESPALDO_EFFORT = os.environ.get("APUNTES_RESPALDO_EFFORT", "low")
 
 
 def opencode_enfriando():
@@ -1244,10 +1256,11 @@ def marcar_opencode_agotado():
         pass
 
 
-CODEX = os.environ.get("APUNTES_CODEX", "1" if MOTOR == "codex" else "0") != "0"  # motor principal si APUNTES_MOTOR=codex; respaldo opcional en otros modos
+CODEX = os.environ.get("APUNTES_CODEX", "1" if MOTOR in ("codex", "opencode") else "0") != "0"  # Luna directo o respaldo si OpenCode agota cuota
 CODEX_MODELO = os.environ.get("APUNTES_CODEX_MODELO", "gpt-6-luna")
-CODEX_EFFORT = os.environ.get("APUNTES_CODEX_EFFORT", "none")  # Luna admite none: mínimo consumo de razonamiento
-TIMEOUT_CODEX = int(os.environ.get("APUNTES_TIMEOUT_CODEX", "300"))
+CODEX_EFFORT = os.environ.get("APUNTES_CODEX_EFFORT", "low")
+TIMEOUT_CODEX = int(os.environ.get("APUNTES_TIMEOUT_CODEX", "120"))
+TIMEOUT_CLAUDE_RESPALDO = int(os.environ.get("APUNTES_TIMEOUT_CLAUDE_RESPALDO", "120"))
 
 
 def llamar_codex(prompt):
@@ -1279,41 +1292,31 @@ def llamar_codex(prompt):
 
 
 def consultar_ia(prompt, modelo=None):
-    """Texto de la respuesta del motor configurado (APUNTES_MOTOR=claude|opencode|codex), o None.
-    Con claude espera a que se renueve la cuota; el modelo es APUNTES_MODELO salvo que se
-    indique otro (practica.py usa PRACTICA_MODELO). Con opencode se usa APUNTES_MODELO_OPENCODE."""
-    if MOTOR == "codex":
-        return llamar_codex(prompt)  # una llamada directa, sin reintentos ni otros proveedores
-    if MOTOR == "opencode":
-        # Cadena (v10): 1) modelos de OpenCode Go en orden (haiku-5-5 primero), 2) Claude RESPALDO si OpenCode falla o se agotó
-        # (usa TU plan de Claude; APUNTES_RESPALDO= lo desactiva); antes iba al revés. Detalle anterior: modelos de
-        # OpenCode Go en orden (MODELOS_OPENCODE; el gratuito LongCat va al final: se cuelga seguido).
-        # Cada paso falla rápido (timeout corto, sin esperar cuota) y se pasa al siguiente. Si TODOS
-        # fallan se repite la cadena tras una pausa (los cuelgues suelen ser pasajeros); si aun así
-        # no hay respuesta, la clase sigue sin IA y rehacer-sin-ia.py la rehace al final del curso.
-        for ronda in range(RONDAS_CADENA):
-            if ronda:
-                print(f"  (todos los modelos fallaron: reintento la cadena en {PAUSA_CADENA} s, ronda {ronda + 1}/{RONDAS_CADENA})", file=sys.stderr)
-                reportar(75, "apuntes", "reintentando la IA")
-                time.sleep(PAUSA_CADENA)
-            # Orden (pedido del usuario): 1) modelos GRATUITOS de OpenCode (todos los disponibles), 2) modelos de
-            # OpenCode Go de mejor calidad/precio, 3) haiku de Claude Code como respaldo, 4) Codex (si está encendido).
-            # Sin sonnet: la cuota de sonnet se agota rápido.
-            texto = None if opencode_enfriando() else llamar_opencode(prompt, max_espera=0)
-            if texto is not None:
-                return texto
-            if RESPALDO:
-                extra = ["--effort", RESPALDO_EFFORT] if RESPALDO_EFFORT else []
+    """Texto de Claude, o de la cadena Luna → Haiku → modelos gratis de OpenCode."""
+    if MOTOR in ("codex", "opencode"):
+        # También se aplica a las colas existentes que guardaron APUNTES_MOTOR=opencode.
+        reportar(8, "apuntes", f"Codex Luna · {CODEX_EFFORT}")
+        texto = llamar_codex(prompt) if CODEX else None
+        if texto is not None:
+            return texto
+        if CODEX:
+            print("  (Luna no respondió; pruebo Claude Haiku)", file=sys.stderr)
+        reportar(35, "apuntes", "Claude Haiku")
+        if RESPALDO:
+            extra = ["--effort", RESPALDO_EFFORT] if RESPALDO_EFFORT else []
+            try:
                 cmd = [ruta_claude(), "-p", "--output-format", "json", "--tools", "", "--strict-mcp-config",
                        "--no-session-persistence", "--system-prompt", SISTEMA, "--model", RESPALDO] + extra
-                texto = llamar_claude(cmd, prompt, max_espera=0, timeout=TIMEOUT_CLAUDE)
-                if texto is not None:
-                    return texto
-                print(f"  (Claude {RESPALDO} no respondió: reintento OpenCode)", file=sys.stderr)
-            texto = llamar_codex(prompt)  # último respaldo: la cuota de ChatGPT (Codex CLI)
+                texto = llamar_claude(cmd, prompt, max_espera=0, timeout=TIMEOUT_CLAUDE_RESPALDO)
+            except OSError as e:
+                print(f"  (Claude {RESPALDO} no disponible: {e})", file=sys.stderr)
+                texto = None
             if texto is not None:
                 return texto
-        return llamar_opencode(prompt) if not RESPALDO else None
+        print("  (Haiku no respondió; pruebo los modelos gratuitos de OpenCode)", file=sys.stderr)
+        reportar(60, "apuntes", "OpenCode gratis")
+        return llamar_opencode(prompt, max_espera=0, modelos=MODELOS_OPENCODE_GRATIS,
+                               timeout=TIMEOUT_OC_GRATIS)
     cmd = [ruta_claude(), "-p", "--output-format", "json", "--tools", "", "--strict-mcp-config",
            "--no-session-persistence", "--system-prompt", SISTEMA]
     m = MODELO if modelo is None else modelo

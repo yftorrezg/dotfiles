@@ -5,6 +5,7 @@
 import importlib.util
 import os
 import shutil
+import subprocess
 import sys
 import tempfile
 
@@ -42,6 +43,50 @@ finally:
     c.es_ligera, c.consultar_ia = _es_ligera, _consultar_ia
 prueba("proveedor sin respuesta: no repetir tres veces la cadena", len(_llamadas_ia) == 1,
        f"{len(_llamadas_ia)} llamadas")
+
+# Los trabajos ya encolados con OpenCode deben tener Codex como respaldo tras agotar sus proveedores.
+_entorno = os.environ.copy()
+_entorno["APUNTES_MOTOR"] = "opencode"
+_entorno.pop("APUNTES_CODEX", None)
+_entorno["PYTHONPATH"] = AQUI + os.pathsep + _entorno.get("PYTHONPATH", "")
+_r = subprocess.run([sys.executable, "-c", "import cuadernillo; print(int(cuadernillo.CODEX))"],
+                    capture_output=True, text=True, env=_entorno)
+prueba("OpenCode: Codex Luna habilitado como respaldo", _r.returncode == 0 and _r.stdout.strip().endswith("1"),
+       (_r.stdout + _r.stderr).strip()[-120:])
+
+# Orden nuevo: GPT-6 Luna low → Claude Haiku → solo modelos gratuitos de OpenCode.
+_guardar = {k: getattr(c, k) for k in ("MOTOR", "CODEX", "llamar_codex", "ruta_claude", "llamar_claude", "llamar_opencode")}
+_cadenas = []
+_eventos = []
+c.llamar_codex = lambda _p: (_eventos.append("luna"), None)[1]
+c.ruta_claude = lambda: "/usr/bin/claude"
+c.llamar_claude = lambda cmd, _p, **kw: (_eventos.append(("haiku", cmd, kw)), None)[1]
+c.llamar_opencode = lambda _p, **kw: (_eventos.append(("opencode", kw)), "respuesta gratuita")[1]
+try:
+    for _motor in ("codex", "opencode"):
+        _eventos.clear()
+        c.MOTOR = _motor
+        c.CODEX = True
+        _respuesta = c.consultar_ia("prompt de prueba")
+        _cadenas.append((_respuesta, list(_eventos)))
+finally:
+    for _k, _v in _guardar.items():
+        setattr(c, _k, _v)
+_validas = []
+for _respuesta, _eventos in _cadenas:
+    _haiku = next((x for x in _eventos if isinstance(x, tuple) and x[0] == "haiku"), None)
+    _gratis = next((x for x in _eventos if isinstance(x, tuple) and x[0] == "opencode"), None)
+    _orden = [x if isinstance(x, str) else x[0] for x in _eventos]
+    _validas.append(_respuesta == "respuesta gratuita" and _orden == ["luna", "haiku", "opencode"]
+        and _haiku is not None and _gratis is not None and ["--model", "haiku"] == _haiku[1][_haiku[1].index("--model"):_haiku[1].index("--model") + 2]
+        and _haiku[1][-2:] == ["--effort", "low"] and _haiku[2].get("max_espera") == 0
+        and _haiku[2].get("timeout") == 120
+        and all(m.rsplit("/", 1)[-1].endswith("-free") or m == "opencode/big-pickle"
+                for m in _gratis[1].get("modelos", []))
+        and {"opencode/big-pickle", "opencode/nemotron-3.5-lightning-free"} <= set(_gratis[1].get("modelos", []))
+        and _gratis[1].get("max_espera") == 0 and _gratis[1].get("timeout") == 20)
+prueba("fallback Luna → Haiku → OpenCode free en codex y colas antiguas",
+       len(_validas) == 2 and all(_validas), str(_cadenas))
 
 
 # 1) Subtítulos automáticos de YouTube ("rodando": cada línea sale dos veces)
