@@ -26,7 +26,7 @@ export DIR_COLA   # curso-a-apuntes.sh lo usa para tener un candado por cola
 COLA="$DIR_COLA/cola.txt"
 ACTUAL="$DIR_COLA/actual.txt"
 PAUSADOS="$DIR_COLA/pausados.txt"   # una clave por línea: el trabajador las saltea sin sacarlas de la cola
-OPCIONES="SIN_IA SIN_APUNTES MAX_VIDEOS APUNTES_MOTOR APUNTES_MODELO_OPENCODE APUNTES_CODEX_MODELO APUNTES_CODEX_EFFORT APUNTES_RESPALDO_EFFORT"   # variables que viajan con cada pedido
+OPCIONES="SIN_IA SIN_APUNTES MAX_VIDEOS APUNTES_MOTOR APUNTES_MODELO_OPENCODE APUNTES_CODEX APUNTES_CODEX_MODELO APUNTES_CODEX_EFFORT APUNTES_RESPALDO APUNTES_RESPALDO_EFFORT"   # variables que viajan con cada pedido
 mkdir -p "$DIR_COLA"
 touch "$COLA" "$ACTUAL" "$PAUSADOS"
 
@@ -135,6 +135,14 @@ trabajar() {
         env $(printf -- '-u %s ' $OPCIONES) $opciones "$@" > "$log" 2>&1 < /dev/null 7>&- 8>&-
         codigo=$?
         echo "$(date '+%F %T') terminó $tipo (código $codigo)"
+        if [ "$codigo" -ne 0 ]; then
+            # Conservar el pedido para retomarlo explícitamente sin un bucle de fallos.
+            bloquear_cola
+            printf '%s\n' "$linea" >> "$COLA"
+            grep -qxF -- "$clave" "$PAUSADOS" || printf '%s\n' "$clave" >> "$PAUSADOS"
+            soltar_cola
+            avisar -u critical -t 10000 "Apuntes: trabajo pendiente" "$etiqueta quedó pausado. Revisá: $log"
+        fi
         if [ $codigo -ne 0 ] && [ "$tipo" = video ]; then  # playlist/curso avisan por su cuenta
             avisar -u critical -t 10000 "Capturas de YouTube: falló" "Revisá el detalle en:\n$log"
         fi

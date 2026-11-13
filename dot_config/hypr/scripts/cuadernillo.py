@@ -503,7 +503,7 @@ MODELO = os.environ.get("APUNTES_MODELO", "sonnet")
 
 # Motor de IA: "claude" (por defecto) u "opencode" (suscripción OpenCode Go, p.ej. Kimi K3).
 # Con opencode el modelo se elige con APUNTES_MODELO_OPENCODE (formato proveedor/modelo).
-MOTOR = os.environ.get("APUNTES_MOTOR", "claude")
+MOTOR = os.environ.get("APUNTES_MOTOR", "codex")
 # Lista separada por comas: se usa el primero y, si falla, el siguiente. El límite de OpenCode Go es del
 # PLAN (ventana móvil de ~5 h + semanal + mensual), no de cada modelo: cambiar de modelo Go no lo evita,
 # así que por defecto solo va el más barato (kimi-k3 cuesta ~10x más y agotó la ventana en las pruebas).
@@ -523,11 +523,9 @@ MODELOS_OPENCODE = [m.strip() for m in os.environ.get(
     "opencode-go/gpt-6-luna,opencode-go/minimax-m3.1-flash,opencode-go/deepseek-v4.1-flash,"
     "opencode-go/mimo-v2.5,opencode-go/qwen3.8-flash,opencode-go/glm-5.3-flash,opencode-go/muse-spark-1.3-contributor",
 ).split(",") if m.strip()]
-MODELOS_OPENCODE_GRATIS = list(dict.fromkeys(
-    [m for m in MODELOS_OPENCODE if m.rsplit("/", 1)[-1].endswith("-free")]
-    + ["opencode/big-pickle", "opencode/nemotron-3.5-lightning-free",
-       "opencode/nemotron-3-ultra-free", "opencode/jev-1.13-free"]
-))
+# Respaldo corto: solo endpoints Zen de OpenCode (opencode-go usa otra cuota;
+# varios modelos free de esa familia exigen permisos o se cuelgan desde la CLI).
+MODELOS_OPENCODE_GRATIS = ["opencode/beam-free", "opencode/minimax-m3.1-flash-free"]
 MODELO_OPENCODE = MODELOS_OPENCODE[0] if MODELOS_OPENCODE else ""
 
 
@@ -1132,7 +1130,7 @@ def verificar_salidas(datos):
 
 
 TIMEOUT_OC = int(os.environ.get("APUNTES_TIMEOUT_OC", "150"))  # s por llamada a OpenCode antes de darla por colgada
-TIMEOUT_OC_GRATIS = int(os.environ.get("APUNTES_TIMEOUT_OC_GRATIS", "20"))
+TIMEOUT_OC_GRATIS = int(os.environ.get("APUNTES_TIMEOUT_OC_GRATIS", "12"))
 RONDAS_CADENA = int(os.environ.get("APUNTES_RONDAS", "2"))  # veces que se recorre la cadena antes de rendirse
 PAUSA_CADENA = int(os.environ.get("APUNTES_PAUSA", "45"))  # s entre rondas
 TIMEOUT_CLAUDE = int(os.environ.get("APUNTES_TIMEOUT_CLAUDE", "300"))
@@ -1191,6 +1189,9 @@ def llamar_opencode(prompt, esperar=time.sleep, max_espera=None, modelos=None, t
     modelos_prueba = MODELOS_OPENCODE if modelos is None else modelos
     if not modelos_prueba:
         print("  (OpenCode: no hay modelos configurados para probar)", file=sys.stderr)
+        return None
+    if opencode_enfriando():
+        print("  (OpenCode gratis en pausa: cuota agotada hace menos de 30 min)", file=sys.stderr)
         return None
     try:
         exe = ruta_opencode()
@@ -1259,8 +1260,8 @@ def marcar_opencode_agotado():
 CODEX = os.environ.get("APUNTES_CODEX", "1" if MOTOR in ("codex", "opencode") else "0") != "0"  # Luna directo o respaldo si OpenCode agota cuota
 CODEX_MODELO = os.environ.get("APUNTES_CODEX_MODELO", "gpt-6-luna")
 CODEX_EFFORT = os.environ.get("APUNTES_CODEX_EFFORT", "low")
-TIMEOUT_CODEX = int(os.environ.get("APUNTES_TIMEOUT_CODEX", "120"))
-TIMEOUT_CLAUDE_RESPALDO = int(os.environ.get("APUNTES_TIMEOUT_CLAUDE_RESPALDO", "120"))
+TIMEOUT_CODEX = int(os.environ.get("APUNTES_TIMEOUT_CODEX", "600"))
+TIMEOUT_CLAUDE_RESPALDO = int(os.environ.get("APUNTES_TIMEOUT_CLAUDE_RESPALDO", "60"))
 
 
 def llamar_codex(prompt):
@@ -1326,6 +1327,12 @@ def consultar_ia(prompt, modelo=None):
 
 
 # ----------------------------------------------------------------- armado ----
+def marcar_rehacer(carpeta):
+    """Deja la clase pendiente para que la cola vuelva a intentarla cuando haya cuota."""
+    with open(os.path.join(carpeta, ".rehacer"), "a", encoding="utf-8"):
+        pass
+
+
 def _top_puntos(puntos, k):
     """Se queda con k puntos, en su orden; los que traen cifras, código o un 'no/nunca/siempre' (datos duros) se salvan primero."""
     puntos = list(puntos)
@@ -2013,11 +2020,6 @@ def main():
     editorial.registrar_fuentes(carpeta, a.video, duracion)
 
     datos = None
-    try:
-        ruta_opencode() if MOTOR == "opencode" else ruta_claude()
-    except FileNotFoundError as e:
-        print(f"   (sin IA: {e})")
-        a.sin_ia = True
     if not a.sin_ia:
         print("🔎 Leyendo el código/texto de la pantalla (OCR)…")
         reportar(60, "apuntes", "leyendo el código de la pantalla")
@@ -2053,10 +2055,15 @@ def main():
         # v10: la IA no respondió y esta clase YA tiene apuntes buenos: no se pisan con una versión sin IA (se pierde lo bueno);
         # queda marcada (.rehacer) para el próximo intento y el curso no la cuenta como hecha
         print("   ⚠️ la IA no respondió: se conservan los apuntes que ya tenía (reintenta cuando haya cuota)", file=sys.stderr)
+        marcar_rehacer(carpeta)
         return 3
     reportar(97, "apuntes", "armando el cuadernillo")
     with open(salida, "w", encoding="utf-8") as f:
         f.write(armar(carpeta, titulo, capturas, subs, datos, duracion, recursos_md))
+    if not datos and not a.sin_ia:
+        marcar_rehacer(carpeta)
+        print("   ⚠️ apuntes básicos guardados; queda pendiente reintentar la IA cuando haya cuota", file=sys.stderr)
+        return 3
     if os.path.exists(rehacer) and (datos or a.sin_ia):
         os.remove(rehacer)  # sin IA por un fallo: queda marcada para el próximo intento
     print(f"📓 Listo: {salida}")

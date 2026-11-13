@@ -149,7 +149,7 @@ if [ "${SIN_APUNTES:-0}" != 1 ]; then
     etapa "$APUNTES_DESDE" 100
     poner 0 apuntes ""
     python3 "$SCRIPTS/cuadernillo.py" "$DIR" ${VIDEO:+--video "$VIDEO"} --titulo "$NOMBRE" \
-        $([ "${SIN_IA:-0}" = 1 ] && echo --sin-ia) || echo "(no se pudo armar el cuadernillo)"
+        $([ "${SIN_IA:-0}" = 1 ] && echo --sin-ia) || { echo "(no se pudo armar el cuadernillo)" >&2; exit 2; }
     # v10: ya no hay una segunda llamada a la IA para resumen.md: cuadernillo.py lo arma con la MISMA respuesta (y solo en
     # clases de 20+ min). Esa segunda llamada gastaba cuota de Claude por clase y creaba resúmenes que repetían los apuntes.
     # sin IA a propósito: que rehacer-sin-ia.py no la tome por una clase que falló

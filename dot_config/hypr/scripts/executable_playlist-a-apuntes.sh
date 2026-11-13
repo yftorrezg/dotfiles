@@ -142,5 +142,11 @@ if [ -n "$CORTE" ]; then
     python3 "$SCRIPTS/progreso.py" poner 100 error "$MSG"
     echo "$MSG"; exit 2
 fi
-python3 "$SCRIPTS/progreso.py" poner 100 fin "🎓 $MSG Índice: Apuntes/INDICE.md"
+if [ ${#FALLARON[@]} -gt 0 ]; then
+    PCT_FINAL=$((HECHAS * 100 / TOTAL))
+    python3 "$SCRIPTS/progreso.py" poner "$PCT_FINAL" error "⚠️ $HECHAS/$TOTAL clases listas; ${#FALLARON[@]} requieren reintento. Revisá el log de la playlist."
+else
+    python3 "$SCRIPTS/progreso.py" poner 100 fin "🎓 $MSG Índice: Apuntes/INDICE.md"
+fi
 echo "$MSG"
+[ ${#FALLARON[@]} -eq 0 ] || exit 2

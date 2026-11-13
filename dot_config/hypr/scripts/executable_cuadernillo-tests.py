@@ -80,13 +80,32 @@ for _respuesta, _eventos in _cadenas:
     _validas.append(_respuesta == "respuesta gratuita" and _orden == ["luna", "haiku", "opencode"]
         and _haiku is not None and _gratis is not None and ["--model", "haiku"] == _haiku[1][_haiku[1].index("--model"):_haiku[1].index("--model") + 2]
         and _haiku[1][-2:] == ["--effort", "low"] and _haiku[2].get("max_espera") == 0
-        and _haiku[2].get("timeout") == 120
-        and all(m.rsplit("/", 1)[-1].endswith("-free") or m == "opencode/big-pickle"
-                for m in _gratis[1].get("modelos", []))
-        and {"opencode/big-pickle", "opencode/nemotron-3.5-lightning-free"} <= set(_gratis[1].get("modelos", []))
-        and _gratis[1].get("max_espera") == 0 and _gratis[1].get("timeout") == 20)
+        and _haiku[2].get("timeout") == 60
+        and _gratis[1].get("modelos") == ["opencode/beam-free", "opencode/minimax-m3.1-flash-free"]
+        and _gratis[1].get("max_espera") == 0 and _gratis[1].get("timeout") == 12)
 prueba("fallback Luna → Haiku → OpenCode free en codex y colas antiguas",
        len(_validas) == 2 and all(_validas), str(_cadenas))
+
+# La cola antigua debe descartar OpenCode Go/deprecados, probar solo dos Zen gratis y no repetir
+# durante la ventana donde el marcador compartido indica cuota agotada.
+prueba("OpenCode fallback: solo dos modelos Zen gratuitos permitidos",
+       c.MODELOS_OPENCODE_GRATIS == ["opencode/beam-free", "opencode/minimax-m3.1-flash-free"],
+       str(c.MODELOS_OPENCODE_GRATIS))
+
+_enfriando, _ruta_oc = c.opencode_enfriando, c.ruta_opencode
+try:
+    c.opencode_enfriando = lambda: True
+    c.ruta_opencode = lambda: (_ for _ in ()).throw(AssertionError("intentó conectar pese a la cuota agotada"))
+    _oc_sin_cuota = c.llamar_opencode("prompt", modelos=c.MODELOS_OPENCODE_GRATIS, timeout=12)
+finally:
+    c.opencode_enfriando, c.ruta_opencode = _enfriando, _ruta_oc
+prueba("OpenCode en enfriamiento: salta la llamada y sigue el curso", _oc_sin_cuota is None)
+
+with tempfile.TemporaryDirectory() as _d_rehacer:
+    c.marcar_rehacer(_d_rehacer)
+    _rehacer_creado = os.path.isfile(os.path.join(_d_rehacer, ".rehacer"))
+prueba("fallo de IA: queda marcado para reintentar aunque se conserven los apuntes",
+       _rehacer_creado)
 
 
 # 1) Subtítulos automáticos de YouTube ("rodando": cada línea sale dos veces)

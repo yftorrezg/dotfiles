@@ -9,7 +9,7 @@ RAIZ=$(realpath "${1:?Uso: $0 <carpeta raíz>}")
 MODELO="$HOME/.local/share/doblar/whisper/ggml-large-v3-turbo-q8_0.bin"
 VAD="$HOME/.local/share/doblar/whisper/ggml-silero-v5.1.2.bin"
 TMP=$(mktemp -d "${XDG_RUNTIME_DIR:-/tmp}/whisper.XXXXXX"); trap 'rm -rf "$TMP"' EXIT
-export APUNTES_MOTOR=opencode   # modelos: la cadena por defecto de cuadernillo.py (APUNTES_MODELO_OPENCODE="a,b,c" para cambiarla)
+export APUNTES_MOTOR=opencode APUNTES_CODEX=1 APUNTES_CODEX_MODELO=gpt-6-luna APUNTES_CODEX_EFFORT=low APUNTES_RESPALDO=haiku APUNTES_RESPALDO_EFFORT=low
 
 exec 9>"${XDG_RUNTIME_DIR:-/tmp}/transcribir.lock"
 flock -n 9 || { echo "Ya hay una transcripción en marcha"; exit 1; }

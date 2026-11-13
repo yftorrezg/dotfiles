@@ -162,9 +162,17 @@ for i in "${!VIDEOS[@]}"; do
     else
         FALLARON+=("$NOM")
         notify-send -u critical -t 8000 "Apuntes: falló una clase" "$CLASE"
+        break  # No recorrer el curso entero si la IA o la clase falló.
     fi
 done
 
+if [ ${#FALLARON[@]} -gt 0 ]; then
+    unset PROGRESO_CURSO
+    export PROGRESO_RANGO="0 100" PROGRESO_CLASE=""
+    python3 "$SCRIPTS/progreso.py" poner "$((HECHAS * 100 / TOTAL))" error "⚠️ $HECHAS/$TOTAL clases listas; pendiente: ${FALLARON[0]}"
+    echo "Curso pendiente: ${FALLARON[0]}"
+    exit 2
+fi
 python3 "$SCRIPTS/cuadernillo.py" --indice "$AP"
 panel
 # código y PDF que entrega el curso → imágenes en orden de clase + codigo-del-curso.md
@@ -181,5 +189,10 @@ MSG="$HECHAS de $TOTAL clases con apuntes."
 [ ${#FALLARON[@]} -gt 0 ] && MSG="$MSG Fallaron: ${FALLARON[*]}"
 unset PROGRESO_CURSO
 export PROGRESO_RANGO="0 100" PROGRESO_CLASE=""
-python3 "$SCRIPTS/progreso.py" poner 100 fin "🎓 $MSG Índice: Apuntes/INDICE.md"
+if [ ${#FALLARON[@]} -gt 0 ]; then
+    PCT_FINAL=$((HECHAS * 100 / TOTAL))
+    python3 "$SCRIPTS/progreso.py" poner "$PCT_FINAL" error "⚠️ $HECHAS/$TOTAL clases listas; ${#FALLARON[@]} requieren reintento. Revisá el log del curso."
+else
+    python3 "$SCRIPTS/progreso.py" poner 100 fin "🎓 $MSG Índice: Apuntes/INDICE.md"
+fi
 echo "$MSG"
