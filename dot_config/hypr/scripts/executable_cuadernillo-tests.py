@@ -31,6 +31,19 @@ def prueba(nombre, ok, detalle=""):
     res.append(ok)
 
 
+# Sin respuesta del proveedor no se repite la cadena completa hasta tres veces.
+_es_ligera, _consultar_ia = c.es_ligera, c.consultar_ia
+_llamadas_ia = []
+c.es_ligera = lambda *_args, **_kwargs: True
+c.consultar_ia = lambda *_args, **_kwargs: (_llamadas_ia.append(1), None)[1]
+try:
+    c.pedir_a_claude("Clase", 60, [], [])
+finally:
+    c.es_ligera, c.consultar_ia = _es_ligera, _consultar_ia
+prueba("proveedor sin respuesta: no repetir tres veces la cadena", len(_llamadas_ia) == 1,
+       f"{len(_llamadas_ia)} llamadas")
+
+
 # 1) Subtítulos automáticos de YouTube ("rodando": cada línea sale dos veces)
 yt = ("1\n00:00:01,000 --> 00:00:03,000\nhola a todos\n\n"
       "2\n00:00:03,000 --> 00:00:05,000\nhola a todos\nhoy vamos a ver\n\n"
@@ -460,5 +473,6 @@ _dl = {"secciones": [{"titulo": "a", "diagrama": "x"}, {"titulo": "b"}], "practi
 c.aplicar_ligera(_dl)
 prueba("v6: ligera deja 1 sección, sin práctica/diagrama/pretest", len(_dl["secciones"]) == 1 and _dl["practica"] == []
        and not _dl["secciones"][0]["diagrama"] and "pretest" not in _dl["corto"])
+
 print("\nTODO OK" if all(res) else "\nHAY PRUEBAS QUE FALLAN")
 raise SystemExit(0 if all(res) else 1)

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Arma el cuadernillo de apuntes de una clase: capturas importantes + lo que dijo el profe
-+ resumen por temas hecho con IA (Claude por defecto; OpenCode con APUNTES_MOTOR=opencode).
++ resumen por temas hecho con IA (Claude por defecto; OpenCode o Codex con APUNTES_MOTOR).
 
     cuadernillo.py <carpeta_de_capturas> [--video clase.mp4] [--titulo T] [--sin-ia] [--forzar]
     cuadernillo.py --indice <carpeta capturas/ del curso>     # arma INDICE.md de todas las clases
@@ -527,7 +527,7 @@ MODELO_OPENCODE = MODELOS_OPENCODE[0] if MODELOS_OPENCODE else ""
 
 
 def nombre_motor():
-    """Etiqueta para los mensajes: "Claude (sonnet)" u "OpenCode (opencode-go/kimi-k3)"."""
+    """Etiqueta del motor y modelo configurados para generar los apuntes."""
     if MOTOR == "codex":
         return f"Codex ({CODEX_MODELO}, {CODEX_EFFORT})"
     if MOTOR == "opencode":
@@ -604,7 +604,12 @@ def pedir_a_claude(titulo, duracion, cues, pantallas, codigo=""):
     prompt += REGLA_LIGERA if lig else ""
     pobre = None
     for intento in range(3):  # v8: 3 intentos (una respuesta inválida suelta no debe dejar la clase sin IA)
-        texto = consultar_ia(prompt) or ""  # v9c: sin respuesta de la IA → reintento, no un AttributeError
+        texto = consultar_ia(prompt)
+        if not texto:
+            # consultar_ia ya recorrió el motor y sus respaldos; repetir solo llamaría la misma cadena
+            # (incluidos los timeouts de OpenCode) dos veces más sin posibilidad de mejorar el resultado.
+            print(f"  (sin respuesta de {nombre_motor()}; no repito la cadena de proveedores)", file=sys.stderr)
+            break
         try:
             datos = json.loads(texto[texto.index("{"):texto.rindex("}") + 1])
             if isinstance(datos, dict) and not datos.get("secciones") and datos.get("resumen"):
@@ -633,7 +638,7 @@ def pedir_a_claude(titulo, duracion, cues, pantallas, codigo=""):
                 return datos
         except (ValueError, TypeError, json.JSONDecodeError):
             pass
-        print(f"  (respuesta de Claude inválida, intento {intento + 1})", file=sys.stderr)
+        print(f"  (respuesta de {nombre_motor()} inválida, intento {intento + 1})", file=sys.stderr)
     return pobre
 
 
@@ -1274,7 +1279,7 @@ def llamar_codex(prompt):
 
 
 def consultar_ia(prompt, modelo=None):
-    """Texto de la respuesta del motor configurado (APUNTES_MOTOR=claude|opencode), o None.
+    """Texto de la respuesta del motor configurado (APUNTES_MOTOR=claude|opencode|codex), o None.
     Con claude espera a que se renueve la cuota; el modelo es APUNTES_MODELO salvo que se
     indique otro (practica.py usa PRACTICA_MODELO). Con opencode se usa APUNTES_MODELO_OPENCODE."""
     if MOTOR == "codex":
