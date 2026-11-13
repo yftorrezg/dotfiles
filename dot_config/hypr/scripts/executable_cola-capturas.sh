@@ -26,7 +26,7 @@ export DIR_COLA   # curso-a-apuntes.sh lo usa para tener un candado por cola
 COLA="$DIR_COLA/cola.txt"
 ACTUAL="$DIR_COLA/actual.txt"
 PAUSADOS="$DIR_COLA/pausados.txt"   # una clave por línea: el trabajador las saltea sin sacarlas de la cola
-OPCIONES="SIN_IA SIN_APUNTES MAX_VIDEOS APUNTES_MOTOR APUNTES_MODELO_OPENCODE"   # variables que viajan con cada pedido
+OPCIONES="SIN_IA SIN_APUNTES MAX_VIDEOS APUNTES_MOTOR APUNTES_MODELO_OPENCODE APUNTES_CODEX_MODELO APUNTES_CODEX_EFFORT"   # variables que viajan con cada pedido
 mkdir -p "$DIR_COLA"
 touch "$COLA" "$ACTUAL" "$PAUSADOS"
 

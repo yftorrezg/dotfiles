@@ -528,6 +528,8 @@ MODELO_OPENCODE = MODELOS_OPENCODE[0] if MODELOS_OPENCODE else ""
 
 def nombre_motor():
     """Etiqueta para los mensajes: "Claude (sonnet)" u "OpenCode (opencode-go/kimi-k3)"."""
+    if MOTOR == "codex":
+        return f"Codex ({CODEX_MODELO}, {CODEX_EFFORT})"
     if MOTOR == "opencode":
         if RESPALDO:
             return f"OpenCode ({MODELO_OPENCODE or 'modelo de la cuenta'}) → Claude {RESPALDO} si falla"
@@ -1237,8 +1239,9 @@ def marcar_opencode_agotado():
         pass
 
 
-CODEX = os.environ.get("APUNTES_CODEX", "0") != "0"  # 08/11/2026: apagado por defecto (cuota semanal casi agotada); APUNTES_CODEX=1 lo vuelve a encender
-CODEX_MODELO = os.environ.get("APUNTES_CODEX_MODELO", "")  # "" = el de la cuenta
+CODEX = os.environ.get("APUNTES_CODEX", "1" if MOTOR == "codex" else "0") != "0"  # motor principal si APUNTES_MOTOR=codex; respaldo opcional en otros modos
+CODEX_MODELO = os.environ.get("APUNTES_CODEX_MODELO", "gpt-6-luna")
+CODEX_EFFORT = os.environ.get("APUNTES_CODEX_EFFORT", "none")  # Luna admite none: mínimo consumo de razonamiento
 TIMEOUT_CODEX = int(os.environ.get("APUNTES_TIMEOUT_CODEX", "300"))
 
 
@@ -1251,7 +1254,10 @@ def llamar_codex(prompt):
     with tempfile.TemporaryDirectory(prefix="codex-apuntes-") as tmp:
         salida = os.path.join(tmp, "respuesta.txt")
         cmd = [exe, "exec", "--skip-git-repo-check", "--sandbox", "read-only", "--ephemeral", "-C", tmp,
-               "-o", salida] + (["-m", CODEX_MODELO] if CODEX_MODELO else []) + ["-"]
+               "-o", salida] + (["-m", CODEX_MODELO] if CODEX_MODELO else [])
+        if CODEX_EFFORT:
+            cmd += ["-c", f'model_reasoning_effort="{CODEX_EFFORT}"']
+        cmd += ["-"]
         try:
             r = subprocess.run(cmd, input=SISTEMA + "\n\n" + prompt, capture_output=True, text=True, timeout=TIMEOUT_CODEX)
         except (OSError, subprocess.TimeoutExpired):
@@ -1271,6 +1277,8 @@ def consultar_ia(prompt, modelo=None):
     """Texto de la respuesta del motor configurado (APUNTES_MOTOR=claude|opencode), o None.
     Con claude espera a que se renueve la cuota; el modelo es APUNTES_MODELO salvo que se
     indique otro (practica.py usa PRACTICA_MODELO). Con opencode se usa APUNTES_MODELO_OPENCODE."""
+    if MOTOR == "codex":
+        return llamar_codex(prompt)  # una llamada directa, sin reintentos ni otros proveedores
     if MOTOR == "opencode":
         # Cadena (v10): 1) modelos de OpenCode Go en orden (haiku-5-5 primero), 2) Claude RESPALDO si OpenCode falla o se agotó
         # (usa TU plan de Claude; APUNTES_RESPALDO= lo desactiva); antes iba al revés. Detalle anterior: modelos de
