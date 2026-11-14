@@ -12,26 +12,26 @@ ThumbnailSplitterSizes=764,220
 MenuBar=Disabled
 
 [Recent Files]
-File1[$e]=$HOME/Proyectos/yafer/media/crudo/celulares/20260904_144012.heic
-File10[$e]=$HOME/Proyectos/yafer/media/crudo/celulares/20260904_005638.mp4
-File2[$e]=$HOME/Proyectos/yafer/media/crudo/celulares/20260904_144530.heic
-File3[$e]=$HOME/Proyectos/yafer/media/crudo/celulares/20260904_175720.heic
-File4[$e]=$HOME/Proyectos/yafer/media/crudo/celulares/20260904_144001.heic
-File5[$e]=$HOME/Proyectos/yafer/media/crudo/celulares/20260904_003301.heic
-File6[$e]=$HOME/Proyectos/yafer/media/crudo/celulares/20260903_210703.heic
-File7[$e]=$HOME/Proyectos/yafer/media/crudo/celulares/20260904_003239.heic
-File8[$e]=$HOME/Proyectos/yafer/media/crudo/celulares/20260904_003257.heic
-File9[$e]=$HOME/Proyectos/yafer/media/crudo/celulares/20260904_005617.heic
-Name1[$e]=20260904_144012.heic
-Name10[$e]=20260904_005638.mp4
-Name2[$e]=20260904_144530.heic
-Name3[$e]=20260904_175720.heic
-Name4[$e]=20260904_144001.heic
-Name5[$e]=20260904_003301.heic
-Name6[$e]=20260903_210703.heic
-Name7[$e]=20260904_003239.heic
-Name8[$e]=20260904_003257.heic
-Name9[$e]=20260904_005617.heic
+File1[$e]=$HOME/Proyectos/yafer/media/crudo/estudio/a898ba60abd125e736fdbb3617e82e4f (1).webp
+File10[$e]=$HOME/Proyectos/yafer/media/seleccion/util/a898ba60abd125e736fdbb3617e82e4f (1).webp
+File2[$e]=$HOME/Proyectos/yafer/media/crudo/estudio/20260808_164200.heic
+File3[$e]=$HOME/Proyectos/yafer/media/crudo/estudio/20260808_164238.heic
+File4[$e]=$HOME/Proyectos/yafer/media/seleccion/util/a898ba60abd125e736fdbb3617e82e4f.webp
+File5[$e]=$HOME/Proyectos/yafer/media/seleccion/util/b7ab4b5d11418121434f186b977559f2.webp
+File6[$e]=$HOME/Proyectos/yafer/media/seleccion/util/cd59e67296e2e5d5004dd3c8f326dd99.webp
+File7[$e]=$HOME/Proyectos/yafer/media/seleccion/util/7c103ce4efc50ca5abcb5c62f10421c7.webp
+File8[$e]=$HOME/Proyectos/yafer/media/seleccion/util/88f70ec0b300f656006c7542b977613e.webp
+File9[$e]=$HOME/Proyectos/yafer/media/seleccion/util/25215a24b9a39399b43182057e7c72cf.webp
+Name1[$e]=a898ba60abd125e736fdbb3617e82e4f (1).webp
+Name10[$e]=a898ba60abd125e736fdbb3617e82e4f (1).webp
+Name2[$e]=20260808_164200.heic
+Name3[$e]=20260808_164238.heic
+Name4[$e]=a898ba60abd125e736fdbb3617e82e4f.webp
+Name5[$e]=b7ab4b5d11418121434f186b977559f2.webp
+Name6[$e]=cd59e67296e2e5d5004dd3c8f326dd99.webp
+Name7[$e]=7c103ce4efc50ca5abcb5c62f10421c7.webp
+Name8[$e]=88f70ec0b300f656006c7542b977613e.webp
+Name9[$e]=25215a24b9a39399b43182057e7c72cf.webp
 
 [SideBar]
 InformationSplitterSizes=219,256
