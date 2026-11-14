@@ -12,26 +12,26 @@ ThumbnailSplitterSizes=764,220
 MenuBar=Disabled
 
 [Recent Files]
-File1[$e]=/mnt/dahua/paola_v/IMG_20231130_145139.jpg
-File10[$e]=/mnt/nuevo-vol/s24/alema/42.png
-File2[$e]=/mnt/dahua/paola_v/captura_20261012_015915.png
-File3[$e]=/mnt/dahua/paola_v/IMG-20231023-WA0129.jpg
-File4[$e]=/mnt/nuevo-vol/s24/alema/26.png
-File5[$e]=/mnt/nuevo-vol/s24/alema/33.png
-File6[$e]=/mnt/nuevo-vol/s24/alema/38.png
-File7[$e]=/mnt/nuevo-vol/s24/alema/39.png
-File8[$e]=/mnt/nuevo-vol/s24/alema/40.png
-File9[$e]=/mnt/nuevo-vol/s24/alema/41.png
-Name1[$e]=IMG_20231130_145139.jpg
-Name10[$e]=42.png
-Name2[$e]=captura_20261012_015915.png
-Name3[$e]=IMG-20231023-WA0129.jpg
-Name4[$e]=26.png
-Name5[$e]=33.png
-Name6[$e]=38.png
-Name7[$e]=39.png
-Name8[$e]=40.png
-Name9[$e]=41.png
+File1[$e]=$HOME/Proyectos/yafer/media/seleccion/disipador.jpg
+File10[$e]=$HOME/Proyectos/yafer/media/seleccion/macbook.jpg
+File2[$e]=$HOME/Proyectos/yafer/media/seleccion/cpu-mano.jpg
+File3[$e]=$HOME/Proyectos/yafer/media/seleccion/cel-prueba-pantalla.jpg
+File4[$e]=$HOME/Proyectos/yafer/media/seleccion/cel-multimetro.jpg
+File5[$e]=$HOME/Proyectos/yafer/media/seleccion/cel-abierto.jpg
+File6[$e]=$HOME/Proyectos/yafer/media/seleccion/vrm.jpg
+File7[$e]=$HOME/Proyectos/yafer/media/seleccion/ram.jpg
+File8[$e]=$HOME/Proyectos/yafer/media/seleccion/placa-madre.jpg
+File9[$e]=$HOME/Proyectos/yafer/media/seleccion/pasta-termica.jpg
+Name1[$e]=disipador.jpg
+Name10[$e]=macbook.jpg
+Name2[$e]=cpu-mano.jpg
+Name3[$e]=cel-prueba-pantalla.jpg
+Name4[$e]=cel-multimetro.jpg
+Name5[$e]=cel-abierto.jpg
+Name6[$e]=vrm.jpg
+Name7[$e]=ram.jpg
+Name8[$e]=placa-madre.jpg
+Name9[$e]=pasta-termica.jpg
 
 [SideBar]
 InformationSplitterSizes=219,256
