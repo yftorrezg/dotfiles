@@ -12,26 +12,26 @@ ThumbnailSplitterSizes=764,220
 MenuBar=Disabled
 
 [Recent Files]
-File1[$e]=$HOME/Proyectos/yafer/media/seleccion/disipador.jpg
-File10[$e]=$HOME/Proyectos/yafer/media/seleccion/macbook.jpg
-File2[$e]=$HOME/Proyectos/yafer/media/seleccion/cpu-mano.jpg
-File3[$e]=$HOME/Proyectos/yafer/media/seleccion/cel-prueba-pantalla.jpg
-File4[$e]=$HOME/Proyectos/yafer/media/seleccion/cel-multimetro.jpg
-File5[$e]=$HOME/Proyectos/yafer/media/seleccion/cel-abierto.jpg
-File6[$e]=$HOME/Proyectos/yafer/media/seleccion/vrm.jpg
-File7[$e]=$HOME/Proyectos/yafer/media/seleccion/ram.jpg
-File8[$e]=$HOME/Proyectos/yafer/media/seleccion/placa-madre.jpg
-File9[$e]=$HOME/Proyectos/yafer/media/seleccion/pasta-termica.jpg
-Name1[$e]=disipador.jpg
-Name10[$e]=macbook.jpg
-Name2[$e]=cpu-mano.jpg
-Name3[$e]=cel-prueba-pantalla.jpg
-Name4[$e]=cel-multimetro.jpg
-Name5[$e]=cel-abierto.jpg
-Name6[$e]=vrm.jpg
-Name7[$e]=ram.jpg
-Name8[$e]=placa-madre.jpg
-Name9[$e]=pasta-termica.jpg
+File1[$e]=$HOME/Proyectos/yafer/media/crudo/celulares/20260904_144012.heic
+File10[$e]=$HOME/Proyectos/yafer/media/crudo/celulares/20260904_005638.mp4
+File2[$e]=$HOME/Proyectos/yafer/media/crudo/celulares/20260904_144530.heic
+File3[$e]=$HOME/Proyectos/yafer/media/crudo/celulares/20260904_175720.heic
+File4[$e]=$HOME/Proyectos/yafer/media/crudo/celulares/20260904_144001.heic
+File5[$e]=$HOME/Proyectos/yafer/media/crudo/celulares/20260904_003301.heic
+File6[$e]=$HOME/Proyectos/yafer/media/crudo/celulares/20260903_210703.heic
+File7[$e]=$HOME/Proyectos/yafer/media/crudo/celulares/20260904_003239.heic
+File8[$e]=$HOME/Proyectos/yafer/media/crudo/celulares/20260904_003257.heic
+File9[$e]=$HOME/Proyectos/yafer/media/crudo/celulares/20260904_005617.heic
+Name1[$e]=20260904_144012.heic
+Name10[$e]=20260904_005638.mp4
+Name2[$e]=20260904_144530.heic
+Name3[$e]=20260904_175720.heic
+Name4[$e]=20260904_144001.heic
+Name5[$e]=20260904_003301.heic
+Name6[$e]=20260903_210703.heic
+Name7[$e]=20260904_003239.heic
+Name8[$e]=20260904_003257.heic
+Name9[$e]=20260904_005617.heic
 
 [SideBar]
 InformationSplitterSizes=219,256
