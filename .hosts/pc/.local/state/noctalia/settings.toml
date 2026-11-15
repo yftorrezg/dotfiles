@@ -24,11 +24,11 @@ widget_order = [
     [desktop_widgets.widget.desktop-widget-00000000000000a1]
     box_height = 120.0
     box_width = 340.0
-    cx = 850.0
-    cy = 75.0
+    cx = 2040.000244140625
+    cy = 180.0
     output = "DP-3"
-    placement_height = 540.0
-    placement_width = 960.0
+    placement_height = 1296.0
+    placement_width = 2304.0
     rotation = 0.0
     type = "clock"
 
@@ -39,11 +39,11 @@ widget_order = [
     [desktop_widgets.widget.desktop-widget-00000000000000a2]
     box_height = 110.0
     box_width = 340.0
-    cx = 850.0
-    cy = 150.0
+    cx = 2040.000244140625
+    cy = 360.0
     output = "DP-3"
-    placement_height = 540.0
-    placement_width = 960.0
+    placement_height = 1296.0
+    placement_width = 2304.0
     rotation = 0.0
     type = "weather"
 
@@ -53,11 +53,11 @@ widget_order = [
     [desktop_widgets.widget.desktop-widget-00000000000000a3]
     box_height = 340.0
     box_width = 340.0
-    cx = 850.0
-    cy = 280.0
+    cx = 2040.000244140625
+    cy = 672.0
     output = "DP-3"
-    placement_height = 540.0
-    placement_width = 960.0
+    placement_height = 1296.0
+    placement_width = 2304.0
     rotation = 0.0
     type = "calendar"
 
@@ -67,11 +67,11 @@ widget_order = [
     [desktop_widgets.widget.desktop-widget-00000000000000a4]
     box_height = 110.0
     box_width = 165.0
-    cx = 806.25
-    cy = 407.5
+    cx = 1935.000244140625
+    cy = 978.0001220703125
     output = "DP-3"
-    placement_height = 540.0
-    placement_width = 960.0
+    placement_height = 1296.0
+    placement_width = 2304.0
     rotation = 0.0
     type = "sysmon"
 
@@ -82,11 +82,11 @@ widget_order = [
     [desktop_widgets.widget.desktop-widget-00000000000000a5]
     box_height = 110.0
     box_width = 165.0
-    cx = 893.75
-    cy = 407.5
+    cx = 2145.0
+    cy = 978.0001220703125
     output = "DP-3"
-    placement_height = 540.0
-    placement_width = 960.0
+    placement_height = 1296.0
+    placement_width = 2304.0
     rotation = 0.0
     type = "sysmon"
 
@@ -97,11 +97,11 @@ widget_order = [
     [desktop_widgets.widget.desktop-widget-00000000000000b1]
     box_height = 180.0
     box_width = 560.0
-    cx = 540.0
-    cy = 1540.0
+    cx = 648.0
+    cy = 1848.000244140625
     output = "HDMI-A-1"
-    placement_height = 1920.0
-    placement_width = 1080.0
+    placement_height = 2304.0
+    placement_width = 1296.0
     rotation = 0.0
     type = "clock"
 
@@ -111,11 +111,11 @@ widget_order = [
     [desktop_widgets.widget.desktop-widget-00000000000000b2]
     box_height = 170.0
     box_width = 560.0
-    cx = 540.0
-    cy = 1745.0
+    cx = 648.0
+    cy = 2094.0
     output = "HDMI-A-1"
-    placement_height = 1920.0
-    placement_width = 1080.0
+    placement_height = 2304.0
+    placement_width = 1296.0
     rotation = 0.0
     type = "weather"
 
@@ -177,11 +177,11 @@ widget_order = [
     [lockscreen_widgets.widget."lockscreen-login-box@DP-2"]
     box_height = 196.0
     box_width = 810.0
-    cx = 480.0
-    cy = 449.0
+    cx = 960.00006103515625
+    cy = 898.00006103515625
     output = "DP-2"
-    placement_height = 540.0
-    placement_width = 960.0
+    placement_height = 1080.0
+    placement_width = 1920.0
     rotation = 0.0
     type = "login_box"
 
@@ -206,11 +206,11 @@ widget_order = [
     [lockscreen_widgets.widget."lockscreen-login-box@DP-3"]
     box_height = 196.0
     box_width = 810.0
-    cx = 480.0
-    cy = 358.0
+    cx = 1152.0
+    cy = 859.20001220703125
     output = "DP-3"
-    placement_height = 540.0
-    placement_width = 960.0
+    placement_height = 1296.0
+    placement_width = 2304.0
     rotation = 0.0
     type = "login_box"
 
@@ -264,11 +264,11 @@ widget_order = [
     [lockscreen_widgets.widget."lockscreen-login-box@HDMI-A-1"]
     box_height = 196.0
     box_width = 810.0
-    cx = 540.0
-    cy = 1596.4444580078125
+    cx = 648.0
+    cy = 1915.7333984375
     output = "HDMI-A-1"
-    placement_height = 1920.0
-    placement_width = 1080.0
+    placement_height = 2304.0
+    placement_width = 1296.0
     rotation = 0.0
     type = "login_box"
 
@@ -313,11 +313,14 @@ wallpaper_scheme = "m3-tonal-spot"
 path = "/usr/share/noctalia/assets/noctalia-wallpaper.png"
 
 [wallpaper.last]
-path = "/home/yafer/Imágenes/Wallpapers/HD/vertical/wallhaven-yqvpmk.png"
+path = "/home/yafer/Imágenes/Wallpapers/Oscuros/cyberpunk-sakura.jpg"
+
+[wallpaper.monitors.DP-2]
+path = "/home/yafer/Imágenes/Wallpapers/Oscuros/cyberpunk-sakura.jpg"
 
 [wallpaper.monitors.DP-3]
-path = "/home/yafer/Imágenes/Wallpapers/Oscuros/anime-cielo-estrellas.png"
+path = "/home/yafer/Imágenes/Wallpapers/Oscuros/cyberpunk-sakura.jpg"
 
 [wallpaper.monitors.HDMI-A-1]
 fill_mode = "fit"
-path = "/home/yafer/Imágenes/Wallpapers/HD/vertical/wallhaven-yqvpmk.png"
+path = "/home/yafer/Imágenes/Wallpapers/Oscuros/vertical/ciudad-futurista.jpg"

@@ -59,8 +59,9 @@ local specs, order = parse_nwg_monitors(nwg_path)
 
 if specs then
     for _, name in ipairs(order) do
-        -- DisplayPort: usar el nombre real detectado (MONITOR1) aunque el conector cambie
-        if name:match("^DP%-%d+$") then specs[name].output = MONITOR1 end
+        -- Usar el nombre real que escribió nwg-displays (DP-3, DP-2...).
+        -- Antes se forzaba todo DP-N a MONITOR1: las dos pantallas DP pisaban
+        -- la misma salida y la de 15" nunca se aplicaba sobre la de 27".
         hl.monitor(specs[name])
     end
 else
