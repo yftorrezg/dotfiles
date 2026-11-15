@@ -24,11 +24,11 @@ widget_order = [
     [desktop_widgets.widget.desktop-widget-00000000000000a1]
     box_height = 120.0
     box_width = 340.0
-    cx = 1700.0
-    cy = 150.0
+    cx = 850.0
+    cy = 75.0
     output = "DP-3"
-    placement_height = 1080.0
-    placement_width = 1920.0
+    placement_height = 540.0
+    placement_width = 960.0
     rotation = 0.0
     type = "clock"
 
@@ -39,11 +39,11 @@ widget_order = [
     [desktop_widgets.widget.desktop-widget-00000000000000a2]
     box_height = 110.0
     box_width = 340.0
-    cx = 1700.0
-    cy = 300.0
+    cx = 850.0
+    cy = 150.0
     output = "DP-3"
-    placement_height = 1080.0
-    placement_width = 1920.0
+    placement_height = 540.0
+    placement_width = 960.0
     rotation = 0.0
     type = "weather"
 
@@ -53,11 +53,11 @@ widget_order = [
     [desktop_widgets.widget.desktop-widget-00000000000000a3]
     box_height = 340.0
     box_width = 340.0
-    cx = 1700.0
-    cy = 560.0
+    cx = 850.0
+    cy = 280.0
     output = "DP-3"
-    placement_height = 1080.0
-    placement_width = 1920.0
+    placement_height = 540.0
+    placement_width = 960.0
     rotation = 0.0
     type = "calendar"
 
@@ -67,11 +67,11 @@ widget_order = [
     [desktop_widgets.widget.desktop-widget-00000000000000a4]
     box_height = 110.0
     box_width = 165.0
-    cx = 1612.5
-    cy = 815.0
+    cx = 806.25
+    cy = 407.5
     output = "DP-3"
-    placement_height = 1080.0
-    placement_width = 1920.0
+    placement_height = 540.0
+    placement_width = 960.0
     rotation = 0.0
     type = "sysmon"
 
@@ -82,11 +82,11 @@ widget_order = [
     [desktop_widgets.widget.desktop-widget-00000000000000a5]
     box_height = 110.0
     box_width = 165.0
-    cx = 1787.5
-    cy = 815.0
+    cx = 893.75
+    cy = 407.5
     output = "DP-3"
-    placement_height = 1080.0
-    placement_width = 1920.0
+    placement_height = 540.0
+    placement_width = 960.0
     rotation = 0.0
     type = "sysmon"
 
@@ -177,11 +177,11 @@ widget_order = [
     [lockscreen_widgets.widget."lockscreen-login-box@DP-2"]
     box_height = 196.0
     box_width = 810.0
-    cx = 960.0
-    cy = 898.0
+    cx = 480.0
+    cy = 449.0
     output = "DP-2"
-    placement_height = 1080.0
-    placement_width = 1920.0
+    placement_height = 540.0
+    placement_width = 960.0
     rotation = 0.0
     type = "login_box"
 
@@ -197,6 +197,8 @@ widget_order = [
         show_keyboard_layout = true
         show_login_button = true
         show_media = true
+        show_media_controls = true
+        show_password_reveal = true
         show_session_buttons = true
         show_unlock_hint = true
         show_weather = true
@@ -204,11 +206,11 @@ widget_order = [
     [lockscreen_widgets.widget."lockscreen-login-box@DP-3"]
     box_height = 196.0
     box_width = 810.0
-    cx = 960.0
-    cy = 716.0
+    cx = 480.0
+    cy = 358.0
     output = "DP-3"
-    placement_height = 1080.0
-    placement_width = 1920.0
+    placement_height = 540.0
+    placement_width = 960.0
     rotation = 0.0
     type = "login_box"
 
@@ -224,6 +226,8 @@ widget_order = [
         show_keyboard_layout = true
         show_login_button = true
         show_media = true
+        show_media_controls = true
+        show_password_reveal = true
         show_session_buttons = true
         show_unlock_hint = true
         show_weather = true
@@ -251,6 +255,8 @@ widget_order = [
         show_keyboard_layout = true
         show_login_button = true
         show_media = true
+        show_media_controls = true
+        show_password_reveal = true
         show_session_buttons = true
         show_unlock_hint = true
         show_weather = true
@@ -278,6 +284,8 @@ widget_order = [
         show_keyboard_layout = true
         show_login_button = true
         show_media = true
+        show_media_controls = true
+        show_password_reveal = true
         show_session_buttons = true
         show_unlock_hint = true
         show_weather = true
@@ -305,11 +313,11 @@ wallpaper_scheme = "m3-tonal-spot"
 path = "/usr/share/noctalia/assets/noctalia-wallpaper.png"
 
 [wallpaper.last]
-path = "/home/yafer/Imágenes/Wallpapers/Oscuros/vertical/luffy-oscuro-vertical.png"
+path = "/home/yafer/Imágenes/Wallpapers/HD/vertical/wallhaven-yqvpmk.png"
 
 [wallpaper.monitors.DP-3]
-path = "/home/yafer/Imágenes/Wallpapers/Oscuros/luffy-gear5-luna.png"
+path = "/home/yafer/Imágenes/Wallpapers/Oscuros/anime-cielo-estrellas.png"
 
 [wallpaper.monitors.HDMI-A-1]
 fill_mode = "fit"
-path = "/home/yafer/Imágenes/Wallpapers/Oscuros/vertical/luffy-oscuro-vertical.png"
+path = "/home/yafer/Imágenes/Wallpapers/HD/vertical/wallhaven-yqvpmk.png"
