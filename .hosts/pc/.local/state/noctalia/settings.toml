@@ -24,8 +24,8 @@ widget_order = [
     [desktop_widgets.widget.desktop-widget-00000000000000a1]
     box_height = 120.0
     box_width = 340.0
-    cx = 1700.0001220703125
-    cy = 150.0
+    cx = 2040.0001220703125
+    cy = 180.0
     output = "DP-3"
     placement_height = 1080.0
     placement_width = 1920.0
@@ -39,8 +39,8 @@ widget_order = [
     [desktop_widgets.widget.desktop-widget-00000000000000a2]
     box_height = 110.0
     box_width = 340.0
-    cx = 1700.0001220703125
-    cy = 300.0
+    cx = 2040.0001220703125
+    cy = 360.0
     output = "DP-3"
     placement_height = 1080.0
     placement_width = 1920.0
@@ -53,8 +53,8 @@ widget_order = [
     [desktop_widgets.widget.desktop-widget-00000000000000a3]
     box_height = 340.0
     box_width = 340.0
-    cx = 1700.0001220703125
-    cy = 560.0
+    cx = 2040.0001220703125
+    cy = 672.0
     output = "DP-3"
     placement_height = 1080.0
     placement_width = 1920.0
@@ -67,8 +67,8 @@ widget_order = [
     [desktop_widgets.widget.desktop-widget-00000000000000a4]
     box_height = 110.0
     box_width = 165.0
-    cx = 1612.5001220703125
-    cy = 815.00006103515625
+    cx = 1935.0001220703125
+    cy = 978.00006103515625
     output = "DP-3"
     placement_height = 1080.0
     placement_width = 1920.0
@@ -82,8 +82,8 @@ widget_order = [
     [desktop_widgets.widget.desktop-widget-00000000000000a5]
     box_height = 110.0
     box_width = 165.0
-    cx = 1787.5
-    cy = 815.00006103515625
+    cx = 2145.0
+    cy = 978.00006103515625
     output = "DP-3"
     placement_height = 1080.0
     placement_width = 1920.0
@@ -97,8 +97,8 @@ widget_order = [
     [desktop_widgets.widget.desktop-widget-00000000000000b1]
     box_height = 180.0
     box_width = 560.0
-    cx = 540.0
-    cy = 1540.0001220703125
+    cx = 648.0
+    cy = 1848.0001220703125
     output = "HDMI-A-1"
     placement_height = 1920.0
     placement_width = 1080.0
@@ -111,8 +111,8 @@ widget_order = [
     [desktop_widgets.widget.desktop-widget-00000000000000b2]
     box_height = 170.0
     box_width = 560.0
-    cx = 540.0
-    cy = 1745.0
+    cx = 648.0
+    cy = 2094.0
     output = "HDMI-A-1"
     placement_height = 1920.0
     placement_width = 1080.0
