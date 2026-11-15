@@ -7,3 +7,6 @@ source /usr/share/cachyos-fish-config/cachyos-config.fish
 #end
 zoxide init fish | source
 fzf --fish | source
+if type -q starship
+    starship init fish | source
+end
