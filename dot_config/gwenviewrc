@@ -12,26 +12,26 @@ ThumbnailSplitterSizes=764,220
 MenuBar=Disabled
 
 [Recent Files]
-File1[$e]=$HOME/Proyectos/yafer/media/crudo/estudio/20260808_164200.heic
-File10[$e]=$HOME/Imágenes/fer/AP1GczNPPTD-zNNIKBV4iHwM1Ost1c2bcnRiSoMeKrR9BdSyc9p7QgkyyeII=w1107-h1968-s-no-gm
-File2[$e]=$HOME/Proyectos/yafer/media/crudo/estudio/20260808_164238.heic
-File3[$e]=$HOME/Proyectos/yafer/media/seleccion/util/a898ba60abd125e736fdbb3617e82e4f.webp
-File4[$e]=$HOME/Proyectos/yafer/media/seleccion/util/b7ab4b5d11418121434f186b977559f2.webp
-File5[$e]=$HOME/Proyectos/yafer/media/seleccion/util/cd59e67296e2e5d5004dd3c8f326dd99.webp
-File6[$e]=$HOME/Proyectos/yafer/media/seleccion/util/7c103ce4efc50ca5abcb5c62f10421c7.webp
-File7[$e]=$HOME/Proyectos/yafer/media/seleccion/util/88f70ec0b300f656006c7542b977613e.webp
-File8[$e]=$HOME/Proyectos/yafer/media/seleccion/util/25215a24b9a39399b43182057e7c72cf.webp
-File9[$e]=$HOME/Proyectos/yafer/media/seleccion/util/a898ba60abd125e736fdbb3617e82e4f (1).webp
-Name1[$e]=20260808_164200.heic
-Name10[$e]=AP1GczNPPTD-zNNIKBV4iHwM1Ost1c2bcnRiSoMeKrR9BdSyc9p7QgkyyeII=w1107-h1968-s-no-gm
-Name2[$e]=20260808_164238.heic
-Name3[$e]=a898ba60abd125e736fdbb3617e82e4f.webp
-Name4[$e]=b7ab4b5d11418121434f186b977559f2.webp
-Name5[$e]=cd59e67296e2e5d5004dd3c8f326dd99.webp
-Name6[$e]=7c103ce4efc50ca5abcb5c62f10421c7.webp
-Name7[$e]=88f70ec0b300f656006c7542b977613e.webp
-Name8[$e]=25215a24b9a39399b43182057e7c72cf.webp
-Name9[$e]=a898ba60abd125e736fdbb3617e82e4f (1).webp
+File1[$e]=$HOME/Imágenes/fer/escenas_avatar_individuales/20_ia_computer_vision_redes_neuronales.png
+File10[$e]=$HOME/Imágenes/fer/Imagen de ChatGPT 16 nov 2026, 08_26_45 a.m-7.png
+File2[$e]=$HOME/Imágenes/fer/escenas_avatar_individuales/21_reparacion_celular_variante.png
+File3[$e]=$HOME/Imágenes/fer/escenas_avatar_individuales/23_avatar_de_frente_alta_resolucion.png
+File4[$e]=$HOME/Imágenes/fer/escenas_avatar_individuales/22_reparacion_celular_precision.png
+File5[$e]=$HOME/Imágenes/fer/yafer2.png
+File6[$e]=$HOME/Imágenes/fer/yafer.png
+File7[$e]=$HOME/Imágenes/fer/Taller tecnológico de reparación móvil.png
+File8[$e]=$HOME/Imágenes/fer/Imagen de ChatGPT 16 nov 2026, 08_26_47 a.m-9.png
+File9[$e]=$HOME/Imágenes/fer/Imagen de ChatGPT 16 nov 2026, 08_26_46 a.m-8.png
+Name1[$e]=20_ia_computer_vision_redes_neuronales.png
+Name10[$e]=Imagen de ChatGPT 16 nov 2026, 08_26_45 a.m-7.png
+Name2[$e]=21_reparacion_celular_variante.png
+Name3[$e]=23_avatar_de_frente_alta_resolucion.png
+Name4[$e]=22_reparacion_celular_precision.png
+Name5[$e]=yafer2.png
+Name6[$e]=yafer.png
+Name7[$e]=Taller tecnológico de reparación móvil.png
+Name8[$e]=Imagen de ChatGPT 16 nov 2026, 08_26_47 a.m-9.png
+Name9[$e]=Imagen de ChatGPT 16 nov 2026, 08_26_46 a.m-8.png
 
 [SideBar]
 InformationSplitterSizes=219,256
