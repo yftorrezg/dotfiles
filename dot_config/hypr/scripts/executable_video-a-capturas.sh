@@ -156,6 +156,8 @@ if [ "${SIN_APUNTES:-0}" != 1 ]; then
     [ "${SIN_IA:-0}" = 1 ] && touch "$DIR/.sin-ia" || true
     # Tarjetas de repaso y panel de cursos (los arma otro script; si no están, no pasa nada).
     # El panel solo acá si la barrita es propia: en un curso/playlist lo regenera el de afuera.
+    # Más preguntas de repaso con IA (a partir de los apuntes recién hechos; si falla, sigue con las tarjetas normales)
+    [ "${SIN_IA:-0}" != 1 ] && [ -f "$SCRIPTS/tarjetas-ia.py" ] && python3 "$SCRIPTS/tarjetas-ia.py" "$DIR" || true
     [ "${SIN_IA:-0}" != 1 ] && [ -f "$SCRIPTS/tarjetas.py" ] && python3 "$SCRIPTS/tarjetas.py" "$DIR" || true
     [ "$PROPIA" = 1 ] && [ -f "$SCRIPTS/panel-cursos.py" ] && python3 "$SCRIPTS/panel-cursos.py" || true
 fi
