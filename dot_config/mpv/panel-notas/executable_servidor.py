@@ -21,6 +21,8 @@ from urllib.parse import urlparse, parse_qs, unquote
 
 PUERTO = int(os.environ.get("NOTAS_PUERTO", 47831))
 AQUI = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, AQUI)
+import repaso_tarjetas as rt  # repetición espaciada y opciones múltiples de las tarjetas
 RAIZ = os.environ.get("NOTAS_RAIZ") or os.path.expanduser("~/Vídeos/Notas de videos")
 BOVEDA = os.path.dirname(RAIZ)  # raíz de la bóveda de Obsidian (para los enlaces ![[...]])
 CLASES = os.environ.get("NOTAS_CLASES") or os.path.expanduser("~/Vídeos/Capturas de YouTube")
@@ -960,6 +962,67 @@ def _leer_texto(ruta):
         return None
 
 
+def _carpeta_repaso(i):
+    """Carpeta de apuntes de la clase del video i (la que tiene tarjetas.md), o None."""
+    item = item_de_lista(i)
+    if not item:
+        return None
+    return apuntes_de(item["ruta"])["dir"]
+
+
+def _cartas_del_curso(carpeta_clase):
+    """Todas las tarjetas de las clases hermanas (misma carpeta Apuntes/) y su progreso por clase."""
+    base = os.path.dirname(carpeta_clase)
+    cartas, progresos = [], {}
+    for nombre in sorted(os.listdir(base)):
+        d = os.path.join(base, nombre)
+        md = _leer_texto(os.path.join(d, "tarjetas.md")) if os.path.isdir(d) else None
+        if md is None:
+            continue
+        progresos[nombre] = rt.progreso_de(d)
+        for c in parsear_tarjetas(md):
+            cartas.append({"id": rt.clave(c["q"]), "clase": nombre, "sec": c["sec"], "q": c["q"], "a": c["a"]})
+    return cartas, progresos
+
+
+def repaso_tarjetas(i, alcance):
+    """Tarjetas para repasar hoy: alcance 'clase' (la del video) o 'curso' (todas las clases hermanas)."""
+    carpeta = _carpeta_repaso(i)
+    if not carpeta:
+        return None
+    cartas, progresos = _cartas_del_curso(carpeta)
+    clase = os.path.basename(carpeta)
+    en_alcance = [c for c in cartas if c["clase"] == clase] if alcance != "curso" else cartas
+    due, cont = rt.seleccionar(en_alcance, progresos, hoy())
+    dia = hoy().isoformat()
+    for c in due:  # distractores: respuestas verdaderas de otras clases del curso
+        c["opciones"] = rt.armar_opciones(c, cartas, dia)
+    return {"clase": clase, "alcance": "curso" if alcance == "curso" else "clase", "total": len(en_alcance),
+            "cards": due, **cont}
+
+
+def tarjeta_nota(i, clase, cid, nota):
+    """Registra la nota 1-4 de una tarjeta en el progreso de su clase (la del video, o una hermana)."""
+    carpeta = _carpeta_repaso(i)
+    if not carpeta:
+        return {"ok": False, "error": "este video no tiene tarjetas"}
+    base = os.path.dirname(carpeta)
+    if clase and (os.sep in clase or clase in (".", "..")):
+        return {"ok": False, "error": "clase no válida"}
+    destino = os.path.join(base, clase) if clase else carpeta
+    if not os.path.isfile(os.path.join(destino, "tarjetas.md")):
+        return {"ok": False, "error": "clase sin tarjetas"}
+    try:
+        with _candado:
+            prog = rt.progreso_de(destino)
+            nuevo = rt.siguiente(prog.get(cid), nota, hoy())
+            prog[cid] = nuevo
+            rt.guardar_progreso(destino, prog)
+    except ValueError as e:
+        return {"ok": False, "error": str(e)}
+    return {"ok": True, "intervalo": nuevo["intervalo"], "proximo": nuevo["proximo"]}
+
+
 def datos_clase(i):
     item = item_de_lista(i)
     if not item:
@@ -1319,6 +1382,13 @@ class H(BaseHTTPRequestHandler):
             return self._json(info or {"error": "video no encontrado"}, 200 if info else 404)
         if u.path == "/modal.html":
             return self._archivo(os.path.join(AQUI, "modal.html"), "text/html; charset=utf-8")
+        if u.path == "/api/tarjetas":
+            try:
+                i = int(q["i"][0]) if "i" in q else indice_actual()
+                res = repaso_tarjetas(i, q.get("alcance", ["clase"])[0]) if i is not None else None
+            except (ValueError, IndexError, OSError):
+                res = None
+            return self._json(res or {"error": "sin tarjetas"}, 200 if res else 404)
         if u.path == "/api/clase":
             try:
                 i = int(q["i"][0]) if "i" in q else indice_actual()
@@ -1467,6 +1537,11 @@ class H(BaseHTTPRequestHandler):
             return self._json(guardar_apuntes(int(d["i"]), str(d.get("texto", "") or "")))
         if p == "/api/editar":
             return self._json({"ok": editar_nota(d["video"], int(d["id"]), d.get("titulo"), d.get("texto"), d.get("tipo"))})
+        if p == "/api/tarjeta-nota":
+            try:
+                return self._json(tarjeta_nota(int(d["i"]), d.get("clase"), str(d["id"]), int(d["nota"])))
+            except (KeyError, ValueError, TypeError):
+                return self._json({"ok": False, "error": "datos incompletos"}, 400)
         if p == "/api/repasado":
             dias = repasado(d["video"], int(d["id"]), bool(d.get("sabe")))
             return self._json({"ok": dias is not None, "dias": dias})
