@@ -682,6 +682,15 @@ def seguir(archivo, titulo):
 
 if __name__ == "__main__":
     if len(sys.argv) >= 4 and sys.argv[1] == "seguir":
+        # Si la barrita se lanzó sin DIR_COLA (a mano, o relanzada), la cola es la del proceso que escribe el avance
+        if not os.environ.get("DIR_COLA"):
+            try:
+                pid = int(sys.argv[2].rsplit(".", 1)[1])
+                for kv in open(f"/proc/{pid}/environ", "rb").read().split(b"\0"):
+                    if kv.startswith(b"DIR_COLA="):
+                        os.environ["DIR_COLA"] = kv[9:].decode()
+            except (IndexError, ValueError, OSError):
+                pass
         # gtk4-layer-shell tiene que cargarse antes que libwayland/GTK; desde python la única
         # forma segura es LD_PRELOAD. Así que el propio script se re-lanza con la precarga.
         if (os.environ.get("PROGRESO_MODO") != "notificacion" and os.path.exists(LIB_CAPA)

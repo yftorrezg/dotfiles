@@ -188,6 +188,9 @@ def juntar(corto, largo, segundos=0):
         p, r = _txt(p), _txt(r)
         if re.search(r"\(extra\)|\bOCR\b|[Ss]egún la clase|la transcripci[oó]n", p + " " + r):  # v10: ni relleno ni metacomentarios
             return
+        # la PREGUNTA no se entiende sin haber visto el video: «según el cierre», «en el ejemplo», «la clase»
+        if re.search(r"[Ss]egún (el|los|la) (cierre|video|vídeo|profesor|ejemplo|apuntes|material)|\bel cierre\b|\ben el ejemplo\b|\bla clase\b", p):
+            return
         k, kr = clave(p), clave(r)
         if len(k) < 4 or len(kr) < 3 or k == kr or k in vistas or kr in respuestas:
             return
@@ -368,6 +371,32 @@ def _segundos(carpeta):
     return int(m.group(1) or 0) * 3600 + int(m.group(2)) * 60 + int(m.group(3)) if m else 0
 
 
+SECCION_IA = "🎯 Más preguntas"
+ARCHIVO_IA = ".tarjetas-ia.json"
+
+
+def ia_tarjetas(carpeta, existentes):
+    """[(sección, pregunta, respuesta)] de .tarjetas-ia.json (lo escribe tarjetas-ia.py a partir de apuntes.md).
+    Solo si el hash coincide con los apuntes de ahora (si cambiaron, esas preguntas ya no valen) y sin repetir las que ya hay."""
+    d = leer_json(os.path.join(carpeta, ARCHIVO_IA))
+    if not d or not d.get("preguntas"):
+        return []
+    try:
+        actual = hashlib.sha1(open(os.path.join(carpeta, "apuntes.md"), "rb").read()).hexdigest()[:16]
+    except OSError:
+        return []
+    if d.get("hash") != actual:
+        return []
+    vistas = {clave(p) for _, p, _ in existentes}
+    res = []
+    for q in d["preguntas"]:
+        p, r = _txt(q.get("pregunta")), _txt(q.get("respuesta"))
+        if p and r and clave(p) not in vistas:
+            vistas.add(clave(p))
+            res.append((SECCION_IA, p, r))
+    return res
+
+
 def generar(carpeta, forzar=False):
     """Arma tarjetas.md y tarjetas-anki.txt. Devuelve la cantidad de tarjetas (0 = nada)."""
     rutas = [os.path.join(carpeta, n) for n in (".resumen-ia.json", ".apuntes-ia.json")]
@@ -377,11 +406,12 @@ def generar(carpeta, forzar=False):
         return 0
     salida = os.path.join(carpeta, ARCHIVO)
     if os.path.exists(salida) and not forzar:
-        nuevo = max(os.path.getmtime(r) for r in rutas if os.path.exists(r))
+        nuevo = max(os.path.getmtime(r) for r in rutas + [os.path.join(carpeta, ARCHIVO_IA)] if os.path.exists(r))
         if nuevo <= os.path.getmtime(salida):
             print(f"Ya existe {salida} y los apuntes no cambiaron (usar --forzar para rehacerlo)")
             return 0
     tarjetas = juntar(corto, largo, _segundos(carpeta))
+    tarjetas += ia_tarjetas(carpeta, tarjetas)  # más preguntas (IA, solo de los apuntes)
     seg = _segundos(carpeta)
     minimo = 2 if not seg else max(2, round(0.22 * _paquete(seg / 60) / 30 * 0.75))  # v9f: mínimo según la duración (≈75 % del tope)
     # v10: sin tarjetas de relleno ("¿Qué explicó el profe sobre…?" repetía el apunte): si la IA mandó pocas preguntas, hay pocas tarjetas

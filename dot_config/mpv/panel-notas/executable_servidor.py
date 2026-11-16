@@ -986,19 +986,29 @@ def _cartas_del_curso(carpeta_clase):
 
 
 def repaso_tarjetas(i, alcance):
-    """Tarjetas para repasar hoy: alcance 'clase' (la del video) o 'curso' (todas las clases hermanas)."""
     carpeta = _carpeta_repaso(i)
-    if not carpeta:
-        return None
-    cartas, progresos = _cartas_del_curso(carpeta)
+    return repaso_de_carpeta(carpeta, alcance) if carpeta else None
+
+
+def repaso_de_carpeta(carpeta, alcance):
+    """Tarjetas para repasar hoy desde la carpeta de una clase. Alcance: 'clase' (esa clase), 'curso' (desde la
+    primera hasta esa clase: lo de clases futuras sería un spoiler) o 'todo' (el curso entero, para quien ya lo terminó)."""
+    todas, progresos = _cartas_del_curso(carpeta)
     clase = os.path.basename(carpeta)
-    en_alcance = [c for c in cartas if c["clase"] == clase] if alcance != "curso" else cartas
+    alcance = alcance if alcance in ("clase", "curso", "todo") else "clase"
+    cartas = todas if alcance == "todo" else rt.hasta_la_clase(todas, clase)  # también limita los distractores
+    en_alcance = [c for c in cartas if c["clase"] == clase] if alcance == "clase" else cartas
     due, cont = rt.seleccionar(en_alcance, progresos, hoy())
+    cont["nuevas_total"] = cont["nuevas"]
+    if alcance != "clase":  # pocas nuevas por sesión (como Anki); todas las vencidas
+        due, cont["nuevas_total"] = rt.limitar_nuevas(due)
+        cont["nuevas"] = len(due) - cont["por_repasar"]
     dia = hoy().isoformat()
+    pozo = rt.preparar_pozo(cartas)  # una vez: no por tarjeta (el repaso de curso pasaba de 5 s)
     for c in due:  # distractores: respuestas verdaderas de otras clases del curso
-        c["opciones"] = rt.armar_opciones(c, cartas, dia)
-    return {"clase": clase, "alcance": "curso" if alcance == "curso" else "clase", "total": len(en_alcance),
-            "cards": due, **cont}
+        c["opciones"] = rt.armar_opciones(c, pozo, dia)
+        c["previo"] = {n: rt.siguiente(c.get("estado"), n, hoy())["intervalo"] for n in (1, 2, 3, 4)}  # días que pondría cada nota
+    return {"clase": clase, "alcance": alcance, "total": len(en_alcance), "cards": due, **cont}
 
 
 def tarjeta_nota(i, clase, cid, nota):
