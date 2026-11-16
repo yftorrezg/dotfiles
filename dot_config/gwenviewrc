@@ -12,26 +12,26 @@ ThumbnailSplitterSizes=764,220
 MenuBar=Disabled
 
 [Recent Files]
-File1[$e]=$HOME/Imágenes/fer/Imagen de ChatGPT 16 nov 2026, 08_26_46 a.m-8.png
-File10[$e]=$HOME/Proyectos/yafer/media/seleccion/celulares/20260708_103539.heic
-File2[$e]=$HOME/Imágenes/fer/Imagen de ChatGPT 16 nov 2026, 08_26_47 a.m-9.png
-File3[$e]=$HOME/Imágenes/fer/Imagen de ChatGPT 16 nov 2026, 08_26_45 a.m-7.png
-File4[$e]=$HOME/Imágenes/fer/Imagen de ChatGPT 16 nov 2026, 08_26_44 a.m-6.png
-File5[$e]=$HOME/Imágenes/fer/Imagen de ChatGPT 16 nov 2026, 08_26_42 a.m-3.png
-File6[$e]=$HOME/Imágenes/fer/Imagen de ChatGPT 16 nov 2026, 08_26_43 a.m-5.png
-File7[$e]=$HOME/Proyectos/yafer/media/seleccion/celulares/cel-abierto.jpg
-File8[$e]=$HOME/Proyectos/yafer/media/seleccion/celulares/cel-herramientas.jpg
-File9[$e]=$HOME/Proyectos/yafer/media/seleccion/celulares/cel-soldadura.jpg
-Name1[$e]=Imagen de ChatGPT 16 nov 2026, 08_26_46 a.m-8.png
-Name10[$e]=20260708_103539.heic
-Name2[$e]=Imagen de ChatGPT 16 nov 2026, 08_26_47 a.m-9.png
-Name3[$e]=Imagen de ChatGPT 16 nov 2026, 08_26_45 a.m-7.png
-Name4[$e]=Imagen de ChatGPT 16 nov 2026, 08_26_44 a.m-6.png
-Name5[$e]=Imagen de ChatGPT 16 nov 2026, 08_26_42 a.m-3.png
-Name6[$e]=Imagen de ChatGPT 16 nov 2026, 08_26_43 a.m-5.png
-Name7[$e]=cel-abierto.jpg
-Name8[$e]=cel-herramientas.jpg
-Name9[$e]=cel-soldadura.jpg
+File1[$e]=$HOME/Proyectos/yafer/media/crudo/laptop/20260718_163555.heic
+File10[$e]=$HOME/Proyectos/yafer/media/crudo/laptop/20261015_174755.heic
+File2[$e]=$HOME/Proyectos/yafer/media/crudo/laptop/20260718_171422.heic
+File3[$e]=$HOME/Proyectos/yafer/media/crudo/laptop/20260725_163540.heic
+File4[$e]=$HOME/Proyectos/yafer/media/crudo/laptop/20260725_164021.heic
+File5[$e]=$HOME/Proyectos/yafer/media/crudo/laptop/20260725_164651.heic
+File6[$e]=$HOME/Proyectos/yafer/media/crudo/laptop/20260727_115224.heic
+File7[$e]=$HOME/Proyectos/yafer/media/crudo/laptop/20260825_105334.heic
+File8[$e]=$HOME/Proyectos/yafer/media/crudo/laptop/20260825_105632.heic
+File9[$e]=$HOME/Proyectos/yafer/media/crudo/laptop/20260930_153604.heic
+Name1[$e]=20260718_163555.heic
+Name10[$e]=20261015_174755.heic
+Name2[$e]=20260718_171422.heic
+Name3[$e]=20260725_163540.heic
+Name4[$e]=20260725_164021.heic
+Name5[$e]=20260725_164651.heic
+Name6[$e]=20260727_115224.heic
+Name7[$e]=20260825_105334.heic
+Name8[$e]=20260825_105632.heic
+Name9[$e]=20260930_153604.heic
 
 [SideBar]
 InformationSplitterSizes=219,256
