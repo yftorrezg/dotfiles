@@ -209,6 +209,39 @@ def _lugar(nombre):
         return None
 
 
+def _carpeta_barritas():
+    c = os.path.join(os.environ.get("XDG_RUNTIME_DIR", "/tmp"), "progreso-barritas")
+    os.makedirs(c, exist_ok=True)
+    return c
+
+
+def _publicar_alto(fila, alto):
+    """Anota la altura real de esta barrita (y su pid) para que las de arriba se corran."""
+    ruta = os.path.join(_carpeta_barritas(), f"alto-{fila}")
+    with open(ruta + ".tmp", "w", encoding="utf-8") as f:
+        f.write(f"{os.getpid()} {alto}")
+    os.replace(ruta + ".tmp", ruta)
+
+
+def _alturas_vivas():
+    """{fila: altura} de las barritas que siguen vivas (un pid muerto no ocupa lugar)."""
+    res = {}
+    for i in range(8):
+        try:
+            pid, alto = open(os.path.join(_carpeta_barritas(), f"alto-{i}"), encoding="utf-8").read().split()
+            os.kill(int(pid), 0)
+            res[i] = int(alto)
+        except (OSError, ValueError):
+            continue
+    return res
+
+
+def _margen_fila(fila, alturas):
+    """Margen inferior de una fila: MARGEN + lo que ocupan las filas de abajo que siguen vivas.
+    Así, al expandirse una barrita, las de arriba se corren hacia arriba (no se pisan)."""
+    return MARGEN + sum(alturas[j] + SEPARACION for j in range(fila) if j in alturas)
+
+
 CSS = b"""
 window.progreso { background: transparent; }
 .pastilla {
@@ -584,11 +617,21 @@ def seguir_barrita(archivo, titulo):
 
     ultimo = [None]
 
+    ultimo_margen = [None]
+
+    def reposicionar():  # apila: publica su altura real y se ubica encima de las filas de abajo
+        _publicar_alto(fila, win.get_height() or ALTO)
+        margen = _margen_fila(fila, _alturas_vivas())
+        if margen != ultimo_margen[0]:
+            Capa.set_margin(win, Capa.Edge.BOTTOM, margen)
+            ultimo_margen[0] = margen
+
     def actualizar():
         pct, etapa, detalle, clase, falta = est.leer()
         if etapa in ("fin", "error"):
             terminar(etapa, detalle)
             return False
+        reposicionar()
         icono, nombre = (ETAPAS.get(etapa, etapa) + " ").split(" ", 1)
         texto = detalle if detalle and len(detalle) <= 26 else (detalle[:25] + "…" if detalle else nombre.strip())
         partes = ([clase] if clase else []) + [f"{icono} {texto}", f"{pct:.0f}%"] + ([falta] if falta else [])
@@ -618,6 +661,10 @@ def seguir_barrita(archivo, titulo):
     win.destroy()
     try:  # el candado de este archivo ya no hace falta (los de "fila-N" se reusan)
         os.remove(os.path.join(os.environ.get("XDG_RUNTIME_DIR", "/tmp"), "progreso-barritas", candado))
+    except OSError:
+        pass
+    try:  # su altura deja de ocupar lugar: las de arriba bajan al cerrarse
+        os.remove(os.path.join(_carpeta_barritas(), f"alto-{fila}"))
     except OSError:
         pass
     return True
