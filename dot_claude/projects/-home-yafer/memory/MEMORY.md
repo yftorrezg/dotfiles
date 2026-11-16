@@ -22,3 +22,4 @@
 - [Regeneración de apuntes v5 (06/11)](regeneracion-apuntes-v5-nov06.md) — bóveda migrada sin imágenes, colas A/B con IA, bug parrafos() arreglado, cómo reanudar.
 - [Auditoría de imágenes 07/11](auditoria-capturas-imagenes-nov07.md) — 4 carpetas = enlaces duros; 23,5 GB liberables; plan pendiente de aprobación.
 - [Cursos v10: apuntes cortos y carpetas limpias](apuntes-v9-presupuesto-lectura.md) — 08/11: Apuntes/, sin todas-las-capturas, ordenar-curso.py, rearmar-curso.py; piloto Oracle
+- [Atajos en chuletas 25-33](atajos-chuletas.md) — hojas de atajos del sistema y apps; 26/27 se regeneran con atajos-doc.py
