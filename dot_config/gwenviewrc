@@ -12,26 +12,26 @@ ThumbnailSplitterSizes=764,220
 MenuBar=Disabled
 
 [Recent Files]
-File1[$e]=$HOME/Proyectos/yafer/media/crudo/estudio/a898ba60abd125e736fdbb3617e82e4f (1).webp
-File10[$e]=$HOME/Proyectos/yafer/media/seleccion/util/a898ba60abd125e736fdbb3617e82e4f (1).webp
-File2[$e]=$HOME/Proyectos/yafer/media/crudo/estudio/20260808_164200.heic
-File3[$e]=$HOME/Proyectos/yafer/media/crudo/estudio/20260808_164238.heic
-File4[$e]=$HOME/Proyectos/yafer/media/seleccion/util/a898ba60abd125e736fdbb3617e82e4f.webp
-File5[$e]=$HOME/Proyectos/yafer/media/seleccion/util/b7ab4b5d11418121434f186b977559f2.webp
-File6[$e]=$HOME/Proyectos/yafer/media/seleccion/util/cd59e67296e2e5d5004dd3c8f326dd99.webp
-File7[$e]=$HOME/Proyectos/yafer/media/seleccion/util/7c103ce4efc50ca5abcb5c62f10421c7.webp
-File8[$e]=$HOME/Proyectos/yafer/media/seleccion/util/88f70ec0b300f656006c7542b977613e.webp
-File9[$e]=$HOME/Proyectos/yafer/media/seleccion/util/25215a24b9a39399b43182057e7c72cf.webp
-Name1[$e]=a898ba60abd125e736fdbb3617e82e4f (1).webp
-Name10[$e]=a898ba60abd125e736fdbb3617e82e4f (1).webp
-Name2[$e]=20260808_164200.heic
-Name3[$e]=20260808_164238.heic
-Name4[$e]=a898ba60abd125e736fdbb3617e82e4f.webp
-Name5[$e]=b7ab4b5d11418121434f186b977559f2.webp
-Name6[$e]=cd59e67296e2e5d5004dd3c8f326dd99.webp
-Name7[$e]=7c103ce4efc50ca5abcb5c62f10421c7.webp
-Name8[$e]=88f70ec0b300f656006c7542b977613e.webp
-Name9[$e]=25215a24b9a39399b43182057e7c72cf.webp
+File1[$e]=$HOME/Proyectos/yafer/media/crudo/estudio/20260808_164200.heic
+File10[$e]=$HOME/Imágenes/fer/AP1GczNPPTD-zNNIKBV4iHwM1Ost1c2bcnRiSoMeKrR9BdSyc9p7QgkyyeII=w1107-h1968-s-no-gm
+File2[$e]=$HOME/Proyectos/yafer/media/crudo/estudio/20260808_164238.heic
+File3[$e]=$HOME/Proyectos/yafer/media/seleccion/util/a898ba60abd125e736fdbb3617e82e4f.webp
+File4[$e]=$HOME/Proyectos/yafer/media/seleccion/util/b7ab4b5d11418121434f186b977559f2.webp
+File5[$e]=$HOME/Proyectos/yafer/media/seleccion/util/cd59e67296e2e5d5004dd3c8f326dd99.webp
+File6[$e]=$HOME/Proyectos/yafer/media/seleccion/util/7c103ce4efc50ca5abcb5c62f10421c7.webp
+File7[$e]=$HOME/Proyectos/yafer/media/seleccion/util/88f70ec0b300f656006c7542b977613e.webp
+File8[$e]=$HOME/Proyectos/yafer/media/seleccion/util/25215a24b9a39399b43182057e7c72cf.webp
+File9[$e]=$HOME/Proyectos/yafer/media/seleccion/util/a898ba60abd125e736fdbb3617e82e4f (1).webp
+Name1[$e]=20260808_164200.heic
+Name10[$e]=AP1GczNPPTD-zNNIKBV4iHwM1Ost1c2bcnRiSoMeKrR9BdSyc9p7QgkyyeII=w1107-h1968-s-no-gm
+Name2[$e]=20260808_164238.heic
+Name3[$e]=a898ba60abd125e736fdbb3617e82e4f.webp
+Name4[$e]=b7ab4b5d11418121434f186b977559f2.webp
+Name5[$e]=cd59e67296e2e5d5004dd3c8f326dd99.webp
+Name6[$e]=7c103ce4efc50ca5abcb5c62f10421c7.webp
+Name7[$e]=88f70ec0b300f656006c7542b977613e.webp
+Name8[$e]=25215a24b9a39399b43182057e7c72cf.webp
+Name9[$e]=a898ba60abd125e736fdbb3617e82e4f (1).webp
 
 [SideBar]
 InformationSplitterSizes=219,256
