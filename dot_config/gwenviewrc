@@ -12,26 +12,26 @@ ThumbnailSplitterSizes=764,220
 MenuBar=Disabled
 
 [Recent Files]
-File1[$e]=$HOME/Proyectos/yafer/media/crudo/celulares/20260903_210602.heic
-File10[$e]=$HOME/Proyectos/yafer/media/crudo/celulares/20260721_185644.heic
-File2[$e]=$HOME/Proyectos/yafer/media/crudo/celulares/20260904_003239.heic
-File3[$e]=$HOME/Proyectos/yafer/media/crudo/celulares/20260904_175738.heic
-File4[$e]=$HOME/Proyectos/yafer/media/crudo/celulares/20260911_223038.heic
-File5[$e]=$HOME/Proyectos/yafer/media/crudo/celulares/20260708_100703.heic
-File6[$e]=$HOME/Proyectos/yafer/media/crudo/celulares/20260708_100835.heic
-File7[$e]=$HOME/Proyectos/yafer/media/crudo/celulares/20260708_103539.heic
-File8[$e]=$HOME/Proyectos/yafer/media/crudo/celulares/20260720_193513.heic
-File9[$e]=$HOME/Proyectos/yafer/media/crudo/celulares/20260721_182347.heic
-Name1[$e]=20260903_210602.heic
-Name10[$e]=20260721_185644.heic
-Name2[$e]=20260904_003239.heic
-Name3[$e]=20260904_175738.heic
-Name4[$e]=20260911_223038.heic
-Name5[$e]=20260708_100703.heic
-Name6[$e]=20260708_100835.heic
-Name7[$e]=20260708_103539.heic
-Name8[$e]=20260720_193513.heic
-Name9[$e]=20260721_182347.heic
+File1[$e]=$HOME/Proyectos/yafer/media/crudo/celulares/20260904_003239.heic
+File10[$e]=$HOME/Proyectos/yafer/media/seleccion/setUp.png
+File2[$e]=$HOME/Proyectos/yafer/media/crudo/celulares/20260904_175738.heic
+File3[$e]=$HOME/Proyectos/yafer/media/crudo/celulares/20260911_223038.heic
+File4[$e]=$HOME/Proyectos/yafer/media/crudo/celulares/20260708_100703.heic
+File5[$e]=$HOME/Proyectos/yafer/media/crudo/celulares/20260708_100835.heic
+File6[$e]=$HOME/Proyectos/yafer/media/crudo/celulares/20260708_103539.heic
+File7[$e]=$HOME/Proyectos/yafer/media/crudo/celulares/20260720_193513.heic
+File8[$e]=$HOME/Proyectos/yafer/media/crudo/celulares/20260721_182347.heic
+File9[$e]=$HOME/Proyectos/yafer/media/crudo/celulares/20260721_185644.heic
+Name1[$e]=20260904_003239.heic
+Name10[$e]=setUp.png
+Name2[$e]=20260904_175738.heic
+Name3[$e]=20260911_223038.heic
+Name4[$e]=20260708_100703.heic
+Name5[$e]=20260708_100835.heic
+Name6[$e]=20260708_103539.heic
+Name7[$e]=20260720_193513.heic
+Name8[$e]=20260721_182347.heic
+Name9[$e]=20260721_185644.heic
 
 [SideBar]
 InformationSplitterSizes=219,256
