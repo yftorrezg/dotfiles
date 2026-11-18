@@ -12,26 +12,26 @@ ThumbnailSplitterSizes=764,220
 MenuBar=Disabled
 
 [Recent Files]
-File1[$e]=$HOME/Proyectos/yafer/media/crudo/laptop/20260718_145617.heic
-File10[$e]=$HOME/Proyectos/yafer/media/crudo/laptop/20260825_105334.heic
-File2[$e]=$HOME/Proyectos/yafer/media/crudo/laptop/20260718_161446.heic
-File3[$e]=$HOME/Proyectos/yafer/media/crudo/laptop/20260718_163118.heic
-File4[$e]=$HOME/Proyectos/yafer/media/crudo/laptop/20260718_163555.heic
-File5[$e]=$HOME/Proyectos/yafer/media/crudo/laptop/20260718_171422.heic
-File6[$e]=$HOME/Proyectos/yafer/media/crudo/laptop/20260725_163540.heic
-File7[$e]=$HOME/Proyectos/yafer/media/crudo/laptop/20260725_164021.heic
-File8[$e]=$HOME/Proyectos/yafer/media/crudo/laptop/20260725_164651.heic
-File9[$e]=$HOME/Proyectos/yafer/media/crudo/laptop/20260727_115224.heic
-Name1[$e]=20260718_145617.heic
-Name10[$e]=20260825_105334.heic
-Name2[$e]=20260718_161446.heic
-Name3[$e]=20260718_163118.heic
-Name4[$e]=20260718_163555.heic
-Name5[$e]=20260718_171422.heic
-Name6[$e]=20260725_163540.heic
-Name7[$e]=20260725_164021.heic
-Name8[$e]=20260725_164651.heic
-Name9[$e]=20260727_115224.heic
+File1[$e]=$HOME/Proyectos/yafer/media/crudo/laptop/20260725_164021.heic
+File10[$e]=$HOME/Proyectos/videos-con-IA/personajes/_cabezas/novia/_tex_base.png
+File2[$e]=$HOME/Proyectos/yafer/media/crudo/laptop/20260725_164651.heic
+File3[$e]=$HOME/Proyectos/yafer/media/crudo/laptop/20260727_115224.heic
+File4[$e]=$HOME/Proyectos/yafer/media/crudo/laptop/20260825_105334.heic
+File5[$e]=$HOME/Proyectos/videos-con-IA/personajes/_cabezas/novia/ref/foto2_cerca_sin_lentes.png
+File6[$e]=$HOME/Proyectos/videos-con-IA/personajes/_cabezas/novia/ref/foto3_perfil_lentes.png
+File7[$e]=$HOME/Proyectos/videos-con-IA/personajes/_cabezas/novia/ref/foto1_selfie_lentes.png
+File8[$e]=$HOME/Proyectos/videos-con-IA/personajes/_cabezas/novia/ref/foto4_frente_lentes.png
+File9[$e]=$HOME/Proyectos/videos-con-IA/personajes/_cabezas/novia/comparacion/comparacion_fotos.png
+Name1[$e]=20260725_164021.heic
+Name10[$e]=_tex_base.png
+Name2[$e]=20260725_164651.heic
+Name3[$e]=20260727_115224.heic
+Name4[$e]=20260825_105334.heic
+Name5[$e]=foto2_cerca_sin_lentes.png
+Name6[$e]=foto3_perfil_lentes.png
+Name7[$e]=foto1_selfie_lentes.png
+Name8[$e]=foto4_frente_lentes.png
+Name9[$e]=comparacion_fotos.png
 
 [SideBar]
 InformationSplitterSizes=219,256
