@@ -14,13 +14,20 @@
     ]
   },
   "enabledPlugins": {
-    "supabase@claude-plugins-official": true
+    "supabase@claude-plugins-official": true,
+    "blender-skills@blender-skills": true
   },
   "extraKnownMarketplaces": {
     "claude-plugins-official": {
       "source": {
         "source": "github",
         "repo": "anthropics/claude-plugins-official"
+      }
+    },
+    "blender-skills": {
+      "source": {
+        "source": "directory",
+        "path": "/home/yafer/Proyectos/blender-skills"
       }
     }
   },
