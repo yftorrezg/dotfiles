@@ -13,25 +13,25 @@ MenuBar=Disabled
 
 [Recent Files]
 File1[$e]=$HOME/Proyectos/videos-con-IA/personajes/_cabezas/novia/novia2.png
-File10[$e]=$HOME/Proyectos/videos-con-IA/personajes/_cabezas/novia/cuerpo-de-espaldas-novia.png
-File2[$e]=$HOME/Proyectos/videos-con-IA/personajes/_cabezas/novia/novia1.png
-File3[$e]=$HOME/Proyectos/videos-con-IA/personajes/_cabezas/novia/novia-de-perfil.png
-File4[$e]=$HOME/Proyectos/videos-con-IA/personajes/_cabezas/novia/Imagen de ChatGPT 18 nov 2026, 01_48_45 p.m-5.png
-File5[$e]=$HOME/Proyectos/videos-con-IA/personajes/_cabezas/novia/Imagen de ChatGPT 18 nov 2026, 01_48_44 p.m-4.png
-File6[$e]=$HOME/Proyectos/videos-con-IA/personajes/_cabezas/novia/Imagen de ChatGPT 18 nov 2026, 01_48_43 p.m-3.png
-File7[$e]=$HOME/Proyectos/videos-con-IA/personajes/_cabezas/novia/Imagen de ChatGPT 18 nov 2026, 01_48_43 p.m-2.png
-File8[$e]=$HOME/Proyectos/videos-con-IA/personajes/_cabezas/novia/Imagen de ChatGPT 18 nov 2026, 01_48_42 p.m-1.png
-File9[$e]=$HOME/Proyectos/videos-con-IA/personajes/_cabezas/novia/cuerpo-de-perfil.png
+File10[$e]=$HOME/Proyectos/videos-con-IA/personajes/_cabezas/novia/novia1.png
+File2[$e]=$HOME/Proyectos/videos-con-IA/personajes/_cabezas/novia/Imagen de ChatGPT 18 nov 2026, 01_48_44 p.m-4.png
+File3[$e]=$HOME/Proyectos/videos-con-IA/personajes/_cabezas/novia/Imagen de ChatGPT 18 nov 2026, 01_48_43 p.m-3.png
+File4[$e]=$HOME/Proyectos/videos-con-IA/personajes/_cabezas/novia/Imagen de ChatGPT 18 nov 2026, 01_48_43 p.m-2.png
+File5[$e]=$HOME/Proyectos/videos-con-IA/personajes/_cabezas/novia/Imagen de ChatGPT 18 nov 2026, 01_48_42 p.m-1.png
+File6[$e]=$HOME/Proyectos/videos-con-IA/personajes/_cabezas/novia/cuerpo-de-perfil.png
+File7[$e]=$HOME/Proyectos/videos-con-IA/personajes/_cabezas/novia/cuerpo-de-espaldas-novia.png
+File8[$e]=$HOME/Proyectos/videos-con-IA/personajes/_cabezas/novia/novia-de-perfil.png
+File9[$e]=$HOME/Proyectos/videos-con-IA/personajes/_cabezas/novia/Imagen de ChatGPT 18 nov 2026, 01_48_45 p.m-5.png
 Name1[$e]=novia2.png
-Name10[$e]=cuerpo-de-espaldas-novia.png
-Name2[$e]=novia1.png
-Name3[$e]=novia-de-perfil.png
-Name4[$e]=Imagen de ChatGPT 18 nov 2026, 01_48_45 p.m-5.png
-Name5[$e]=Imagen de ChatGPT 18 nov 2026, 01_48_44 p.m-4.png
-Name6[$e]=Imagen de ChatGPT 18 nov 2026, 01_48_43 p.m-3.png
-Name7[$e]=Imagen de ChatGPT 18 nov 2026, 01_48_43 p.m-2.png
-Name8[$e]=Imagen de ChatGPT 18 nov 2026, 01_48_42 p.m-1.png
-Name9[$e]=cuerpo-de-perfil.png
+Name10[$e]=novia1.png
+Name2[$e]=Imagen de ChatGPT 18 nov 2026, 01_48_44 p.m-4.png
+Name3[$e]=Imagen de ChatGPT 18 nov 2026, 01_48_43 p.m-3.png
+Name4[$e]=Imagen de ChatGPT 18 nov 2026, 01_48_43 p.m-2.png
+Name5[$e]=Imagen de ChatGPT 18 nov 2026, 01_48_42 p.m-1.png
+Name6[$e]=cuerpo-de-perfil.png
+Name7[$e]=cuerpo-de-espaldas-novia.png
+Name8[$e]=novia-de-perfil.png
+Name9[$e]=Imagen de ChatGPT 18 nov 2026, 01_48_45 p.m-5.png
 
 [SideBar]
 InformationSplitterSizes=219,256
