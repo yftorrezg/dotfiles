@@ -3,6 +3,7 @@
 {{- if eq .chezmoi.hostname "yf" -}}{{- $equipo = "pc" -}}
 {{- else if eq .chezmoi.hostname "yafer" -}}{{- $equipo = "laptop" -}}
 {{- else if eq .chezmoi.hostname "yf-s" -}}{{- $equipo = "surface" -}}
+{{- else if eq .chezmoi.hostname "zen" -}}{{- $equipo = "rtx" -}}
 {{- else -}}{{- $equipo = promptStringOnce . "equipo" "¿Qué equipo es este? (pc / laptop)" -}}
 {{- end -}}
 [data]

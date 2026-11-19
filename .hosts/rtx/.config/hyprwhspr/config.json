@@ -1,0 +1,30 @@
+{
+  "$schema": "https://raw.githubusercontent.com/goodroot/hyprwhspr/main/share/config.schema.json",
+  "primary_shortcut": "SUPER+ALT+Z",
+  "secondary_shortcut": "SUPER+ALT+X",
+  "secondary_language": "en",
+  "recording_mode": "toggle",
+  "model": "small",
+  "language": "es",
+  "filter_filler_words": true,
+  "filler_words": [
+    "uh",
+    "um",
+    "er",
+    "ah",
+    "eh",
+    "ehh",
+    "mmm"
+  ],
+  "pywhispercpp_use_vad": true,
+  "symbol_replacements": true,
+  "transcription_backend": "rest-api",
+  "whisper_prompt": "Dictado en español con puntuación correcta, signos ¿? y ¡!. Términos técnicos en inglés: commit, push, pull request, main, branch, React, useState, useEffect, JavaScript, Python, API, Docker, Linux, Hyprland, Claude.",
+  "rest_endpoint_url": "http://127.0.0.1:8178/inference",
+  "rest_api_provider": "custom",
+  "rest_timeout": 60,
+  "rest_body": {
+    "response_format": "json",
+    "language": "es"
+  }
+}

@@ -7,7 +7,7 @@ pc/
 windows/
 
 # Solo laptop: lógica de monitores dinámica (la PC tiene 2 monitores fijos)
-{{ if and (ne .equipo "laptop") (ne .equipo "surface") }}
+{{ if and (ne .equipo "laptop") (ne .equipo "surface") (ne .equipo "rtx") }}
 .config/hypr/config/escritorios.lua
 .config/mpv/scripts/bateria.lua
 {{ end }}

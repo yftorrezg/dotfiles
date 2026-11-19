@@ -1,0 +1,18 @@
+[Unit]
+Description=Daemon de Piper para lectura en voz alta (SUPER+R) - mantiene el modelo cargado en memoria
+After=graphical-session.target
+# Laptop: piper viene de `pipx install piper-tts` (el AUR no compila), así que se usa el python
+# de ese venv, que es el que tiene el módulo `piper`. Si falta, el servicio no arranca y
+# leer-seleccion.sh cae solo a ~/.local/bin/piper directo.
+ConditionPathExists=%h/.local/share/pipx/venvs/piper-tts/bin/python
+
+[Service]
+Type=simple
+# Voces bajadas de Hugging Face (ver 04-voz-servicios.sh)
+Environment=PIPER_VOICES_DIR=%h/.local/share/piper-voices
+ExecStart=%h/.local/share/pipx/venvs/piper-tts/bin/python %h/.config/hypr/scripts/piper-daemon.py
+Restart=on-failure
+RestartSec=2
+
+[Install]
+WantedBy=graphical-session.target
