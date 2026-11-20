@@ -4,7 +4,14 @@
     "~/.config/opencode/instructions.md"
   ],
   "mcp": {
-    "playwright": { "type": "local", "command": ["npx", "-y", "@playwright/mcp@latest"] },
+    "playwright": {
+      "type": "local",
+      "command": [
+        "npx",
+        "-y",
+        "@playwright/mcp@latest"
+      ]
+    },
     "context7": {
       "type": "local",
       "command": [
@@ -22,6 +29,14 @@
         "type": "remote",
         "url": "https://mcp.vercel.com"
       }
+    },
+    "blender": {
+      "type": "local",
+      "command": [
+        "/usr/bin/uvx",
+        "mcp-for-blender"
+      ],
+      "enabled": true
     }
   },
   "plugins": [
