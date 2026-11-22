@@ -12,26 +12,26 @@ ThumbnailSplitterSizes=764,220
 MenuBar=Disabled
 
 [Recent Files]
-File1[$e]=$HOME/Proyectos/videos-con-IA/videos/08-futbol/street_football/verification/camera_05.png
-File10[$e]=$HOME/Proyectos/videos-con-IA/videos/08-futbol/street_football/verification/disparo_090.png
-File2[$e]=$HOME/Proyectos/videos-con-IA/videos/08-futbol/street_football/verification/camera_06.png
-File3[$e]=$HOME/Proyectos/videos-con-IA/videos/08-futbol/street_football/verification/camera_07.png
-File4[$e]=$HOME/Proyectos/videos-con-IA/videos/08-futbol/street_football/verification/camera_08.png
-File5[$e]=$HOME/Proyectos/videos-con-IA/videos/08-futbol/street_football/verification/disparo_001.png
-File6[$e]=$HOME/Proyectos/videos-con-IA/videos/08-futbol/street_football/verification/disparo_037.png
-File7[$e]=$HOME/Proyectos/videos-con-IA/videos/08-futbol/street_football/verification/disparo_039.png
-File8[$e]=$HOME/Proyectos/videos-con-IA/videos/08-futbol/street_football/verification/disparo_068.png
-File9[$e]=$HOME/Proyectos/videos-con-IA/videos/08-futbol/street_football/verification/disparo_073.png
-Name1[$e]=camera_05.png
-Name10[$e]=disparo_090.png
-Name2[$e]=camera_06.png
-Name3[$e]=camera_07.png
-Name4[$e]=camera_08.png
-Name5[$e]=disparo_001.png
-Name6[$e]=disparo_037.png
-Name7[$e]=disparo_039.png
-Name8[$e]=disparo_068.png
-Name9[$e]=disparo_073.png
+File1[$e]=$HOME/Proyectos/videos-con-IA/videos/08-futbol/street_football/verification/disparo_037.png
+File10[$e]=$HOME/Proyectos/videos-con-IA/personajes/yafer_v4/out/feliz.png
+File2[$e]=$HOME/Proyectos/videos-con-IA/videos/08-futbol/street_football/verification/disparo_039.png
+File3[$e]=$HOME/Proyectos/videos-con-IA/videos/08-futbol/street_football/verification/disparo_068.png
+File4[$e]=$HOME/Proyectos/videos-con-IA/videos/08-futbol/street_football/verification/disparo_073.png
+File5[$e]=$HOME/Proyectos/videos-con-IA/videos/08-futbol/street_football/verification/disparo_090.png
+File6[$e]=$HOME/Proyectos/videos-con-IA/personajes/yafer_v4/out/llorando.png
+File7[$e]=$HOME/Proyectos/videos-con-IA/personajes/yafer_v4/out/sorpresa.png
+File8[$e]=$HOME/Proyectos/videos-con-IA/personajes/yafer_v4/out/drama.png
+File9[$e]=$HOME/Proyectos/videos-con-IA/personajes/yafer_v4/out/enfermito.png
+Name1[$e]=disparo_037.png
+Name10[$e]=feliz.png
+Name2[$e]=disparo_039.png
+Name3[$e]=disparo_068.png
+Name4[$e]=disparo_073.png
+Name5[$e]=disparo_090.png
+Name6[$e]=llorando.png
+Name7[$e]=sorpresa.png
+Name8[$e]=drama.png
+Name9[$e]=enfermito.png
 
 [SideBar]
 InformationSplitterSizes=219,256
