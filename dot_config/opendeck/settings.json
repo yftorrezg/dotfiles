@@ -1,7 +1,7 @@
 {
   "autolaunch": true,
   "background": true,
-  "brightness": 0,
+  "brightness": 100,
   "developer": true,
   "disableelgato": false,
   "language": "es",
