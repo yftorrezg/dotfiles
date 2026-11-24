@@ -73,12 +73,15 @@ end
 
 -- ScreenPad Plus (ZenBook Pro Duo): 3840x1100 nativo, debajo de la principal, escala 2
 -- (1920x550 lógico, mismo ancho que la interna). Se identifica por descripción, no por DP-x.
-hl.monitor({
-    output    = "desc:BOE 0x085F",
-    mode      = "3840x1100@60",
-    position  = "0x1080",
-    scale     = 2,
-})
+-- Si nwg-displays ya guardó su config, esa manda (incluye DP-1 = ScreenPad); esto es solo el valor por defecto.
+if not specs then
+    hl.monitor({
+        output    = "desc:BOE 0x085F",
+        mode      = "3840x1100@60",
+        position  = "0x1080",
+        scale     = 2,
+    })
+end
 
 -- Cualquier otro monitor (Arzopa por USB-C = DP-x o por HDMI = HDMI-A-1, proyectores...):
 -- resolución preferida, a la DERECHA de la interna, escala 1 (Arzopa 15.6" 1080p).

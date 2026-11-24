@@ -10,12 +10,14 @@ end
 -- Cara secundaria NUM_WPM+1..2*NUM_WPM: en la Arzopa si está conectada al cargar la config;
 -- si no, sin monitor fijo (viven en la interna). Al conectar/desconectar en caliente las
 -- reubica config/escritorios.lua (VD.redistribuir), así que aquí no se fija un nombre.
-local sec = secondaryMonitor and secondaryMonitor() or nil
-for i = 1, NUM_WPM do
-    local regla = { workspace = tostring(NUM_WPM + i), persistent = true }
-    if sec then
-        regla.monitor = sec
-        regla.default = (i == 1)
+local lista = VD and VD.lista and VD.lista() or {}
+for k = 2, math.max(#lista, 2) do
+    for i = 1, NUM_WPM do
+        local regla = { workspace = tostring((k - 1) * NUM_WPM + i), persistent = true }
+        if lista[k] then
+            regla.monitor = lista[k]
+            regla.default = (i == 1)
+        end
+        hl.workspace_rule(regla)
     end
-    hl.workspace_rule(regla)
 end
