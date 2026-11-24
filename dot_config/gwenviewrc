@@ -12,26 +12,26 @@ ThumbnailSplitterSizes=764,220
 MenuBar=Disabled
 
 [Recent Files]
-File1[$e]=$HOME/Proyectos/videos-con-IA/videos/08-futbol/street_football/verification/disparo_037.png
-File10[$e]=$HOME/Proyectos/videos-con-IA/personajes/yafer_v4/out/feliz.png
-File2[$e]=$HOME/Proyectos/videos-con-IA/videos/08-futbol/street_football/verification/disparo_039.png
-File3[$e]=$HOME/Proyectos/videos-con-IA/videos/08-futbol/street_football/verification/disparo_068.png
-File4[$e]=$HOME/Proyectos/videos-con-IA/videos/08-futbol/street_football/verification/disparo_073.png
-File5[$e]=$HOME/Proyectos/videos-con-IA/videos/08-futbol/street_football/verification/disparo_090.png
-File6[$e]=$HOME/Proyectos/videos-con-IA/personajes/yafer_v4/out/llorando.png
-File7[$e]=$HOME/Proyectos/videos-con-IA/personajes/yafer_v4/out/sorpresa.png
-File8[$e]=$HOME/Proyectos/videos-con-IA/personajes/yafer_v4/out/drama.png
-File9[$e]=$HOME/Proyectos/videos-con-IA/personajes/yafer_v4/out/enfermito.png
-Name1[$e]=disparo_037.png
-Name10[$e]=feliz.png
-Name2[$e]=disparo_039.png
-Name3[$e]=disparo_068.png
-Name4[$e]=disparo_073.png
-Name5[$e]=disparo_090.png
-Name6[$e]=llorando.png
-Name7[$e]=sorpresa.png
-Name8[$e]=drama.png
-Name9[$e]=enfermito.png
+File1[$e]=$HOME/Proyectos/videos-con-IA/videos/10-47-pestanas-30s/out/lookdev/E_yafer.png
+File10[$e]=$HOME/Proyectos/videos-con-IA/videos/10-47-pestanas-30s/out/lookdev/hoja_opencode.png
+File2[$e]=$HOME/Proyectos/videos-con-IA/videos/10-47-pestanas-30s/out/lookdev/fila_claude.png
+File3[$e]=$HOME/Proyectos/videos-con-IA/videos/10-47-pestanas-30s/out/lookdev/fila_torre.png
+File4[$e]=$HOME/Proyectos/videos-con-IA/videos/10-47-pestanas-30s/out/lookdev/fila_yafer.png
+File5[$e]=$HOME/Proyectos/videos-con-IA/videos/10-47-pestanas-30s/out/lookdev/h3_claude.png
+File6[$e]=$HOME/Proyectos/videos-con-IA/videos/10-47-pestanas-30s/out/lookdev/h3_opencode.png
+File7[$e]=$HOME/Proyectos/videos-con-IA/videos/10-47-pestanas-30s/out/lookdev/h3_todo.png
+File8[$e]=$HOME/Proyectos/videos-con-IA/videos/10-47-pestanas-30s/out/lookdev/hoja_claude.png
+File9[$e]=$HOME/Proyectos/videos-con-IA/videos/10-47-pestanas-30s/out/lookdev/hoja_looks.png
+Name1[$e]=E_yafer.png
+Name10[$e]=hoja_opencode.png
+Name2[$e]=fila_claude.png
+Name3[$e]=fila_torre.png
+Name4[$e]=fila_yafer.png
+Name5[$e]=h3_claude.png
+Name6[$e]=h3_opencode.png
+Name7[$e]=h3_todo.png
+Name8[$e]=hoja_claude.png
+Name9[$e]=hoja_looks.png
 
 [SideBar]
 InformationSplitterSizes=219,256
