@@ -38,44 +38,61 @@ function primaryMonitor()
     return ms[1] and ms[1].name or nil
 end
 
--- Pantalla secundaria: la primera que no sea la principal (la Arzopa), o nil.
-function secondaryMonitor()
+-- Lista ordenada de pantallas: la principal primero, el resto por nombre (orden estable).
+-- Pantalla k (1..M) = ws (k-1)*N+1 .. k*N. Se adapta sola a cuántas haya conectadas.
+local function listaMonitores()
     local p = primaryMonitor()
+    local otros = {}
     for _, m in ipairs(monitores()) do
-        if m.name ~= p then return m.name end
+        if m.name ~= p then otros[#otros + 1] = m.name end
     end
-    return nil
+    table.sort(otros)
+    if p then table.insert(otros, 1, p) end
+    return otros
+end
+VD.lista = listaMonitores
+
+-- Pantalla secundaria: la primera que no sea la principal, o nil.
+function secondaryMonitor()
+    return listaMonitores()[2]
 end
 
+-- set_workspace cambió de firma entre versiones de Hyprland (0.56: tabla, 0.57: número): prueba las dos.
+local function setWs(m, n)
+    if not pcall(m.set_workspace, m, n) then pcall(m.set_workspace, m, { workspace = n }) end
+end
 local function dispatch(d) hl.dispatch(d) end
 
 -- Índice del escritorio virtual actual (1..N), sea cual sea la cara visible.
 function VD.indiceActual()
     local mon = hl.get_active_monitor()
     local ws = mon and mon.active_workspace
-    if ws and ws.id >= 1 and ws.id <= 2 * N then
-        VD.ultimo = (ws.id > N) and (ws.id - N) or ws.id
+    if ws and ws.id >= 1 and ws.id <= math.max(#listaMonitores(), 2) * N then
+        VD.ultimo = ((ws.id - 1) % N) + 1
     end
     return VD.ultimo
 end
 
--- 1 = cara principal, 2 = cara secundaria (según el ws enfocado)
+-- Número de pantalla (1 = principal, 2.. = las demás) según el ws enfocado
 function VD.ladoActual()
     local mon = hl.get_active_monitor()
     local ws = mon and mon.active_workspace
-    if ws and ws.id > N and ws.id <= 2 * N then return 2 end
+    if ws and ws.id >= 1 and ws.id <= #listaMonitores() * N then
+        return math.floor((ws.id - 1) / N) + 1
+    end
     return 1
 end
 
 -- Ir al escritorio virtual i (SUPER+1..5)
 function VD.ir(i)
     VD.ultimo = i
-    local p, s = primaryMonitor(), secondaryMonitor()
-    if s then
-        -- 2 pantallas: cambia las dos sin robar el foco (como en la PC)
-        local ms, mp = hl.get_monitor(s), hl.get_monitor(p)
-        if ms then ms:set_workspace({ workspace = N + i }) end
-        if mp then mp:set_workspace({ workspace = i }) end
+    local lista = listaMonitores()
+    if #lista >= 2 then
+        -- 2 o más pantallas: cambia todas sin robar el foco; la principal al final
+        for k = #lista, 1, -1 do
+            local m = hl.get_monitor(lista[k])
+            if m then setWs(m, (k - 1) * N + i) end
+        end
     else
         -- 1 pantalla: siempre a la cara principal del escritorio i
         dispatch(hl.dsp.focus({ workspace = tostring(i) }))
@@ -91,7 +108,7 @@ end
 -- Lo usa el gesto de 4 dedos izquierda/derecha del touchpad (inputs.lua).
 function VD.moverVentanaRelativo(delta)
     local i = ((VD.indiceActual() - 1 + delta) % N) + 1
-    local destino = (VD.ladoActual() == 1) and i or (i + N)
+    local destino = (VD.ladoActual() - 1) * N + i
     dispatch(hl.dsp.window.move({ workspace = tostring(destino) }))
 end
 
@@ -99,28 +116,32 @@ end
 --  1 pantalla: sin cara secundaria (solo 5 escritorios) -> no hace nada;
 --  2 pantallas: foco a la otra pantalla.
 function VD.voltear()
-    local p, s = primaryMonitor(), secondaryMonitor()
-    if s then
+    local lista = listaMonitores()
+    if #lista >= 2 then
         local mon = hl.get_active_monitor()
-        dispatch(hl.dsp.focus({ monitor = (mon and mon.name == s) and p or s }))
+        local idx = 0
+        for k, nombre in ipairs(lista) do
+            if mon and mon.name == nombre then idx = k break end
+        end
+        dispatch(hl.dsp.focus({ monitor = lista[(idx % #lista) + 1] }))
     end
 end
 
 -- SUPER+ALT+1 / SUPER+ALT+2: ir a la cara/pantalla principal o secundaria.
 -- 1 pantalla: no hay cara secundaria, no hace nada.
 function VD.enfocarLado(lado)
-    local p, s = primaryMonitor(), secondaryMonitor()
-    if s then
-        dispatch(hl.dsp.focus({ monitor = (lado == 2) and s or p }))
+    local lista = listaMonitores()
+    if #lista >= 2 then
+        dispatch(hl.dsp.focus({ monitor = lista[lado] or lista[1] }))
     end
 end
 
 -- SUPER+SHIFT+1 / SUPER+SHIFT+2: mandar la ventana a la cara/pantalla principal o secundaria.
 -- 1 pantalla: no hay cara secundaria, no hace nada.
 function VD.moverVentanaALado(lado)
-    local p, s = primaryMonitor(), secondaryMonitor()
-    if s then
-        dispatch(hl.dsp.window.move({ monitor = (lado == 2) and s or p }))
+    local lista = listaMonitores()
+    if #lista >= 2 then
+        dispatch(hl.dsp.window.move({ monitor = lista[lado] or lista[1] }))
     end
 end
 
@@ -128,10 +149,10 @@ end
 function VD.mostrarWorkspace(w)
     w = tonumber(w)
     if not w then return end
-    local i = (w > N and w <= 2 * N) and (w - N) or w
-    if secondaryMonitor() and i >= 1 and i <= N then
+    local i = (w >= 1 and w <= math.max(#listaMonitores(), 2) * N) and (((w - 1) % N) + 1) or nil
+    if i and secondaryMonitor() then
         VD.ir(i)
-    elseif i >= 1 and i <= N then
+    elseif i then
         VD.ultimo = i
     end
     dispatch(hl.dsp.focus({ workspace = tostring(w) }))
@@ -141,8 +162,8 @@ end
 function VD.ciclarVentanas()
     local cur = VD.indiceActual()
     local windows = {}
-    for _, id in ipairs({ cur, cur + N }) do
-        for _, w in ipairs(hl.get_windows({ workspace = id })) do
+    for k = 0, math.max(#listaMonitores(), 1) - 1 do
+        for _, w in ipairs(hl.get_windows({ workspace = cur + k * N })) do
             windows[#windows + 1] = w
         end
     end
@@ -160,12 +181,13 @@ end
 
 -- Reubica los ws 1..N en la principal y N+1..2N en la secundaria (o en la principal si no hay).
 function VD.redistribuir()
-    local p, s = primaryMonitor(), secondaryMonitor()
+    local lista = listaMonitores()
+    local p, s = lista[1], lista[2]
     if not p then return end
     for _, ws in ipairs(hl.get_workspaces()) do
         local id = ws.id
-        if id and id >= 1 and id <= 2 * N and not ws.special then
-            local destino = (id > N and s) or p
+        if id and id >= 1 and id <= 8 * N and not ws.special then
+            local destino = lista[math.floor((id - 1) / N) + 1] or p
             if ws.monitor and ws.monitor.name ~= destino then
                 dispatch(hl.dsp.workspace.move({ workspace = tostring(id), monitor = destino }))
             end

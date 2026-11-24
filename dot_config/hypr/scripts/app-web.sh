@@ -48,7 +48,7 @@ ir_a_workspace() {
     fi
 }
 
-indice_de() { local w=$1; (( w > NUM_WPM )) && echo $((w - NUM_WPM)) || echo "$w"; }
+indice_de() { echo $(( ($1 - 1) % NUM_WPM + 1 )); }
 
 abrir() {
     if [[ -n $url ]]; then
@@ -73,8 +73,8 @@ if [[ -n $ws ]]; then
 else
     actual=$(hyprctl activeworkspace -j | jq -r '.id')
     i=$(indice_de "$actual")
-    dir=$(jq -r --arg c "$clase" --argjson a "$i" --argjson b "$((i + NUM_WPM))" \
-        'map(select((.class | test($c)) and (.workspace.id == $a or .workspace.id == $b))) | first | .address // empty' <<<"$clientes")
+    dir=$(jq -r --arg c "$clase" --argjson a "$i" --argjson n "$NUM_WPM" \
+        'map(select((.class | test($c)) and (.workspace.id > 0) and (((.workspace.id - 1) % $n) + 1 == $a))) | first | .address // empty' <<<"$clientes")
     if [[ -n $dir ]]; then
         despachar "hl.dsp.focus({ window = \"address:$dir\" })"
     else

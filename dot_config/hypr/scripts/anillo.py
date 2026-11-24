@@ -160,7 +160,8 @@ class Mouse:
                     u = f.read().upper()
             except OSError:
                 continue
-            if "046D" in u and "B042" in u:
+            # USB/receptor: ID de Logitech. Bluetooth: el kernel pone ID 0000, solo hay nombre.
+            if ("046D" in u and "B042" in u) or "HID_NAME=MX MASTER 4" in u:
                 return "/dev/" + os.path.basename(ruta)
         return None
 
@@ -733,17 +734,33 @@ def demonio():
                         self.monitor = mon["name"]
             self.visible = True
             self.cerrando = False
+            self._esc(True)
             self.win.set_visible(True)
             if self.tick_id is None:
                 self._t = None
                 self.tick_id = self.lienzo.add_tick_callback(self.tick)
             _log(f"abrir {perfil['nombre']} ({act.get('class', '')})")
 
+        def _esc(self, activar):
+            """Esc cierra el anillo: bind temporal de Hyprland (la ventana no recibe teclado).
+            Sirve tanto el Esc del teclado como el del mouse (ydotool también pasa por los binds)."""
+            if activar:
+                cmd = ('hl.bind("Escape", hl.dsp.exec_cmd("python3 %s cancelar"))'
+                       % os.path.abspath(__file__))
+            else:
+                cmd = 'hl.unbind("Escape")'
+            try:
+                subprocess.run(["hyprctl", "eval", cmd], timeout=2,
+                               stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+            except Exception as e:
+                _log(f"esc bind: {e}")
+
         def cerrar(self):
             if self.visible and not self.cerrando:
                 self.cerrando = True
 
         def _ocultar(self):
+            self._esc(False)
             self.visible = False
             self.cerrando = False
             self.win.set_visible(False)

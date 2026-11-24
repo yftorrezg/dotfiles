@@ -12,7 +12,10 @@ clear
 printf '\n  %s📥 Descargar%s\n\n' "$C" "$R"
 if ! [[ "$URL" =~ ^https?:// ]]; then
     printf '  Lo copiado no es un link.\n  Pegalo aquí (Ctrl+Shift+V) y Enter, o Esc para salir:\n\n  '
-    read -r -e URL || exit 0
+    # Esc cancela también aquí (readline no lo hace solo): inputrc temporal que vacía la línea y da Enter
+    RC=$(mktemp); printf 'set keyseq-timeout 40\n"\\e": "\\C-a\\C-k\\C-m"\n' >"$RC"
+    INPUTRC="$RC" read -r -e URL || { rm -f "$RC"; exit 0; }
+    rm -f "$RC"
     URL=$(tr -d '[:space:]' <<<"$URL")
     [[ "$URL" =~ ^https?:// ]] || exit 0
     clear; printf '\n  %s📥 Descargar%s\n\n' "$C" "$R"
