@@ -44,6 +44,7 @@
   },
   "tui": "fullscreen",
   "theme": "auto",
+  "autoCompactEnabled": true,
   "autoMode": {
     "environment": [
       "### Org-wide",
