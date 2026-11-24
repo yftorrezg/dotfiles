@@ -12,26 +12,26 @@ ThumbnailSplitterSizes=764,220
 MenuBar=Disabled
 
 [Recent Files]
-File1[$e]=$HOME/Proyectos/videos-con-IA/videos/10-47-pestanas-30s/out/lookdev/E_yafer.png
-File10[$e]=$HOME/Proyectos/videos-con-IA/videos/10-47-pestanas-30s/out/lookdev/hoja_opencode.png
-File2[$e]=$HOME/Proyectos/videos-con-IA/videos/10-47-pestanas-30s/out/lookdev/fila_claude.png
-File3[$e]=$HOME/Proyectos/videos-con-IA/videos/10-47-pestanas-30s/out/lookdev/fila_torre.png
-File4[$e]=$HOME/Proyectos/videos-con-IA/videos/10-47-pestanas-30s/out/lookdev/fila_yafer.png
-File5[$e]=$HOME/Proyectos/videos-con-IA/videos/10-47-pestanas-30s/out/lookdev/h3_claude.png
-File6[$e]=$HOME/Proyectos/videos-con-IA/videos/10-47-pestanas-30s/out/lookdev/h3_opencode.png
-File7[$e]=$HOME/Proyectos/videos-con-IA/videos/10-47-pestanas-30s/out/lookdev/h3_todo.png
-File8[$e]=$HOME/Proyectos/videos-con-IA/videos/10-47-pestanas-30s/out/lookdev/hoja_claude.png
-File9[$e]=$HOME/Proyectos/videos-con-IA/videos/10-47-pestanas-30s/out/lookdev/hoja_looks.png
-Name1[$e]=E_yafer.png
-Name10[$e]=hoja_opencode.png
-Name2[$e]=fila_claude.png
-Name3[$e]=fila_torre.png
-Name4[$e]=fila_yafer.png
-Name5[$e]=h3_claude.png
-Name6[$e]=h3_opencode.png
-Name7[$e]=h3_todo.png
-Name8[$e]=hoja_claude.png
-Name9[$e]=hoja_looks.png
+File1[$e]=$HOME/Proyectos/videos-con-IA/videos/11-pestana-46-30s/out/final/f_0270.png
+File10[$e]=$HOME/Proyectos/videos-con-IA/videos/11-pestana-46-30s/out/final/f_0279.png
+File2[$e]=$HOME/Proyectos/videos-con-IA/videos/11-pestana-46-30s/out/final/f_0271.png
+File3[$e]=$HOME/Proyectos/videos-con-IA/videos/11-pestana-46-30s/out/final/f_0272.png
+File4[$e]=$HOME/Proyectos/videos-con-IA/videos/11-pestana-46-30s/out/final/f_0273.png
+File5[$e]=$HOME/Proyectos/videos-con-IA/videos/11-pestana-46-30s/out/final/f_0274.png
+File6[$e]=$HOME/Proyectos/videos-con-IA/videos/11-pestana-46-30s/out/final/f_0275.png
+File7[$e]=$HOME/Proyectos/videos-con-IA/videos/11-pestana-46-30s/out/final/f_0276.png
+File8[$e]=$HOME/Proyectos/videos-con-IA/videos/11-pestana-46-30s/out/final/f_0277.png
+File9[$e]=$HOME/Proyectos/videos-con-IA/videos/11-pestana-46-30s/out/final/f_0278.png
+Name1[$e]=f_0270.png
+Name10[$e]=f_0279.png
+Name2[$e]=f_0271.png
+Name3[$e]=f_0272.png
+Name4[$e]=f_0273.png
+Name5[$e]=f_0274.png
+Name6[$e]=f_0275.png
+Name7[$e]=f_0276.png
+Name8[$e]=f_0277.png
+Name9[$e]=f_0278.png
 
 [SideBar]
 InformationSplitterSizes=219,256
