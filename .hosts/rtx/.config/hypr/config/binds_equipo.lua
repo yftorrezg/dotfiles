@@ -1,4 +1,4 @@
--- binds_equipo.lua — atajos que dependen del hardware de este equipo: LAPTOP ThinkPad (eDP-1 + Arzopa opcional).
+-- binds_equipo.lua — atajos que dependen del hardware de este equipo: LAPTOP rtx: ASUS ZenBook Pro Duo (eDP-1 + ScreenPad + externos).
 -- Lo cargan los binds comunes (config/binds.lua). Sincronizado por equipo con dotsync (.hosts/laptop/).
 
 local mainMod = "SUPER"
@@ -63,3 +63,15 @@ hl.bind(mainMod .. " + CONTROL + Left",        function() VD.relativo(-1) end)
 hl.bind(mainMod .. " + mouse_down",           function() VD.relativo(-1) end)
 hl.bind(mainMod .. " + mouse_up",             function() VD.relativo(1) end)
 
+-- ASUS ZenBook Pro Duo (equipo rtx): ScreenPad y teclas especiales
+-- Brillo del ScreenPad (pantalla de abajo): SUPER + teclas de brillo
+hl.bind(mainMod .. " + XF86MonBrightnessUp",   hl.dsp.exec_cmd("brightnessctl -d asus_screenpad set 10%+"), { locked = true, repeating = true })
+hl.bind(mainMod .. " + XF86MonBrightnessDown", hl.dsp.exec_cmd("brightnessctl -d asus_screenpad set 10%-"), { locked = true, repeating = true })
+
+-- Teclas especiales ASUS (rendimiento, cambiar pantalla, ScreenPad): servicio asus-teclas.service
+-- (scripts/asus-teclas.py); no son binds de Hyprland porque llegan como KEY_UNKNOWN.
+
+-- (24/11/2026) SUPER solo = buscador. En Hyprland 0.57 el bind por nombre "SUPER + Super_L" (release) de
+-- binds.lua YA NO dispara; por keycode sí (probado con teclado real: solo "SUPER + code:133" release funcionó).
+-- 133 = Super_L (xkb = evdev 125 + 8). Se deja aquí (solo rtx) para no tocar la PC (Hyprland 0.56).
+hl.bind(mainMod .. " + code:133", hl.dsp.exec_cmd(noctCall .. "panel-toggle launcher"), { release = true })

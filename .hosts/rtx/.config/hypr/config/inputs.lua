@@ -1,4 +1,4 @@
--- Input configuration (LAPTOP ThinkPad E14 Gen4)
+-- Input configuration (LAPTOP rtx (ASUS ZenBook Pro Duo))
 
 hl.config({
     input = {
@@ -41,6 +41,9 @@ hl.config({
 -- Touchpad (y TrackPoint si lo hubiera) con aceleración adaptativa: con "flat" se siente lento.
 -- Nombres tomados de `hyprctl devices` en la laptop.
 hl.device({ name = "elan-touchpad",   accel_profile = "adaptive" })
+-- ZenBook Pro Duo: touchpad principal (ASUE1406) y ELAN9009
+hl.device({ name = "asue1406:00-04f3:3101-touchpad", accel_profile = "adaptive" })
+hl.device({ name = "elan9009:00-04f3:4068-touchpad", accel_profile = "adaptive" })
 hl.device({ name = "elan-trackpoint", accel_profile = "adaptive" })
 
 -- Gestos del touchpad (LAPTOP). Ninguno es destructivo: se QUITÓ "3 dedos abajo = cerrar ventana"

@@ -71,6 +71,15 @@ else
     hl.monitor(INTERNAL_MONITOR_SPEC)
 end
 
+-- ScreenPad Plus (ZenBook Pro Duo): 3840x1100 nativo, debajo de la principal, escala 2
+-- (1920x550 lógico, mismo ancho que la interna). Se identifica por descripción, no por DP-x.
+hl.monitor({
+    output    = "desc:BOE 0x085F",
+    mode      = "3840x1100@60",
+    position  = "0x1080",
+    scale     = 2,
+})
+
 -- Cualquier otro monitor (Arzopa por USB-C = DP-x o por HDMI = HDMI-A-1, proyectores...):
 -- resolución preferida, a la DERECHA de la interna, escala 1 (Arzopa 15.6" 1080p).
 -- "auto" en la escala podía elegir 1.5/2 en la Arzopa. Si la apoyas a la izquierda o arriba,
