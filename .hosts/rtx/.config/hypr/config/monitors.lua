@@ -93,3 +93,13 @@ hl.monitor({
     position  = "auto-right",
     scale     = 1,
 })
+
+-- ZenBook (25/11/2026): el HDMI de ESTA laptop va cableado a la RTX; todo lo demás a la Intel,
+-- que es la que pinta Hyprland. Un monitor en ese HDMI = copia entre GPUs en cada imagen:
+-- lag, spam MESA "pci id ... driver (null)", Noctalia muere al bloquear y el driver NVIDIA se
+-- corrompe (cuelgue). Si alguien enchufa ahí, avisar para que lo pase al hub/USB-C.
+local function avisarHdmiRtx()
+    hl.exec_cmd([[sh -c 'sleep 2; for s in /sys/class/drm/card*-HDMI-A-*/status; do d="${s%/status}/device/device"; [ "$(cat "$s")" = connected ] && [ "$(cat "$d/vendor" 2>/dev/null)" = 0x10de ] && notify-send -u critical -t 0 "Monitor en el HDMI de la laptop" "Ese HDMI va a la RTX: causa lag y cuelgues. Conéctalo al hub/USB-C."; done; true']])
+end
+hl.on("hyprland.start", avisarHdmiRtx)
+hl.on("monitor.added", avisarHdmiRtx)
