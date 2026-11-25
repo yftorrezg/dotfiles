@@ -12,26 +12,26 @@ ThumbnailSplitterSizes=764,220
 MenuBar=Disabled
 
 [Recent Files]
-File1[$e]=$HOME/Proyectos/videos-con-IA/videos/11-pestana-46-30s/out/final/f_0270.png
-File10[$e]=$HOME/Proyectos/videos-con-IA/videos/11-pestana-46-30s/out/final/f_0279.png
-File2[$e]=$HOME/Proyectos/videos-con-IA/videos/11-pestana-46-30s/out/final/f_0271.png
-File3[$e]=$HOME/Proyectos/videos-con-IA/videos/11-pestana-46-30s/out/final/f_0272.png
-File4[$e]=$HOME/Proyectos/videos-con-IA/videos/11-pestana-46-30s/out/final/f_0273.png
-File5[$e]=$HOME/Proyectos/videos-con-IA/videos/11-pestana-46-30s/out/final/f_0274.png
-File6[$e]=$HOME/Proyectos/videos-con-IA/videos/11-pestana-46-30s/out/final/f_0275.png
-File7[$e]=$HOME/Proyectos/videos-con-IA/videos/11-pestana-46-30s/out/final/f_0276.png
-File8[$e]=$HOME/Proyectos/videos-con-IA/videos/11-pestana-46-30s/out/final/f_0277.png
-File9[$e]=$HOME/Proyectos/videos-con-IA/videos/11-pestana-46-30s/out/final/f_0278.png
-Name1[$e]=f_0270.png
-Name10[$e]=f_0279.png
-Name2[$e]=f_0271.png
-Name3[$e]=f_0272.png
-Name4[$e]=f_0273.png
-Name5[$e]=f_0274.png
-Name6[$e]=f_0275.png
-Name7[$e]=f_0276.png
-Name8[$e]=f_0277.png
-Name9[$e]=f_0278.png
+File1[$e]=$HOME/Proyectos/videos-con-IA/videos/11-pestana-46-30s/out/tira4/013,2.png
+File10[$e]=$HOME/Proyectos/videos-con-IA/videos/11-pestana-46-30s/out/borrador.mp4
+File2[$e]=$HOME/Proyectos/videos-con-IA/videos/11-pestana-46-30s/out/tira4/015,5.png
+File3[$e]=$HOME/Proyectos/videos-con-IA/videos/11-pestana-46-30s/out/tira4/018,6.png
+File4[$e]=$HOME/Proyectos/videos-con-IA/videos/11-pestana-46-30s/out/tira4/019,5.png
+File5[$e]=$HOME/Proyectos/videos-con-IA/videos/11-pestana-46-30s/out/tira4/020,3.png
+File6[$e]=$HOME/Proyectos/videos-con-IA/videos/11-pestana-46-30s/out/tira4/022,0.png
+File7[$e]=$HOME/Proyectos/videos-con-IA/videos/11-pestana-46-30s/out/tira4/024,0.png
+File8[$e]=$HOME/Proyectos/videos-con-IA/videos/11-pestana-46-30s/out/tira4/a.png
+File9[$e]=$HOME/Proyectos/videos-con-IA/videos/11-pestana-46-30s/out/contacto.png
+Name1[$e]=013,2.png
+Name10[$e]=borrador.mp4
+Name2[$e]=015,5.png
+Name3[$e]=018,6.png
+Name4[$e]=019,5.png
+Name5[$e]=020,3.png
+Name6[$e]=022,0.png
+Name7[$e]=024,0.png
+Name8[$e]=a.png
+Name9[$e]=contacto.png
 
 [SideBar]
 InformationSplitterSizes=219,256
