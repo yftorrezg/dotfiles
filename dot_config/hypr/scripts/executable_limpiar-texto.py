@@ -85,8 +85,14 @@ _TOOL_LINE_RE = re.compile(
 )
 # Pistas dentro de una línea de estado: "✻ Thinking… (esc to interrupt)".
 _HINT_RE = re.compile(r"to interrupt|ctrl\+o to expand|\? for shortcuts")
-# Pista al final de un bloque colapsado de Claude: "a. · summary".
-_SUMMARY_HINT_RE = re.compile(r"[ \t]*·[ \t]*summar(?:y|ized)\b.*")
+# Pista al final de un bloque colapsado de Claude/OpenCode: "a. · summary".
+# Acepta mayúsculas y la variante escrita "sumary" (una sola m), que aparece en
+# algunas versiones de la UI; si no, SUPER+R la verbaliza igual.
+# El espacio después del · suele ser no separador (U+00A0) al copiar de la UI,
+# por eso se usa [^\S\n] (cualquier whitespace menos salto de línea) y no [ \t].
+_SUMMARY_HINT_RE = re.compile(
+    r"[^\S\n]*[·∙⋅•][^\S\n]*summ?ar(?:y|ized)\b.*", re.IGNORECASE
+)
 
 
 # Un bloque de herramienta sigue hasta la primera línea de texto sin sangría; uno de
