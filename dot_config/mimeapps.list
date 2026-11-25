@@ -93,3 +93,4 @@ video/3gpp
 video/3gpp2
 video/dv
 video/vnd.avi=mpv.desktop
+x-scheme-handler/rpi-imager=com.raspberrypi.rpi-imager-uri-handler.desktop
