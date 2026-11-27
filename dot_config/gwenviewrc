@@ -12,26 +12,26 @@ ThumbnailSplitterSizes=764,220
 MenuBar=Disabled
 
 [Recent Files]
-File1[$e]=$HOME/Proyectos/videos-con-IA/videos/12-chatgpt-vs-gemini-36s/out/borrador3/f_0165.png
-File10[$e]=$HOME/Proyectos/videos-con-IA/videos/12-chatgpt-vs-gemini-36s/out/borrador3/f_0178.png
-File2[$e]=$HOME/Proyectos/videos-con-IA/videos/12-chatgpt-vs-gemini-36s/out/borrador3/f_0166.png
-File3[$e]=$HOME/Proyectos/videos-con-IA/videos/12-chatgpt-vs-gemini-36s/out/borrador3/f_0167.png
-File4[$e]=$HOME/Proyectos/videos-con-IA/videos/12-chatgpt-vs-gemini-36s/out/borrador3/f_0169.png
-File5[$e]=$HOME/Proyectos/videos-con-IA/videos/12-chatgpt-vs-gemini-36s/out/borrador3/f_0170.png
-File6[$e]=$HOME/Proyectos/videos-con-IA/videos/12-chatgpt-vs-gemini-36s/out/borrador3/f_0172.png
-File7[$e]=$HOME/Proyectos/videos-con-IA/videos/12-chatgpt-vs-gemini-36s/out/borrador3/f_0174.png
-File8[$e]=$HOME/Proyectos/videos-con-IA/videos/12-chatgpt-vs-gemini-36s/out/borrador3/f_0176.png
-File9[$e]=$HOME/Proyectos/videos-con-IA/videos/12-chatgpt-vs-gemini-36s/out/borrador3/f_0177.png
-Name1[$e]=f_0165.png
-Name10[$e]=f_0178.png
-Name2[$e]=f_0166.png
-Name3[$e]=f_0167.png
-Name4[$e]=f_0169.png
-Name5[$e]=f_0170.png
-Name6[$e]=f_0172.png
-Name7[$e]=f_0174.png
-Name8[$e]=f_0176.png
-Name9[$e]=f_0177.png
+File1[$e]=$HOME/Proyectos/videos-con-IA/videos/12-chatgpt-vs-gemini-36s/out/borrador3/f_0166.png
+File10[$e]=$HOME/Proyectos/videos-con-IA/videos/11-pestana-46-30s/out/f_subs.png
+File2[$e]=$HOME/Proyectos/videos-con-IA/videos/12-chatgpt-vs-gemini-36s/out/borrador3/f_0167.png
+File3[$e]=$HOME/Proyectos/videos-con-IA/videos/12-chatgpt-vs-gemini-36s/out/borrador3/f_0169.png
+File4[$e]=$HOME/Proyectos/videos-con-IA/videos/12-chatgpt-vs-gemini-36s/out/borrador3/f_0170.png
+File5[$e]=$HOME/Proyectos/videos-con-IA/videos/12-chatgpt-vs-gemini-36s/out/borrador3/f_0172.png
+File6[$e]=$HOME/Proyectos/videos-con-IA/videos/12-chatgpt-vs-gemini-36s/out/borrador3/f_0174.png
+File7[$e]=$HOME/Proyectos/videos-con-IA/videos/12-chatgpt-vs-gemini-36s/out/borrador3/f_0176.png
+File8[$e]=$HOME/Proyectos/videos-con-IA/videos/12-chatgpt-vs-gemini-36s/out/borrador3/f_0177.png
+File9[$e]=$HOME/Proyectos/videos-con-IA/videos/12-chatgpt-vs-gemini-36s/out/borrador3/f_0178.png
+Name1[$e]=f_0166.png
+Name10[$e]=f_subs.png
+Name2[$e]=f_0167.png
+Name3[$e]=f_0169.png
+Name4[$e]=f_0170.png
+Name5[$e]=f_0172.png
+Name6[$e]=f_0174.png
+Name7[$e]=f_0176.png
+Name8[$e]=f_0177.png
+Name9[$e]=f_0178.png
 
 [SideBar]
 InformationSplitterSizes=219,256
