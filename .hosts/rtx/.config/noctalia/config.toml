@@ -32,7 +32,8 @@ thickness = 35
 enable_ddcutil = false
 
 # LAPTOP: inactividad. Noctalia ya hace el idle (no hace falta hypridle):
-#  4:30 aviso con fundido -> 5 min bloquear -> 5:30 apagar pantalla -> 15 min suspender.
+#  4:30 aviso con fundido -> 5 min bloquear -> 5:30 apagar pantalla.
+# (rtx 27/11/2026) Suspensión automática APAGADA: Hyprland se cayó al despertar (aquamarine restateConnectors).
 # Un video a pantalla (Brave/mpv) inhibe el idle solo. Cerrar la tapa suspende (logind) y
 # Noctalia bloquea antes (lockscreen.lock_before_suspend, por defecto true).
 [dock]
@@ -55,7 +56,7 @@ pre_action_fade_seconds = 5.0
 
     [idle.behavior.suspend]
     action = "lock_and_suspend"
-    enabled = true
+    enabled = false
     timeout = 900
 
 # Desbloqueo con huella (lector Elan, fprintd). Noctalia habla con fprintd directamente;
